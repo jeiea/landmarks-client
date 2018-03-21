@@ -2,9 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://C:\Users\SH\Desktop\globe-album\GlobeAlbum.iml" filepath="C:\Users\SH\Desktop\globe-album\GlobeAlbum.iml" />
+      <module fileurl="file://$PROJECT_DIR$/GlobeAlbum.iml" filepath="$PROJECT_DIR$/GlobeAlbum.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
-      <module fileurl="file://$PROJECT_DIR$/globe-album.iml" filepath="$PROJECT_DIR$/globe-album.iml" />
     </modules>
   </component>
 </project>
