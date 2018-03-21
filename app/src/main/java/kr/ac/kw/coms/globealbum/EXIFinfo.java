@@ -1,3 +1,5 @@
+package  kr.ac.kw.coms.globealbum;
+
 import android.media.ExifInterface;
 
 public class EXIFinfo {
@@ -8,6 +10,10 @@ public class EXIFinfo {
         if (instance == null)
             instance = new EXIFinfo();
         return instance;
+    }
+    public EXIFinfo()
+    {
+        getInstance();
     }
 
     float[] getLocation(String Filename)
