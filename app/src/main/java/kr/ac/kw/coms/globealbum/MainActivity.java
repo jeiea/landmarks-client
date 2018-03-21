@@ -1,20 +1,20 @@
 package kr.ac.kw.coms.globealbum;
 
+import android.content.Context;
 import android.content.Intent;
 import android.media.ExifInterface;
 import android.net.Uri;
-import android.support.v4.content.res.ResourcesCompat;
-import android.content.Context;
-import android.content.res.Configuration;
+import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
-import android.util.Log;
 
 import org.osmdroid.api.IMapController;
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
+
+import java.io.IOException;
+import java.io.InputStream;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -59,7 +59,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void ddd() {
-        exifInterface = new kr.ac.kw.coms.globealbum.EXIFinfo();
+        exifInterface = new EXIFinfo();
+        InputStream is = getResources().openRawResource(R.raw.honeyview_gps);
+        try {
+
+            exifInterface.getGPS(new ExifInterface(is));
+        }
+        catch (IOException e) {}
         Intent choosefile = new Intent(Intent.ACTION_GET_CONTENT);
         choosefile.setType("file/*");
         Intent intent = Intent.createChooser(choosefile, "SELECT FILE");
