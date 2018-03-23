@@ -41,7 +41,7 @@ public class MainActivity extends AppCompatActivity {
 
     MapView map = null;
     IMapController mapController = null;
-    Marker lastMarker;  //지난번 클릭 마커 저장
+    Marker marker = null;  //지난번 클릭 마커 저장
     GeoPoint currentGeopoint = null;   //현재 위치 저장
 
 
@@ -67,8 +67,6 @@ public class MainActivity extends AppCompatActivity {
         Context ctx = getApplicationContext();
         org.osmdroid.config.Configuration.getInstance().load(ctx, PreferenceManager.getDefaultSharedPreferences(ctx));
         map = (MapView) findViewById(R.id.map);
-//        marker=getResources().getDrawable(R.drawable.marker_default);
-        //      marker.setBounds(3,3,3,3);
 
         mapConfiguration();
         // ReadImage();
@@ -85,7 +83,7 @@ public class MainActivity extends AppCompatActivity {
         map.setMaxZoomLevel(6.0);   //최대 줌 조절
 
         mapController = map.getController();
-        mapController.setZoom(2);
+        mapController.setZoom(2.0);
 
         MapEventsReceiver mReceiver = new MapEventsReceiver() { //화면 터치시 좌표 토스트메시지 출력, 좌표로 화면 이동
             @Override
@@ -107,34 +105,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void addMarker(GeoPoint p) {   //화면 터치시 마커를 화면에 표시
-        Marker marker = new Marker(map);
+        map.getOverlays().remove(marker);
+        marker = new Marker(map);
         marker.setPosition(p);
-        marker.setAnchor(Marker.ANCHOR_CENTER,Marker.ANCHOR_BOTTOM);
-        lastMarker=marker;
-        map.getOverlays().remove(lastMarker);
-        map.getOverlays().add(marker);
-        /*
-        map.getOverlays().remove(lastOverlay);
-        ArrayList<OverlayItem> items = new ArrayList<OverlayItem>();
-        items.add(new OverlayItem("Marker","Snippet",p));
+        marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
 
-        final ItemizedOverlayWithFocus<OverlayItem> mOverlay = new ItemizedOverlayWithFocus<OverlayItem>(
-                getApplicationContext(), items,
-                new ItemizedIconOverlay.OnItemGestureListener<OverlayItem>() {
-                    @Override
-                    public boolean onItemSingleTapUp(final int index, final OverlayItem item) {
-                        return true;
-                    }
-                    @Override
-                    public boolean onItemLongPress(final int index, final OverlayItem item) {
-                        return false;
-                    }
-                }
-        );
-        mOverlay.setFocusItemsOnTap(true);
-        map.getOverlays().add(mOverlay);    //클릭한 마커를 지도에 추가
-        lastOverlay=mOverlay;
-        */
+        map.getOverlays().add(marker);
     }
 
     private void ReadImage() { //이미지 선택
