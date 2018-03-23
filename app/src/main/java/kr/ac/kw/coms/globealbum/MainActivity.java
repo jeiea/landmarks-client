@@ -25,6 +25,8 @@ import org.osmdroid.views.overlay.ItemizedIconOverlay;
 import org.osmdroid.views.overlay.ItemizedOverlay;
 import org.osmdroid.views.overlay.ItemizedOverlayWithFocus;
 import org.osmdroid.views.overlay.MapEventsOverlay;
+import org.osmdroid.views.overlay.Marker;
+import org.osmdroid.views.overlay.Overlay;
 import org.osmdroid.views.overlay.OverlayItem;
 import org.osmdroid.views.overlay.TilesOverlay;
 import org.osmdroid.views.overlay.gridlines.LatLonGridlineOverlay2;
@@ -38,10 +40,9 @@ public class MainActivity extends AppCompatActivity {
     kr.ac.kw.coms.globealbum.EXIFinfo exifinfo;
 
     MapView map = null;
-    IMapController mapController=null;
-    Drawable marker;
-    ItemizedOverlayWithFocus<OverlayItem> lastOverlay;  //지난번 클릭 마커 저장
-    GeoPoint currentGeopoint=null;   //현재 위치 저장
+    IMapController mapController = null;
+    Marker lastMarker;  //지난번 클릭 마커 저장
+    GeoPoint currentGeopoint = null;   //현재 위치 저장
 
 
     @Override
@@ -55,7 +56,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -66,21 +66,21 @@ public class MainActivity extends AppCompatActivity {
         //osmdroid 초기 구성
         Context ctx = getApplicationContext();
         org.osmdroid.config.Configuration.getInstance().load(ctx, PreferenceManager.getDefaultSharedPreferences(ctx));
-        map = (MapView)findViewById(R.id.map);
-        marker=getResources().getDrawable(R.drawable.marker_default);
-        marker.setBounds(0,1,1,0);
+        map = (MapView) findViewById(R.id.map);
+//        marker=getResources().getDrawable(R.drawable.marker_default);
+        //      marker.setBounds(3,3,3,3);
 
         mapConfiguration();
-       // ReadImage();
+        // ReadImage();
     }
 
 
-    private void mapConfiguration(){    //맵 생성 후 초기 설정
+    private void mapConfiguration() {    //맵 생성 후 초기 설정
         map.setTileSource(TileSourceFactory.BASE_OVERLAY_NL);    //맵 렌더링 설정
         map.setBuiltInZoomControls(true);
         map.setMultiTouchControls(true);
-        map.setScrollableAreaLimitLatitude(TileSystem.MaxLatitude,-TileSystem.MaxLatitude,0);
-        map.setScrollableAreaLimitLongitude(-TileSystem.MaxLongitude,TileSystem.MaxLongitude,0);
+        map.setScrollableAreaLimitLatitude(TileSystem.MaxLatitude, -TileSystem.MaxLatitude, 0);
+        map.setScrollableAreaLimitLongitude(-TileSystem.MaxLongitude, TileSystem.MaxLongitude, 0);
         map.setMinZoomLevel(2.0);   //최소 줌 조절
         map.setMaxZoomLevel(6.0);   //최대 줌 조절
 
@@ -90,22 +90,30 @@ public class MainActivity extends AppCompatActivity {
         MapEventsReceiver mReceiver = new MapEventsReceiver() { //화면 터치시 좌표 토스트메시지 출력, 좌표로 화면 이동
             @Override
             public boolean singleTapConfirmedHelper(GeoPoint p) {
-                Toast.makeText(getBaseContext(), p.getLatitude()+"-"+p.getLongitude(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(getBaseContext(), p.getLatitude() + "-" + p.getLongitude(), Toast.LENGTH_SHORT).show();
                 mapController.animateTo(p); //좌표로 화면 이동
                 addMarker(p);
 
                 return false;
             }
+
             @Override
             public boolean longPressHelper(GeoPoint p) {    //길게 터치시
                 return false;
             }
         };
-        MapEventsOverlay eventsOverlay = new MapEventsOverlay(getBaseContext(),mReceiver);
+        MapEventsOverlay eventsOverlay = new MapEventsOverlay(getBaseContext(), mReceiver);
         map.getOverlays().add(eventsOverlay);
     }
 
-    private void addMarker(GeoPoint p){   //화면 터치시 마커를 화면에 표시
+    private void addMarker(GeoPoint p) {   //화면 터치시 마커를 화면에 표시
+        Marker marker = new Marker(map);
+        marker.setPosition(p);
+        marker.setAnchor(Marker.ANCHOR_CENTER,Marker.ANCHOR_BOTTOM);
+        lastMarker=marker;
+        map.getOverlays().remove(lastMarker);
+        map.getOverlays().add(marker);
+        /*
         map.getOverlays().remove(lastOverlay);
         ArrayList<OverlayItem> items = new ArrayList<OverlayItem>();
         items.add(new OverlayItem("Marker","Snippet",p));
@@ -126,7 +134,9 @@ public class MainActivity extends AppCompatActivity {
         mOverlay.setFocusItemsOnTap(true);
         map.getOverlays().add(mOverlay);    //클릭한 마커를 지도에 추가
         lastOverlay=mOverlay;
+        */
     }
+
     private void ReadImage() { //이미지 선택
         Intent choosefile = new Intent(Intent.ACTION_GET_CONTENT);
         choosefile.setType("image/*");
