@@ -38,7 +38,10 @@ public class MainActivity extends AppCompatActivity {
     MapView map = null;
     IMapController mapController=null;
     Drawable marker;
-    double currentX,currentY;
+    ItemizedOverlayWithFocus<OverlayItem> lastOverlay;  //지난번 클릭 마커 저장
+    GeoPoint currentGeopoint=null;   //현재 위치 저장
+
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == 1 && resultCode == RESULT_OK)
@@ -86,33 +89,13 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public boolean singleTapConfirmedHelper(GeoPoint p) {
                 Toast.makeText(getBaseContext(), p.getLatitude()+"-"+p.getLongitude(), Toast.LENGTH_SHORT).show();
+                mapController.animateTo(p); //좌표로 화면 이동
+                addMarker(p);
 
-                mapController.animateTo(p);
-
-                ArrayList<OverlayItem> items = new ArrayList<OverlayItem>();
-                items.add(new OverlayItem("Marker","Snippet",p));
-
-                final ItemizedOverlayWithFocus<OverlayItem> mOverlay = new ItemizedOverlayWithFocus<OverlayItem>(
-                        getApplicationContext(), items,
-                        new ItemizedIconOverlay.OnItemGestureListener<OverlayItem>() {
-                            @Override
-                            public boolean onItemSingleTapUp(final int index, final OverlayItem item) {
-
-                                return true;
-                            }
-                            @Override
-                            public boolean onItemLongPress(final int index, final OverlayItem item) {
-                                return false;
-                            }
-                        }
-                );
-
-                mOverlay.setFocusItemsOnTap(true);
-                //map.getOverlays().add(mOverlay);
                 return false;
             }
             @Override
-            public boolean longPressHelper(GeoPoint p) {
+            public boolean longPressHelper(GeoPoint p) {    //길게 터치시
                 return false;
             }
         };
@@ -120,6 +103,28 @@ public class MainActivity extends AppCompatActivity {
         map.getOverlays().add(eventsOverlay);
     }
 
+    private void addMarker(GeoPoint p){   //화면 터치시 마커를 화면에 표시
+        map.getOverlays().remove(lastOverlay);
+        ArrayList<OverlayItem> items = new ArrayList<OverlayItem>();
+        items.add(new OverlayItem("Marker","Snippet",p));
+
+        final ItemizedOverlayWithFocus<OverlayItem> mOverlay = new ItemizedOverlayWithFocus<OverlayItem>(
+                getApplicationContext(), items,
+                new ItemizedIconOverlay.OnItemGestureListener<OverlayItem>() {
+                    @Override
+                    public boolean onItemSingleTapUp(final int index, final OverlayItem item) {
+                        return true;
+                    }
+                    @Override
+                    public boolean onItemLongPress(final int index, final OverlayItem item) {
+                        return false;
+                    }
+                }
+        );
+        mOverlay.setFocusItemsOnTap(true);
+        map.getOverlays().add(mOverlay);    //클릭한 마커를 지도에 추가
+        lastOverlay=mOverlay;
+    }
     private void ddd() {
         exifInterface = new EXIFinfo();
         InputStream is = getResources().openRawResource(R.raw.honeyview_gps);
