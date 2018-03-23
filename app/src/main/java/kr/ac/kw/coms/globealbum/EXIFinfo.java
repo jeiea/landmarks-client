@@ -1,35 +1,29 @@
 package kr.ac.kw.coms.globealbum;
 
-import android.media.ExifInterface;
+import android.content.Intent;
 import android.util.Log;
 
+import java.io.File;
 import java.util.Arrays;
 
+import com.drew.imaging.ImageMetadataReader;
+import com.drew.lang.GeoLocation;
+import com.drew.metadata.Metadata;
+import com.drew.metadata.exif.*;
+
+import static android.support.v4.app.ActivityCompat.startActivityForResult;
+
 public class EXIFinfo {
-    public EXIFinfo()
+    Metadata metadata = null;
+    public EXIFinfo(String Filename)
     {
+        metadata = new ImageMetadataReader.readMetadata(new File(Filename));
     }
-
-    float[] getLocation(String Filename)
+    public double[] getLocation()
     {
-        ExifInterface exif;
-        try {
-            exif = new ExifInterface(Filename);
-            Log.d("SH_FILE", Filename);
-        }
-        catch (Exception e)
-        {
-            Log.d("SH", "ERROR");
-            return null;
-        }
-        return getGPS(exif);
-    }
-
-    float[] getGPS(ExifInterface exif) {
-        float[] location = new float[2];
-        Log.d("SH", exif.getAttribute(ExifInterface.TAG_GPS_DEST_LATITUDE));
-        exif.getLatLong(location);
-        Log.d("SH_EXIF", Arrays.toString(location));
-        return location;
+        GpsDirectory directory = metadata.getFirstDirectoryOfType(GpsDirectory.class);
+        GeoLocation location = directory.getGeoLocation();
+        double[] d_location = {location.getLatitude(), location.getLongitude()};
+        return d_location;
     }
 }

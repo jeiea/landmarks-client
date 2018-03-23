@@ -35,4 +35,5 @@ dependencies {
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
 
     compile 'org.osmdroid:osmdroid-android:6.0.1'   //osmdroid map engine
+    compile 'com.drewnoakes:metadata-extractor:2.11.0' //metadata-extractor
 }
