@@ -18,6 +18,7 @@ import org.osmdroid.api.IMapView;
 import org.osmdroid.events.MapEventsReceiver;
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
 import org.osmdroid.util.GeoPoint;
+import org.osmdroid.util.TileSystem;
 import org.osmdroid.views.MapController;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.ItemizedIconOverlay;
@@ -25,6 +26,7 @@ import org.osmdroid.views.overlay.ItemizedOverlay;
 import org.osmdroid.views.overlay.ItemizedOverlayWithFocus;
 import org.osmdroid.views.overlay.MapEventsOverlay;
 import org.osmdroid.views.overlay.OverlayItem;
+import org.osmdroid.views.overlay.TilesOverlay;
 import org.osmdroid.views.overlay.gridlines.LatLonGridlineOverlay2;
 
 import java.io.IOException;
@@ -77,13 +79,13 @@ public class MainActivity extends AppCompatActivity {
         map.setTileSource(TileSourceFactory.BASE_OVERLAY_NL);    //맵 렌더링 설정
         map.setBuiltInZoomControls(true);
         map.setMultiTouchControls(true);
-        //map.setScrollableAreaLimitLatitude(30,-85,0);
-        //map.setScrollableAreaLimitLongitude(150,150,0);
+        map.setScrollableAreaLimitLatitude(TileSystem.MaxLatitude,-TileSystem.MaxLatitude,0);
+        map.setScrollableAreaLimitLongitude(-TileSystem.MaxLongitude,TileSystem.MaxLongitude,0);
+        map.setMinZoomLevel(2.0);   //최소 줌 조절
+        map.setMaxZoomLevel(6.0);   //최대 줌 조절
 
         mapController = map.getController();
-        mapController.setZoom(3);
-        GeoPoint startPoint = new GeoPoint(48.8583, 2.2944);
-        mapController.setCenter(startPoint);
+        mapController.setZoom(2);
 
         MapEventsReceiver mReceiver = new MapEventsReceiver() { //화면 터치시 좌표 토스트메시지 출력, 좌표로 화면 이동
             @Override
