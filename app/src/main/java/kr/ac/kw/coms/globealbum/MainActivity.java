@@ -35,7 +35,7 @@ import java.util.ArrayList;
 
 
 public class MainActivity extends AppCompatActivity {
-    kr.ac.kw.coms.globealbum.EXIFinfo exifInterface = null;
+    kr.ac.kw.coms.globealbum.EXIFinfo exifinfo;
 
     MapView map = null;
     IMapController mapController=null;
@@ -46,11 +46,11 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == 1 && resultCode == RESULT_OK)
+        if (requestCode == 573 && resultCode == RESULT_OK) //이미지 선택 완료
         {
             Uri uri = data.getData();
             String filePath = uri.getPath();
-            exifInterface.getLocation(filePath);
+            exifinfo = new EXIFinfo(filePath);
         }
     }
 
@@ -71,7 +71,7 @@ public class MainActivity extends AppCompatActivity {
         marker.setBounds(0,1,1,0);
 
         mapConfiguration();
-       // ddd();
+       // ReadImage();
     }
 
 
@@ -127,18 +127,12 @@ public class MainActivity extends AppCompatActivity {
         map.getOverlays().add(mOverlay);    //클릭한 마커를 지도에 추가
         lastOverlay=mOverlay;
     }
-    private void ddd() {
-        exifInterface = new EXIFinfo();
-        InputStream is = getResources().openRawResource(R.raw.honeyview_gps);
-        try {
+    private void ReadImage() {
 
-            exifInterface.getGPS(new ExifInterface(is));
-        }
-        catch (IOException e) {}
         Intent choosefile = new Intent(Intent.ACTION_GET_CONTENT);
-        choosefile.setType("file/*");
+        choosefile.setType("image/*");
         Intent intent = Intent.createChooser(choosefile, "SELECT FILE");
-        startActivityForResult(intent, 1);
+        startActivityForResult(intent, 573);
     }
 
     @Override
