@@ -1,25 +1,27 @@
 package kr.ac.kw.coms.globealbum;
 
-import android.content.Intent;
-import android.util.Log;
-
-import java.io.File;
-import java.util.Arrays;
-
 import com.drew.imaging.ImageMetadataReader;
+import com.drew.imaging.ImageProcessingException;
 import com.drew.lang.GeoLocation;
 import com.drew.metadata.Metadata;
-import com.drew.metadata.exif.*;
+import com.drew.metadata.exif.GpsDirectory;
 
-import static android.support.v4.app.ActivityCompat.startActivityForResult;
+import java.io.File;
+import java.io.IOException;
 
 public class EXIFinfo {
     Metadata metadata = null;
-    public EXIFinfo(String Filename)
+    public EXIFinfo(String Filename) //생성자, 파일 위치 지정
     {
-        metadata = new ImageMetadataReader.readMetadata(new File(Filename));
+        try {
+            metadata = ImageMetadataReader.readMetadata(new File(Filename));
+        } catch (ImageProcessingException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
-    public double[] getLocation()
+    public double[] getLocation() //경위도 데이터 읽기
     {
         GpsDirectory directory = metadata.getFirstDirectoryOfType(GpsDirectory.class);
         GeoLocation location = directory.getGeoLocation();

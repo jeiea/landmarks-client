@@ -127,8 +127,7 @@ public class MainActivity extends AppCompatActivity {
         map.getOverlays().add(mOverlay);    //클릭한 마커를 지도에 추가
         lastOverlay=mOverlay;
     }
-    private void ReadImage() {
-
+    private void ReadImage() { //이미지 선택
         Intent choosefile = new Intent(Intent.ACTION_GET_CONTENT);
         choosefile.setType("image/*");
         Intent intent = Intent.createChooser(choosefile, "SELECT FILE");
