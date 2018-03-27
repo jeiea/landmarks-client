@@ -26,6 +26,8 @@ import org.osmdroid.views.overlay.ItemizedIconOverlay;
 import org.osmdroid.views.overlay.ItemizedOverlay;
 import org.osmdroid.views.overlay.ItemizedOverlayWithFocus;
 import org.osmdroid.views.overlay.MapEventsOverlay;
+import org.osmdroid.views.overlay.Marker;
+import org.osmdroid.views.overlay.Overlay;
 import org.osmdroid.views.overlay.OverlayItem;
 import org.osmdroid.views.overlay.TilesOverlay;
 import org.osmdroid.views.overlay.gridlines.LatLonGridlineOverlay2;
@@ -40,9 +42,20 @@ public class MainActivity extends AppCompatActivity {
 
     MapView map = null;
     IMapController mapController = null;
-    Drawable marker;
-    ItemizedOverlayWithFocus<OverlayItem> lastOverlay;  //지난번 클릭 마커 저장
+
+    Marker marker = null;  //지난번 클릭 마커 저장
     GeoPoint currentGeopoint = null;   //현재 위치 저장
+
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == 573 && resultCode == RESULT_OK) //이미지 선택 완료
+        {
+            Uri uri = data.getData();
+            String filePath = uri.getPath();
+            exifinfo = new EXIFinfo(filePath);
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,12 +68,8 @@ public class MainActivity extends AppCompatActivity {
         Context ctx = getApplicationContext();
         org.osmdroid.config.Configuration.getInstance().load(ctx, PreferenceManager.getDefaultSharedPreferences(ctx));
         map = (MapView) findViewById(R.id.map);
-        marker = getResources().getDrawable(R.drawable.marker_default);
-        marker.setBounds(0, 1, 1, 0);
-
         mapConfiguration();
-        double[] location = ReadImage(); //이미지 읽고 위치 찍기 테스트
-        //addMarker(new GeoPoint(location[0], location[1]));
+        // ReadImage();
     }
 
 
@@ -74,7 +83,7 @@ public class MainActivity extends AppCompatActivity {
         map.setMaxZoomLevel(6.0);   //최대 줌 조절
 
         mapController = map.getController();
-        mapController.setZoom(2);
+        mapController.setZoom(2.0);
 
         MapEventsReceiver mReceiver = new MapEventsReceiver() { //화면 터치시 좌표 토스트메시지 출력, 좌표로 화면 이동
             @Override
@@ -96,32 +105,19 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void addMarker(GeoPoint p) {   //화면 터치시 마커를 화면에 표시
-        map.getOverlays().remove(lastOverlay);
-        ArrayList<OverlayItem> items = new ArrayList<OverlayItem>();
-        items.add(new OverlayItem("Marker", "Snippet", p));
+        map.getOverlays().remove(marker);
+        marker = new Marker(map);
+        marker.setPosition(p);
+        marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
 
-        final ItemizedOverlayWithFocus<OverlayItem> mOverlay = new ItemizedOverlayWithFocus<OverlayItem>(
-                getApplicationContext(), items,
-                new ItemizedIconOverlay.OnItemGestureListener<OverlayItem>() {
-                    @Override
-                    public boolean onItemSingleTapUp(final int index, final OverlayItem item) {
-                        return true;
-                    }
-
-                    @Override
-                    public boolean onItemLongPress(final int index, final OverlayItem item) {
-                        return false;
-                    }
-                }
-        );
-        mOverlay.setFocusItemsOnTap(true);
-        map.getOverlays().add(mOverlay);    //클릭한 마커를 지도에 추가
-        lastOverlay = mOverlay;
+        map.getOverlays().add(marker);
     }
 
-    private double[] ReadImage() { //이미지 선택 및 경위도 데이터 추출
-        exifinfo = new EXIFinfo("/sdcard/honeyview_gps.jpg");
-        return exifinfo.getLocation();
+    private void ReadImage() { //이미지 선택
+        Intent choosefile = new Intent(Intent.ACTION_GET_CONTENT);
+        choosefile.setType("image/*");
+        Intent intent = Intent.createChooser(choosefile, "SELECT FILE");
+        startActivityForResult(intent, 573);
     }
 
     @Override
