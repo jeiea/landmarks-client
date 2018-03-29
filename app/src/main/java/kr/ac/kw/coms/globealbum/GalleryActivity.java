@@ -2,7 +2,9 @@ package kr.ac.kw.coms.globealbum;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,15 +15,19 @@ import android.widget.GridView;
 import android.widget.ImageView;
 
 import java.util.ArrayList;
- //GalleryView로 교체 사용 예정
 public class GalleryActivity extends AppCompatActivity {
     ArrayList<Bitmap> ThumbnailList = new ArrayList<>();
+    ArrayList<Uri> ImageUriList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_gallery);
 
+        //mediastore 이용해서 이미지 목록 가져오기
+
+
+        //GridView 구현
         GridAdapter adapter = new GridAdapter(getApplicationContext(), R.layout.galleryimagecell);
         GridView gv = (GridView)findViewById(R.id.GalleryGridView);
         gv.setAdapter(adapter);
@@ -31,6 +37,11 @@ public class GalleryActivity extends AppCompatActivity {
                 //사진 선택 시 후속 과정
             }
         });
+    }
+
+    public static void QueryImages()
+    {
+        final Uri uri = MediaStore.Images.Thumbnails.getContentUri("external");
     }
 
     public void GalleryExit_click(View view) {
