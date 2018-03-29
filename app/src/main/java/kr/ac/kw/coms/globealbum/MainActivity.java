@@ -79,13 +79,13 @@ public class MainActivity extends AppCompatActivity {
         map.setTileSource(TileSourceFactory.BASE_OVERLAY_NL);    //맵 렌더링 설정
         map.setBuiltInZoomControls(true);
         map.setMultiTouchControls(true);
-        map.setScrollableAreaLimitLatitude(TileSystem.MaxLatitude, -TileSystem.MaxLatitude, 0);
-        map.setScrollableAreaLimitLongitude(-TileSystem.MaxLongitude, TileSystem.MaxLongitude, 0);
+        //map.setScrollableAreaLimitLatitude(TileSystem.MaxLatitude, -TileSystem.MaxLatitude, 0);
+        //map.setScrollableAreaLimitLongitude(-TileSystem.MaxLongitude, TileSystem.MaxLongitude, 0);
         map.setMinZoomLevel(2.0);   //최소 줌 조절
         map.setMaxZoomLevel(6.0);   //최대 줌 조절
 
         mapController = map.getController();
-        mapController.setZoom(2.0);
+        mapController.setZoom(0);
 
         MapEventsReceiver mReceiver = new MapEventsReceiver() { //화면 터치시 좌표 토스트메시지 출력, 좌표로 화면 이동
             @Override
