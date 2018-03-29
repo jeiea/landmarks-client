@@ -1,40 +1,30 @@
 package kr.ac.kw.coms.globealbum;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Point;
-import android.graphics.drawable.Drawable;
-import android.location.Location;
-import android.location.LocationListener;
-import android.media.ExifInterface;
+import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.v4.content.res.ResourcesCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.util.DisplayMetrics;
 import android.widget.Toast;
 
 import org.osmdroid.api.IMapController;
-import org.osmdroid.api.IMapView;
 import org.osmdroid.events.MapEventsReceiver;
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.util.TileSystem;
-import org.osmdroid.views.MapController;
 import org.osmdroid.views.MapView;
-import org.osmdroid.views.overlay.ItemizedIconOverlay;
-import org.osmdroid.views.overlay.ItemizedOverlay;
-import org.osmdroid.views.overlay.ItemizedOverlayWithFocus;
 import org.osmdroid.views.overlay.MapEventsOverlay;
 import org.osmdroid.views.overlay.Marker;
-import org.osmdroid.views.overlay.Overlay;
-import org.osmdroid.views.overlay.OverlayItem;
-import org.osmdroid.views.overlay.TilesOverlay;
-import org.osmdroid.views.overlay.gridlines.LatLonGridlineOverlay2;
-
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -45,6 +35,7 @@ public class MainActivity extends AppCompatActivity {
 
     Marker marker = null;  //지난번 클릭 마커 저장
     GeoPoint currentGeopoint = null;   //현재 위치 저장
+    final private int REQUEST_CODE_ASK_MULTIPLE_PERMISSIONS = 124;
 
 
     @Override
@@ -62,14 +53,23 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        //퍼미션 핸들 처리 부분
+        if(Build.VERSION.SDK_INT >=23){ //시작 시 권한 처리
+            checkPermissions();
+        }
 
         //osmdroid 초기 구성
         Context ctx = getApplicationContext();
         org.osmdroid.config.Configuration.getInstance().load(ctx, PreferenceManager.getDefaultSharedPreferences(ctx));
         map = (MapView) findViewById(R.id.map);
+
+        DisplayMetrics dm = getApplicationContext().getResources().getDisplayMetrics();
+        int width = dm.widthPixels;
+        int height = dm.heightPixels;
+
+        //Toast.makeText(ctx, width+" "+height, Toast.LENGTH_SHORT).show();
+
         mapConfiguration();
-        // ReadImage();
+        //ReadImage();
     }
 
 
@@ -130,5 +130,52 @@ public class MainActivity extends AppCompatActivity {
     protected void onPause() {
         super.onPause();
         map.onPause(); //osmdroid configuration refresh
+    }
+
+    private void checkPermissions() {
+        List<String> permissions = new ArrayList<String>();
+
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            permissions.add(Manifest.permission.ACCESS_FINE_LOCATION);
+        }
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            permissions.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        }
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            permissions.add(Manifest.permission.READ_EXTERNAL_STORAGE);
+        }
+        if (!permissions.isEmpty()) {
+            String[] params = permissions.toArray(new String[permissions.size()]);
+            if( Build.VERSION.SDK_INT >=23){
+                requestPermissions(params, REQUEST_CODE_ASK_MULTIPLE_PERMISSIONS);
+            }
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        if( requestCode == REQUEST_CODE_ASK_MULTIPLE_PERMISSIONS){
+            Map<String, Integer> perms = new HashMap<String, Integer>();
+
+            perms.put(Manifest.permission.ACCESS_FINE_LOCATION, PackageManager.PERMISSION_GRANTED);
+            perms.put(Manifest.permission.WRITE_EXTERNAL_STORAGE, PackageManager.PERMISSION_GRANTED);
+            perms.put(Manifest.permission.READ_EXTERNAL_STORAGE,PackageManager.PERMISSION_GRANTED);
+
+            for (int i = 0; i < permissions.length; i++)
+                perms.put(permissions[i], grantResults[i]);
+
+            //권한 여부 확인
+            Boolean location = perms.get(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
+            Boolean writeStorage = perms.get(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED;
+            Boolean readStorage = perms.get(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED;
+
+            if (location && writeStorage && readStorage) {
+                Toast.makeText(MainActivity.this, "모든 권한이 허용되었습니다.", Toast.LENGTH_SHORT).show();
+            } else { //권한이 거부된 경우
+                Toast.makeText(this, "어플 실행을 위해선 권한이 필요합니다", Toast.LENGTH_SHORT).show();
+                finish();   //앱 종료
+            }
+        }
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 }
