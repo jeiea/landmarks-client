@@ -70,6 +70,8 @@ public class MainActivity extends AppCompatActivity {
 
         mapConfiguration();
         //ReadImage();
+        Intent galleryIntent = new Intent(this, GalleryActivity.class);
+        startActivity(galleryIntent);
     }
 
 
