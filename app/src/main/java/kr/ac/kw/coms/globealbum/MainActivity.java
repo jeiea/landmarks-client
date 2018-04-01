@@ -3,7 +3,11 @@ package kr.ac.kw.coms.globealbum;
 import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -19,8 +23,11 @@ import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.util.TileSystem;
 import org.osmdroid.views.MapView;
+import org.osmdroid.views.overlay.GroundOverlay2;
 import org.osmdroid.views.overlay.MapEventsOverlay;
 import org.osmdroid.views.overlay.Marker;
+import org.osmdroid.views.overlay.Polygon;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -30,6 +37,7 @@ import java.util.Map;
 public class MainActivity extends AppCompatActivity {
     kr.ac.kw.coms.globealbum.EXIFinfo exifinfo;
 
+    kr.ac.kw.coms.globealbum.Overlay  mOverlay;
     MapView map = null;
     IMapController mapController = null;
 
@@ -70,8 +78,8 @@ public class MainActivity extends AppCompatActivity {
 
         mapConfiguration();
         //ReadImage();
-        Intent galleryIntent = new Intent(this, GalleryActivity.class);
-        startActivity(galleryIntent);
+        //Intent galleryIntent = new Intent(this, GalleryActivity.class);
+        //startActivity(galleryIntent);
     }
 
 
@@ -102,6 +110,18 @@ public class MainActivity extends AppCompatActivity {
                 return false;
             }
         };
+
+        mOverlay = new Overlay();
+        map.getOverlays().add(mOverlay);
+        GroundOverlay2 myGroundOverlay = new GroundOverlay2();
+        DisplayMetrics dm = getApplicationContext().getResources().getDisplayMetrics();
+        int width = dm.widthPixels;
+        int height = dm.heightPixels;
+        Toast.makeText(this, width+" "+height, Toast.LENGTH_SHORT).show();
+        myGroundOverlay.setPosition(new GeoPoint(100,100.0),new GeoPoint(150,150.0));
+        myGroundOverlay.setImage(new BitmapFactory().decodeResource(getResources(),R.drawable.person));
+        map.getOverlays().add(1,myGroundOverlay);
+
         MapEventsOverlay eventsOverlay = new MapEventsOverlay(getBaseContext(), mReceiver);
         map.getOverlays().add(eventsOverlay);
     }
@@ -113,6 +133,7 @@ public class MainActivity extends AppCompatActivity {
         marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
 
         map.getOverlays().add(marker);
+        map.invalidate(); //map refresh
     }
 
     private void ReadImage() { //이미지 선택
