@@ -37,7 +37,6 @@ import java.util.Map;
 public class MainActivity extends AppCompatActivity {
     kr.ac.kw.coms.globealbum.EXIFinfo exifinfo;
 
-    kr.ac.kw.coms.globealbum.Overlay  mOverlay;
     MapView map = null;
     IMapController mapController = null;
 
@@ -111,8 +110,6 @@ public class MainActivity extends AppCompatActivity {
             }
         };
 
-        mOverlay = new Overlay();
-        map.getOverlays().add(mOverlay);
         GroundOverlay2 myGroundOverlay = new GroundOverlay2();
         DisplayMetrics dm = getApplicationContext().getResources().getDisplayMetrics();
         int width = dm.widthPixels;
@@ -120,7 +117,7 @@ public class MainActivity extends AppCompatActivity {
         Toast.makeText(this, width+" "+height, Toast.LENGTH_SHORT).show();
         myGroundOverlay.setPosition(new GeoPoint(100,100.0),new GeoPoint(150,150.0));
         myGroundOverlay.setImage(new BitmapFactory().decodeResource(getResources(),R.drawable.person));
-        map.getOverlays().add(1,myGroundOverlay);
+        map.getOverlays().add(myGroundOverlay);
 
         MapEventsOverlay eventsOverlay = new MapEventsOverlay(getBaseContext(), mReceiver);
         map.getOverlays().add(eventsOverlay);
