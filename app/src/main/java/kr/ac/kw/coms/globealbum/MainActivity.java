@@ -15,6 +15,7 @@ import android.preference.PreferenceManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import org.osmdroid.api.IMapController;
@@ -26,6 +27,7 @@ import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.GroundOverlay2;
 import org.osmdroid.views.overlay.MapEventsOverlay;
 import org.osmdroid.views.overlay.Marker;
+import org.osmdroid.views.overlay.MinimapOverlay;
 import org.osmdroid.views.overlay.Polygon;
 
 import java.util.ArrayList;
@@ -39,6 +41,8 @@ public class MainActivity extends AppCompatActivity {
 
     MapView map = null;
     IMapController mapController = null;
+    MinimapOverlay minimapOverlay = null;
+
 
     Marker marker = null;  //지난번 클릭 마커 저장
     GeoPoint currentGeopoint = null;   //현재 위치 저장
@@ -83,16 +87,27 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void mapConfiguration() {    //맵 생성 후 초기 설정
-        map.setTileSource(TileSourceFactory.BASE_OVERLAY_NL);    //맵 렌더링 설정
+        final DisplayMetrics dm = getApplicationContext().getResources().getDisplayMetrics();   //해상도 측정을 위한 객체
+
+        map.setTileSource(TileSourceFactory.DEFAULT_TILE_SOURCE);    //맵 렌더링 설정
         map.setBuiltInZoomControls(true);
         map.setMultiTouchControls(true);
-        map.setScrollableAreaLimitLatitude(TileSystem.MaxLatitude, -TileSystem.MaxLatitude, 0);
-        map.setScrollableAreaLimitLongitude(-TileSystem.MaxLongitude, TileSystem.MaxLongitude, 0);
-        map.setMinZoomLevel(2.0);   //최소 줌 조절
-        map.setMaxZoomLevel(6.0);   //최대 줌 조절
+        map.setScrollableAreaLimitLatitude(TileSystem.MaxLatitude, -TileSystem.MaxLatitude, 3);
+        map.setScrollableAreaLimitLongitude(-TileSystem.MaxLongitude, TileSystem.MaxLongitude, 3);
+        //map.setMinZoomLevel(2.0);   //최소 줌 조절
+        //map.setMaxZoomLevel(6.0);   //최대 줌 조절
+        map.setTilesScaledToDpi(true); //dpi에 맞게 조절
+        //mapController.setZoom(0.0);
+
+        //minimap
+        minimapOverlay = new MinimapOverlay(this,map.getTileRequestCompleteHandler());
+        minimapOverlay.setWidth(dm.widthPixels/5);
+        minimapOverlay.setHeight(dm.heightPixels/5);
+        minimapOverlay.setTileSource(TileSourceFactory.DEFAULT_TILE_SOURCE);
+        map.getOverlays().add(0,minimapOverlay);
+        map.invalidate();
 
         mapController = map.getController();
-        mapController.setZoom(0.0);
 
         MapEventsReceiver mReceiver = new MapEventsReceiver() { //화면 터치시 좌표 토스트메시지 출력, 좌표로 화면 이동
             @Override
@@ -110,16 +125,7 @@ public class MainActivity extends AppCompatActivity {
             }
         };
 
-        GroundOverlay2 myGroundOverlay = new GroundOverlay2();
-        DisplayMetrics dm = getApplicationContext().getResources().getDisplayMetrics();
-        int width = dm.widthPixels;
-        int height = dm.heightPixels;
-        Toast.makeText(this, width+" "+height, Toast.LENGTH_SHORT).show();
-        myGroundOverlay.setPosition(new GeoPoint(100,100.0),new GeoPoint(150,150.0));
-        myGroundOverlay.setImage(new BitmapFactory().decodeResource(getResources(),R.drawable.person));
-        map.getOverlays().add(myGroundOverlay);
-
-        MapEventsOverlay eventsOverlay = new MapEventsOverlay(getBaseContext(), mReceiver);
+        MapEventsOverlay eventsOverlay = new MapEventsOverlay(mReceiver);
         map.getOverlays().add(eventsOverlay);
     }
 
@@ -143,13 +149,15 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        map.onResume(); //osmdroid configuration refresh
+        if(map !=null)
+            map.onResume(); //osmdroid configuration refresh
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        map.onPause(); //osmdroid configuration refresh
+        if(map!=null)
+            map.onPause(); //osmdroid configuration refresh
     }
 
     private void checkPermissions() {
