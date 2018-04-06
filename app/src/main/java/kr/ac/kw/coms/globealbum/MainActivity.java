@@ -80,7 +80,7 @@ public class MainActivity extends AppCompatActivity {
         //Toast.makeText(ctx, width+" "+height, Toast.LENGTH_SHORT).show();
 
         mapConfiguration();
-        //ReadImage();
+
         //Intent galleryIntent = new Intent(this, GalleryActivity.class);
         //startActivity(galleryIntent);
     }
