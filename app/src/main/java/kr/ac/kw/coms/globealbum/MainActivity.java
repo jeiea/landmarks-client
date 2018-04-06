@@ -63,6 +63,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE); //가로모드 고정
 
         if(Build.VERSION.SDK_INT >=23){ //시작 시 권한 처리
             checkPermissions();
@@ -89,15 +90,14 @@ public class MainActivity extends AppCompatActivity {
     private void mapConfiguration() {    //맵 생성 후 초기 설정
         final DisplayMetrics dm = getApplicationContext().getResources().getDisplayMetrics();   //해상도 측정을 위한 객체
 
-        map.setTileSource(TileSourceFactory.DEFAULT_TILE_SOURCE);    //맵 렌더링 설정
+        map.setTileSource(TileSourceFactory.BASE_OVERLAY_NL);    //맵 렌더링 설정
         map.setBuiltInZoomControls(true);
         map.setMultiTouchControls(true);
-        map.setScrollableAreaLimitLatitude(TileSystem.MaxLatitude, -TileSystem.MaxLatitude, 3);
-        map.setScrollableAreaLimitLongitude(-TileSystem.MaxLongitude, TileSystem.MaxLongitude, 3);
-        //map.setMinZoomLevel(2.0);   //최소 줌 조절
-        //map.setMaxZoomLevel(6.0);   //최대 줌 조절
+        map.setScrollableAreaLimitLatitude(TileSystem.MaxLatitude, -TileSystem.MaxLatitude, 0);
+        map.setScrollableAreaLimitLongitude(-TileSystem.MaxLongitude, TileSystem.MaxLongitude, 0);
+        map.setMinZoomLevel(1.25);   //최소 줌 조절
+        map.setMaxZoomLevel(6.0);   //최대 줌 조절
         map.setTilesScaledToDpi(true); //dpi에 맞게 조절
-        //mapController.setZoom(0.0);
 
         //minimap
         minimapOverlay = new MinimapOverlay(this,map.getTileRequestCompleteHandler());
@@ -105,9 +105,10 @@ public class MainActivity extends AppCompatActivity {
         minimapOverlay.setHeight(dm.heightPixels/5);
         minimapOverlay.setTileSource(TileSourceFactory.DEFAULT_TILE_SOURCE);
         map.getOverlays().add(0,minimapOverlay);
-        map.invalidate();
 
         mapController = map.getController();
+        mapController.setZoom(1.25);
+        mapController.setCenter(new GeoPoint(42.8583,-10));
 
         MapEventsReceiver mReceiver = new MapEventsReceiver() { //화면 터치시 좌표 토스트메시지 출력, 좌표로 화면 이동
             @Override
@@ -118,7 +119,6 @@ public class MainActivity extends AppCompatActivity {
 
                 return false;
             }
-
             @Override
             public boolean longPressHelper(GeoPoint p) {    //길게 터치시
                 return false;
@@ -127,13 +127,15 @@ public class MainActivity extends AppCompatActivity {
 
         MapEventsOverlay eventsOverlay = new MapEventsOverlay(mReceiver);
         map.getOverlays().add(eventsOverlay);
+        map.invalidate();
+
     }
 
     private void addMarker(GeoPoint p) {   //화면 터치시 마커를 화면에 표시
         map.getOverlays().remove(marker);
         marker = new Marker(map);
         marker.setPosition(p);
-        marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
+        marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER);
 
         map.getOverlays().add(marker);
         map.invalidate(); //map refresh
