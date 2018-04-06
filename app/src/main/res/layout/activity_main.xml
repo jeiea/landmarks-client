@@ -10,8 +10,18 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
-        <org.osmdroid.views.MapView android:id="@+id/map"
+        <Button
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content"
+            android:text="start map"
+            android:onClick="startOnClick"
+            android:id="@+id/btn_start_map"/>
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="start gallery"
+            android:onClick="startOnClick"
+            android:id="@+id/btn_start_gallery"/>
+
     </LinearLayout>
 </android.support.constraint.ConstraintLayout>
