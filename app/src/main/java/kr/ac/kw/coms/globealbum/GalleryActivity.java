@@ -1,6 +1,7 @@
 package kr.ac.kw.coms.globealbum;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
@@ -25,7 +26,7 @@ public class GalleryActivity extends AppCompatActivity {
         setContentView(R.layout.activity_gallery);
 
         //mediastore 이용해서 이미지 목록 가져오기
-
+        QueryImages();
 
         //GridView 구현
         GridAdapter adapter = new GridAdapter(getApplicationContext(), R.layout.galleryimagecell);
@@ -41,7 +42,30 @@ public class GalleryActivity extends AppCompatActivity {
 
     public static void QueryImages()
     {
-        final Uri uri = MediaStore.Images.Thumbnails.getContentUri("external");
+        String[] projection = {MediaStore.Images.Media.DATA};
+        Cursor imageCursor = this.getApplicationContext().getContentResolver()
+                .query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                        projection, null, null, null);
+        ArrayList<Uri> result = new ArrayList<>(imageCursor.getCount());
+        int dataColumnIndex = imageCursor.getColumnIndex(projection[0]);
+        if (imageCursor == null)
+        {
+            //에러 처리
+        }
+        else if (imageCursor.moveToFirst())
+        {
+            do {
+                String filePath = imageCursor.getString(dataColumnIndex);
+                Uri imageUri = Uri.parse(filePath);
+                result.add(imageUri);
+            } while(imageCursor.moveToNext());
+        } else
+        {
+            //이미지 없음 처리
+        }
+        imageCursor.close();
+        // http://shygiants.github.io/android/2016/01/13/contentresolver.html
+
     }
 
     public void GalleryExit_click(View view) {
