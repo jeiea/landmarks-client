@@ -16,8 +16,8 @@
             android:onClick="GalleryExit_click"/>
     </LinearLayout>
     <GridView android:id="@+id/GalleryGridView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
     </GridView>
 </android.support.constraint.ConstraintLayout>
