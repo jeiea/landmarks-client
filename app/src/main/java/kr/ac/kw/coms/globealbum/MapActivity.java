@@ -22,10 +22,10 @@ import org.osmdroid.views.overlay.MinimapOverlay;
 
 public class MapActivity extends AppCompatActivity {
 
+    Context context=null;
     MapView map = null;
     IMapController mapController = null;
     MinimapOverlay minimapOverlay = null;
-
     Marker marker = null;  //지난번 클릭 마커 저장
     GeoPoint currentGeopoint = null;   //현재 위치 저장
 
@@ -36,13 +36,11 @@ public class MapActivity extends AppCompatActivity {
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE); //가로모드 고정
 
         //osmdroid 초기 구성
-        Context ctx = getApplicationContext();
-        Configuration.getInstance().load(ctx, PreferenceManager.getDefaultSharedPreferences(ctx));
+        context= getApplicationContext();
+        Configuration.getInstance().load(context, PreferenceManager.getDefaultSharedPreferences(context));
         map = (MapView)findViewById(R.id.map);
 
         mapConfiguration();
-
-
     }
     private void mapConfiguration() {    //맵 생성 후 초기 설정
         final DisplayMetrics dm = getApplicationContext().getResources().getDisplayMetrics();   //해상도 측정을 위한 객체
@@ -50,9 +48,9 @@ public class MapActivity extends AppCompatActivity {
         map.setTileSource(TileSourceFactory.BASE_OVERLAY_NL);    //맵 렌더링 설정
         map.setBuiltInZoomControls(true);
         map.setMultiTouchControls(true);
-        map.setScrollableAreaLimitLatitude(TileSystem.MaxLatitude, -TileSystem.MaxLatitude, 0);
-        map.setScrollableAreaLimitLongitude(-TileSystem.MaxLongitude, TileSystem.MaxLongitude, 0);
-        map.setMinZoomLevel(1.25);   //최소 줌 조절
+        map.setScrollableAreaLimitLatitude(TileSystem.MaxLatitude-4, -TileSystem.MaxLatitude+35, 0);
+        map.setScrollableAreaLimitLongitude(-TileSystem.MaxLongitude+15, TileSystem.MaxLongitude+10, 0);
+        map.setMinZoomLevel(1.1);   //최소 줌 조절
         map.setMaxZoomLevel(6.0);   //최대 줌 조절
         map.setTilesScaledToDpi(true); //dpi에 맞게 조절
 
@@ -60,20 +58,18 @@ public class MapActivity extends AppCompatActivity {
         minimapOverlay = new MinimapOverlay(this,map.getTileRequestCompleteHandler());
         minimapOverlay.setWidth(dm.widthPixels/5);
         minimapOverlay.setHeight(dm.heightPixels/5);
-        minimapOverlay.setTileSource(TileSourceFactory.DEFAULT_TILE_SOURCE);
+        minimapOverlay.setTileSource(TileSourceFactory.BASE_OVERLAY_NL);
         map.getOverlays().add(0,minimapOverlay);
 
         mapController = map.getController();
-        mapController.setZoom(1.25);
-        mapController.setCenter(new GeoPoint(42.8583,-10));
+        mapController.setZoom(1.1);
+        mapController.setCenter(new GeoPoint(40.0,11));
 
         MapEventsReceiver mReceiver = new MapEventsReceiver() { //화면 터치시 좌표 토스트메시지 출력, 좌표로 화면 이동
             @Override
             public boolean singleTapConfirmedHelper(GeoPoint p) {
-                Toast.makeText(getBaseContext(), p.getLatitude() + "-" + p.getLongitude(), Toast.LENGTH_SHORT).show();
-                mapController.animateTo(p); //좌표로 화면 이동
+                //mapController.animateTo(p); //좌표로 화면 이동
                 addMarker(p);
-
                 return false;
             }
             @Override
