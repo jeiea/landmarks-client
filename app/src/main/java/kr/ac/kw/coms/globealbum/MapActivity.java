@@ -6,10 +6,9 @@ import android.os.Bundle;
 
 import android.content.Context;
 import android.util.DisplayMetrics;
-import android.view.MotionEvent;
-import android.view.View;
-import android.widget.Toast;
 import android.preference.PreferenceManager;
+import android.widget.Toast;
+
 import org.osmdroid.api.IMapController;
 import org.osmdroid.events.MapEventsReceiver;
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
@@ -20,8 +19,7 @@ import org.osmdroid.views.overlay.MapEventsOverlay;
 import org.osmdroid.views.overlay.Marker;
 import org.osmdroid.config.Configuration;
 import org.osmdroid.views.overlay.MinimapOverlay;
-import org.osmdroid.views.overlay.gridlines.LatLonGridlineOverlay2;
-import org.osmdroid.views.overlay.infowindow.MarkerInfoWindow;
+
 
 
 public class MapActivity extends AppCompatActivity {
@@ -57,11 +55,11 @@ public class MapActivity extends AppCompatActivity {
         map.setMultiTouchControls(true);
         map.setScrollableAreaLimitLatitude(TileSystem.MaxLatitude-4, -TileSystem.MaxLatitude+35, 0);
         map.setScrollableAreaLimitLongitude(-TileSystem.MaxLongitude+15, TileSystem.MaxLongitude+10, 0);
-        map.setMinZoomLevel(WORLDMAP_ZOOM_LEVEL );   //최소 줌 조절
+        //map.setMinZoomLevel(WORLDMAP_ZOOM_LEVEL );   //최소 줌 조절
         map.setMaxZoomLevel(6.0);   //최대 줌 조절
         map.setTilesScaledToDpi(true); //dpi에 맞게 조절
 
-        //minimap
+        //minimapgi
         minimapOverlay = new MinimapOverlay(context,map.getTileRequestCompleteHandler());
         minimapOverlay.setWidth(dm.widthPixels/4);
         minimapOverlay.setHeight(dm.heightPixels/4);
@@ -69,11 +67,11 @@ public class MapActivity extends AppCompatActivity {
         minimapOverlay.setZoomDifference(3);
         map.getOverlays().add(0,minimapOverlay);
 
-
         mapController = map.getController();
-        mapController.setZoom(WORLDMAP_ZOOM_LEVEL );
+        //mapController.setZoom(WORLDMAP_ZOOM_LEVEL );
         mapController.setCenter(new GeoPoint(40.0,11));
 
+        Toast.makeText(context, dm.widthPixels+"  "+dm.heightPixels, Toast.LENGTH_SHORT).show();
 
         MapEventsReceiver mReceiver = new MapEventsReceiver() { //화면 터치시 좌표 토스트메시지 출력, 좌표로 화면 이동
             @Override
