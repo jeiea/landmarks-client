@@ -57,9 +57,9 @@ public class MapActivity extends AppCompatActivity {
         map.setScrollableAreaLimitLongitude(-TileSystem.MaxLongitude+15, TileSystem.MaxLongitude+10, 0);
         //map.setMinZoomLevel(WORLDMAP_ZOOM_LEVEL );   //최소 줌 조절
         map.setMaxZoomLevel(6.0);   //최대 줌 조절
-        map.setTilesScaledToDpi(true); //dpi에 맞게 조절
+   //     map.setTilesScaledToDpi(true); //dpi에 맞게 조절
 
-        //minimapgi
+        //minimap
         minimapOverlay = new MinimapOverlay(context,map.getTileRequestCompleteHandler());
         minimapOverlay.setWidth(dm.widthPixels/4);
         minimapOverlay.setHeight(dm.heightPixels/4);
@@ -68,11 +68,10 @@ public class MapActivity extends AppCompatActivity {
         map.getOverlays().add(0,minimapOverlay);
 
         mapController = map.getController();
-        //mapController.setZoom(WORLDMAP_ZOOM_LEVEL );
+        //mapController.setZoom(WORLDMAP_ZOOM_LEVEL);
         mapController.setCenter(new GeoPoint(40.0,11));
 
-        Toast.makeText(context, dm.widthPixels+"  "+dm.heightPixels, Toast.LENGTH_SHORT).show();
-
+        Toast.makeText(context, dm.densityDpi+" "+dm.density+"  "+dm.heightPixels, Toast.LENGTH_SHORT).show();
         MapEventsReceiver mReceiver = new MapEventsReceiver() { //화면 터치시 좌표 토스트메시지 출력, 좌표로 화면 이동
             @Override
             public boolean singleTapConfirmedHelper(GeoPoint p) {
