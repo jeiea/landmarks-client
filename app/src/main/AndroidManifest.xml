@@ -25,7 +25,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".GalleryActivity" />
+        <activity android:name=".AlbumActivity" />
         <activity
             android:name=".MapActivity"
             android:screenOrientation="landscape"
@@ -36,7 +36,7 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-        <activity android:name=".GalleryAlbumActivity"></activity>
+        <activity android:name=".GalleryMainActivity"></activity>
     </application>
 
 </manifest>

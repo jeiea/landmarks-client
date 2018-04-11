@@ -50,6 +50,7 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(new Intent(this,MapActivity.class));
                 break;
             case R.id.btn_start_gallery:
+                startActivity(new Intent(this, GalleryMainActivity.class));
                 //Intent galleryIntent = new Intent(this, GalleryActivity.class);
                 //startActivity(galleryIntent);
                 break;
