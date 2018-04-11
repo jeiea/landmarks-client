@@ -55,9 +55,23 @@ public class MapActivity extends AppCompatActivity {
         map.setMultiTouchControls(true);
         map.setScrollableAreaLimitLatitude(TileSystem.MaxLatitude-4, -TileSystem.MaxLatitude+35, 0);
         map.setScrollableAreaLimitLongitude(-TileSystem.MaxLongitude+15, TileSystem.MaxLongitude+10, 0);
-        //map.setMinZoomLevel(WORLDMAP_ZOOM_LEVEL );   //최소 줌 조절
+        double dimenRatio = dm.widthPixels / (double)dm.heightPixels; // 화면비율
+//        double mapRatio = 360.0 / (85 * 2); // 위도, 경도에 따른 지도비율 추정치
+        double mapRatio = 1; // 타일은 정사각형.
+        double zoom;
+        if (dimenRatio < mapRatio) {
+            // mapHeight to display height
+            zoom = dm.heightPixels / 256;
+        }
+        else {
+            // mapwidth to display width
+            zoom = dm.widthPixels / 256;
+        }
+        double logZoom = Math.log(zoom) / Math.log(2);
+
+//        map.setMinZoomLevel(WORLDMAP_ZOOM_LEVEL );   //최소 줌 조절
         map.setMaxZoomLevel(6.0);   //최대 줌 조절
-        map.setTilesScaledToDpi(true); //dpi에 맞게 조절
+//        map.setTilesScaledToDpi(true); //dpi에 맞게 조절
 
         //minimapgi
         minimapOverlay = new MinimapOverlay(context,map.getTileRequestCompleteHandler());
@@ -68,7 +82,8 @@ public class MapActivity extends AppCompatActivity {
         map.getOverlays().add(0,minimapOverlay);
 
         mapController = map.getController();
-        //mapController.setZoom(WORLDMAP_ZOOM_LEVEL );
+//        mapController.setZoom(WORLDMAP_ZOOM_LEVEL );
+        mapController.setZoom(logZoom);
         mapController.setCenter(new GeoPoint(40.0,11));
 
         Toast.makeText(context, dm.widthPixels+"  "+dm.heightPixels, Toast.LENGTH_SHORT).show();
