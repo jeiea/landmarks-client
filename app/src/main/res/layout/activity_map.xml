@@ -7,41 +7,31 @@
     tools:context=".MapActivity">
 
     <LinearLayout
-        android:layout_width="0dp"
-        android:layout_height="match_parent">
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
         <FrameLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="0.8">
-            <org.osmdroid.views.MapView android:id="@+id/map"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="0.45">
+            <kr.ac.kw.coms.globealbum.MyMapView android:id="@+id/map"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"/>
             <Button
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="MENU"
-                android:layout_gravity="bottom|left"/>
+                android:layout_gravity="top|left"/>
         </FrameLayout>
         <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="0.2"
-            android:orientation="vertical">
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="0.55"
+            android:orientation="horizontal">
             <Button
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="imageview1"
-                android:layout_weight="1"/>
-            <Button
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="imageview2"
-                android:layout_weight="1"/>
-            <Button
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="imageview3"
-                android:layout_weight="1"/>
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:text="imageview1"/>
         </LinearLayout>
     </LinearLayout>
 </android.support.constraint.ConstraintLayout>
