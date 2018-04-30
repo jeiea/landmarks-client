@@ -35,7 +35,7 @@ public class MapActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map);
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE); //가로모드 고정
+       // setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE); //가로모드 고정
 
         //osmdroid 초기 구성
         context = getApplicationContext();
@@ -56,7 +56,7 @@ public class MapActivity extends AppCompatActivity {
 
     private void mapConfiguration() {    //맵 생성 후 초기 설정
 
-        mapView.setTileSource(TileSourceFactory.MAPNIK);    //맵 렌더링 설정
+        mapView.setTileSource(TileSourceFactory.BASE_OVERLAY_NL);    //맵 렌더링 설정
         mapView.setBuiltInZoomControls(false);
         mapView.setMultiTouchControls(true);
         mapView.setScrollableAreaLimitLatitude(TileSystem.MaxLatitude - 5, -TileSystem.MaxLatitude + 35, 0);
