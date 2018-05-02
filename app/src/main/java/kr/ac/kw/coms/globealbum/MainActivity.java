@@ -25,12 +25,16 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         final int WEB_GALLERY = 1;
         final int LOCAL_STORAGE = 2;
-        if (requestCode == 2 && resultCode == RESULT_OK) //이미지 선택 완료
+        if (requestCode == 1 && resultCode == RESULT_OK)
         {
-            Uri uri = data.getData();
-            String filePath = uri.getPath();
-            exifinfo = new EXIFinfo(filePath);
-            Toast.makeText(this, filePath, Toast.LENGTH_LONG).show();
+
+        }
+        else if (requestCode == 2 && resultCode == RESULT_OK) //이미지 선택 완료
+        {
+            String FilePath = data.getStringExtra("FILEPATH");
+            exifinfo = new EXIFinfo(FilePath);
+            double[] Location = exifinfo.getLocation();
+            Toast.makeText(this, Location[0] + ", " + Location[1], Toast.LENGTH_LONG).show();
         }
     }
 
@@ -57,17 +61,10 @@ public class MainActivity extends AppCompatActivity {
 
                 break;
             case R.id.btn_start_storage:
-                ReadImage();
+                startActivityForResult(new Intent(this, GalleryActivity.class), 2);
         }
     }
 
-
-    private void ReadImage() { //이미지 선택
-        Intent choosefile = new Intent(Intent.ACTION_GET_CONTENT);
-        choosefile.setType("image/*");
-        Intent intent = Intent.createChooser(choosefile, "SELECT FILE");
-        startActivityForResult(intent, 2);
-    }
 
     private void checkPermissions() {
         List<String> permissions = new ArrayList<String>();

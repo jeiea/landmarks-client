@@ -1,5 +1,12 @@
 package kr.ac.kw.coms.globealbum;
 
+import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
+import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -7,19 +14,23 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import java.io.File;
+import java.util.ArrayList;
+
 class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHolder> {
-    private int[] mDataset;
+    private ArrayList<String> mDataset;
+    private Context context;
     public static class ViewHolder extends RecyclerView.ViewHolder
     {
         public ImageView mImageView;
-        public int resId;
+        public String ImagePath;
         public ViewHolder(ImageView v)
         {
             super(v);
             mImageView = v;
         }
     }
-    public GalleryAdapter(int[] Dataset)
+    public GalleryAdapter(ArrayList<String> Dataset)
     {
         mDataset = Dataset;
     }
@@ -29,6 +40,7 @@ class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHolder> {
     {
         ImageView v = (ImageView) LayoutInflater.from(parent.getContext()).inflate(R.layout.inner_view, parent, false);
         ViewHolder vh = new ViewHolder(v);
+        context = parent.getContext();
         return vh;
     }
 
@@ -41,16 +53,20 @@ class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHolder> {
             @Override
             public void onClick(View view)
             {
-                Toast.makeText(holder.itemView.getContext(), "Clicked " + holder.resId, Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(Intent.ACTION_ANSWER);
+                intent.putExtra("FILEPATH", holder.ImagePath);
+                ((Activity)context).setResult(Activity.RESULT_OK, intent);
+                ((Activity)context).finish();
             }
         });
-        holder.mImageView.setImageResource(mDataset[position]);
-        holder.resId = mDataset[position];
+        Bitmap mBitmap = BitmapFactory.decodeFile(mDataset.get(position));
+        holder.mImageView.setImageBitmap(mBitmap);
+        holder.ImagePath = mDataset.get(position);
     }
 
     @Override
     public int getItemCount()
     {
-        return mDataset.length;
+        return mDataset.size();
     }
 }
