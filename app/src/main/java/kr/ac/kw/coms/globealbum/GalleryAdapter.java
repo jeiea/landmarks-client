@@ -8,9 +8,12 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
+import android.util.DisplayMetrics;
+import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -24,10 +27,12 @@ class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHolder> {
     {
         public ImageView mImageView;
         public String ImagePath;
+        public int DisplayWidth;
         public ViewHolder(ImageView v)
         {
             super(v);
             mImageView = v;
+            DisplayWidth = Resources.getSystem().getDisplayMetrics().widthPixels;
         }
     }
     public GalleryAdapter(ArrayList<String> Dataset)
@@ -61,6 +66,9 @@ class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHolder> {
         });
         Bitmap mBitmap = BitmapFactory.decodeFile(mDataset.get(position));
         holder.mImageView.setImageBitmap(mBitmap);
+        ViewGroup.LayoutParams params = holder.mImageView.getLayoutParams();
+        params.height = holder.DisplayWidth / 3;
+        holder.mImageView.setLayoutParams(params);
         holder.ImagePath = mDataset.get(position);
     }
 
