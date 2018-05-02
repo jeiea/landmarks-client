@@ -7,6 +7,8 @@ import android.support.v7.app.AppCompatActivity;
 
 import org.osmdroid.config.Configuration;
 
+import kr.ac.kw.coms.globealbum.Map.MyMapView;
+
 
 public class MapActivity extends AppCompatActivity {
     Context context = null;
