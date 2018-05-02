@@ -19,9 +19,15 @@
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="start gallery"
+            android:text="start web gallery"
             android:onClick="startOnClick"
-            android:id="@+id/btn_start_gallery"/>
+            android:id="@+id/btn_start_web_gallery"/>
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="start storage"
+            android:onClick="startOnClick"
+            android:id="@+id/btn_start_storage"/>
 
     </LinearLayout>
 </android.support.constraint.ConstraintLayout>

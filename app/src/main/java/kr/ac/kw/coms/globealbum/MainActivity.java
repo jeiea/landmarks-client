@@ -23,11 +23,14 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == 573 && resultCode == RESULT_OK) //이미지 선택 완료
+        final int WEB_GALLERY = 1;
+        final int LOCAL_STORAGE = 2;
+        if (requestCode == 2 && resultCode == RESULT_OK) //이미지 선택 완료
         {
             Uri uri = data.getData();
             String filePath = uri.getPath();
             exifinfo = new EXIFinfo(filePath);
+            Toast.makeText(this, filePath, Toast.LENGTH_LONG).show();
         }
     }
 
@@ -49,11 +52,12 @@ public class MainActivity extends AppCompatActivity {
             case R.id.btn_start_map:
                 startActivity(new Intent(this,MapActivity.class));
                 break;
-            case R.id.btn_start_gallery:
-                startActivity(new Intent(this, GalleryMainActivity.class));
-                //Intent galleryIntent = new Intent(this, GalleryActivity.class);
-                //startActivity(galleryIntent);
+            case R.id.btn_start_web_gallery:
+                startActivityForResult(new Intent(this, GalleryActivity.class), 1);
+
                 break;
+            case R.id.btn_start_storage:
+                ReadImage();
         }
     }
 
@@ -62,7 +66,7 @@ public class MainActivity extends AppCompatActivity {
         Intent choosefile = new Intent(Intent.ACTION_GET_CONTENT);
         choosefile.setType("image/*");
         Intent intent = Intent.createChooser(choosefile, "SELECT FILE");
-        startActivityForResult(intent, 573);
+        startActivityForResult(intent, 2);
     }
 
     private void checkPermissions() {
