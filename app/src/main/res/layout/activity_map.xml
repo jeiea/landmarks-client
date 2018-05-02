@@ -14,7 +14,8 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="0.45">
-            <kr.ac.kw.coms.globealbum.MyMapView android:id="@+id/map"
+            <kr.ac.kw.coms.globealbum.Map.MyMapView
+                android:id="@+id/map"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"/>
             <Button
