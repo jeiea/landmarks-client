@@ -17,12 +17,13 @@ public class MyMapView extends org.osmdroid.views.MapView{
     Context context=null;
     MapView mapView = this;
     IMapController mapController = null;
-    MarkerLineFolderOverlay markerLineFolderOverlay = new MarkerLineFolderOverlay();  //마커 모아서 관리
+    MarkerLineFolderOverlay markerLineFolderOverlay;  //마커 모아서 관리
 
      // Constructor used by XML layout resource (uses default tile source).
     public MyMapView(final Context context, final AttributeSet attrs) {
         super(context, null, null, attrs);
         this.context=context;
+        markerLineFolderOverlay = new MarkerLineFolderOverlay(mapView,context);
         this.post(new Runnable() {
                          @Override
                          public void run() {
@@ -77,8 +78,9 @@ public class MyMapView extends org.osmdroid.views.MapView{
         getOverlays().remove(mapEventsReceiver);
     }
 
+    //화면 터치 시, 마커를 화면에 추가
     private void addMapEventListener(){
-        MapEventsReceiver mReceiver = new MapEventsReceiver() { //화면 터치 시, 마커를 화면에 추가
+        MapEventsReceiver mReceiver = new MapEventsReceiver() {
             @Override
             public boolean singleTapConfirmedHelper(GeoPoint p) {   //화면 한번 터치시
                 mapController.animateTo(p); //좌표로 화면 이동
