@@ -1,32 +1,28 @@
 package kr.ac.kw.coms.globealbum.Map;
 
 import android.content.Context;
-import android.graphics.Color;
-import android.os.Handler;
 import android.util.AttributeSet;
+import android.widget.Toast;
 
 import org.osmdroid.api.IMapController;
-import org.osmdroid.config.Configuration;
 import org.osmdroid.events.MapEventsReceiver;
-import org.osmdroid.tileprovider.MapTileProviderBase;
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.util.TileSystem;
+import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.MapEventsOverlay;
 import org.osmdroid.views.overlay.Marker;
-import org.osmdroid.views.overlay.MinimapOverlay;
-import org.osmdroid.views.overlay.Polygon;
-import org.osmdroid.views.overlay.Polyline;
-
-import java.util.ArrayList;
 
 public class MyMapView extends org.osmdroid.views.MapView{
+    Context context=null;
+    MapView mapView = this;
     IMapController mapController = null;
-    ArrayList<MyMarker> markerArrayList = new ArrayList<MyMarker>();    //마커들 저장
+    MarkerLineFolderOverlay markerLineFolderOverlay = new MarkerLineFolderOverlay();  //마커 모아서 관리
 
      // Constructor used by XML layout resource (uses default tile source).
     public MyMapView(final Context context, final AttributeSet attrs) {
         super(context, null, null, attrs);
+        this.context=context;
         this.post(new Runnable() {
                          @Override
                          public void run() {
@@ -81,13 +77,20 @@ public class MyMapView extends org.osmdroid.views.MapView{
         getOverlays().remove(mapEventsReceiver);
     }
 
-
-    private void addMapEventListener(){//화면 터치 시 이동해주는 리스너 등록
-        MapEventsReceiver mReceiver = new MapEventsReceiver() { //화면 터치시 좌표 토스트메시지 출력, 좌표로 화면 이동
+    private void addMapEventListener(){
+        MapEventsReceiver mReceiver = new MapEventsReceiver() { //화면 터치 시, 마커를 화면에 추가
             @Override
             public boolean singleTapConfirmedHelper(GeoPoint p) {   //화면 한번 터치시
                 mapController.animateTo(p); //좌표로 화면 이동
-                addMarker(p);
+
+                Marker marker = new Marker(mapView);
+                marker.setPosition(p);
+
+                markerLineFolderOverlay.add(marker);
+                getOverlays().add(markerLineFolderOverlay);
+
+                Toast.makeText(context, markerLineFolderOverlay.getItems().size()+"", Toast.LENGTH_SHORT).show();
+
                 return false;
             }
             @Override
@@ -97,28 +100,5 @@ public class MyMapView extends org.osmdroid.views.MapView{
         };
         MapEventsOverlay eventsOverlay = new MapEventsOverlay(mReceiver);
         getOverlays().add(eventsOverlay);
-    }
-
-    //input : 화면에서 터치된 부분의 위도 경도
-    //marker를 mapView에 추가
-    private void addMarker(GeoPoint p) {
-        int indexOfLastMarker,index;
-        MyMarker lastMarker,newMarker;
-        Marker marker = new Marker(this);
-        marker.setPosition(p);
-        newMarker = new MyMarker(marker,p);
-
-        index = markerArrayList.size()-1;
-        if(index >= 0 ){
-            indexOfLastMarker = index;
-            lastMarker = markerArrayList.get(indexOfLastMarker);
-            newMarker.setPolygon(lastMarker.getGeoPoint(),newMarker.getGeoPoint());
-            getOverlayManager().add(newMarker.getPolygon());
-        }
-        getOverlays().add(marker);
-        markerArrayList.add(newMarker);
-
-        invalidate(); //mapView refresh
-
     }
 }
