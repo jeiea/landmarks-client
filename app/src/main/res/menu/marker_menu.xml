@@ -4,4 +4,8 @@
         android:id="@+id/delete_marker"
         android:title="삭제">
     </item>
+    <item
+        android:id="@+id/delete_marker_all"
+        android:title="모두 삭제">
+    </item>
 </menu>

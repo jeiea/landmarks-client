@@ -15,6 +15,7 @@ import org.osmdroid.views.overlay.Overlay;
 import org.osmdroid.views.overlay.Polygon;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import kr.ac.kw.coms.globealbum.R;
 
@@ -26,16 +27,16 @@ public class MarkerLineFolderOverlay extends FolderOverlay{
     /** temporary 1x1 pix view where popup-menu is attached to */
     private View tempPopupMenuParentView = null;
 
-    public MarkerLineFolderOverlay(MapView mapView,Context context){
+    public MarkerLineFolderOverlay(MyMapView mapView){
         super();
         this.mapView = mapView;
-        this.context=context;
+        this.context = mapView.context;
     }
 
-    //마커와 라인을 OverlayManager에 추가
-    @Override
-    public boolean add(Overlay item) {
 
+
+    //마커만을 맵뷰에 나타내어 준다
+    public boolean addMarker(Marker item){
         ((Marker)item).setOnMarkerClickListener(new Marker.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(Marker marker, MapView mapView) {
@@ -43,13 +44,39 @@ public class MarkerLineFolderOverlay extends FolderOverlay{
                 return true;
             }
         });
+        return super.add(item);
+    }
+
+    //마커와 라인(루트)을 OverlayManager에 추가
+    public boolean addMarkerLine(Overlay item) {
+
+        ((Marker) item).setOnMarkerClickListener(new Marker.OnMarkerClickListener() {
+            @Override
+            public boolean onMarkerClick(Marker marker, MapView mapView) {
+                showPopupMenu(marker.getPosition());
+                ((MyMapView)mapView).dispatchMarkerTouch(MarkerLineFolderOverlay.this, marker);
+                return true;
+            }
+        });
 
         int overlayListSize = getItems().size();
-        if(overlayListSize > 0){
-            drawPolygon(getItems().get(overlayListSize-1),item,overlayListSize);
+        if (overlayListSize > 0) {
+            drawPolygon(getItems().get(overlayListSize - 1), item, overlayListSize);
         }
         return super.add(item);
     }
+    //현재 사용 중인 마커를 반환
+    public List<Marker> getMarkerList(){
+        List<Marker> markerList = new ArrayList<Marker>();
+        int size = getItems().size();
+
+        for(int i = 0 ; i < size ; i=i+2){
+            markerList.add((Marker)(getItems().get(i)));
+        }
+        return markerList;
+    }
+
+
 
     //마커와 마커 사이를 이어주는 직선을 만든다.
     //직선을 넣을 곳의 앞 뒤 마커를 인자와 인덱스를 전달
@@ -76,31 +103,40 @@ public class MarkerLineFolderOverlay extends FolderOverlay{
         popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem menuItem) {
-                int size = getItems().size();
+                switch (menuItem.getItemId()){
+                    case R.id.delete_marker:    //마커 하나 삭제
+                        int size = getItems().size();
 
-                if(size == 1){  //하나있는 마커 지우기
-                    remove(getItems().get(0));
-                }
-                else {
-                    for (int i = 0 ; i < size; i=i+2){
-                        if(((Marker)getItems().get(i)).getPosition().getLatitude() == geoPoint.getLatitude() &&((Marker)getItems().get(i)).getPosition().getLongitude() == geoPoint.getLongitude()){
-                            if( i == 0){    //시작 마커 지우기
-                                remove(getItems().get(i+1));
-                                remove(getItems().get(i));
-                            }
-                            else if ( i == size-1){     //끝 마커 지우기
-                                remove(getItems().get(i));
-                                remove(getItems().get(i-1));
-                            }
-                            else{       //중간 마커 지우기
-                                remove(getItems().get(i+1));
-                                remove(getItems().get(i));
-                                remove(getItems().get(i-1));
-                                drawPolygon(getItems().get(i-2),getItems().get(i-1),i-1);
-                            }
-                            break;
+                        if(size == 1){  //하나있는 마커 지우기
+                            remove(getItems().get(0));
                         }
-                    }
+                        else {
+                            for (int i = 0 ; i < size; i=i+2){
+                                if(((Marker)getItems().get(i)).getPosition().getLatitude() == geoPoint.getLatitude() &&((Marker)getItems().get(i)).getPosition().getLongitude() == geoPoint.getLongitude()){
+                                    if( i == 0){    //시작 마커 지우기
+                                        remove(getItems().get(i+1));
+                                        remove(getItems().get(i));
+                                    }
+                                    else if ( i == size-1){     //끝 마커 지우기
+                                        remove(getItems().get(i));
+                                        remove(getItems().get(i-1));
+                                    }
+                                    else{       //중간 마커 지우기
+                                        remove(getItems().get(i+1));
+                                        remove(getItems().get(i));
+                                        remove(getItems().get(i-1));
+                                        drawPolygon(getItems().get(i-2),getItems().get(i-1),i-1);
+                                    }
+                                    break;
+                                }
+                            }
+                        }
+                        break;
+                    case R.id.delete_marker_all:    //모든 마커 삭제
+                        while( getItems().size() >0){
+                            remove(getItems().get(0));
+                        }
+                        break;
                 }
                 mapView.invalidate();
                 return false;
