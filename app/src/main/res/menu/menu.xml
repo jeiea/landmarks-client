@@ -5,5 +5,5 @@
         android:id="@+id/action_mode_close_button"
         android:title="Cancel"
         android:icon="@drawable/previous"
-        app:showAsAction="always"/>
+        app:showAsAction="always" />
 </menu>

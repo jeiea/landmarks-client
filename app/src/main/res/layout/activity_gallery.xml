@@ -18,7 +18,7 @@
             android:id="@+id/btn_back"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:src="@drawable/direction_arrow"
+            android:src="@drawable/previous"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintDimensionRatio="1:1"
             app:layout_constraintLeft_toLeftOf="parent"

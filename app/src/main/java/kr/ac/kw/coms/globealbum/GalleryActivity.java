@@ -1,8 +1,6 @@
 package kr.ac.kw.coms.globealbum;
 
-import android.content.Context;
 import android.database.Cursor;
-import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
@@ -10,6 +8,7 @@ import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -56,17 +55,25 @@ public class GalleryActivity extends AppCompatActivity {
         mAdapter = new GalleryAdapter(getImageFilePath()); //파일 목록을 인수로 제공할 것
         mRecyclerView.setAdapter(mAdapter);
 
-        //Toolbar 구현
-        mToolbar = (Toolbar)findViewById(R.id.gallery_toolbar);
-        setSupportActionBar(mToolbar);
     }
-    private ArrayList<String> getImageFilePath()
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if ((keyCode == KeyEvent.KEYCODE_BACK) && ((GalleryAdapter)mAdapter).isMultiSelectMode())
+        {
+            ((GalleryAdapter)mAdapter).UnSelectAll();
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+
+    private ArrayList<Model> getImageFilePath()
     {
         //이미지 파일 쿼리 및 resId 가져오기
         Uri uri;
         Cursor cursor;
         int column_index_data, column_index_folder_name;
-        ArrayList<String> listOfAllImages = new ArrayList<>();
+        ArrayList<Model> listOfAllImages = new ArrayList<>();
         String absolutePathOfImage = null;
         uri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
         String[] projection = {MediaStore.MediaColumns.DATA, MediaStore.Images.Media.BUCKET_DISPLAY_NAME};
@@ -76,7 +83,7 @@ public class GalleryActivity extends AppCompatActivity {
         while(cursor.moveToNext())
         {
             absolutePathOfImage = cursor.getString(column_index_data);
-            listOfAllImages.add(absolutePathOfImage);
+            listOfAllImages.add(new Model(absolutePathOfImage));
         }
         return listOfAllImages;
     }
