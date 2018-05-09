@@ -13,17 +13,23 @@ import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.MapEventsOverlay;
 import org.osmdroid.views.overlay.Marker;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class MyMapView extends org.osmdroid.views.MapView{
-    Context context=null;
+    public Context context=null;
     MapView mapView = this;
     IMapController mapController = null;
-    MarkerLineFolderOverlay markerLineFolderOverlay;  //마커 모아서 관리
+
+
+    List<MarkerLineFolderOverlay> markerLineFolderOverlayList = new ArrayList<MarkerLineFolderOverlay>();
+    MarkerLineFolderOverlay markerLineFolderOverlay = null;  //마커 모아서 관리
 
      // Constructor used by XML layout resource (uses default tile source).
     public MyMapView(final Context context, final AttributeSet attrs) {
         super(context, null, null, attrs);
         this.context=context;
-        markerLineFolderOverlay = new MarkerLineFolderOverlay(mapView,context);
+        markerLineFolderOverlay = new MarkerLineFolderOverlay(this);
         this.post(new Runnable() {
                          @Override
                          public void run() {
@@ -67,10 +73,33 @@ public class MyMapView extends org.osmdroid.views.MapView{
 
         return Math.log(zoom) / Math.log(2);
     }
+
+
+    //마커, 경로를 가지고 있는 markerLineFolderOverlay 객체를 반환
+    public MarkerLineFolderOverlay getRoute(){
+        return markerLineFolderOverlay;
+    }
+
+    public void deleteRoute(MarkerLineFolderOverlay folderOverlay){
+
+    }
+    public void deleteRoute(int index){
+
+    }
+
+    public interface MarkerTouchListener {
+        void OnMarkerTouch(Marker marker);
+    }
+    ArrayList<MarkerTouchListener> markerListeners = new ArrayList<>();
     //화면 터치 시 동작의 리스너를 등록
-    public void setOnTouchMapViewListener(MapEventsReceiver mapEventsReceiver){
-        MapEventsOverlay mapEventsOverlay =new MapEventsOverlay(mapEventsReceiver);
-        getOverlays().add(mapEventsOverlay);
+    public void setOnTouchMapViewListener(MarkerTouchListener listener) {
+        markerListeners.add(listener);
+    }
+
+    public void dispatchMarkerTouch(MarkerLineFolderOverlay route, Marker marker) {
+        for (MarkerTouchListener listener: markerListeners) {
+            listener.OnMarkerTouch(marker);
+        }
     }
 
     //화면 터치 시 동작의 리스너를 해제
@@ -88,7 +117,7 @@ public class MyMapView extends org.osmdroid.views.MapView{
                 Marker marker = new Marker(mapView);
                 marker.setPosition(p);
 
-                markerLineFolderOverlay.add(marker);
+                markerLineFolderOverlay.addMarkerLine(marker);
                 getOverlays().add(markerLineFolderOverlay);
 
                 Toast.makeText(context, markerLineFolderOverlay.getItems().size()+"", Toast.LENGTH_SHORT).show();
