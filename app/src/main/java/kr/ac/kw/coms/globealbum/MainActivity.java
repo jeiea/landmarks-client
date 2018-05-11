@@ -36,6 +36,10 @@ public class MainActivity extends AppCompatActivity {
             double[] Location = exifinfo.getLocation();
             Toast.makeText(this, Location[0] + ", " + Location[1], Toast.LENGTH_LONG).show();
         }
+        else if (resultCode == RESULT_CANCELED)
+        {
+            Toast.makeText(this, "Canceled", Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override

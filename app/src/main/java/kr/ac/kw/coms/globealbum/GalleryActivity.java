@@ -8,10 +8,16 @@ import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.PopupWindow;
+import android.widget.Switch;
 
 import java.util.ArrayList;
 
@@ -19,29 +25,6 @@ public class GalleryActivity extends AppCompatActivity {
     private RecyclerView mRecyclerView;
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
-    private Toolbar mToolbar;
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        //return super.onOptionsItemSelected(item);
-
-        switch (item.getItemId())
-        {
-            case R.id.action_mode_close_button:
-                finish();
-                return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        //return super.onCreateOptionsMenu(menu);
-
-        MenuInflater menuInflater = getMenuInflater();
-        menuInflater.inflate(R.menu.menu, menu);
-        return true;
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,6 +47,7 @@ public class GalleryActivity extends AppCompatActivity {
             ((GalleryAdapter)mAdapter).UnSelectAll();
             return true;
         }
+        setResult(RESULT_CANCELED);
         return super.onKeyDown(keyCode, event);
     }
 
@@ -86,5 +70,35 @@ public class GalleryActivity extends AppCompatActivity {
             listOfAllImages.add(new Model(absolutePathOfImage));
         }
         return listOfAllImages;
+    }
+
+    public void gallery_onClick(View view) {
+        switch (view.getId())
+        {
+            case R.id.btn_back:
+                if (((GalleryAdapter)mAdapter).isMultiSelectMode())
+                {
+                    ((GalleryAdapter) mAdapter).UnSelectAll();
+                }
+                else
+                {
+                    setResult(RESULT_CANCELED);
+                    finish();
+                }
+                break;
+            case R.id.btn_detail:
+                View popupView = getLayoutInflater().inflate(R.layout.layout_gallerymenu, null);
+                final PopupWindow mPopupWindow = new PopupWindow(popupView, LinearLayout.LayoutParams.MATCH_PARENT,
+                        LinearLayout.LayoutParams.MATCH_PARENT);
+                mPopupWindow.showAtLocation(popupView, Gravity.CENTER, 0, 0);
+                Button Delete = (Button)findViewById(R.id.deleteAll);
+                Button Send = (Button)findViewById(R.id.sendFiles);
+                Delete.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                    }
+                });
+                break;
+        }
     }
 }

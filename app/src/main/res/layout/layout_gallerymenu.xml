@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#80000000"
+    android:gravity="center">
+    <Button
+        android:id="@+id/deleteAll"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="전체 삭제" />
+    <Button
+        android:id="@+id/sendFiles"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="결정"/>
+</LinearLayout>

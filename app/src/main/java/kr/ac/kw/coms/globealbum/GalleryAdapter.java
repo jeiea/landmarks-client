@@ -8,6 +8,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.RecyclerView;
 import android.util.DisplayMetrics;
 import android.view.Display;
@@ -85,7 +86,11 @@ class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHolder> {
             @Override
             public boolean onLongClick(View v) {
                 MultiSelectMode = true;
-                return false;
+                ((AppCompatImageView)((Activity)context).findViewById(R.id.btn_detail)).setVisibility(View.VISIBLE);
+                model.setSelected(!model.isSelected());
+                holder.mImageView.setBackgroundColor(model.isSelected() ? Color.CYAN : Color.WHITE);
+                Toast.makeText(context, model.isSelected() ? "SELECTED" : "UNSELECTED", Toast.LENGTH_SHORT).show();
+                return true;
             }
         });
     }
@@ -105,6 +110,7 @@ class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHolder> {
             i.mImageView.setBackgroundColor(Color.WHITE);
         }
         MultiSelectMode = false;
+        ((AppCompatImageView)((Activity)context).findViewById(R.id.btn_detail)).setVisibility(View.GONE);
     }
     public boolean isMultiSelectMode()
     {

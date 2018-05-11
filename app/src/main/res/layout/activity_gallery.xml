@@ -22,7 +22,20 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintDimensionRatio="1:1"
             app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            android:onClick="gallery_onClick"/>
+
+        <android.support.v7.widget.AppCompatImageView
+            android:id="@+id/btn_detail"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:src="@drawable/moreinfo_arrow"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintDimensionRatio="1:1"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:visibility="gone"
+            android:onClick="gallery_onClick"/>
 
     </android.support.constraint.ConstraintLayout>
 
@@ -35,14 +48,14 @@
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/recycler_view"
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="0dp"
         android:scrollbars="vertical"
         app:layoutManager="android.support.v7.widget.GridLayoutManager"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@id/guide_top"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:spanCount="3" />
 
 </android.support.constraint.ConstraintLayout>
