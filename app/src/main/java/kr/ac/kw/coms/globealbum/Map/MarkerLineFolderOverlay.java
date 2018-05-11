@@ -9,9 +9,11 @@ import android.widget.Toast;
 
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
+import org.osmdroid.views.overlay.DefaultOverlayManager;
 import org.osmdroid.views.overlay.FolderOverlay;
 import org.osmdroid.views.overlay.Marker;
 import org.osmdroid.views.overlay.Overlay;
+import org.osmdroid.views.overlay.OverlayManager;
 import org.osmdroid.views.overlay.Polygon;
 
 import java.util.ArrayList;
@@ -27,10 +29,19 @@ public class MarkerLineFolderOverlay extends FolderOverlay{
     /** temporary 1x1 pix view where popup-menu is attached to */
     private View tempPopupMenuParentView = null;
 
+    final int ONLYMARKER =1;
+    final int MARKER_LINE=2;
+    private  int curMode=MARKER_LINE;
+
+
     public MarkerLineFolderOverlay(MyMapView mapView){
         super();
         this.mapView = mapView;
         this.context = mapView.context;
+    }
+
+    public void setMode(int mode){
+        curMode = mode;
     }
 
 
@@ -41,6 +52,7 @@ public class MarkerLineFolderOverlay extends FolderOverlay{
             @Override
             public boolean onMarkerClick(Marker marker, MapView mapView) {
                 showPopupMenu(marker.getPosition());
+                ((MyMapView)mapView).dispatchMarkerTouch(MarkerLineFolderOverlay.this, marker);
                 return true;
             }
         });
@@ -65,6 +77,7 @@ public class MarkerLineFolderOverlay extends FolderOverlay{
         }
         return super.add(item);
     }
+
     //현재 사용 중인 마커를 반환
     public List<Marker> getMarkerList(){
         List<Marker> markerList = new ArrayList<Marker>();
@@ -77,6 +90,38 @@ public class MarkerLineFolderOverlay extends FolderOverlay{
     }
 
 
+    //마커의 순서를 바꿔주는 메서드, 인자는 짝수여야함
+    public void moveMarker(int from, int to) throws Exception{
+        if(from %2 != 0 || to % 2 !=0){ //짝수여야함
+            throw new Exception();
+        }
+        int size=getItems().size();
+        if(size< 1 || from > size || to > size ){   //인자가 마커 인덱스보다 크면 안됨
+            throw  new Exception();
+        }
+
+        OverlayManager tmpOverlayManager;
+        tmpOverlayManager = new DefaultOverlayManager(null);
+
+        for(int i = 0 ; i < mOverlayManager.size(); i=i+2){
+            Overlay overlay = mOverlayManager.get(i);
+            if( i == from ){
+                overlay = mOverlayManager.get(to);
+            }
+            else if ( i == to){
+                overlay = mOverlayManager.get(from);
+            }
+            else{
+                tmpOverlayManager.add(overlay);
+            }
+        }
+        for ( Overlay overlay: mOverlayManager) {
+            mOverlayManager.remove(overlay);
+        }
+        for ( Overlay overlay: tmpOverlayManager) {
+            addMarkerLine(overlay);
+        }
+    }
 
     //마커와 마커 사이를 이어주는 직선을 만든다.
     //직선을 넣을 곳의 앞 뒤 마커를 인자와 인덱스를 전달
@@ -105,31 +150,11 @@ public class MarkerLineFolderOverlay extends FolderOverlay{
             public boolean onMenuItemClick(MenuItem menuItem) {
                 switch (menuItem.getItemId()){
                     case R.id.delete_marker:    //마커 하나 삭제
-                        int size = getItems().size();
-
-                        if(size == 1){  //하나있는 마커 지우기
-                            remove(getItems().get(0));
+                        if( curMode ==ONLYMARKER){  //마커만 있는 경우
+                            removeMarker(geoPoint);
                         }
-                        else {
-                            for (int i = 0 ; i < size; i=i+2){
-                                if(((Marker)getItems().get(i)).getPosition().getLatitude() == geoPoint.getLatitude() &&((Marker)getItems().get(i)).getPosition().getLongitude() == geoPoint.getLongitude()){
-                                    if( i == 0){    //시작 마커 지우기
-                                        remove(getItems().get(i+1));
-                                        remove(getItems().get(i));
-                                    }
-                                    else if ( i == size-1){     //끝 마커 지우기
-                                        remove(getItems().get(i));
-                                        remove(getItems().get(i-1));
-                                    }
-                                    else{       //중간 마커 지우기
-                                        remove(getItems().get(i+1));
-                                        remove(getItems().get(i));
-                                        remove(getItems().get(i-1));
-                                        drawPolygon(getItems().get(i-2),getItems().get(i-1),i-1);
-                                    }
-                                    break;
-                                }
-                            }
+                        else if(curMode ==MARKER_LINE){ //마커와 선이 같이 있는 경우
+                            removeMarkerLine(geoPoint);
                         }
                         break;
                     case R.id.delete_marker_all:    //모든 마커 삭제
@@ -143,6 +168,53 @@ public class MarkerLineFolderOverlay extends FolderOverlay{
             }
         });
         popupMenu.show();
+    }
+
+    //좌표에 맞는 마커와 선분을 지우고 인덱스를 반환
+    private int removeMarkerLine(GeoPoint geoPoint){
+        int size = getItems().size();
+        int index =-1;
+
+        if(size == 1){  //하나있는 마커 지우기
+            remove(getItems().get(0));
+            index=0;
+        }
+        else {
+            for (int i = 0 ; i < size; i=i+2){
+                if(((Marker)getItems().get(i)).getPosition().getLatitude() == geoPoint.getLatitude() &&((Marker)getItems().get(i)).getPosition().getLongitude() == geoPoint.getLongitude()){
+                    if( i == 0){    //시작 마커 지우기
+                        remove(getItems().get(i+1));
+                        remove(getItems().get(i));
+                        index=i;
+                    }
+                    else if ( i == size-1){     //끝 마커 지우기
+                        remove(getItems().get(i));
+                        remove(getItems().get(i-1));
+                        index=i;
+                    }
+                    else{       //중간 마커 지우기
+                        remove(getItems().get(i+1));
+                        remove(getItems().get(i));
+                        remove(getItems().get(i-1));
+                        drawPolygon(getItems().get(i-2),getItems().get(i-1),i-1);
+                        index=i;
+                    }
+                    break;
+                }
+            }
+        }
+        return index;
+    }
+    //좌표에 맞는 마커를 지우고 인덱스를 반환
+    private int removeMarker(GeoPoint geoPoint){
+        int size = getItems().size();
+        for (int i = 0 ; i < size; i=i+1){
+            if(((Marker)getItems().get(i)).getPosition().getLatitude() == geoPoint.getLatitude() &&((Marker)getItems().get(i)).getPosition().getLongitude() == geoPoint.getLongitude()){
+                remove(getItems().get(i));
+                return i;
+            }
+        }
+        return -1;
     }
 
     //팝업 메뉴 만드는 메서드

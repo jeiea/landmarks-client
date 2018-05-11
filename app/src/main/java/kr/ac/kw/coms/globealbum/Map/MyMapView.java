@@ -21,7 +21,7 @@ public class MyMapView extends org.osmdroid.views.MapView{
     MapView mapView = this;
     IMapController mapController = null;
 
-
+    ArrayList<MarkerTouchListener> markerListeners = new ArrayList<>(); //마커클릭 시 필요한 리스너를 모아둔다
     List<MarkerLineFolderOverlay> markerLineFolderOverlayList = new ArrayList<MarkerLineFolderOverlay>();
     MarkerLineFolderOverlay markerLineFolderOverlay = null;  //마커 모아서 관리
 
@@ -43,6 +43,13 @@ public class MyMapView extends org.osmdroid.views.MapView{
         super(context, null, null, null);
     }
 
+
+    //맵뷰의 내용을 다시 그려주는 메서드
+    public void myMapViewInvalidate(){
+        mapView.invalidate();
+    }
+
+
     //맵 초기 설정
     private void mapConfiguration() {
 
@@ -61,7 +68,7 @@ public class MyMapView extends org.osmdroid.views.MapView{
         mapController.setZoom(logZoom);
 
         addMapEventListener();
-        invalidate();
+        myMapViewInvalidate();
     }
 
     //맵뷰를 화면에 맞추기 위해 필요한 사전 작업
@@ -90,21 +97,17 @@ public class MyMapView extends org.osmdroid.views.MapView{
     public interface MarkerTouchListener {
         void OnMarkerTouch(Marker marker);
     }
-    ArrayList<MarkerTouchListener> markerListeners = new ArrayList<>();
+
     //화면 터치 시 동작의 리스너를 등록
     public void setOnTouchMapViewListener(MarkerTouchListener listener) {
         markerListeners.add(listener);
     }
 
+    //발생 이벤트를 전달
     public void dispatchMarkerTouch(MarkerLineFolderOverlay route, Marker marker) {
         for (MarkerTouchListener listener: markerListeners) {
             listener.OnMarkerTouch(marker);
         }
-    }
-
-    //화면 터치 시 동작의 리스너를 해제
-    public void removeOnTouchMapViewListener(MapEventsReceiver mapEventsReceiver){
-        getOverlays().remove(mapEventsReceiver);
     }
 
     //화면 터치 시, 마커를 화면에 추가
