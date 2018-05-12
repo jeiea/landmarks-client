@@ -1,0 +1,107 @@
+# Registration request
+
+POST http://localhost:3000/auth/page/email/register
+Accept: application/json
+Content-Type: application/json
+User-Agent: landmarks-client
+
+{"email": "fpfp@grr.la"}
+
+# Registration response
+
+HTTP/1.1 200 OK
+Transfer-Encoding: chunked
+Date: Sat, 12 May 2018 19:58:00 GMT
+Server: Warp/3.2.22
+Content-Type: application/json; charset=utf-8
+Set-Cookie: _SESSION=ZO8uCvNJwnomM3+nFiCIjOmvUxKBXCNrS1+3I5FuSeu4nkkRbgBhx/m8QvjImKlflF3Ta25IbJSoruEWXX32Xl9D8rFXIwf6Bzhkd4fwXDp6DOvs1eHTInNQFbkzpEKe0GGQh6S/HT0=; Path=/; Expires=Sat, 12-May-2018 21:57:00 GMT; HttpOnly
+Vary: Accept, Accept-Language
+Request duration: 60.144826s
+
+{
+  "message": "A confirmation e-mail has been sent to fpfp@grr.la."
+}
+
+# Verification request
+
+GET http://localhost:3000/auth/page/email/verify/1/mymyASekH3q8R6rFa0NglRZz
+Accept: application/json
+Content-Type: application/json
+User-Agent: landmarks-client
+
+# Verification response success
+GET http://localhost:3000/auth/page/email/verify/1/mymyASekH3q8R6rFa0NglRZz
+HTTP/1.1 200 OK
+Transfer-Encoding: chunked
+Date: Sat, 12 May 2018 20:03:09 GMT
+Server: Warp/3.2.22
+Content-Type: application/json; charset=utf-8
+Set-Cookie: _SESSION=zHXTE+Op26AEyunInQGbfkrAKR++iUcy4WmF1tXJM5nO3nkfzSF2Q0bb4y42TEKNiI/G2ScGrpBzkqgDh89it4qpKB/EFTfYXyw+fBLoMCSoZ7wFRPVrT+XIUch19zwCHSqzIRNxwEX5xEDSC1kII33AnpTLy9JM8MBrVpQqS6qqSJJyS5giSlD2drSCW5Zaum4X8ZDjR6W5VXfMv+qizTIK6G7b3i+etzRXTKA4EGbZaNUdbfy2JP1inJq9r/Kex6r7TYe9XG9C; Path=/; Expires=Sat, 12-May-2018 22:03:09 GMT; HttpOnly
+Vary: Accept, Accept-Language
+Request duration: 0.021565s
+
+{
+  "message": "Address verified, please set a new password"
+}
+
+# Set password request
+
+POST http://localhost:3000/auth/page/email/set-password
+Accept: application/json
+Content-Type: application/json
+User-Agent: landmarks-client
+
+{ "new": "1234",
+  "confirm": "1234",
+  "current": "" }
+
+# Set password success
+HTTP/1.1 200 OK
+Transfer-Encoding: chunked
+Date: Sat, 12 May 2018 20:06:30 GMT
+Server: Warp/3.2.22
+Content-Type: application/json; charset=utf-8
+Set-Cookie: _SESSION=l9CwvndqurnrT3+69dLx/Db9RYxo6hK8U7NRh9bVKnIDinYduGfkrZZzS7t3ehXXwCF4SGv7lZQhd6QHF7VqFvtH5CJIxrrmsEt69kBxSLUOto8sdELzGnsCRZGAu3htnGtMGrg4ec9ptVMMEgbuYAoCVdh1BlCho0wPtkhQEU8cktTOkL6iksvIVmGmXQQaNt27F/zZwdX5kTd+eDsxpRYPXuQPypYM; Path=/; Expires=Sat, 12-May-2018 22:06:30 GMT; HttpOnly
+Vary: Accept, Accept-Language
+Request duration: 0.139760s
+
+{
+  "message": "Password updated"
+}
+
+# Login request
+
+POST http://localhost:3000/auth/page/email/login
+Accept: application/json
+Content-Type: application/json
+User-Agent: landmarks-client
+
+{"email": "fpfp@grr.la", "password": "1234"}
+
+# Login success
+
+POST http://localhost:3000/auth/page/email/login
+HTTP/1.1 200 OK
+Transfer-Encoding: chunked
+Date: Sat, 12 May 2018 20:07:41 GMT
+Server: Warp/3.2.22
+Content-Type: application/json; charset=utf-8
+Set-Cookie: _SESSION=0ZulWnOuonaHvp12y3L4ikbd7mlNj81oU4W5rVrbmM6SFYGSNvyKaO7kr+KqgMhQSzj2phs3RxPN4cZ0VwabTlaXuPzA7cGYpBT58oomsnyeMJlzaMkgTKFtjNDwdHkS24SpRzwdevtnvmHo1EVWG/+Y6v9r7ydkoiRT7dNcx4L3t57/+r9KjRUXWl4Ehjd1/yjQArYqf2s366DUM0uqes97EOBgUEYnt5roXmnRNRvR1Rp6c3vQ87zGcE93EmbJ8fP2+Aas; Path=/; Expires=Sat, 12-May-2018 22:07:41 GMT; HttpOnly
+Vary: Accept, Accept-Language
+Request duration: 0.112357s
+
+{
+  "message": "Login Successful"
+}
+
+# Logout request
+
+POST http://localhost:3000/auth/logout
+Accept: application/json
+Content-Type: application/json
+User-Agent: landmarks-client
+
+# Test for whether I logged in
+
+GET http://localhost:3000/auth/login
+
