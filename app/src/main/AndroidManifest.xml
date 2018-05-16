@@ -35,7 +35,8 @@
             </intent-filter>
         </activity>
         <activity android:name=".GalleryActivity" />
-        <activity android:name=".MarkerPopupMenu"></activity>
+        <activity android:name=".MarkerPopupMenu" />
+        <activity android:name=".activity_Navigator"></activity>
     </application>
 
 </manifest>
