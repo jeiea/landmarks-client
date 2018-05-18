@@ -12,7 +12,6 @@ import android.widget.LinearLayout;
 
 import java.util.ArrayList;
 
-import kr.ac.kw.coms.globealbum.MapImageAdapter;
 import kr.ac.kw.coms.globealbum.R;
 
 public class activity_Navigator extends AppCompatActivity {
