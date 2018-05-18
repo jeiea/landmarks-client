@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 
@@ -16,14 +17,21 @@ class MapImageAdapter extends RecyclerView.Adapter<MapImageAdapter.ViewHolder> {
 
     public static class ViewHolder extends RecyclerView.ViewHolder
     {
+        TextView mName;
+        RecyclerView mImgList;
         public ViewHolder(View view)
         {
             super(view);
+            mName = (TextView)((LinearLayout)view).getChildAt(0);
+            mImgList = (RecyclerView)((LinearLayout)view).getChildAt(1);
         }
     }
 
     public MapImageAdapter(ArrayList<String> folderList) {
         this.folderList = folderList;
+        this.folderList.add("0");
+        this.folderList.add("1");
+        this.folderList.add("2");
     }
 
     @NonNull
@@ -36,7 +44,7 @@ class MapImageAdapter extends RecyclerView.Adapter<MapImageAdapter.ViewHolder> {
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-
+        holder.mName.setText("#" + position);
     }
 
     @Override
