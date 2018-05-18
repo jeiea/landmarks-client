@@ -69,7 +69,6 @@ public class MyMapView extends org.osmdroid.views.MapView{
         mapController = getController();
         mapController.setZoom(logZoom);
 
-
         addMarkerToMapviewReceiver();
         myMapViewInvalidate();
     }
