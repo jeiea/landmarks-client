@@ -1,4 +1,4 @@
-package kr.ac.kw.coms.globealbum;
+package kr.ac.kw.coms.globealbum.album;
 /* 작성자: 이상훈 */
 import android.graphics.Bitmap;
 

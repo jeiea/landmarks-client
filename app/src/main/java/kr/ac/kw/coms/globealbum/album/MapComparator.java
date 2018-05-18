@@ -1,4 +1,4 @@
-package kr.ac.kw.coms.globealbum;
+package kr.ac.kw.coms.globealbum.album;
 
 import java.util.Comparator;
 import java.util.HashMap;

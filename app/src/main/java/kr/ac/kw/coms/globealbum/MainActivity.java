@@ -14,11 +14,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import kr.ac.kw.coms.globealbum.Game.GameActivity;
+import kr.ac.kw.coms.globealbum.album.GalleryActivity;
+import kr.ac.kw.coms.globealbum.album.activity_Navigator;
+import kr.ac.kw.coms.globealbum.game.GameActivity;
+import kr.ac.kw.coms.globealbum.provider.EXIFinfo;
 
 
 public class MainActivity extends AppCompatActivity {
-    kr.ac.kw.coms.globealbum.EXIFinfo exifinfo;
+    EXIFinfo exifinfo;
 
     final private int REQUEST_CODE_ASK_MULTIPLE_PERMISSIONS = 124;
 

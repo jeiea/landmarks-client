@@ -1,4 +1,4 @@
-package kr.ac.kw.coms.globealbum.Game;
+package kr.ac.kw.coms.globealbum.game;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -7,7 +7,7 @@ import android.support.v7.app.AppCompatActivity;
 
 import org.osmdroid.config.Configuration;
 
-import kr.ac.kw.coms.globealbum.Map.MyMapView;
+import kr.ac.kw.coms.globealbum.map.MyMapView;
 import kr.ac.kw.coms.globealbum.R;
 
 

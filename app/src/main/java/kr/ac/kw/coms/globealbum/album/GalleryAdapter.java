@@ -1,4 +1,4 @@
-package kr.ac.kw.coms.globealbum;
+package kr.ac.kw.coms.globealbum.album;
 /* 작성자: 이상훈 */
 import android.app.Activity;
 import android.content.Context;
@@ -7,21 +7,17 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.RecyclerView;
-import android.util.DisplayMetrics;
-import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import java.io.File;
 import java.util.ArrayList;
-import java.util.List;
+
+import kr.ac.kw.coms.globealbum.R;
 
 class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHolder> {
     private ArrayList<Model> mDataset;

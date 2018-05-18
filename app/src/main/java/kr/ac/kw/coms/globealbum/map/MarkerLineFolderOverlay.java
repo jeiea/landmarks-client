@@ -1,11 +1,10 @@
-package kr.ac.kw.coms.globealbum.Map;
+package kr.ac.kw.coms.globealbum.map;
 
 import android.content.Context;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.PopupMenu;
-import android.widget.Toast;
 
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;

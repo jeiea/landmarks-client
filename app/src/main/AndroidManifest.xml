@@ -26,7 +26,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".Game.GameActivity"
+            android:name=".game.GameActivity"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
@@ -34,9 +34,9 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-        <activity android:name=".GalleryActivity" />
+        <activity android:name=".album.GalleryActivity" />
         <activity android:name=".MarkerPopupMenu" />
-        <activity android:name=".activity_Navigator"></activity>
+        <activity android:name=".album.activity_Navigator"></activity>
     </application>
 
 </manifest>

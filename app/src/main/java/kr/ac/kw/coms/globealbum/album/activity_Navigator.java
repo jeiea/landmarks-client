@@ -1,4 +1,4 @@
-package kr.ac.kw.coms.globealbum;
+package kr.ac.kw.coms.globealbum.album;
 /* 작성자: 이상훈 */
 import android.content.Context;
 import android.graphics.Point;
@@ -11,6 +11,9 @@ import android.view.WindowManager;
 import android.widget.LinearLayout;
 
 import java.util.ArrayList;
+
+import kr.ac.kw.coms.globealbum.MapImageAdapter;
+import kr.ac.kw.coms.globealbum.R;
 
 public class activity_Navigator extends AppCompatActivity {
 

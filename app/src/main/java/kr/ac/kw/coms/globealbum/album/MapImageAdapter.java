@@ -1,4 +1,4 @@
-package kr.ac.kw.coms.globealbum;
+package kr.ac.kw.coms.globealbum.album;
 /* 작성자: 이상훈 */
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
@@ -8,6 +8,8 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 
 import java.util.ArrayList;
+
+import kr.ac.kw.coms.globealbum.R;
 
 class MapImageAdapter extends RecyclerView.Adapter<MapImageAdapter.ViewHolder> {
     ArrayList<String> folderList;
