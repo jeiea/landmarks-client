@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MapActivity">
+    tools:context=".Game.GameActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -14,6 +14,7 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="0.45">
+
             <kr.ac.kw.coms.globealbum.Map.MyMapView
                 android:id="@+id/map"
                 android:layout_width="match_parent"
@@ -21,8 +22,34 @@
             <Button
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="MENU"
-                android:layout_gravity="top|left"/>
+                android:layout_gravity="left|top"
+                android:text="back"
+                android:id="@+id/button_back"/>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="scrap"
+                    android:layout_alignParentTop="true"
+                    android:layout_alignParentRight="true"
+                    android:id="@+id/button_scrap"/>
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="hint"
+                    android:id="@+id/button_hint"
+                    android:layout_toLeftOf="@id/button_scrap"/>
+            </RelativeLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal|top"
+                android:text="00:00"
+                android:id="@+id/textview_time"/>
         </FrameLayout>
         <LinearLayout
             android:layout_width="match_parent"

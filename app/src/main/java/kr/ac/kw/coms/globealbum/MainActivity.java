@@ -4,7 +4,6 @@ import android.Manifest;
 import android.view.View;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
@@ -14,6 +13,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import kr.ac.kw.coms.globealbum.Game.GameActivity;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -62,7 +63,7 @@ public class MainActivity extends AppCompatActivity {
     public void startOnClick(View v){
         switch(v.getId()){
             case R.id.btn_start_map:
-                startActivity(new Intent(this,MapActivity.class));
+                startActivity(new Intent(this,GameActivity.class));
                 break;
             case R.id.btn_start_web_gallery:
                 startActivityForResult(new Intent(this, GalleryActivity.class), 1);

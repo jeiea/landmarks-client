@@ -44,8 +44,6 @@ public class MarkerLineFolderOverlay extends FolderOverlay{
         curMode = mode;
     }
 
-
-
     //마커만을 맵뷰에 나타내어 준다
     public boolean addMarker(Marker item){
         ((Marker)item).setOnMarkerClickListener(new Marker.OnMarkerClickListener() {
@@ -88,7 +86,6 @@ public class MarkerLineFolderOverlay extends FolderOverlay{
         }
         return markerList;
     }
-
 
     //마커의 순서를 바꿔주는 메서드, 인자는 짝수여야함
     public void moveMarker(int from, int to) throws Exception{
@@ -219,15 +216,18 @@ public class MarkerLineFolderOverlay extends FolderOverlay{
 
     //팝업 메뉴 만드는 메서드
     private View createTempPopupParentMenuView(GeoPoint position) {
-        if (tempPopupMenuParentView != null)mapView.removeView(tempPopupMenuParentView);
-        tempPopupMenuParentView = new View(context);
-        MapView.LayoutParams lp = new MapView.LayoutParams(
-                1,
-                1,
-                position, MapView.LayoutParams.CENTER,
-                0, 0);
-        tempPopupMenuParentView.setVisibility(View.VISIBLE);
-        mapView.addView(tempPopupMenuParentView, lp);
+        if (tempPopupMenuParentView != null) {
+
+            mapView.removeView(tempPopupMenuParentView);
+            tempPopupMenuParentView = new View(context);
+            MapView.LayoutParams lp = new MapView.LayoutParams(
+                    1,
+                    1,
+                    position, MapView.LayoutParams.CENTER,
+                    0, 0);
+            tempPopupMenuParentView.setVisibility(View.VISIBLE);
+            mapView.addView(tempPopupMenuParentView, lp);
+        }
         return tempPopupMenuParentView;
     }
 }
