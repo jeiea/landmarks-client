@@ -42,6 +42,7 @@ public class MyMapView extends org.osmdroid.views.MapView{
                          }
                      }
         );
+        getOverlays().add(markerLineFolderOverlay);
     }
     public MyMapView(final Context context) {
         super(context, null, null, null);
@@ -158,7 +159,6 @@ public class MyMapView extends org.osmdroid.views.MapView{
                 marker.setPosition(p);
 
                 markerLineFolderOverlay.addMarkerLine(marker);
-                getOverlays().add(markerLineFolderOverlay);
 
                 Toast.makeText(context, markerLineFolderOverlay.getItems().size()+"", Toast.LENGTH_SHORT).show();
 
