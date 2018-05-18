@@ -1,25 +1,24 @@
-package kr.ac.kw.coms.globealbum;
+package kr.ac.kw.coms.globealbum.Game;
 
 import android.content.Context;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
-import android.util.AttributeSet;
-import android.view.View;
 
 import org.osmdroid.config.Configuration;
 
 import kr.ac.kw.coms.globealbum.Map.MyMapView;
+import kr.ac.kw.coms.globealbum.R;
 
 
-public class MapActivity extends AppCompatActivity {
+public class GameActivity extends AppCompatActivity {
     Context context = null;
     MyMapView myMapView= null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_map);
+        setContentView(R.layout.activity_game);
 
         //osmdroid 초기 구성
         context = getApplicationContext();
