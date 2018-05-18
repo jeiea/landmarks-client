@@ -56,6 +56,8 @@ captures/
 .idea/uiDesigner.xml
 .idea/caches/
 
+.idea/shelf
+
 # Keystore files
 # Uncomment the following line if you do not want to check your keystore files in.
 #*.jks
@@ -77,5 +79,3 @@ fastlane/Preview.html
 fastlane/screenshots
 fastlane/test_output
 fastlane/readme.md
-
-/.idea/modules.xml
