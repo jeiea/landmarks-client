@@ -1,5 +1,5 @@
 package kr.ac.kw.coms.globealbum;
-
+/* 작성자: 이상훈 */
 import android.graphics.Bitmap;
 
 public class Model {

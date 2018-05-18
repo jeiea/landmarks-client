@@ -9,7 +9,7 @@
 
     <LinearLayout android:id="@+id/MapLayout"
         android:layout_width="match_parent"
-        android:layout_height="100dp"
+        android:layout_height="300dp"
         android:orientation="vertical">
         <kr.ac.kw.coms.globealbum.Map.MyMapView
             android:layout_width="match_parent"
@@ -22,11 +22,11 @@
         android:layout_height="10dp">
 
     </View>
-    <LinearLayout android:id="@+id/MapImgLayout"
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/MapImgView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:layout_height="match_parent">
 
-    </LinearLayout>
+    </android.support.v7.widget.RecyclerView>
 
 </LinearLayout>

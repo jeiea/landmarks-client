@@ -28,6 +28,12 @@
             android:text="start storage"
             android:onClick="startOnClick"
             android:id="@+id/btn_start_storage"/>
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Open Navigator"
+            android:onClick="startOnClick"
+            android:id="@+id/btn_start_navigator"/>
 
     </LinearLayout>
 </android.support.constraint.ConstraintLayout>

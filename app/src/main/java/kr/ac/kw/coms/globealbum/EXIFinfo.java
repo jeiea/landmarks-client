@@ -1,8 +1,11 @@
 package kr.ac.kw.coms.globealbum;
+/* 작성자: 이상훈 */
+import android.support.annotation.NonNull;
 
 import com.drew.imaging.ImageMetadataReader;
 import com.drew.imaging.ImageProcessingException;
 import com.drew.lang.GeoLocation;
+import com.drew.lang.annotations.NotNull;
 import com.drew.metadata.Metadata;
 import com.drew.metadata.exif.GpsDirectory;
 

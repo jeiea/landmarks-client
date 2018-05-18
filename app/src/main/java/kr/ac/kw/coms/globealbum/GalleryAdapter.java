@@ -1,5 +1,5 @@
 package kr.ac.kw.coms.globealbum;
-
+/* 작성자: 이상훈 */
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;

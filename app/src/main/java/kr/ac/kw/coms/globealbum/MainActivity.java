@@ -36,6 +36,10 @@ public class MainActivity extends AppCompatActivity {
             double[] Location = exifinfo.getLocation();
             Toast.makeText(this, Location[0] + ", " + Location[1], Toast.LENGTH_LONG).show();
         }
+        else if (requestCode == 3)
+        {
+
+        }
         else if (resultCode == RESULT_CANCELED)
         {
             Toast.makeText(this, "Canceled", Toast.LENGTH_SHORT).show();
@@ -66,6 +70,8 @@ public class MainActivity extends AppCompatActivity {
                 break;
             case R.id.btn_start_storage:
                 startActivityForResult(new Intent(this, GalleryActivity.class), 2);
+            case R.id.btn_start_navigator:
+                startActivityForResult(new Intent(this, activity_Navigator.class), 3);
         }
     }
 

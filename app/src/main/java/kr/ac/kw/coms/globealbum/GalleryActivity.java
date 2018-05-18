@@ -1,5 +1,5 @@
 package kr.ac.kw.coms.globealbum;
-
+/* 작성자: 이상훈 */
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.MediaStore;
@@ -37,7 +37,6 @@ public class GalleryActivity extends AppCompatActivity {
         mRecyclerView.setLayoutManager(mLayoutManager);
         mAdapter = new GalleryAdapter(getImageFilePath()); //파일 목록을 인수로 제공할 것
         mRecyclerView.setAdapter(mAdapter);
-
     }
 
     @Override
