@@ -19,7 +19,8 @@
     </LinearLayout>
     <View android:id="@+id/Divider"
         android:layout_width="match_parent"
-        android:layout_height="10dp">
+        android:layout_height="10dp"
+        android:background="@color/colorPrimaryDark">
 
     </View>
     <android.support.v7.widget.RecyclerView

@@ -28,7 +28,7 @@ class MapImageAdapter extends RecyclerView.Adapter<MapImageAdapter.ViewHolder> {
     }
 
     public MapImageAdapter(ArrayList<String> folderList) {
-        this.folderList = folderList;
+        //this.folderList = folderList;
         this.folderList.add("0");
         this.folderList.add("1");
         this.folderList.add("2");
