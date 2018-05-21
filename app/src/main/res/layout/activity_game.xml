@@ -48,38 +48,50 @@
                 android:layout_gravity="center_horizontal|top"
                 android:text="00:00"
                 android:id="@+id/textview_time"/>
-
         </FrameLayout>
 
-        <FrameLayout
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
-            <ImageView
-                android:layout_width="500px"
-                android:layout_height="500px"
-                android:layout_gravity="center"
-                android:id="@+id/test_imageview"
-                android:src="@drawable/blank"/>
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:weightSum="2">
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_gravity="center_vertical|bottom"
                 android:orientation="horizontal"
-                android:weightSum="3">
+                android:layout_weight="1"
+                android:weightSum="2">
                 <ImageView
-                    android:layout_width="0dp"
+                    android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:id="@+id/quizImage"/>
-                <ImageView
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
+                    android:src="@drawable/navto_small"
+                    android:id="@+id/picture1"
                     android:layout_weight="1"/>
                 <ImageView
-                    android:layout_width="0dp"
+                    android:layout_width="match_parent"
                     android:layout_height="match_parent"
+                    android:src="@drawable/navto_small"
+                    android:id="@+id/picture2"
                     android:layout_weight="1"/>
             </LinearLayout>
-        </FrameLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal"
+                android:layout_weight="1">
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:src="@drawable/navto_small"
+                    android:id="@+id/picture3"
+                    android:layout_weight="1"/>
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:src="@drawable/navto_small"
+                    android:id="@+id/picture4"
+                    android:layout_weight="1"/>
+            </LinearLayout>
+        </LinearLayout>
     </LinearLayout>
 </android.support.constraint.ConstraintLayout>
