@@ -30,7 +30,6 @@ public class MyMapView extends org.osmdroid.views.MapView{
     public MyMapView(final Context context, final AttributeSet attrs) {
         super(context, null, null, attrs);
         this.context=context;
-        markerLineFolderOverlay = new MarkerLineFolderOverlay(this);
         this.post(new Runnable() {
                          @Override
                          public void run() {
@@ -39,7 +38,6 @@ public class MyMapView extends org.osmdroid.views.MapView{
                          }
                      }
         );
-        getOverlays().add(markerLineFolderOverlay);
     }
     public MyMapView(final Context context) {
         super(context, null, null, null);
@@ -68,6 +66,9 @@ public class MyMapView extends org.osmdroid.views.MapView{
 
         mapController = getController();
         mapController.setZoom(logZoom);
+
+
+        markerLineFolderOverlay = new MarkerLineFolderOverlay(this);
 
         addMarkerToMapviewReceiver();
         myMapViewInvalidate();
@@ -153,14 +154,16 @@ public class MyMapView extends org.osmdroid.views.MapView{
 
                 Marker marker = new Marker(MyMapView.this);
                 marker.setPosition(p);
-
+                //marker.closeInfoWindow();
+                //marker.getInfoWindow().close();
                 //markerLineFolderOverlay.addMarkerLine(marker);
                 markerLineFolderOverlay.addMarker(marker);
+                getOverlays().add(markerLineFolderOverlay);
 
                 Toast.makeText(context, markerLineFolderOverlay.getItems().size()+"", Toast.LENGTH_SHORT).show();
 
                 myMapViewInvalidate();
-                return false;
+                return true;
             }
             @Override
             public boolean longPressHelper(GeoPoint p) {    //길게 터치시
