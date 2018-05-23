@@ -1,6 +1,7 @@
 package kr.ac.kw.coms.globealbum.game;
 
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
@@ -12,6 +13,7 @@ import android.widget.ImageView;
 
 import org.osmdroid.config.Configuration;
 
+import kr.ac.kw.coms.globealbum.common.PictureDialogFragment;
 import kr.ac.kw.coms.globealbum.map.MyMapView;
 import kr.ac.kw.coms.globealbum.R;
 
@@ -78,8 +80,10 @@ public class GameActivity extends AppCompatActivity {
     //사진 클릭 시 크게 띄워주는 이벤트 등록
     class PictureClickListener implements View.OnClickListener{
         @Override
-        public void onClick(View view) {
-
+        public void onClick(View view) {    //이미지뷰를 다이얼로그로 화면에 표시
+            ImageView imgv = (ImageView)view;
+            PictureDialogFragment pdf = PictureDialogFragment.Companion.newInstance(imgv.getDrawable());
+            pdf.show(getSupportFragmentManager(), "wow");
         }
     }
 

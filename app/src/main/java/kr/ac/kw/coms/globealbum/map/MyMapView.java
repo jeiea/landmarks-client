@@ -154,7 +154,8 @@ public class MyMapView extends org.osmdroid.views.MapView{
                 Marker marker = new Marker(MyMapView.this);
                 marker.setPosition(p);
 
-                markerLineFolderOverlay.addMarkerLine(marker);
+                //markerLineFolderOverlay.addMarkerLine(marker);
+                markerLineFolderOverlay.addMarker(marker);
 
                 Toast.makeText(context, markerLineFolderOverlay.getItems().size()+"", Toast.LENGTH_SHORT).show();
 

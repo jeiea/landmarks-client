@@ -58,7 +58,9 @@ public class MarkerLineFolderOverlay extends FolderOverlay{
 
     //마커와 라인(루트)을 OverlayManager에 추가
     public boolean addMarkerLine(Overlay item) {
+        showPopupMenu(((Marker)item).getPosition());
 
+        /*
         ((Marker) item).setOnMarkerClickListener(new Marker.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(Marker marker, MapView mapView) {
@@ -66,7 +68,7 @@ public class MarkerLineFolderOverlay extends FolderOverlay{
                 ((MyMapView)mapView).dispatchMarkerTouch(MarkerLineFolderOverlay.this, marker);
                 return true;
             }
-        });
+        });*/
 
         int overlayListSize = getItems().size();
         if (overlayListSize > 0) {
@@ -163,6 +165,7 @@ public class MarkerLineFolderOverlay extends FolderOverlay{
                 return false;
             }
         });
+
         popupMenu.show();
     }
 
@@ -215,9 +218,8 @@ public class MarkerLineFolderOverlay extends FolderOverlay{
 
     //팝업 메뉴 만드는 메서드
     private View createTempPopupParentMenuView(GeoPoint position) {
-        if (tempPopupMenuParentView != null) {
+        if (tempPopupMenuParentView != null)mapView.removeView(tempPopupMenuParentView);
 
-            mapView.removeView(tempPopupMenuParentView);
             tempPopupMenuParentView = new View(context);
             MapView.LayoutParams lp = new MapView.LayoutParams(
                     1,
@@ -226,7 +228,7 @@ public class MarkerLineFolderOverlay extends FolderOverlay{
                     0, 0);
             tempPopupMenuParentView.setVisibility(View.VISIBLE);
             mapView.addView(tempPopupMenuParentView, lp);
-        }
+
         return tempPopupMenuParentView;
     }
 }
