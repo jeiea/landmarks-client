@@ -5,6 +5,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.PopupMenu;
+import android.widget.Toast;
 
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
@@ -30,7 +31,7 @@ public class MarkerLineFolderOverlay extends FolderOverlay{
 
     final int ONLYMARKER =1;
     final int MARKER_LINE=2;
-    private  int curMode=MARKER_LINE;
+    private  int curMode=ONLYMARKER;
 
 
     public MarkerLineFolderOverlay(MyMapView mapView){
@@ -45,6 +46,8 @@ public class MarkerLineFolderOverlay extends FolderOverlay{
 
     //마커만을 맵뷰에 나타내어 준다
     public boolean addMarker(Marker item){
+        showPopupMenu(item.getPosition());
+
         ((Marker)item).setOnMarkerClickListener(new Marker.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(Marker marker, MapView mapView) {
@@ -58,7 +61,7 @@ public class MarkerLineFolderOverlay extends FolderOverlay{
 
     //마커와 라인(루트)을 OverlayManager에 추가
     public boolean addMarkerLine(Overlay item) {
-
+        showPopupMenu(((Marker)item).getPosition());
         ((Marker) item).setOnMarkerClickListener(new Marker.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(Marker marker, MapView mapView) {
@@ -163,6 +166,7 @@ public class MarkerLineFolderOverlay extends FolderOverlay{
                 return false;
             }
         });
+
         popupMenu.show();
     }
 
@@ -204,6 +208,7 @@ public class MarkerLineFolderOverlay extends FolderOverlay{
     //좌표에 맞는 마커를 지우고 인덱스를 반환
     private int removeMarker(GeoPoint geoPoint){
         int size = getItems().size();
+        Toast.makeText(context, "remove marker", Toast.LENGTH_SHORT).show();
         for (int i = 0 ; i < size; i=i+1){
             if(((Marker)getItems().get(i)).getPosition().getLatitude() == geoPoint.getLatitude() &&((Marker)getItems().get(i)).getPosition().getLongitude() == geoPoint.getLongitude()){
                 remove(getItems().get(i));
@@ -215,9 +220,8 @@ public class MarkerLineFolderOverlay extends FolderOverlay{
 
     //팝업 메뉴 만드는 메서드
     private View createTempPopupParentMenuView(GeoPoint position) {
-        if (tempPopupMenuParentView != null) {
+        if (tempPopupMenuParentView != null)mapView.removeView(tempPopupMenuParentView);
 
-            mapView.removeView(tempPopupMenuParentView);
             tempPopupMenuParentView = new View(context);
             MapView.LayoutParams lp = new MapView.LayoutParams(
                     1,
@@ -226,7 +230,7 @@ public class MarkerLineFolderOverlay extends FolderOverlay{
                     0, 0);
             tempPopupMenuParentView.setVisibility(View.VISIBLE);
             mapView.addView(tempPopupMenuParentView, lp);
-        }
+
         return tempPopupMenuParentView;
     }
 }

@@ -70,7 +70,7 @@
                 <ImageView
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:src="@drawable/navto_small"
+                    android:src="@drawable/osm_ic_ic_map_ortho"
                     android:id="@+id/picture2"
                     android:layout_weight="1"/>
             </LinearLayout>
@@ -82,13 +82,13 @@
                 <ImageView
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:src="@drawable/navto_small"
+                    android:src="@drawable/blank"
                     android:id="@+id/picture3"
                     android:layout_weight="1"/>
                 <ImageView
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:src="@drawable/navto_small"
+                    android:src="@drawable/osm_ic_follow_me"
                     android:id="@+id/picture4"
                     android:layout_weight="1"/>
             </LinearLayout>
