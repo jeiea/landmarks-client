@@ -1,7 +1,5 @@
 package kr.ac.kw.coms.globealbum.common
 
-import android.graphics.Color
-import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.support.constraint.ConstraintLayout.LayoutParams.PARENT_ID
@@ -11,14 +9,20 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.Window
+import android.widget.ImageView
 import kr.ac.kw.coms.globealbum.R
 import org.jetbrains.anko.constraint.layout.constraintLayout
 import org.jetbrains.anko.image
 import org.jetbrains.anko.imageView
-import org.jetbrains.anko.textView
+import org.jetbrains.anko.matchParent
+import org.jetbrains.anko.sdk25.coroutines.onTouch
 import org.jetbrains.anko.wrapContent
 
 
+/**
+ *  사진의 가로 길이를 화면 전체에 맞춰 띄우는 대화상자.
+ *  때문에 가로 화면에서는 불상사가 일어남.
+ */
 class PictureDialogFragment : DialogFragment() {
 
   var drawable: Drawable? = null
@@ -33,21 +37,30 @@ class PictureDialogFragment : DialogFragment() {
     }
   }
 
+  override fun onResume() {
+    super.onResume()
+    dialog.window.setLayout(
+      ViewGroup.LayoutParams.MATCH_PARENT,
+      ViewGroup.LayoutParams.WRAP_CONTENT)
+  }
+
   override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                             savedInstanceState: Bundle?): View {
     dialog.window.requestFeature(Window.FEATURE_NO_TITLE)
     return inflater.context.constraintLayout {
       imageView {
         image = this@PictureDialogFragment.drawable
-      }.lparams(wrapContent, wrapContent) {
+        scaleType = ImageView.ScaleType.CENTER_INSIDE
+        adjustViewBounds = true
+      }.lparams(matchParent, wrapContent) {
         leftToLeft = PARENT_ID
         rightToRight = PARENT_ID
         topToTop = PARENT_ID
         bottomToBottom = PARENT_ID
-        background = ColorDrawable(Color.GREEN)
+        dimensionRatio = "H,1:1"
       }
-      textView { text = "You can put caption" }
-      background = ColorDrawable(Color.GRAY)
+
+      onTouch { v, event -> dismiss() }
     }
   }
 }
