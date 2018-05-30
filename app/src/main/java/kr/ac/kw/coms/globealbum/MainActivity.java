@@ -70,12 +70,13 @@ public class MainActivity extends AppCompatActivity {
                 break;
             case R.id.btn_start_web_gallery:
                 startActivityForResult(new Intent(this, GalleryActivity.class), 1);
-
                 break;
             case R.id.btn_start_storage:
                 startActivityForResult(new Intent(this, GalleryActivity.class), 2);
+                break;
             case R.id.btn_start_navigator:
                 startActivityForResult(new Intent(this, activity_Navigator.class), 3);
+                break;
         }
     }
 

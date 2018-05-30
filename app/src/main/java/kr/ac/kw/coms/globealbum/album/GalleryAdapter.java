@@ -1,5 +1,6 @@
 package kr.ac.kw.coms.globealbum.album;
 /* 작성자: 이상훈 */
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -7,6 +8,8 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.support.v4.app.FragmentActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -29,6 +32,7 @@ class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHolder> {
         public ImageView mImageView;
         public String ImagePath;
         public int DisplayWidth;
+        public int index;
 
         public ViewHolder(ImageView v) {
             super(v);
@@ -59,6 +63,7 @@ class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHolder> {
         params.height = holder.DisplayWidth / 3;
         holder.mImageView.setLayoutParams(params);
         holder.ImagePath = model.getImage();
+        holder.index = position;
         holder.mImageView.setBackgroundColor(model.isSelected() ? Color.CYAN : Color.WHITE);
 
         holder.mImageView.setOnClickListener(new View.OnClickListener() {
@@ -68,21 +73,28 @@ class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHolder> {
                     model.setSelected(!model.isSelected());
                     holder.mImageView.setBackgroundColor(model.isSelected() ? Color.CYAN : Color.WHITE);
                     Toast.makeText(context, model.isSelected() ? "SELECTED" : "UNSELECTED", Toast.LENGTH_SHORT).show();
-                }
-                else {
+                } else { //이미지 한 개 선택 시 이벤트
+                    /*
                     Intent intent = new Intent(Intent.ACTION_ANSWER);
                     intent.putExtra("FILEPATH", holder.ImagePath);
                     ((Activity) context).setResult(Activity.RESULT_OK, intent);
-                    ((Activity) context).finish();
+                    ((Activity) context).finish();*/
+                    Intent intent = new Intent(context, GalleryDetail.class);
+                    intent.putExtra("index", holder.index);
+                    String[] ImageList = new String[mDataset.size()];
+                    for (int i = 0; i < mDataset.size(); i++) {
+                        ImageList[i] = mDataset.get(i).getImage();
+                    }
+                    intent.putExtra("Dataset", ImageList);
+                    ((FragmentActivity) context).startActivityForResult(intent, 1);
                 }
             }
         });
-        holder.mImageView.setOnLongClickListener(new View.OnLongClickListener()
-        {
+        holder.mImageView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
                 MultiSelectMode = true;
-                ((AppCompatImageView)((Activity)context).findViewById(R.id.btn_detail)).setVisibility(View.VISIBLE);
+                ((AppCompatImageView) ((Activity) context).findViewById(R.id.btn_detail)).setVisibility(View.VISIBLE);
                 model.setSelected(!model.isSelected());
                 holder.mImageView.setBackgroundColor(model.isSelected() ? Color.CYAN : Color.WHITE);
                 Toast.makeText(context, model.isSelected() ? "SELECTED" : "UNSELECTED", Toast.LENGTH_SHORT).show();
@@ -96,20 +108,18 @@ class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHolder> {
         return mDataset == null ? 0 : mDataset.size();
     }
 
-    public void UnSelectAll()
-    {
-        for (Model i:mDataset) {
+    public void UnSelectAll() {
+        for (Model i : mDataset) {
             i.setSelected(false);
         }
-        for (ViewHolder i:Elements)
-        {
+        for (ViewHolder i : Elements) {
             i.mImageView.setBackgroundColor(Color.WHITE);
         }
         MultiSelectMode = false;
-        ((AppCompatImageView)((Activity)context).findViewById(R.id.btn_detail)).setVisibility(View.GONE);
+        ((AppCompatImageView) ((Activity) context).findViewById(R.id.btn_detail)).setVisibility(View.GONE);
     }
-    public boolean isMultiSelectMode()
-    {
+
+    public boolean isMultiSelectMode() {
         return MultiSelectMode;
     }
 }

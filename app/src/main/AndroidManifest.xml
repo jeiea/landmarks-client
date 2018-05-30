@@ -36,7 +36,12 @@
         </activity>
         <activity android:name=".album.GalleryActivity" />
         <activity android:name=".MarkerPopupMenu" />
-        <activity android:name=".album.activity_Navigator"></activity>
+        <activity android:name=".album.activity_Navigator" />
+        <activity
+            android:name=".album.GalleryDetail"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:label="@string/title_activity_gallery_detail"
+            android:theme="@style/FullscreenTheme"></activity>
     </application>
 
 </manifest>
