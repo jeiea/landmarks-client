@@ -1,10 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
+        android:id="@+id/add_marker"
+        android:title="마커 등록"
+        android:visible="false"></item>
+    <item
         android:id="@+id/delete_marker"
-        android:title="삭제"></item>
+        android:title="마커 삭제"
+        android:visible="false"></item>
     <item
         android:id="@+id/delete_marker_all"
-        android:title="모두 삭제">
-    </item>
+        android:title="마커 모두 삭제"
+        android:visible="false"></item>
 </menu>

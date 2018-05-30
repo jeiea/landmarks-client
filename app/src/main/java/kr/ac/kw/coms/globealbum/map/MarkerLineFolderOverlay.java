@@ -28,11 +28,15 @@ public class MarkerLineFolderOverlay extends FolderOverlay{
     private Context context;
     /** temporary 1x1 pix view where popup-menu is attached to */
     private View tempPopupMenuParentView = null;
+    public Marker clickedMarker = null;
 
     final int ONLYMARKER =1;
     final int MARKER_LINE=2;
-    private  int curMode=ONLYMARKER;
 
+    final int FIRST_MARKER=11;
+    final int SHOWN_MARKER=12;
+
+    private  int curMode=ONLYMARKER;
 
     public MarkerLineFolderOverlay(MyMapView mapView){
         super();
@@ -46,26 +50,28 @@ public class MarkerLineFolderOverlay extends FolderOverlay{
 
     //마커만을 맵뷰에 나타내어 준다
     public boolean addMarker(Marker item){
-        showPopupMenu(item.getPosition());
+        //showPopupMenu(item.getPosition(),FIRST_MARKER);
+        if(clickedMarker == null){
+            ((Marker)item).setOnMarkerClickListener(new Marker.OnMarkerClickListener() {
+                @Override
+                public boolean onMarkerClick(Marker marker, MapView mapView) {
+                    showPopupMenu(marker.getPosition(),SHOWN_MARKER);
+                    ((MyMapView)mapView).dispatchMarkerTouch(MarkerLineFolderOverlay.this, marker);
+                    return true;
+                }
+            });
+        }
 
-        ((Marker)item).setOnMarkerClickListener(new Marker.OnMarkerClickListener() {
-            @Override
-            public boolean onMarkerClick(Marker marker, MapView mapView) {
-                showPopupMenu(marker.getPosition());
-                ((MyMapView)mapView).dispatchMarkerTouch(MarkerLineFolderOverlay.this, marker);
-                return true;
-            }
-        });
         return super.add(item);
     }
 
     //마커와 라인(루트)을 OverlayManager에 추가
     public boolean addMarkerLine(Overlay item) {
-        showPopupMenu(((Marker)item).getPosition());
+        showPopupMenu(((Marker)item).getPosition(),FIRST_MARKER);
         ((Marker) item).setOnMarkerClickListener(new Marker.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(Marker marker, MapView mapView) {
-                showPopupMenu(marker.getPosition());
+                showPopupMenu(marker.getPosition(),SHOWN_MARKER);
                 ((MyMapView)mapView).dispatchMarkerTouch(MarkerLineFolderOverlay.this, marker);
                 return true;
             }
@@ -90,13 +96,15 @@ public class MarkerLineFolderOverlay extends FolderOverlay{
     }
 
     //마커의 순서를 바꿔주는 메서드, 인자는 짝수여야함
-    public void moveMarker(int from, int to) throws Exception{
+    public void moveMarker(int from, int to) {
         if(from %2 != 0 || to % 2 !=0){ //짝수여야함
-            throw new Exception();
+            Toast.makeText(context, "wrong", Toast.LENGTH_SHORT).show();
+            return;
         }
         int size=getItems().size();
         if(size< 1 || from > size || to > size ){   //인자가 마커 인덱스보다 크면 안됨
-            throw  new Exception();
+            Toast.makeText(context, "wrong", Toast.LENGTH_SHORT).show();
+            return;
         }
 
         OverlayManager tmpOverlayManager;
@@ -121,7 +129,6 @@ public class MarkerLineFolderOverlay extends FolderOverlay{
             addMarkerLine(overlay);
         }
     }
-
     //마커와 마커 사이를 이어주는 직선을 만든다.
     //직선을 넣을 곳의 앞 뒤 마커를 인자와 인덱스를 전달
     private void drawPolygon(Overlay frontOverlay,Overlay backOverlay,int index){
@@ -134,20 +141,47 @@ public class MarkerLineFolderOverlay extends FolderOverlay{
         polygon.setPoints(geoPoints);
         super.mOverlayManager.add(index,polygon);
     }
-
     //마커 클릭 시 팝업 메뉴를 띄운다
-    private void showPopupMenu(final GeoPoint geoPoint) {
+    private void showPopupMenu(final GeoPoint geoPoint,int flag) {
         MenuInflater inflater = new MenuInflater(context);
         mapView.removeView(tempPopupMenuParentView);
 
         PopupMenu popupMenu = new PopupMenu(context, createTempPopupParentMenuView(geoPoint));
         inflater.inflate(R.menu.marker_menu, popupMenu.getMenu());
 
-        //팝업 메뉴에서 삭제 버튼 클릭 시 마커를 지우는 이벤트 리스너
+        //메뉴가 띄워졌을 때, 메뉴아이템 종류 설정
+        switch (flag){
+            case FIRST_MARKER:
+                popupMenu.getMenu().getItem(0).setVisible(true);
+                popupMenu.getMenu().getItem(1).setVisible(true);
+                popupMenu.setOnDismissListener(new PopupMenu.OnDismissListener() {
+                    @Override
+                    public void onDismiss(PopupMenu popupMenu) {
+                        //removeMarker(geoPoint);
+                        Toast.makeText(context, "closed", Toast.LENGTH_SHORT).show();
+                        mapView.invalidate();
+                    }
+                });
+                break;
+            case SHOWN_MARKER:
+                popupMenu.getMenu().getItem(1).setVisible(true);
+                popupMenu.getMenu().getItem(2).setVisible(true);
+                popupMenu.setOnDismissListener(new PopupMenu.OnDismissListener() {
+                    @Override
+                    public void onDismiss(PopupMenu popupMenu) {
+                        return;
+                    }
+                });
+                break;
+
+        }
+        //팝업 메뉴에서 클릭 시 리스너
         popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem menuItem) {
                 switch (menuItem.getItemId()){
+                    case R.id.add_marker:
+                        break;
                     case R.id.delete_marker:    //마커 하나 삭제
                         if( curMode ==ONLYMARKER){  //마커만 있는 경우
                             removeMarker(geoPoint);
@@ -169,7 +203,6 @@ public class MarkerLineFolderOverlay extends FolderOverlay{
 
         popupMenu.show();
     }
-
     //좌표에 맞는 마커와 선분을 지우고 인덱스를 반환
     private int removeMarkerLine(GeoPoint geoPoint){
         int size = getItems().size();
@@ -217,7 +250,6 @@ public class MarkerLineFolderOverlay extends FolderOverlay{
         }
         return -1;
     }
-
     //팝업 메뉴 만드는 메서드
     private View createTempPopupParentMenuView(GeoPoint position) {
         if (tempPopupMenuParentView != null)mapView.removeView(tempPopupMenuParentView);

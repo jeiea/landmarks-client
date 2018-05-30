@@ -12,6 +12,7 @@ import org.osmdroid.events.ZoomEvent;
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.util.TileSystem;
+import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.MapEventsOverlay;
 import org.osmdroid.views.overlay.Marker;
 
@@ -69,6 +70,7 @@ public class MyMapView extends org.osmdroid.views.MapView{
 
 
         markerLineFolderOverlay = new MarkerLineFolderOverlay(this);
+
 
         addMarkerToMapviewReceiver();
         myMapViewInvalidate();
@@ -150,18 +152,31 @@ public class MyMapView extends org.osmdroid.views.MapView{
         MapEventsReceiver mapEventsReceiver = new MapEventsReceiver() {
             @Override
             public boolean singleTapConfirmedHelper(GeoPoint p) {   //화면 한번 터치시
-                // mapController.animateTo(p); //좌표로 화면 이동
-
+                //mapController.animateTo(p); //좌표로 화면 이동
                 Marker marker = new Marker(MyMapView.this);
                 marker.setPosition(p);
-                //marker.closeInfoWindow();
-                //marker.getInfoWindow().close();
-                //markerLineFolderOverlay.addMarkerLine(marker);
-                markerLineFolderOverlay.addMarker(marker);
+
+                marker.setOnMarkerClickListener(new Marker.OnMarkerClickListener() {
+                    @Override
+                    public boolean onMarkerClick(Marker marker, MapView mapView) {  //기존에 있는 마커를 터치해야지 화면에 계속 생기게 만듦
+                        if (markerLineFolderOverlay.clickedMarker.getPosition().getLongitude() == marker.getPosition().getLongitude() && markerLineFolderOverlay.clickedMarker.getPosition().getLatitude() == marker.getPosition().getLatitude()){
+                            markerLineFolderOverlay.clickedMarker=null;
+                            markerLineFolderOverlay.addMarker(marker);
+                            Toast.makeText(context, "마커 등록 완료", Toast.LENGTH_SHORT).show();
+                        }
+                        return true;
+                    }
+                });
+                if( markerLineFolderOverlay.clickedMarker== null){  //새로운 마커 추가
+                    markerLineFolderOverlay.clickedMarker=marker;
+                    markerLineFolderOverlay.addMarker(marker);
+                }
+                else{   //기존에 있는 마커를 지우고 새로운 위치에 마커 생성
+                    markerLineFolderOverlay.remove(markerLineFolderOverlay.clickedMarker);
+                    markerLineFolderOverlay.clickedMarker=marker;
+                    markerLineFolderOverlay.addMarker(marker);
+                }
                 getOverlays().add(markerLineFolderOverlay);
-
-                Toast.makeText(context, markerLineFolderOverlay.getItems().size()+"", Toast.LENGTH_SHORT).show();
-
                 myMapViewInvalidate();
                 return true;
             }
