@@ -60,7 +60,7 @@ class PictureDialogFragment : DialogFragment() {
         dimensionRatio = "H,1:1"
       }
 
-      onTouch { v, event -> dismiss() }
+      onTouch { _, _ -> dismiss() }
     }
   }
 }

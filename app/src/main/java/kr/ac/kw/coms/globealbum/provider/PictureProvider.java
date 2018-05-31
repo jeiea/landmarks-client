@@ -1,7 +1,9 @@
 package kr.ac.kw.coms.globealbum.provider;
 
 
-import android.graphics.Bitmap;
+import android.content.Context;
+import android.graphics.drawable.Drawable;
+import android.support.v7.widget.RecyclerView;
 import android.util.Pair;
 
 import java.time.LocalDateTime;
@@ -13,9 +15,9 @@ import java.util.ArrayList;
 public abstract class PictureProvider {
 
     // 사진 하나를 나타냄
-    interface Picture {
+    public interface Picture {
         // 비트맵
-        Bitmap getBitmap();
+        Drawable getDrawable();
 
         // 제목
         String getTitle();
@@ -52,4 +54,10 @@ public abstract class PictureProvider {
 
     // 이 외에 퀴즈라든가 유저 정보 등을 통신할 메소드를
     // 구현하게 될 것.
+}
+
+class A extends RecyclerView {
+   public A(Context c) {
+       super(c);
+   }
 }
