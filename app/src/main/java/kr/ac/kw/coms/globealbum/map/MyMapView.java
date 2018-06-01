@@ -72,7 +72,6 @@ public class MyMapView extends org.osmdroid.views.MapView{
         markerLineFolderOverlay = new MarkerLineFolderOverlay(this);
 
 
-        addMarkerToMapviewReceiver();
         myMapViewInvalidate();
     }
 
@@ -148,8 +147,8 @@ public class MyMapView extends org.osmdroid.views.MapView{
     }
 
     //화면에 마커를 등록하는 리시버
-    public void addMarkerToMapviewReceiver(){
-        MapEventsReceiver mapEventsReceiver = new MapEventsReceiver() {
+    public MapEventsReceiver getMarkerReceiver(){
+        final MapEventsReceiver mapEventsReceiver = new MapEventsReceiver() {
             @Override
             public boolean singleTapConfirmedHelper(GeoPoint p) {   //화면 한번 터치시
                 //mapController.animateTo(p); //좌표로 화면 이동
@@ -178,6 +177,7 @@ public class MyMapView extends org.osmdroid.views.MapView{
                 }
                 getOverlays().add(markerLineFolderOverlay);
                 myMapViewInvalidate();
+
                 return true;
             }
             @Override
@@ -185,11 +185,18 @@ public class MyMapView extends org.osmdroid.views.MapView{
                 return false;
             }
         };
-        addMapEventReceiver(mapEventsReceiver);
+        return mapEventsReceiver;
     }
     //이벤트 리시버를 받아서 맵뷰에 등록
-    public void addMapEventReceiver(MapEventsReceiver mapEventsReceiver){
+    public MapEventsOverlay addMapEventReceiver(MapEventsReceiver mapEventsReceiver){
         MapEventsOverlay mapEventsOverlay = new MapEventsOverlay(mapEventsReceiver);
         getOverlays().add(mapEventsOverlay);
+        return mapEventsOverlay;
+
     }
+    public void deleteMapEventReceiver(MapEventsOverlay mapEventsOverlay){
+        Toast.makeText(context, "dd", Toast.LENGTH_SHORT).show();
+        getOverlays().remove(mapEventsOverlay);
+    }
+
 }

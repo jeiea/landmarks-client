@@ -10,8 +10,11 @@ import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import org.osmdroid.config.Configuration;
+import org.osmdroid.events.MapEventsReceiver;
+import org.osmdroid.views.overlay.MapEventsOverlay;
 
 import kr.ac.kw.coms.globealbum.common.PictureDialogFragment;
 import kr.ac.kw.coms.globealbum.map.MyMapView;
@@ -22,7 +25,7 @@ public class GameActivity extends AppCompatActivity {
     Context context = null;
     MyMapView myMapView= null;
     ImageView[] imageView=null;
-    Animation animationFadeAway;
+    MapEventsOverlay markerEvnetOverlay;
     final int PICTURE_NUM = 4;
 
     @Override
@@ -50,7 +53,12 @@ public class GameActivity extends AppCompatActivity {
         context = getApplicationContext();
         Configuration.getInstance().load(context, PreferenceManager.getDefaultSharedPreferences(context));
         myMapView = (MyMapView)findViewById(R.id.map);
+
+        //마커 이벤트 등록
+        MapEventsReceiver markerMapEventsReceiver = myMapView.getMarkerReceiver();
+        markerEvnetOverlay = myMapView.addMapEventReceiver(markerMapEventsReceiver);
     }
+
 
 
     //onCreate 진행 후 애니메이션 실행
@@ -81,6 +89,7 @@ public class GameActivity extends AppCompatActivity {
     class PictureClickListener implements View.OnClickListener{
         @Override
         public void onClick(View view) {    //이미지뷰를 다이얼로그로 화면에 표시
+            myMapView.deleteMapEventReceiver(markerEvnetOverlay);
             ImageView imgv = (ImageView)view;
             PictureDialogFragment pdf = PictureDialogFragment.Companion.newInstance(imgv.getDrawable());
             pdf.show(getSupportFragmentManager(), "wow");
