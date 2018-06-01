@@ -23,7 +23,7 @@ import kr.ac.kw.coms.globealbum.R;
 
 //마커와 마커 사이를 잇는 선들을 모아서 관리하는 클래스
 //오버레이 삽입,삭제 한다.
-public class MarkerLineFolderOverlay extends FolderOverlay{
+public class MyMarker extends FolderOverlay{
     private MapView mapView;
     private Context context;
     /** temporary 1x1 pix view where popup-menu is attached to */
@@ -38,7 +38,7 @@ public class MarkerLineFolderOverlay extends FolderOverlay{
 
     private  int curMode=ONLYMARKER;
 
-    public MarkerLineFolderOverlay(MyMapView mapView){
+    public MyMarker(MyMapView mapView){
         super();
         this.mapView = mapView;
         this.context = mapView.context;
@@ -50,13 +50,12 @@ public class MarkerLineFolderOverlay extends FolderOverlay{
 
     //마커만을 맵뷰에 나타내어 준다
     public boolean addMarker(Marker item){
-        //showPopupMenu(item.getPosition(),FIRST_MARKER);
         if(clickedMarker == null){
             ((Marker)item).setOnMarkerClickListener(new Marker.OnMarkerClickListener() {
                 @Override
                 public boolean onMarkerClick(Marker marker, MapView mapView) {
                     showPopupMenu(marker.getPosition(),SHOWN_MARKER);
-                    ((MyMapView)mapView).dispatchMarkerTouch(MarkerLineFolderOverlay.this, marker);
+                    ((MyMapView)mapView).dispatchMarkerTouch(MyMarker.this, marker);
                     return true;
                 }
             });
@@ -67,12 +66,11 @@ public class MarkerLineFolderOverlay extends FolderOverlay{
 
     //마커와 라인(루트)을 OverlayManager에 추가
     public boolean addMarkerLine(Overlay item) {
-        showPopupMenu(((Marker)item).getPosition(),FIRST_MARKER);
         ((Marker) item).setOnMarkerClickListener(new Marker.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(Marker marker, MapView mapView) {
                 showPopupMenu(marker.getPosition(),SHOWN_MARKER);
-                ((MyMapView)mapView).dispatchMarkerTouch(MarkerLineFolderOverlay.this, marker);
+                ((MyMapView)mapView).dispatchMarkerTouch(MyMarker.this, marker);
                 return true;
             }
         });

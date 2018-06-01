@@ -1,19 +1,15 @@
 package kr.ac.kw.coms.globealbum.map;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
 import android.util.AttributeSet;
 import android.widget.Toast;
 
 import org.osmdroid.api.IMapController;
-import org.osmdroid.events.MapEventsReceiver;
 import org.osmdroid.events.MapListener;
 import org.osmdroid.events.ScrollEvent;
 import org.osmdroid.events.ZoomEvent;
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
-import org.osmdroid.util.GeoPoint;
 import org.osmdroid.util.TileSystem;
-import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.MapEventsOverlay;
 import org.osmdroid.views.overlay.Marker;
 
@@ -25,8 +21,7 @@ public class MyMapView extends org.osmdroid.views.MapView{
     IMapController mapController = null;
 
     ArrayList<MarkerTouchListener> markerListeners = new ArrayList<>(); //마커클릭 시 필요한 리스너를 모아둔다
-    List<MarkerLineFolderOverlay> markerLineFolderOverlayList = new ArrayList<MarkerLineFolderOverlay>();
-    MarkerLineFolderOverlay markerLineFolderOverlay = null;  //마커 모아서 관리
+    MyMarker markerLineFolderOverlay = null;  //마커 모아서 관리
 
      // Constructor used by XML layout resource (uses default tile source).
     public MyMapView(final Context context, final AttributeSet attrs) {
@@ -78,11 +73,11 @@ public class MyMapView extends org.osmdroid.views.MapView{
 
 
     //마커, 경로를 가지고 있는 markerLineFolderOverlay 객체를 반환
-    public MarkerLineFolderOverlay getRoute(){
+    public MyMarker getRoute(){
         return markerLineFolderOverlay;
     }
 
-    public void deleteRoute(MarkerLineFolderOverlay folderOverlay){
+    public void deleteRoute(MyMarker folderOverlay){
 
     }
     public void deleteRoute(int index){
@@ -99,7 +94,7 @@ public class MyMapView extends org.osmdroid.views.MapView{
     }
 
     //발생 이벤트를 전달
-    public void dispatchMarkerTouch(MarkerLineFolderOverlay route, Marker marker) {
+    public void dispatchMarkerTouch(MyMarker route, Marker marker) {
         for (MarkerTouchListener listener: markerListeners) {
             listener.OnMarkerTouch(marker);
         }
