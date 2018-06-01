@@ -1,6 +1,10 @@
 package kr.ac.kw.coms.globealbum.game;
 
 import android.content.Context;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
@@ -15,6 +19,7 @@ import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.MapEventsOverlay;
 import org.osmdroid.views.overlay.Marker;
+
 
 import kr.ac.kw.coms.globealbum.R;
 import kr.ac.kw.coms.globealbum.common.PictureDialogFragment;
@@ -31,11 +36,22 @@ public class GameActivity extends AppCompatActivity {
     final int PICTURE_NUM = 4;
     MapEventsOverlay listenerOverlay;
     Marker currentMarker;
+
+
     enum GameState {
         Solving,
         Answered,
     }
+
+    class Answer{
+        Marker answerMarker;
+        GeoPoint answerGeopoint;
+    }
+
+    Answer answer;
     GameState currentState = Solving;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,12 +67,13 @@ public class GameActivity extends AppCompatActivity {
         imageView[3] = findViewById(R.id.picture4);
 
         imageView[0].setOnClickListener(new PictureClickListener());
-        imageView[1].setOnClickListener(new PictureClickListener());
-        imageView[2].setOnClickListener(new PictureClickListener());
-        imageView[3].setOnClickListener(new PictureClickListener());
+        //imageView[1].setOnClickListener(new PictureClickListener());
+        //imageView[2].setOnClickListener(new PictureClickListener());
+        //imageView[3].setOnClickListener(new PictureClickListener());
 
 
-        //animationFadeAway= AnimationUtils.loadAnimation(this,R.anim.fade_away);
+        imageView[0].setImageResource(R.drawable.sample8);
+
 
         //osmdroid 초기 구성
         context = getApplicationContext();
@@ -64,11 +81,23 @@ public class GameActivity extends AppCompatActivity {
         myMapView = findViewById(R.id.map);
 
         //마커 이벤트 등록
-        listenerOverlay = noMarkerEvent();
+        listenerOverlay = markerEvent();
         myMapView.getOverlays().add(listenerOverlay);
+
+        //정답 마커 등록
+        answer = new Answer();
+        answer.answerMarker = new Marker(myMapView);
+        Drawable drawable = getResources().getDrawable(R.drawable.red_flag);
+        answer.answerMarker.setIcon(drawable);
+        answer.answerMarker.setAnchor(0.0f,1.0f);
+        answer.answerGeopoint = new GeoPoint(48.8710,2.4131);   //파리의 좌표
+        answer.answerMarker.setPosition(answer.answerGeopoint);
+
+
+
     }
 
-    private MapEventsOverlay noMarkerEvent() {
+    private MapEventsOverlay markerEvent() {
         return new MapEventsOverlay(new MapEventsReceiver() {
             @Override
             public boolean singleTapConfirmedHelper(GeoPoint p) {   //화면 한번 터치시
@@ -79,12 +108,23 @@ public class GameActivity extends AppCompatActivity {
                 }
                 else {
                     Marker marker = new Marker(myMapView);
+
+                    Drawable drawable = getResources().getDrawable(R.drawable.blue_flag);
+                    marker.setIcon(drawable);
                     marker.setPosition(p);
+                    marker.setAnchor(0.0f,1.0f);
                     marker.setOnMarkerClickListener(new Marker.OnMarkerClickListener() {
                         @Override
-                        public boolean onMarkerClick(Marker marker, MapView mapView) {  //기존에 있는 마커를 터치해야지 화면에 계속 생기게 만듦
+                        public boolean onMarkerClick(Marker marker, MapView mapView) {  //생성된 마커를 클릭하여 화면에 등록
                             Toast.makeText(context, "마커 등록 완료", Toast.LENGTH_SHORT).show();
                             currentState = Answered;
+                            //정답 확인 부분
+                            myMapView.getOverlays().add(answer.answerMarker);
+                            myMapView.invalidate();
+                            //DrawMapview drawMapview = new DrawMapview(myMapView.getContext());
+                            //setContentView(drawMapview);
+
+
                             return true;
                         }
                     });
@@ -104,10 +144,17 @@ public class GameActivity extends AppCompatActivity {
     }
 
     @Override
-    public boolean dispatchTouchEvent(MotionEvent ev) {
+    public boolean dispatchTouchEvent(MotionEvent ev) { //문제를 맞춘 후 다시 맵 로드
         if (currentState == Answered) {
             currentMarker.remove(myMapView);
             currentMarker = null;
+
+            imageView[0].setImageResource(R.drawable.sample1);
+
+            myMapView.getOverlays().remove(answer.answerMarker);
+            answer.answerGeopoint = new GeoPoint(41.895466,12.482323);  //로마의 좌표
+            answer.answerMarker.setPosition(answer.answerGeopoint);
+
             myMapView.invalidate();
             currentState = Solving;
             return true;
@@ -129,6 +176,9 @@ public class GameActivity extends AppCompatActivity {
             myMapView.onPause(); //osmdroid configuration refresh
     }
 
+    private void setAnswerMarker(){
+        //currentMarker.setPosition();
+    }
 
     //사진 클릭 시 크게 띄워주는 이벤트 등록
     class PictureClickListener implements View.OnClickListener {
@@ -140,4 +190,20 @@ public class GameActivity extends AppCompatActivity {
         }
     }
 
+    class DrawMapview extends View{
+        public DrawMapview(Context context) {
+            super(context);
+        }
+
+        @Override
+        protected void onDraw(Canvas canvas) {
+
+            Paint MyPaint = new Paint();
+            MyPaint.setColor(Color.RED);
+            MyPaint.setStrokeWidth(30f);
+            canvas.drawRect(100,150,200,250,MyPaint);
+
+            super.onDraw(canvas);
+        }
+    }
 }
