@@ -1,6 +1,7 @@
 package kr.ac.kw.coms.globealbum.map;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.util.AttributeSet;
 import android.widget.Toast;
 
@@ -45,12 +46,6 @@ public class MyMapView extends org.osmdroid.views.MapView{
     }
 
 
-    //맵뷰의 내용을 다시 그려주는 메서드
-    public void myMapViewInvalidate(){
-        invalidate();
-    }
-
-
     //맵 초기 설정
     private void mapConfiguration() {
 
@@ -68,11 +63,7 @@ public class MyMapView extends org.osmdroid.views.MapView{
         mapController = getController();
         mapController.setZoom(logZoom);
 
-
-        markerLineFolderOverlay = new MarkerLineFolderOverlay(this);
-
-
-        myMapViewInvalidate();
+        invalidate();
     }
 
     //맵뷰를 화면에 맞추기 위해 필요한 사전 작업
@@ -142,58 +133,6 @@ public class MyMapView extends org.osmdroid.views.MapView{
         addMapListener(mapListener);
     }
 
-    public void addMapListener(MapListener mapListener){
-        addMapListener(mapListener);
-    }
-
-    //화면에 마커를 등록하는 리시버
-    public MapEventsReceiver getMarkerReceiver(){
-        final MapEventsReceiver mapEventsReceiver = new MapEventsReceiver() {
-            @Override
-            public boolean singleTapConfirmedHelper(GeoPoint p) {   //화면 한번 터치시
-                //mapController.animateTo(p); //좌표로 화면 이동
-                Marker marker = new Marker(MyMapView.this);
-                marker.setPosition(p);
-
-                marker.setOnMarkerClickListener(new Marker.OnMarkerClickListener() {
-                    @Override
-                    public boolean onMarkerClick(Marker marker, MapView mapView) {  //기존에 있는 마커를 터치해야지 화면에 계속 생기게 만듦
-                        if (markerLineFolderOverlay.clickedMarker.getPosition().getLongitude() == marker.getPosition().getLongitude() && markerLineFolderOverlay.clickedMarker.getPosition().getLatitude() == marker.getPosition().getLatitude()){
-                            markerLineFolderOverlay.clickedMarker=null;
-                            markerLineFolderOverlay.addMarker(marker);
-                            Toast.makeText(context, "마커 등록 완료", Toast.LENGTH_SHORT).show();
-                        }
-                        return true;
-                    }
-                });
-                if( markerLineFolderOverlay.clickedMarker== null){  //새로운 마커 추가
-                    markerLineFolderOverlay.clickedMarker=marker;
-                    markerLineFolderOverlay.addMarker(marker);
-                }
-                else{   //기존에 있는 마커를 지우고 새로운 위치에 마커 생성
-                    markerLineFolderOverlay.remove(markerLineFolderOverlay.clickedMarker);
-                    markerLineFolderOverlay.clickedMarker=marker;
-                    markerLineFolderOverlay.addMarker(marker);
-                }
-                getOverlays().add(markerLineFolderOverlay);
-                myMapViewInvalidate();
-
-                return true;
-            }
-            @Override
-            public boolean longPressHelper(GeoPoint p) {    //길게 터치시
-                return false;
-            }
-        };
-        return mapEventsReceiver;
-    }
-    //이벤트 리시버를 받아서 맵뷰에 등록
-    public MapEventsOverlay addMapEventReceiver(MapEventsReceiver mapEventsReceiver){
-        MapEventsOverlay mapEventsOverlay = new MapEventsOverlay(mapEventsReceiver);
-        getOverlays().add(mapEventsOverlay);
-        return mapEventsOverlay;
-
-    }
     public void deleteMapEventReceiver(MapEventsOverlay mapEventsOverlay){
         Toast.makeText(context, "dd", Toast.LENGTH_SHORT).show();
         getOverlays().remove(mapEventsOverlay);
