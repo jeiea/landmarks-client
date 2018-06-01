@@ -17,7 +17,7 @@ import com.google.android.flexbox.AlignItems
 import com.google.android.flexbox.FlexDirection
 import com.google.android.flexbox.FlexWrap
 import com.google.android.flexbox.FlexboxLayoutManager
-import kotlinx.android.synthetic.main.activity_example_diary.*
+import kotlinx.android.synthetic.main.activity_navigator.*
 import kr.ac.kw.coms.globealbum.R
 import kr.ac.kw.coms.globealbum.provider.PictureProvider
 import org.jetbrains.anko.backgroundColor
@@ -34,7 +34,7 @@ class ExampleDiary : AppCompatActivity() {
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
-    setContentView(R.layout.activity_example_diary)
+    setContentView(R.layout.activity_navigator)
 
     val idToPic: (Int) -> ResourcePicture = resPicGetter(resources)
 

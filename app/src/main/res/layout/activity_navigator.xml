@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".album.activity_Navigator"
-    android:orientation="vertical">
+    tools:context=".album.activity_Navigator">
 
     <LinearLayout android:id="@+id/MapLayout"
         android:layout_width="match_parent"
@@ -20,14 +19,19 @@
     <View android:id="@+id/Divider"
         android:layout_width="match_parent"
         android:layout_height="10dp"
-        android:background="@color/colorPrimaryDark">
+        android:background="@color/colorPrimaryDark"
+        app:layout_constraintTop_toBottomOf="@id/MapLayout">
 
     </View>
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/MapImgView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
 
-    </android.support.v7.widget.RecyclerView>
+    <kr.ac.kw.coms.globealbum.album.GroupDiaryView
+        android:id="@+id/recycle_gallery"
+        app:layout_constraintTop_toBottomOf="@id/Divider"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:layout_width="0dp"
+        android:layout_height="0dp">
 
-</LinearLayout>
+    </kr.ac.kw.coms.globealbum.album.GroupDiaryView>
+</android.support.constraint.ConstraintLayout>

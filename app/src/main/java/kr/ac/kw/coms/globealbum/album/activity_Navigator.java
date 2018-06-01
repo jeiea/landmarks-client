@@ -1,46 +1,50 @@
 package kr.ac.kw.coms.globealbum.album;
 /* 작성자: 이상훈 */
 
-import android.app.Activity;
 import android.content.Context;
-import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Point;
-import android.graphics.Rect;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.provider.ContactsContract;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.RecyclerView;
+import android.util.AttributeSet;
 import android.util.DisplayMetrics;
-import android.util.Log;
-import android.util.TypedValue;
 import android.view.Display;
 import android.view.DragEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
 import android.view.WindowManager;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.Toast;
+import android.widget.TextView;
 
-import org.intellij.lang.annotations.Identifier;
+import com.google.android.flexbox.FlexboxLayout;
+import com.google.android.flexbox.FlexboxLayoutManager;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+import java.util.ListIterator;
 
 import kr.ac.kw.coms.globealbum.R;
+import kr.ac.kw.coms.globealbum.provider.PictureProvider;
 
 public class activity_Navigator extends AppCompatActivity {
-    private ArrayList<String> folderList;
-    private Context context;
     float density;
+    ArrayList<PictureGroup> data;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_navigator);
 
-        context = this.context;
         density = getResources().getDisplayMetrics().density;
         WindowManager wm = (WindowManager) getBaseContext().getSystemService(Context.WINDOW_SERVICE);
         Display display = wm.getDefaultDisplay();
@@ -90,20 +94,8 @@ public class activity_Navigator extends AppCompatActivity {
             }
         });
         Divider.setOnDragListener(mDragListener);
-    }
 
-    public void makeList() {
-        folderList = SearchImageFolders();
-    }
-
-    public ArrayList<String> SearchImageFolders() {
-        ArrayList<String> folderList = new ArrayList<>();
-
-        folderList.add("ADDRESS 1");
-        folderList.add("ADDRESS 2");
-        folderList.add("ADDRESS 3");
-
-        return folderList;
+        getData();
     }
 
     class CanvasShadow extends View.DragShadowBuilder {
@@ -128,6 +120,128 @@ public class activity_Navigator extends AppCompatActivity {
             canvas.drawRect(0, 0, width * 2, height, pnt);
         }
     }
-}
 
-//TODO: https://www.bignerdranch.com/blog/expand-a-recyclerview-in-four-steps/
+    class PictureGroup
+    {
+        public String name;
+        ArrayList<Bitmap> PictureList;
+        public PictureGroup(String name, ArrayList<Bitmap> PictureList)
+        {
+            this.name = name;
+            this.PictureList = PictureList;
+        }
+    }
+
+    public void getData()
+    {
+        data = new ArrayList<>();
+        ArrayList<Bitmap> group1 = new ArrayList<>();
+        group1.add(BitmapFactory.decodeResource(getResources(), R.drawable.sample0));
+        group1.add(BitmapFactory.decodeResource(getResources(), R.drawable.sample1));
+        group1.add(BitmapFactory.decodeResource(getResources(), R.drawable.sample2));
+        group1.add(BitmapFactory.decodeResource(getResources(), R.drawable.sample3));
+        group1.add(BitmapFactory.decodeResource(getResources(), R.drawable.sample4));
+        data.add(new PictureGroup("group 1", group1));
+        ArrayList<Bitmap> group2 = new ArrayList<>();
+        group2.add(BitmapFactory.decodeResource(getResources(), R.drawable.sample5));
+        group2.add(BitmapFactory.decodeResource(getResources(), R.drawable.sample6));
+        group2.add(BitmapFactory.decodeResource(getResources(), R.drawable.sample7));
+        group2.add(BitmapFactory.decodeResource(getResources(), R.drawable.sample8));
+        group2.add(BitmapFactory.decodeResource(getResources(), R.drawable.sample9));
+        data.add(new PictureGroup("group 2", group2));
+    }
+
+    class GroupDiaryView extends RecyclerView
+    {
+        public GroupDiaryView(Context context) {
+            this(context, null, 0);
+        }
+
+        public GroupDiaryView(Context context, AttributeSet attrs, int defStyle)
+        {
+            super(context, attrs, defStyle);
+        }
+
+        GroupedPicAdapter picAdapter = new GroupedPicAdapter();
+    }
+
+    class GroupedPicAdapter extends RecyclerView.Adapter<GroupedPicAdapter.ElementViewHolder>
+    {
+        public ArrayList<Object> viewData = new ArrayList<>();
+        //String or Picture
+
+        @NonNull
+        @Override
+        public GroupedPicAdapter.ElementViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            ElementViewHolder vh = null;
+            if (viewType == 0)
+            {
+                SeparatorHolder viewHolder = new SeparatorHolder(new TextView(parent.getContext()));
+                ViewGroup.LayoutParams params = viewHolder.textView.getLayoutParams();
+                params.height = 40;
+                params.width = ViewGroup.LayoutParams.MATCH_PARENT;
+                viewHolder.textView.setBackgroundColor(0xFFFFFF88);
+                viewHolder.textView.setLayoutParams(params);
+                vh = viewHolder;
+            }
+            else
+            {
+                PictureHolder viewHolder = new PictureHolder(new ImageView(parent.getContext()));
+                DisplayMetrics metrics = parent.getResources().getDisplayMetrics();
+                int mw = metrics.widthPixels / 3;
+                int mh = metrics.heightPixels / 4;
+                viewHolder.imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+                ViewGroup.LayoutParams params = viewHolder.imageView.getLayoutParams();
+                params.width = mw;
+                params.height = mh;
+                viewHolder.imageView.setLayoutParams(params);
+            }
+            return vh;
+        }
+
+        public int getItemViewType(int position)
+        {
+            return viewData.get(position) instanceof String ? 0: 1;
+        }
+
+        @Override
+        public void onBindViewHolder(@NonNull GroupedPicAdapter.ElementViewHolder holder, int position) {
+            if (holder instanceof SeparatorHolder)
+            {
+                ((SeparatorHolder) holder).textView.setText(viewData.get(position).toString());
+            }
+            else if (holder instanceof PictureHolder)
+            {
+                PictureProvider.Picture pic = (PictureProvider.Picture)viewData.get(position);
+                ((PictureHolder) holder).imageView.setImageDrawable(pic.getDrawable());
+            }
+        }
+
+        @Override
+        public int getItemCount() {
+            return viewData.size();
+        }
+
+        class ElementViewHolder extends RecyclerView.ViewHolder
+        {
+            View view;
+            public ElementViewHolder(View itemView) {
+                super(itemView);
+            }
+        }
+        class SeparatorHolder extends ElementViewHolder
+        {
+            TextView textView;
+            public SeparatorHolder(View itemView) {
+                super(itemView);
+            }
+        }
+        class PictureHolder extends ElementViewHolder
+        {
+            ImageView imageView;
+            public PictureHolder(View itemView) {
+                super(itemView);
+            }
+        }
+    }
+}
