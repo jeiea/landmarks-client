@@ -6,10 +6,14 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.animation.Interpolator;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -19,6 +23,7 @@ import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.MapEventsOverlay;
 import org.osmdroid.views.overlay.Marker;
+
 
 
 import kr.ac.kw.coms.globealbum.R;
@@ -101,7 +106,6 @@ public class GameActivity extends AppCompatActivity {
         return new MapEventsOverlay(new MapEventsReceiver() {
             @Override
             public boolean singleTapConfirmedHelper(GeoPoint p) {   //화면 한번 터치시
-                //mapController.animateTo(p); //좌표로 화면 이동
 
                 if (currentMarker != null) {
                     currentMarker.setPosition(p);
@@ -109,7 +113,7 @@ public class GameActivity extends AppCompatActivity {
                 else {
                     Marker marker = new Marker(myMapView);
 
-                    Drawable drawable = getResources().getDrawable(R.drawable.blue_flag);
+                    final Drawable drawable = getResources().getDrawable(R.drawable.blue_flag);
                     marker.setIcon(drawable);
                     marker.setPosition(p);
                     marker.setAnchor(0.0f,1.0f);
@@ -118,13 +122,17 @@ public class GameActivity extends AppCompatActivity {
                         public boolean onMarkerClick(Marker marker, MapView mapView) {  //생성된 마커를 클릭하여 화면에 등록
                             Toast.makeText(context, "마커 등록 완료", Toast.LENGTH_SHORT).show();
                             currentState = Answered;
+
                             //정답 확인 부분
-                            myMapView.getOverlays().add(answer.answerMarker);
+                            Marker tmpMarker = new Marker(myMapView);
+                            tmpMarker.setIcon(drawable);
+                            tmpMarker.setPosition(marker.getPosition());
+                            tmpMarker.setAnchor(0.0f,1.0f);
+                            myMapView.getOverlays().add(tmpMarker);
+
+                            animateMarker(myMapView,tmpMarker,answer.answerMarker.getPosition(),new GeoPointInterpolator.Spherical());
+
                             myMapView.invalidate();
-                            //DrawMapview drawMapview = new DrawMapview(myMapView.getContext());
-                            //setContentView(drawMapview);
-
-
                             return true;
                         }
                     });
@@ -139,6 +147,42 @@ public class GameActivity extends AppCompatActivity {
             @Override
             public boolean longPressHelper(GeoPoint p) {    //길게 터치시
                 return false;
+            }
+        });
+    }
+
+
+    //사용자가 찍은 마커가 위치에서 시작하여 정답마커까지 이동하는 애니메이션
+    public void animateMarker(final MapView map, final Marker marker, final GeoPoint finalPosition, final GeoPointInterpolator GeoPointInterpolator) {
+        final GeoPoint startPosition = marker.getPosition();
+        final Handler handler = new Handler();
+        final long start = SystemClock.uptimeMillis();
+        final Interpolator interpolator = new AccelerateDecelerateInterpolator();
+        final float durationInMs = 3000;
+
+        handler.post(new Runnable() {
+            long elapsed;
+            float t;
+            float v;
+
+            @Override
+            public void run() {
+                // Calculate progress using interpolator
+                elapsed = SystemClock.uptimeMillis() - start;
+                t = elapsed / durationInMs;
+                v = interpolator.getInterpolation(t);
+
+                marker.setPosition(GeoPointInterpolator.interpolate(v, startPosition, finalPosition));
+                map.invalidate();
+                // Repeat till progress is complete.
+                if (t < 1) {
+                    // Post again 16ms later.
+                    handler.postDelayed(this, 16);
+                }
+                else{   //정답 마커 위치로 이동되면 정답 마커 추가
+                    marker.remove(myMapView);
+                    myMapView.getOverlays().add(answer.answerMarker);
+                }
             }
         });
     }
@@ -187,23 +231,6 @@ public class GameActivity extends AppCompatActivity {
             ImageView imgv = (ImageView) view;
             PictureDialogFragment pdf = PictureDialogFragment.Companion.newInstance(imgv.getDrawable());
             pdf.show(getSupportFragmentManager(), "wow");
-        }
-    }
-
-    class DrawMapview extends View{
-        public DrawMapview(Context context) {
-            super(context);
-        }
-
-        @Override
-        protected void onDraw(Canvas canvas) {
-
-            Paint MyPaint = new Paint();
-            MyPaint.setColor(Color.RED);
-            MyPaint.setStrokeWidth(30f);
-            canvas.drawRect(100,150,200,250,MyPaint);
-
-            super.onDraw(canvas);
         }
     }
 }

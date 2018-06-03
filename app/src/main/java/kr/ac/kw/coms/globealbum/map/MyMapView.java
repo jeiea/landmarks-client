@@ -47,8 +47,13 @@ public class MyMapView extends org.osmdroid.views.MapView{
         setTileSource(TileSourceFactory.BASE_OVERLAY_NL);    //맵 렌더링 설정
         setBuiltInZoomControls(false);
         setMultiTouchControls(true);
-        setScrollableAreaLimitLatitude(TileSystem.MaxLatitude - 5, TileSystem.MinLatitude+ 35, 0);
-        //setScrollableAreaLimitLongitude(TileSystem.MinLongitude+ 12, TileSystem.MaxLongitude+12, 0);
+        setScrollableAreaLimitLatitude(TileSystem.MaxLatitude, TileSystem.MinLatitude + 30, 0);
+        setScrollableAreaLimitLongitude(TileSystem.MinLongitude, TileSystem.MaxLongitude, 0);
+        //맵 반복 방지
+        setHorizontalMapRepetitionEnabled(false);
+        setVerticalMapRepetitionEnabled(false);
+
+
 
         double logZoom = getLogZoom();
 
