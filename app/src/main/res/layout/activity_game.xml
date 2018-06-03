@@ -19,37 +19,48 @@
                 android:id="@+id/map"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"/>
-            <Button
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="left|top"
-                android:text="back"
-                android:id="@+id/button_back"/>
-
+                android:orientation="horizontal">
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="left|top"
+                    android:text="MENU"
+                    android:id="@+id/button_menu"/>
+                <ProgressBar
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    style="@style/Base.Widget.AppCompat.ProgressBar.Horizontal"
+                    android:layout_weight="1"
+                    android:id="@+id/progressbar"/>
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:visibility="invisible"
+                    android:enabled="false"/>
+            </LinearLayout>
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
-                <Button
+
+                <TextView
+                    android:id="@+id/textview_stage"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="scrap"
-                    android:layout_alignParentTop="true"
                     android:layout_alignParentRight="true"
-                    android:id="@+id/button_scrap"/>
-                <Button
+                    android:layout_alignParentTop="true"
+                    android:text="stage 1"/>
+                <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="hint"
-                    android:id="@+id/button_hint"
-                    android:layout_toLeftOf="@id/button_scrap"/>
+                    android:text="score : 0"
+                    android:id="@+id/textview_score"
+                    android:layout_below="@id/textview_stage"
+                    android:layout_alignRight="@id/textview_stage"/>
             </RelativeLayout>
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal|top"
-                android:text="00:00"
-                android:id="@+id/textview_time"/>
         </FrameLayout>
 
         <LinearLayout

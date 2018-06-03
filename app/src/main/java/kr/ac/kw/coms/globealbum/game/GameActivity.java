@@ -7,6 +7,7 @@ import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Message;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
@@ -15,10 +16,12 @@ import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.Interpolator;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import org.osmdroid.config.Configuration;
 import org.osmdroid.events.MapEventsReceiver;
+import org.osmdroid.util.Distance;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.MapEventsOverlay;
@@ -32,20 +35,30 @@ import kr.ac.kw.coms.globealbum.map.MyMapView;
 
 import static kr.ac.kw.coms.globealbum.game.GameActivity.GameState.Answered;
 import static kr.ac.kw.coms.globealbum.game.GameActivity.GameState.Solving;
+import static kr.ac.kw.coms.globealbum.game.GameActivity.TimerState.Running;
+import static kr.ac.kw.coms.globealbum.game.GameActivity.TimerState.Stop;
 
 
 public class GameActivity extends AppCompatActivity {
     Context context = null;
     MyMapView myMapView = null;
     ImageView[] imageView = null;
+    ProgressBar progressBar = null;
     final int PICTURE_NUM = 4;
+    int stage=1;
+    TimerState stopTimer=Running;
+
+    final int STAGE_TIME = 14;
     MapEventsOverlay listenerOverlay;
     Marker currentMarker;
-
 
     enum GameState {
         Solving,
         Answered,
+    }
+    enum TimerState{
+        Stop,
+        Running
     }
 
     class Answer{
@@ -70,6 +83,8 @@ public class GameActivity extends AppCompatActivity {
         imageView[1] = findViewById(R.id.picture2);
         imageView[2] = findViewById(R.id.picture3);
         imageView[3] = findViewById(R.id.picture4);
+        progressBar = findViewById(R.id.progressbar);
+
 
         imageView[0].setOnClickListener(new PictureClickListener());
         //imageView[1].setOnClickListener(new PictureClickListener());
@@ -98,10 +113,46 @@ public class GameActivity extends AppCompatActivity {
         answer.answerGeopoint = new GeoPoint(48.8710,2.4131);   //파리의 좌표
         answer.answerMarker.setPosition(answer.answerGeopoint);
 
-
-
+        timeThreadHandler();
     }
 
+
+
+    //제한 시간 측정하는 스레드
+    private void timeThreadHandler(){
+        progressBar.setMax(STAGE_TIME-stage);
+        progressBar.setProgress(STAGE_TIME-stage);
+
+        new Thread(new Runnable() {
+            int value = STAGE_TIME-stage;
+            @Override
+            public void run() {
+                while (true) {
+                    try {
+                        Thread.sleep(1000);
+                        progressBar.setProgress(--value);
+                        if (value == 0||stopTimer == Stop) {
+                            if(value==0){
+                                currentMarker=new Marker(myMapView);
+                                currentState = Answered;
+                                myMapView.getOverlays().add(answer.answerMarker);
+                                myMapView.invalidate();
+
+                            }
+                            Thread.interrupted();
+                            break;
+                        }
+
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }).start();
+    }
+
+    //맵뷰를 클릭하였을 때 발생하는 이벤트
+    //마커를 화면에 띄우고, 또 한번 클릭할 경우 정답 확인으로 넘어간다.
     private MapEventsOverlay markerEvent() {
         return new MapEventsOverlay(new MapEventsReceiver() {
             @Override
@@ -123,12 +174,17 @@ public class GameActivity extends AppCompatActivity {
                             Toast.makeText(context, "마커 등록 완료", Toast.LENGTH_SHORT).show();
                             currentState = Answered;
 
+                            stopTimer=Stop;
+
                             //정답 확인 부분
                             Marker tmpMarker = new Marker(myMapView);
                             tmpMarker.setIcon(drawable);
                             tmpMarker.setPosition(marker.getPosition());
                             tmpMarker.setAnchor(0.0f,1.0f);
                             myMapView.getOverlays().add(tmpMarker);
+
+                            double value =Distance.getSquaredDistanceToPoint(answer.answerMarker.getPosition().getLongitude(),answer.answerMarker   .getPosition().getLatitude(),tmpMarker.getPosition().getLongitude(),tmpMarker.getPosition().getLatitude());
+                            Toast.makeText(GameActivity.this, value+"", Toast.LENGTH_SHORT).show();
 
                             animateMarker(myMapView,tmpMarker,answer.answerMarker.getPosition(),new GeoPointInterpolator.Spherical());
 
@@ -153,12 +209,12 @@ public class GameActivity extends AppCompatActivity {
 
 
     //사용자가 찍은 마커가 위치에서 시작하여 정답마커까지 이동하는 애니메이션
-    public void animateMarker(final MapView map, final Marker marker, final GeoPoint finalPosition, final GeoPointInterpolator GeoPointInterpolator) {
+    private void animateMarker(final MapView map, final Marker marker, final GeoPoint finalPosition, final GeoPointInterpolator GeoPointInterpolator) {
         final GeoPoint startPosition = marker.getPosition();
         final Handler handler = new Handler();
         final long start = SystemClock.uptimeMillis();
         final Interpolator interpolator = new AccelerateDecelerateInterpolator();
-        final float durationInMs = 3000;
+        final float durationInMs = 2000;
 
         handler.post(new Runnable() {
             long elapsed;
@@ -168,7 +224,7 @@ public class GameActivity extends AppCompatActivity {
             @Override
             public void run() {
                 // Calculate progress using interpolator
-                elapsed = SystemClock.uptimeMillis() - start;
+                elapsed=  SystemClock.uptimeMillis() - start;
                 t = elapsed / durationInMs;
                 v = interpolator.getInterpolation(t);
 
@@ -182,6 +238,7 @@ public class GameActivity extends AppCompatActivity {
                 else{   //정답 마커 위치로 이동되면 정답 마커 추가
                     marker.remove(myMapView);
                     myMapView.getOverlays().add(answer.answerMarker);
+
                 }
             }
         });
@@ -190,6 +247,8 @@ public class GameActivity extends AppCompatActivity {
     @Override
     public boolean dispatchTouchEvent(MotionEvent ev) { //문제를 맞춘 후 다시 맵 로드
         if (currentState == Answered) {
+
+
             currentMarker.remove(myMapView);
             currentMarker = null;
 
@@ -201,6 +260,10 @@ public class GameActivity extends AppCompatActivity {
 
             myMapView.invalidate();
             currentState = Solving;
+
+            stage++;
+            stopTimer=Running;
+            timeThreadHandler();
             return true;
         }
         return super.dispatchTouchEvent(ev);
