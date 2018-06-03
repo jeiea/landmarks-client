@@ -24,6 +24,9 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.google.android.flexbox.AlignItems;
+import com.google.android.flexbox.FlexDirection;
+import com.google.android.flexbox.FlexWrap;
 import com.google.android.flexbox.FlexboxLayout;
 import com.google.android.flexbox.FlexboxLayoutManager;
 
@@ -39,6 +42,7 @@ import kr.ac.kw.coms.globealbum.provider.PictureProvider;
 public class activity_Navigator extends AppCompatActivity {
     float density;
     ArrayList<PictureGroup> data;
+    kr.ac.kw.coms.globealbum.album.GroupDiaryView recycle_gallery;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,6 +100,8 @@ public class activity_Navigator extends AppCompatActivity {
         Divider.setOnDragListener(mDragListener);
 
         getData();
+        recycle_gallery = (kr.ac.kw.coms.globealbum.album.GroupDiaryView)findViewById(R.id.recycle_gallery);
+        recycle_gallery.setGroups((List)data);
     }
 
     class CanvasShadow extends View.DragShadowBuilder {
@@ -153,16 +159,20 @@ public class activity_Navigator extends AppCompatActivity {
 
     class GroupDiaryView extends RecyclerView
     {
+        GroupedPicAdapter picAdapter = new GroupedPicAdapter();
         public GroupDiaryView(Context context) {
             this(context, null, 0);
         }
-
         public GroupDiaryView(Context context, AttributeSet attrs, int defStyle)
         {
             super(context, attrs, defStyle);
+            this.setAdapter(picAdapter);
+            FlexboxLayoutManager mFlexboxLayoutManager = new FlexboxLayoutManager(context);
+            mFlexboxLayoutManager.setFlexWrap(FlexWrap.WRAP);
+            mFlexboxLayoutManager.setFlexDirection(FlexDirection.ROW);
+            mFlexboxLayoutManager.setAlignItems(AlignItems.STRETCH);
+            this.setLayoutManager(mFlexboxLayoutManager);
         }
-
-        GroupedPicAdapter picAdapter = new GroupedPicAdapter();
     }
 
     class GroupedPicAdapter extends RecyclerView.Adapter<GroupedPicAdapter.ElementViewHolder>
