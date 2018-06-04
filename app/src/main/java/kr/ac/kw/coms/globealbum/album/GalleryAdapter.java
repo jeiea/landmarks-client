@@ -64,14 +64,14 @@ class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHolder> {
         holder.mImageView.setLayoutParams(params);
         holder.ImagePath = model.getImage();
         holder.index = position;
-        holder.mImageView.setBackgroundColor(model.isSelected() ? Color.CYAN : Color.WHITE);
+        holder.mImageView.setBackgroundColor(model.isSelected() ? Color.argb(0xFF, 0xFF, 0x88, 0x00) : Color.BLACK);
 
         holder.mImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (MultiSelectMode) {
                     model.setSelected(!model.isSelected());
-                    holder.mImageView.setBackgroundColor(model.isSelected() ? Color.CYAN : Color.WHITE);
+                    holder.mImageView.setBackgroundColor(model.isSelected() ? Color.argb(0xFF, 0xFF, 0x88, 0x00) : Color.BLACK);
                     Toast.makeText(context, model.isSelected() ? "SELECTED" : "UNSELECTED", Toast.LENGTH_SHORT).show();
                 } else { //이미지 한 개 선택 시 이벤트
                     /*
@@ -96,7 +96,7 @@ class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHolder> {
                 MultiSelectMode = true;
                 ((AppCompatImageView) ((Activity) context).findViewById(R.id.btn_detail)).setVisibility(View.VISIBLE);
                 model.setSelected(!model.isSelected());
-                holder.mImageView.setBackgroundColor(model.isSelected() ? Color.CYAN : Color.WHITE);
+                holder.mImageView.setBackgroundColor(model.isSelected() ? Color.argb(0xFF, 0xFF, 0x88, 0x00) : Color.BLACK);
                 Toast.makeText(context, model.isSelected() ? "SELECTED" : "UNSELECTED", Toast.LENGTH_SHORT).show();
                 return true;
             }
@@ -113,7 +113,7 @@ class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHolder> {
             i.setSelected(false);
         }
         for (ViewHolder i : Elements) {
-            i.mImageView.setBackgroundColor(Color.WHITE);
+            i.mImageView.setBackgroundColor(Color.BLACK);
         }
         MultiSelectMode = false;
         ((AppCompatImageView) ((Activity) context).findViewById(R.id.btn_detail)).setVisibility(View.GONE);
