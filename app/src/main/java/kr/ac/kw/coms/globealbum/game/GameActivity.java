@@ -46,6 +46,8 @@ public class GameActivity extends AppCompatActivity {
     ProgressBar progressBar = null;
     TextView stageTextView=null;
 
+    Drawable RED_FLAG_DRAWABLE;
+    Drawable BLUE_FLAG_DRAWABLE;
     final int PICTURE_NUM = 4;
     int stage=1;
     TimerState stopTimer=Running;
@@ -89,6 +91,10 @@ public class GameActivity extends AppCompatActivity {
         //imageView[2].setOnClickListener(new PictureClickListener());
         //imageView[3].setOnClickListener(new PictureClickListener());
 
+
+        RED_FLAG_DRAWABLE = getResources().getDrawable(R.drawable.red_flag);
+        BLUE_FLAG_DRAWABLE = getResources().getDrawable(R.drawable.blue_flag);
+
         stageTextView.setText("Stage "+stage);
 
         //osmdroid 초기 구성
@@ -115,6 +121,7 @@ public class GameActivity extends AppCompatActivity {
         progressBar.setProgress(STAGE_TIME-stage);
 
         new Thread(new Runnable() {
+            final Drawable drawable = getResources().getDrawable(R.drawable.blue_flag);
             int value = STAGE_TIME-stage;
             @Override
             public void run() {
@@ -124,10 +131,26 @@ public class GameActivity extends AppCompatActivity {
                         progressBar.setProgress(--value);
                         if (value == 0||stopTimer == Stop) {
                             if(value==0){
-                                currentMarker=new Marker(myMapView);
-                                currentState = Answered;
+                                if(currentMarker != null){  //화면을 한번 터치해 마커를 생성하고 난 후 타임아웃 발생시 그 마커를 위치로 정답 확인
+                                    runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            timeOutAddUserMarker();
+                                        }
+                                    });
+                                }
+                                else{   //화면에 마커 생성 없이 타임아웃 발생시 정답 확인
+                                    currentMarker=new Marker(myMapView);
+                                    currentState = Answered;
+                                    runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            answerMarker.showInfoWindow();
+                                        }
+                                    });
+                                    myMapView.getOverlays().add(answerMarker);
+                                }
 
-                                myMapView.getOverlays().add(answerMarker);
                                 myMapView.invalidate();
                             }
                             Thread.interrupted();
@@ -200,7 +223,9 @@ public class GameActivity extends AppCompatActivity {
                 }
                 else{   //정답 마커 위치로 이동되면 정답 마커 추가
                     marker.remove(myMapView);
+                    answerMarker.showInfoWindow();
                     myMapView.getOverlays().add(answerMarker);
+
                     addPolyline(currentMarker.getPosition(),answerMarker.getPosition());
                     map.invalidate();
                 }
@@ -249,14 +274,13 @@ public class GameActivity extends AppCompatActivity {
 
             answerMarker.closeInfoWindow();
             myMapView.getOverlays().remove(answerMarker);
-
-            setAnswerMarker(new GeoPoint(41.895466,12.482323),"Roma, ITALY",R.drawable.sample1); //로마의 좌표
             myMapView.getOverlays().remove(polyline);   //polyline 삭제
 
             myMapView.invalidate();
 
-            currentState = Solving;
+            setAnswerMarker(new GeoPoint(41.895466,12.482323),"Roma, ITALY",R.drawable.sample1); //다음 문제 설정. 로마의 좌표
 
+            currentState = Solving;
             stage++;
             stageTextView.setText("Stage "+stage);
             stopTimer=Running;
@@ -268,12 +292,10 @@ public class GameActivity extends AppCompatActivity {
         return super.dispatchTouchEvent(ev);
     }
 
-
     //사용자 마커 생성
     private Marker addUserMarker(final GeoPoint geoPoint){
         Marker marker = new Marker(myMapView);
-        final Drawable drawable = getResources().getDrawable(R.drawable.blue_flag);
-        marker.setIcon(drawable);
+        marker.setIcon(BLUE_FLAG_DRAWABLE);
         marker.setPosition(geoPoint);
         marker.setAnchor(0.0f,1.0f);
         marker.setOnMarkerClickListener(new Marker.OnMarkerClickListener() {
@@ -285,7 +307,7 @@ public class GameActivity extends AppCompatActivity {
 
                 //정답 확인 부분
                 Marker tmpMarker = new Marker(myMapView);
-                tmpMarker.setIcon(drawable);
+                tmpMarker.setIcon(BLUE_FLAG_DRAWABLE);
                 tmpMarker.setPosition(marker.getPosition());
                 tmpMarker.setAnchor(0.0f,1.0f);
                 myMapView.getOverlays().add(tmpMarker);
@@ -299,16 +321,36 @@ public class GameActivity extends AppCompatActivity {
             }
         });
         return marker;
+
+    }
+
+    //화면을 한번 클릭해 마커를 발생 후 타임아웃 발생시 정답 확인 과정
+    private void timeOutAddUserMarker(){
+
+        Toast.makeText(context, "마커 등록 완료", Toast.LENGTH_SHORT).show();
+        currentState = Answered;
+        stopTimer=Stop;
+
+        //정답 확인 부분
+        Marker tmpMarker = new Marker(myMapView);
+        tmpMarker.setIcon(BLUE_FLAG_DRAWABLE);
+        tmpMarker.setPosition(currentMarker.getPosition());
+        tmpMarker.setAnchor(0.0f,1.0f);
+        myMapView.getOverlays().add(tmpMarker);
+
+
+        answerMarker.setSnippet(calcDistance(currentMarker.getPosition(),answerMarker.getPosition())+"Km");
+        animateMarker(myMapView,tmpMarker,answerMarker.getPosition(),new GeoPointInterpolator.Spherical());
+
+        myMapView.invalidate();
     }
 
     //정답 마커 생성
     private void setAnswerMarker(GeoPoint geoPoint,String name,int id){
         answerMarker = new Marker(myMapView);
-        Drawable drawable = getResources().getDrawable(R.drawable.red_flag);
-        answerMarker.setIcon(drawable);
+        answerMarker.setIcon(RED_FLAG_DRAWABLE);
         answerMarker.setAnchor(0.0f,1.0f);
         answerMarker.setTitle(name);
-        answerMarker.showInfoWindow();
         answerMarker.setPosition(geoPoint);
 
         imageView[0].setImageResource(id);
