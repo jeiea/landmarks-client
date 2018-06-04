@@ -69,8 +69,6 @@ public class GameActivity extends AppCompatActivity {
     }
     GameState currentState = Solving;
 
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -90,7 +88,6 @@ public class GameActivity extends AppCompatActivity {
         //imageView[1].setOnClickListener(new PictureClickListener());
         //imageView[2].setOnClickListener(new PictureClickListener());
         //imageView[3].setOnClickListener(new PictureClickListener());
-
 
         RED_FLAG_DRAWABLE = getResources().getDrawable(R.drawable.red_flag);
         BLUE_FLAG_DRAWABLE = getResources().getDrawable(R.drawable.blue_flag);
@@ -265,6 +262,9 @@ public class GameActivity extends AppCompatActivity {
     }
 
 
+
+    //문제 정답을 확인한 후 화면의 아무 부분이나 클릭 시 실행
+    //기존 화면 오버레이들을 지우고 정답 마커 다시 설정, 타이머 재시작
     @Override
     public boolean dispatchTouchEvent(MotionEvent ev) { //문제를 맞춘 후 다시 맵 로드
         if (currentState == Answered) {
@@ -274,7 +274,7 @@ public class GameActivity extends AppCompatActivity {
 
             answerMarker.closeInfoWindow();
             myMapView.getOverlays().remove(answerMarker);
-            myMapView.getOverlays().remove(polyline);   //polyline 삭제
+            myMapView.getOverlays().remove(polyline);
 
             myMapView.invalidate();
 
@@ -331,7 +331,6 @@ public class GameActivity extends AppCompatActivity {
         currentState = Answered;
         stopTimer=Stop;
 
-        //정답 확인 부분
         Marker tmpMarker = new Marker(myMapView);
         tmpMarker.setIcon(BLUE_FLAG_DRAWABLE);
         tmpMarker.setPosition(currentMarker.getPosition());
