@@ -7,11 +7,16 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Matrix;
+import android.media.ThumbnailUtils;
+import android.provider.MediaStore;
 import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.RecyclerView;
+import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,7 +29,7 @@ import kr.ac.kw.coms.globealbum.R;
 
 class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHolder> {
     private ArrayList<Model> mDataset;
-    private Context context;
+    private static Context context;
     private boolean MultiSelectMode = false;
     private ArrayList<ViewHolder> Elements = new ArrayList<>();
 
@@ -33,11 +38,16 @@ class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHolder> {
         public String ImagePath;
         public int DisplayWidth;
         public int index;
+        public Bitmap Image_original;
+        public Bitmap Image_checked;
+        public Bitmap Image_unchecked;
 
         public ViewHolder(ImageView v) {
             super(v);
             mImageView = v;
             DisplayWidth = Resources.getSystem().getDisplayMetrics().widthPixels;
+            Bitmap checkedbox = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(context.getResources(), R.drawable.checked), DisplayWidth / 15, DisplayWidth / 15, false);
+            Bitmap uncheckedbox = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(context.getResources(), R.drawable.unchecked), DisplayWidth / 15, DisplayWidth / 15, false);
         }
     }
 
@@ -47,9 +57,10 @@ class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHolder> {
 
     @Override
     public GalleryAdapter.ViewHolder onCreateViewHolder(final ViewGroup parent, final int viewType) {
+        context = parent.getContext();
         ImageView v = (ImageView) LayoutInflater.from(parent.getContext()).inflate(R.layout.inner_view, parent, false);
         ViewHolder vh = new ViewHolder(v);
-        context = parent.getContext();
+
         Elements.add(vh);
         return vh;
     }
@@ -57,8 +68,20 @@ class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHolder> {
     @Override
     public void onBindViewHolder(final ViewHolder holder, final int position) {
         final Model model = mDataset.get(position);
-        Bitmap mBitmap = BitmapFactory.decodeFile(model.getImage());
-        holder.mImageView.setImageBitmap(mBitmap);
+        holder.Image_original = ThumbnailUtils.extractThumbnail(BitmapFactory.decodeFile(model.getImage()), holder.DisplayWidth / 3, holder.DisplayWidth / 3);
+        holder.mImageView.setImageBitmap(holder.Image_original);
+/*
+        Bitmap overlay = Bitmap.createBitmap(holder.Image_original.getWidth(), holder.Image_original.getHeight(), holder.Image_original.getConfig());
+        Canvas canvas = new Canvas(overlay);
+        canvas.drawBitmap(holder.Image_original, new Matrix(), null);
+        canvas.drawBitmap(holder.Image_checked, new Matrix(), null);
+        holder.Image_checked = overlay;
+        overlay = Bitmap.createBitmap(holder.Image_original.getWidth(), holder.Image_original.getHeight(), holder.Image_original.getConfig());
+        canvas = new Canvas(overlay);
+        canvas.drawBitmap(holder.Image_original, new Matrix(), null);
+        canvas.drawBitmap(holder.Image_unchecked, new Matrix(), null);
+        holder.Image_unchecked = overlay;*/
+
         ViewGroup.LayoutParams params = holder.mImageView.getLayoutParams();
         params.height = holder.DisplayWidth / 3;
         holder.mImageView.setLayoutParams(params);
@@ -72,13 +95,8 @@ class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHolder> {
                 if (MultiSelectMode) {
                     model.setSelected(!model.isSelected());
                     holder.mImageView.setBackgroundColor(model.isSelected() ? Color.argb(0xFF, 0xFF, 0x88, 0x00) : Color.BLACK);
-                    Toast.makeText(context, model.isSelected() ? "SELECTED" : "UNSELECTED", Toast.LENGTH_SHORT).show();
+
                 } else { //이미지 한 개 선택 시 이벤트
-                    /*
-                    Intent intent = new Intent(Intent.ACTION_ANSWER);
-                    intent.putExtra("FILEPATH", holder.ImagePath);
-                    ((Activity) context).setResult(Activity.RESULT_OK, intent);
-                    ((Activity) context).finish();*/
                     Intent intent = new Intent(context, GalleryDetail.class);
                     intent.putExtra("index", holder.index);
                     String[] ImageList = new String[mDataset.size()];
