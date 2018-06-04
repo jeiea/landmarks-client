@@ -209,11 +209,11 @@ public class GameActivity extends AppCompatActivity {
                 t = elapsed / durationInMs;
                 v = interpolator.getInterpolation(t);
 
-                marker.setPosition(GeoPointInterpolator.interpolate(v, startPosition, finalPosition));
+                marker.setPosition(GeoPointInterpolator.interpolate(v, startPosition, finalPosition)); //보간법 이용, 시작 위치에서 끝 위치까지 가는 구 모양의 경로 도출
                 map.invalidate();
                 // Repeat till progress is complete.
                 if (t < 1) {
-                    // Post again 16ms later.
+                    // 16ms 후 다시 시작
                     handler.postDelayed(this, 16);
                 }
                 else{   //정답 마커 위치로 이동되면 정답 마커 추가
@@ -221,7 +221,7 @@ public class GameActivity extends AppCompatActivity {
                     answerMarker.showInfoWindow();
                     myMapView.getOverlays().add(answerMarker);
 
-                    addPolyline(currentMarker.getPosition(),answerMarker.getPosition());
+                    addPolyline(currentMarker.getPosition(),answerMarker.getPosition());    //마커 사이를 직선으로 연결
                     map.invalidate();
                 }
             }
@@ -243,7 +243,9 @@ public class GameActivity extends AppCompatActivity {
 
     //두 좌표 사이의 거리를 구해서 리턴
     private int calcDistance(GeoPoint geoPoint1, GeoPoint geoPoint2){
-
+        //http://www.mapanet.eu/en/resources/Script-Distance.htm
+        //http://www.codecodex.com/wiki/Calculate_distance_between_two_points_on_a_globe
+        //https://stackoverflow.com/questions/5936912/how-to-find-the-distance-between-two-geopoints
         final  double PI = 3.14159265358979323846;
         double rad = PI/180;
         double latitude1 = geoPoint1.getLatitude()*rad;
@@ -306,6 +308,7 @@ public class GameActivity extends AppCompatActivity {
 
     //사용자 마커 생성
     private Marker addUserMarker(final GeoPoint geoPoint){
+        //마커 생성 및 설정
         Marker marker = new Marker(myMapView);
         marker.setIcon(BLUE_FLAG_DRAWABLE);
         marker.setPosition(geoPoint);
@@ -317,7 +320,7 @@ public class GameActivity extends AppCompatActivity {
                 currentState = Answered;
                 stopTimer=Stop;
 
-                //정답 확인 부분
+                //유저가 선택한 위치의 마커에서 정답 마커까지 이동하는 애니메이션 동작을 하는 마커 생성
                 Marker tmpMarker = new Marker(myMapView);
                 tmpMarker.setIcon(BLUE_FLAG_DRAWABLE);
                 tmpMarker.setPosition(marker.getPosition());
@@ -325,8 +328,8 @@ public class GameActivity extends AppCompatActivity {
                 myMapView.getOverlays().add(tmpMarker);
 
 
-                answerMarker.setSnippet(calcDistance(geoPoint,answerMarker.getPosition())+"Km");
-                animateMarker(myMapView,tmpMarker,answerMarker.getPosition(),new GeoPointInterpolator.Spherical());
+                answerMarker.setSnippet(calcDistance(geoPoint,answerMarker.getPosition())+"Km");    //거리를 마커의 Infowindow에 추가
+                animateMarker(myMapView,tmpMarker,answerMarker.getPosition(),new GeoPointInterpolator.Spherical()); //마커 이동 애니메이션
 
                 myMapView.invalidate();
                 return true;
