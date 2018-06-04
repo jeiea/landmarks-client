@@ -74,7 +74,6 @@ public class GameActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
 
-
         //퀴즈에 나올 사진들을 연결
         imageView = new ImageView[PICTURE_NUM];
         imageView[0] = findViewById(R.id.picture1);
@@ -118,7 +117,6 @@ public class GameActivity extends AppCompatActivity {
         progressBar.setProgress(STAGE_TIME-stage);
 
         new Thread(new Runnable() {
-            final Drawable drawable = getResources().getDrawable(R.drawable.blue_flag);
             int value = STAGE_TIME-stage;
             @Override
             public void run() {
@@ -133,6 +131,7 @@ public class GameActivity extends AppCompatActivity {
                                         @Override
                                         public void run() {
                                             timeOutAddUserMarker();
+                                            myMapView.invalidate();
                                         }
                                     });
                                 }
@@ -143,12 +142,11 @@ public class GameActivity extends AppCompatActivity {
                                         @Override
                                         public void run() {
                                             answerMarker.showInfoWindow();
+                                            myMapView.getOverlays().add(answerMarker);
+                                            myMapView.invalidate();
                                         }
                                     });
-                                    myMapView.getOverlays().add(answerMarker);
                                 }
-
-                                myMapView.invalidate();
                             }
                             Thread.interrupted();
                             break;
@@ -278,10 +276,24 @@ public class GameActivity extends AppCompatActivity {
 
             myMapView.invalidate();
 
-            setAnswerMarker(new GeoPoint(41.895466,12.482323),"Roma, ITALY",R.drawable.sample1); //다음 문제 설정. 로마의 좌표
+            stage++;
+            switch (stage){
+                case 2:
+                    setAnswerMarker(new GeoPoint(41.895466,12.482323),"Roma, ITALY",R.drawable.sample1);
+                    break;
+                case 3:
+                    setAnswerMarker(new GeoPoint(40.705,-73.975),"New York, USA",R.drawable.sample3);
+                    break;
+                case 4:
+                    setAnswerMarker(new GeoPoint(34.6936,135.502),"Osaka, JAPAN",R.drawable.sample5);
+                    break;
+                case 5:
+                    setAnswerMarker(new GeoPoint(-33.8667, 151.2),"Sydney, AUSTRALIA",R.drawable.sample6);
+                    break;
+
+            }
 
             currentState = Solving;
-            stage++;
             stageTextView.setText("Stage "+stage);
             stopTimer=Running;
 
@@ -321,7 +333,6 @@ public class GameActivity extends AppCompatActivity {
             }
         });
         return marker;
-
     }
 
     //화면을 한번 클릭해 마커를 발생 후 타임아웃 발생시 정답 확인 과정
