@@ -1,14 +1,15 @@
 package kr.ac.kw.coms.globealbum;
 
 import android.Manifest;
-import android.view.View;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.view.View;
 import android.widget.Toast;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -29,23 +30,17 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         final int WEB_GALLERY = 1;
         final int LOCAL_STORAGE = 2;
-        if (requestCode == 1 && resultCode == RESULT_OK)
-        {
+        if (requestCode == 1 && resultCode == RESULT_OK) {
 
-        }
-        else if (requestCode == 2 && resultCode == RESULT_OK) //이미지 선택 완료
+        } else if (requestCode == 2 && resultCode == RESULT_OK) //이미지 선택 완료
         {
             String FilePath = data.getStringExtra("FILEPATH");
             exifinfo = new EXIFinfo(FilePath);
             double[] Location = exifinfo.getLocation();
             Toast.makeText(this, Location[0] + ", " + Location[1], Toast.LENGTH_LONG).show();
-        }
-        else if (requestCode == 3)
-        {
+        } else if (requestCode == 3) {
 
-        }
-        else if (resultCode == RESULT_CANCELED)
-        {
+        } else if (resultCode == RESULT_CANCELED) {
             Toast.makeText(this, "Canceled", Toast.LENGTH_SHORT).show();
         }
     }
@@ -55,18 +50,18 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        if(Build.VERSION.SDK_INT >=23){ //시작 시 권한 처리
+        if (Build.VERSION.SDK_INT >= 23) { //시작 시 권한 처리
             checkPermissions();
         }
 
-
+//        MediaScannerKt.mediaScan(this);
     }
 
     //layout button click listener
-    public void startOnClick(View v){
-        switch(v.getId()){
+    public void startOnClick(View v) {
+        switch (v.getId()) {
             case R.id.btn_start_map:
-                startActivity(new Intent(this,GameActivity.class));
+                startActivity(new Intent(this, GameActivity.class));
                 break;
             case R.id.btn_start_web_gallery:
                 startActivityForResult(new Intent(this, GalleryActivity.class), 1);
@@ -95,7 +90,7 @@ public class MainActivity extends AppCompatActivity {
         }
         if (!permissions.isEmpty()) {
             String[] params = permissions.toArray(new String[permissions.size()]);
-            if( Build.VERSION.SDK_INT >=23){
+            if (Build.VERSION.SDK_INT >= 23) {
                 requestPermissions(params, REQUEST_CODE_ASK_MULTIPLE_PERMISSIONS);
             }
         }
@@ -103,12 +98,12 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        if( requestCode == REQUEST_CODE_ASK_MULTIPLE_PERMISSIONS){
+        if (requestCode == REQUEST_CODE_ASK_MULTIPLE_PERMISSIONS) {
             Map<String, Integer> perms = new HashMap<String, Integer>();
 
             perms.put(Manifest.permission.ACCESS_FINE_LOCATION, PackageManager.PERMISSION_GRANTED);
             perms.put(Manifest.permission.WRITE_EXTERNAL_STORAGE, PackageManager.PERMISSION_GRANTED);
-            perms.put(Manifest.permission.READ_EXTERNAL_STORAGE,PackageManager.PERMISSION_GRANTED);
+            perms.put(Manifest.permission.READ_EXTERNAL_STORAGE, PackageManager.PERMISSION_GRANTED);
 
             for (int i = 0; i < permissions.length; i++)
                 perms.put(permissions[i], grantResults[i]);
