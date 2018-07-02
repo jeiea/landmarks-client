@@ -83,17 +83,7 @@ public class GalleryActivity extends AppCompatActivity {
                 }
                 break;
             case R.id.btn_detail:
-                View popupView = getLayoutInflater().inflate(R.layout.layout_gallerymenu, null);
-                final PopupWindow mPopupWindow = new PopupWindow(popupView, LinearLayout.LayoutParams.MATCH_PARENT,
-                        LinearLayout.LayoutParams.MATCH_PARENT);
-                mPopupWindow.showAtLocation(popupView, Gravity.CENTER, 0, 0);
-                Button Delete = (Button)findViewById(R.id.deleteAll);
-                Button Send = (Button)findViewById(R.id.sendFiles);
-                Delete.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                    }
-                });
+                
                 break;
         }
     }
