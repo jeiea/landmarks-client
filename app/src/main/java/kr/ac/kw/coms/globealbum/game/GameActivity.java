@@ -1,17 +1,20 @@
 package kr.ac.kw.coms.globealbum.game;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.Interpolator;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -45,6 +48,8 @@ public class GameActivity extends AppCompatActivity {
     ImageView[] imageView = null;
     ProgressBar progressBar = null;
     TextView stageTextView=null;
+    Button menuButton=null;
+
 
     Drawable RED_FLAG_DRAWABLE;
     Drawable BLUE_FLAG_DRAWABLE;
@@ -77,16 +82,16 @@ public class GameActivity extends AppCompatActivity {
         //퀴즈에 나올 사진들을 연결
         imageView = new ImageView[PICTURE_NUM];
         imageView[0] = findViewById(R.id.picture1);
-        //imageView[1] = findViewById(R.id.picture2);
-        //imageView[2] = findViewById(R.id.picture3);
-        //imageView[3] = findViewById(R.id.picture4);
+
+
         progressBar = findViewById(R.id.progressbar);
         stageTextView = findViewById(R.id.textview_stage);
+        menuButton = findViewById(R.id.game_button_menu);
+        menuButton.setOnClickListener(new MenuButtonClickListener());
+
+
 
         imageView[0].setOnClickListener(new PictureClickListener());
-        //imageView[1].setOnClickListener(new PictureClickListener());
-        //imageView[2].setOnClickListener(new PictureClickListener());
-        //imageView[3].setOnClickListener(new PictureClickListener());
 
         RED_FLAG_DRAWABLE = getResources().getDrawable(R.drawable.red_flag);
         BLUE_FLAG_DRAWABLE = getResources().getDrawable(R.drawable.blue_flag);
@@ -368,6 +373,29 @@ public class GameActivity extends AppCompatActivity {
 
         imageView[0].setImageResource(id);
 
+    }
+
+    class MenuButtonClickListener implements View.OnClickListener{  //메뉴 버튼 클릭 시 다이얼로그 표시
+        @Override
+        public void onClick(View view) {
+            final List<String> listItems = new ArrayList<>();
+            listItems.add("설정");
+            listItems.add("종료");
+            final CharSequence[] items =  listItems.toArray(new String[ listItems.size()]);
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(GameActivity.this);
+            builder.setTitle("Menu");
+            builder.setItems(items, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    String selectedText = items[i].toString();
+                    if(selectedText.equals("종료")){
+                        finish();
+                    }
+                }
+            });
+            builder.show();
+        }
     }
 
     //사진 클릭 시 크게 띄워주는 이벤트 등록
