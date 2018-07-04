@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".diary.Diary_main">
+    <!-- 다이어리 메인 화면. 여행정보 목록 조회 -->
+    <RelativeLayout
+        android:id="@+id/diary_main_Toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <ImageButton
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            android:scaleType="fitCenter"
+            android:src="@drawable/arrow_left" />
+
+        <RadioGroup
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="10dp"
+            android:orientation="horizontal">
+
+            <RadioButton
+                android:id="@+id/diary_main_RadioLeft"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checked="true"
+                android:onClick="diary_onRadioClick"
+                android:text="My" />
+
+            <RadioButton
+                android:id="@+id/diary_main_RadioRight"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="diary_onRadioClick"
+                android:text="Others" />
+        </RadioGroup>
+    </RelativeLayout>
+
+    <android.support.v4.widget.DrawerLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/diary_main_Toolbar">
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <!-- https://stackoverflow.com/questions/18768360/draggable-drawer-with-a-handle-instead-of-action-bar-on-top-of-other-apps -->
+            <com.fscz.views.BounceViewPager
+                android:id="@+id/diary_main_content_pager"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_centerInParent="true"
+                />
+            <com.fscz.views.CirclePageIndicator
+                android:id="@+id/diary_main_content_indicator"
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:padding="10dp"
+                android:layout_centerHorizontal="true"
+                android:layout_alignParentBottom="true"
+                android:layout_marginTop="100dp"
+                style="@style/link"
+                />
+        </RelativeLayout>
+        <kr.ac.kw.coms.globealbum.album.GroupDiaryView
+            android:id="@+id/diary_main_ImageList"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:visibility="visible"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/diary_main_Toolbar"></kr.ac.kw.coms.globealbum.album.GroupDiaryView>
+
+        <kr.ac.kw.coms.globealbum.album.GroupDiaryView
+            android:id="@+id/diary_main_JourneyList"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/diary_main_Toolbar"></kr.ac.kw.coms.globealbum.album.GroupDiaryView>
+    </android.support.v4.widget.DrawerLayout>
+
+
+</android.support.constraint.ConstraintLayout>

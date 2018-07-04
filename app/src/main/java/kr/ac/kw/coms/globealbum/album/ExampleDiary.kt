@@ -24,6 +24,7 @@ import org.jetbrains.anko.backgroundColor
 import org.jetbrains.anko.image
 import org.jetbrains.anko.matchParent
 import java.time.LocalDateTime
+import java.util.*
 
 /**
  * GroupDiaryView 사용 예제 액티비티
@@ -62,12 +63,15 @@ class ExampleDiary : AppCompatActivity() {
 data class PictureGroup(val name: String, val pics: ArrayList<PictureProvider.Picture>)
 
 fun resPicGetter(resources: Resources): (Int) -> ResourcePicture = { i ->
-  ResourcePicture(resources, i)
+  ResourcePicture(resources, i, null)
 }
 
-class ResourcePicture(val resources: Resources, @DrawableRes val id: Int) : PictureProvider.Picture {
+class ResourcePicture(val resources: Resources, @DrawableRes val id: Int, val clickListener: View.OnClickListener?) : PictureProvider.Picture {
+
   override fun getDrawable(): Drawable =
     resources.getDrawable(id, null)
+
+  fun getEventListener(): View.OnClickListener? = clickListener
 
   override fun getTitle(): String {
     TODO("not implemented")
@@ -163,8 +167,9 @@ internal class GroupedPicAdapter : RecyclerView.Adapter<GroupedPicAdapter.Elemen
         holder.textView.text = viewData[position] as String
       }
       is PictureHolder -> {
-        val pic = viewData[position] as PictureProvider.Picture
+        val pic = viewData[position] as ResourcePicture
         holder.imageView.image = pic.drawable
+        holder.imageView.setOnClickListener(pic.clickListener)
       }
     }
   }

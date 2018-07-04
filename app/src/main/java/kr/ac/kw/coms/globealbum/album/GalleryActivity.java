@@ -83,7 +83,10 @@ public class GalleryActivity extends AppCompatActivity {
                 }
                 break;
             case R.id.btn_detail:
-                
+                View poppupView = getLayoutInflater().inflate(R.layout.layout_gallerymenu, null);
+                PopupWindow mPopupWindow = new PopupWindow(poppupView, LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+                mPopupWindow.setFocusable(true);
+                mPopupWindow.showAtLocation(poppupView, Gravity.CENTER, 0, 0);
                 break;
         }
     }
