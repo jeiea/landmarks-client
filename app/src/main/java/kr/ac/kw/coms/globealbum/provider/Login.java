@@ -25,12 +25,12 @@ public class Login extends AppCompatActivity{
     @Override
     protected void onCreate(Bundle savedInstenceState){
         super.onCreate(savedInstenceState);
-        setContentView(R.layout.login);
+        setContentView(R.layout.layout_login);
 
         Intent intent = new Intent(this.getIntent());
 
-        etEmail = (EditText)findViewById(R.id.etEmail);
-        etPassword = (EditText)findViewById(R.id.etPassword);
+        etEmail = (EditText)findViewById(R.id.et_email);
+        etPassword = (EditText)findViewById(R.id.et_password);
 
         stPassword = etPassword.getText().toString();
         stEmail = etEmail.getText().toString();
@@ -52,7 +52,7 @@ public class Login extends AppCompatActivity{
     }
 
     public void onRegister(View view) {
-        EditText email =  findViewById(R.id.etEmail);
+        EditText email =  findViewById(R.id.et_email);
 
         new RegisterTask().execute(email.getText().toString());
     }
