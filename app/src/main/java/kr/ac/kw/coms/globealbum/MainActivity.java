@@ -19,6 +19,7 @@ import kr.ac.kw.coms.globealbum.album.GalleryActivity;
 import kr.ac.kw.coms.globealbum.album.activity_Navigator;
 import kr.ac.kw.coms.globealbum.game.GameActivity;
 import kr.ac.kw.coms.globealbum.provider.EXIFinfo;
+import kr.ac.kw.coms.globealbum.provider.Login;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -121,5 +122,10 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
+
+    public void startLogin(View view) {
+        Intent intent = new Intent(MainActivity.this, Login.class);
+        startActivity(intent);
     }
 }

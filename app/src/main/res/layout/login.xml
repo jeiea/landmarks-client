@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <EditText
+        android:id="@+id/etPassword"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:text="password"
+        android:inputType="textPassword"
+        tools:layout_editor_absoluteX="85dp"
+        tools:layout_editor_absoluteY="277dp" />
+
+    <Button
+        android:id="@+id/btnLogin"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:text="LOGIN"
+        tools:layout_editor_absoluteX="92dp"
+        tools:layout_editor_absoluteY="342dp"
+        android:onClick="onLogin"/>
+
+    <Button
+        android:id="@+id/btnAccount"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:text="NEW ACCOUNT"
+        tools:layout_editor_absoluteX="92dp"
+        tools:layout_editor_absoluteY="390dp"
+        android:onClick="onRegister"/>
+
+    <EditText
+        android:id="@+id/etEmail"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:inputType="textPersonName"
+        android:text="ID"
+        tools:layout_editor_absoluteX="84dp"
+        tools:layout_editor_absoluteY="220dp" />
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="GLOBE_ALBUM"
+        android:textSize="15pt"
+        android:textAlignment="center"
+        tools:layout_width="match_parent"
+        tools:layout_editor_absoluteY="120dp" />
+</android.support.constraint.ConstraintLayout>
