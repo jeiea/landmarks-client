@@ -8,6 +8,7 @@ import org.osmdroid.api.IMapController;
 import org.osmdroid.events.MapListener;
 import org.osmdroid.events.ScrollEvent;
 import org.osmdroid.events.ZoomEvent;
+import org.osmdroid.mapsforge.MapsForgeTileSource;
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
 import org.osmdroid.util.TileSystem;
 import org.osmdroid.views.overlay.MapEventsOverlay;
@@ -44,7 +45,7 @@ public class MyMapView extends org.osmdroid.views.MapView{
     //맵 초기 설정
     private void mapConfiguration() {
 
-        setTileSource(TileSourceFactory.BASE_OVERLAY_NL);    //맵 렌더링 설정
+        setTileSource(TileSourceFactory.DEFAULT_TILE_SOURCE);    //맵 렌더링 설정
         setBuiltInZoomControls(false);
         setMultiTouchControls(true);
         setScrollableAreaLimitLatitude(TileSystem.MaxLatitude, TileSystem.MinLatitude + 30, 0);
@@ -52,7 +53,6 @@ public class MyMapView extends org.osmdroid.views.MapView{
         //맵 반복 방지
         setHorizontalMapRepetitionEnabled(false);
         setVerticalMapRepetitionEnabled(false);
-
 
 
         double logZoom = getLogZoom();

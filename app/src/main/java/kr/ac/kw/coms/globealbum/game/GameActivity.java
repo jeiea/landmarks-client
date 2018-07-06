@@ -5,6 +5,7 @@ import android.content.DialogInterface;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
@@ -20,8 +21,13 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.mapsforge.map.android.rendertheme.AssetsRenderTheme;
+import org.mapsforge.map.rendertheme.XmlRenderTheme;
 import org.osmdroid.config.Configuration;
 import org.osmdroid.events.MapEventsReceiver;
+import org.osmdroid.mapsforge.MapsForgeTileProvider;
+import org.osmdroid.mapsforge.MapsForgeTileSource;
+import org.osmdroid.tileprovider.util.SimpleRegisterReceiver;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.MapEventsOverlay;
@@ -29,10 +35,13 @@ import org.osmdroid.views.overlay.Marker;
 import org.osmdroid.views.overlay.Polyline;
 
 
+import java.io.File;
+import java.io.FileFilter;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import kr.ac.kw.coms.globealbum.R;
 import kr.ac.kw.coms.globealbum.common.PictureDialogFragment;
@@ -51,6 +60,7 @@ public class GameActivity extends AppCompatActivity {
     ProgressBar progressBar = null;
     TextView stageTextView=null;
     Button menuButton=null;
+    TextView gotonextTextView=null;
 
     Drawable RED_FLAG_DRAWABLE;
     Drawable BLUE_FLAG_DRAWABLE;
@@ -89,7 +99,7 @@ public class GameActivity extends AppCompatActivity {
         imageView = new ImageView[PICTURE_NUM];
         imageView[0] = findViewById(R.id.picture1);
 
-
+        gotonextTextView = findViewById(R.id.gotonext_textview);
         progressBar = findViewById(R.id.progressbar);
         stageTextView = findViewById(R.id.textview_stage);
         menuButton = findViewById(R.id.game_button_menu);
@@ -101,7 +111,7 @@ public class GameActivity extends AppCompatActivity {
 
         RED_FLAG_DRAWABLE = getResources().getDrawable(R.drawable.red_flag);
         BLUE_FLAG_DRAWABLE = getResources().getDrawable(R.drawable.blue_flag);
-
+a
         stageTextView.setText("Stage " + stage);
 
         //osmdroid 초기 구성
@@ -109,13 +119,44 @@ public class GameActivity extends AppCompatActivity {
         Configuration.getInstance().load(context, PreferenceManager.getDefaultSharedPreferences(context));
         myMapView = findViewById(R.id.map);
 
+//
+        MapsForgeTileSource.createInstance(getApplication());
+        String path = Environment.getExternalStorageDirectory().getAbsolutePath();
+        File f = new File(path);
+        File[] maps = f.listFiles(new FileFilter() {
+            @Override
+            public boolean accept(File file) {
+
+                return file.getName().toLowerCase(Locale.US).endsWith(".map"); //확장자
+            }
+        });  //TODO scan/prompt for map files (.map)
+
+
+
+        XmlRenderTheme theme = null; //null is ok here, uses the default rendering theme if it's not set
+        try {
+            //this file should be picked up by the mapsforge dependencies
+            theme = new AssetsRenderTheme(this.getApplicationContext(), "renderthemes/", "rendertheme-v4.xml");
+            //alternative: theme = new ExternalRenderTheme(userDefinedRenderingFile);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
+        MapsForgeTileSource fromFiles = MapsForgeTileSource.createFromFiles(maps, theme, "rendertheme-v4");
+        MapsForgeTileProvider forge = new MapsForgeTileProvider(
+                new SimpleRegisterReceiver(context),
+                fromFiles, null);
+
+        myMapView.setTileProvider(forge);
+
+//
+
         //마커 이벤트 등록
         listenerOverlay = markerEvent();
         myMapView.getOverlays().add(listenerOverlay);
 
         //정답 마커 등록
         setAnswerMarker(new GeoPoint(48.85625, 2.34375), "Paris, France", R.drawable.sample8);    //파리를 정답으로 등록
-
 
         timeThreadHandler();
     }
@@ -216,6 +257,7 @@ public class GameActivity extends AppCompatActivity {
                     answerMarker.showInfoWindow();
                     myMapView.getOverlays().add(answerMarker);
 
+                    gotonextTextView.setVisibility(View.VISIBLE);
                     addPolyline(currentMarker.getPosition(), answerMarker.getPosition());    //마커 사이를 직선으로 연결
                     map.invalidate();
                 }
@@ -261,6 +303,7 @@ public class GameActivity extends AppCompatActivity {
     //기존 화면 오버레이들을 지우고 정답 마커 다시 설정, 타이머 재시작
     @Override
     public boolean dispatchTouchEvent(MotionEvent ev) { //문제를 맞춘 후 다시 맵 로드
+        gotonextTextView.setVisibility(View.GONE);
         if (currentState == Answered) {
 
             currentMarker.remove(myMapView);
@@ -348,6 +391,8 @@ public class GameActivity extends AppCompatActivity {
 
         answerMarker.setSnippet(calcDistance(currentMarker.getPosition(), answerMarker.getPosition()) + "Km");
         animateMarker(myMapView, tmpMarker, answerMarker.getPosition(), new GeoPointInterpolator.Spherical());
+        gotonextTextView.setVisibility(View.VISIBLE);
+
     }
 
     //정답 마커 생성
