@@ -48,11 +48,10 @@ public class GameActivity extends AppCompatActivity {
     MyMapView myMapView = null;
     ImageView[] imageView = null;
     ProgressBar progressBar = null;
-    TextView stageTextView=null;
-    Button menuButton=null;
-    TextView gotonextTextView=null;
-    TextView scoreTextView =null;
-
+    TextView stageTextView = null;
+    Button menuButton = null;
+    TextView gotonextTextView = null;
+    TextView scoreTextView = null;
 
 
     Drawable RED_FLAG_DRAWABLE;
@@ -62,11 +61,13 @@ public class GameActivity extends AppCompatActivity {
     int score = 0;
     int timeScore = 0;
     int distanceScore = 0;
-    int stage=1;
+    int stage = 1;
     /**
      * 제한시간 타이머가 돌아가는 중인지.
      */
     TimerState stopTimer = Running;
+    private Handler animateHandler = null;
+
 
     final int TIME_LIMIT_MS = 14000;
     MapEventsOverlay listenerOverlay;
@@ -104,7 +105,6 @@ public class GameActivity extends AppCompatActivity {
         menuButton.setOnClickListener(new MenuButtonClickListener());
 
 
-
         imageView[0].setOnClickListener(new PictureClickListener());
 
         RED_FLAG_DRAWABLE = getResources().getDrawable(R.drawable.red_flag);
@@ -140,9 +140,9 @@ public class GameActivity extends AppCompatActivity {
             @Override
             public void run() {
                 long timeLeft = deadlineMs - new Date().getTime();
-                progressBar.setProgress((int)timeLeft);
+                progressBar.setProgress((int) timeLeft);
 
-                timeScore = (int)timeLeft;
+                timeScore = (int) timeLeft;
 
                 if (timeLeft > 0 && stopTimer != Stop) {
                     ui.postDelayed(this, 35); // about 30fps
@@ -162,6 +162,7 @@ public class GameActivity extends AppCompatActivity {
 
                     answerMarker.showInfoWindow();
                     myMapView.getOverlays().add(answerMarker);
+
                 }
                 myMapView.invalidate();
             }
@@ -176,7 +177,10 @@ public class GameActivity extends AppCompatActivity {
             public boolean singleTapConfirmedHelper(GeoPoint p) {   //화면 한번 터치시
 
                 if (currentMarker != null) {
-                    currentMarker.setPosition(p);
+                    if( animateHandler == null) {
+                        currentMarker.setPosition(p);
+
+                    }
                 } else {
                     Marker marker = addUserMarker(p);
                     currentMarker = marker;
@@ -198,12 +202,12 @@ public class GameActivity extends AppCompatActivity {
     //사용자가 찍은 마커가 위치에서 시작하여 정답마커까지 이동하는 애니메이션
     private void animateMarker(final MapView map, final Marker marker, final GeoPoint finalPosition, final GeoPointInterpolator GeoPointInterpolator) {
         final GeoPoint startPosition = marker.getPosition();
-        final Handler handler = new Handler();
+        animateHandler = new Handler();
         final long start = SystemClock.uptimeMillis();
         final Interpolator interpolator = new AccelerateDecelerateInterpolator();
         final float durationInMs = 2000;
 
-        handler.post(new Runnable() {
+        animateHandler.post(new Runnable() {
             long elapsed;
             float t;
             float v;
@@ -220,15 +224,18 @@ public class GameActivity extends AppCompatActivity {
                 // Repeat till progress is complete.
                 if (t < 1) {
                     // 16ms 후 다시 시작
-                    handler.postDelayed(this, 16);
+                    animateHandler.postDelayed(this, 16);
                 } else {   //정답 마커 위치로 이동되면 정답 마커 추가
                     marker.remove(myMapView);
                     answerMarker.showInfoWindow();
                     myMapView.getOverlays().add(answerMarker);
 
+
                     gotonextTextView.setVisibility(View.VISIBLE);
                     calcScore();
                     addPolyline(currentMarker.getPosition(), answerMarker.getPosition());    //마커 사이를 직선으로 연결
+                    animateHandler = null;
+                    myMapView.setClickable(true);
                     map.invalidate();
                 }
             }
@@ -274,7 +281,7 @@ public class GameActivity extends AppCompatActivity {
     @Override
     public boolean dispatchTouchEvent(MotionEvent ev) { //문제를 맞춘 후 다시 맵 로드
         gotonextTextView.setVisibility(View.GONE);
-        if (currentState == Answered) {
+        if (currentState == Answered && animateHandler == null) {
 
             currentMarker.remove(myMapView);
             currentMarker = null;
@@ -295,9 +302,9 @@ public class GameActivity extends AppCompatActivity {
                     break;
                 case 4:
                     stage++;
-                    stageTextView.setText("STAGE "+ stage);
-                    score=0;
-                    scoreTextView.setText("SCORE " +score);
+                    stageTextView.setText("STAGE " + stage);
+                    score = 0;
+                    scoreTextView.setText("SCORE " + score);
                     setAnswerMarker(new GeoPoint(34.6936, 135.502), "Osaka, JAPAN", R.drawable.sample5);
                     break;
                 case 5:
@@ -329,7 +336,6 @@ public class GameActivity extends AppCompatActivity {
         marker.setOnMarkerClickListener(new Marker.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(Marker marker, MapView mapView) {  //생성된 마커를 클릭하여 화면에 등록
-                Toast.makeText(context, "마커 등록 완료", Toast.LENGTH_SHORT).show();
                 currentState = Answered;
                 stopTimer = Stop;
 
@@ -340,11 +346,12 @@ public class GameActivity extends AppCompatActivity {
                 tmpMarker.setAnchor(0.0f, 1.0f);
                 myMapView.getOverlays().add(tmpMarker);
 
-                int distance= calcDistance(geoPoint, answerMarker.getPosition());
-                answerMarker.setSnippet( distance+ "Km");    //거리를 마커의 Infowindow에 추가
+                int distance = calcDistance(geoPoint, answerMarker.getPosition());
+                answerMarker.setSnippet(distance + "Km");    //거리를 마커의 Infowindow에 추가
                 animateMarker(myMapView, tmpMarker, answerMarker.getPosition(), new GeoPointInterpolator.Spherical()); //마커 이동 애니메이션
 
                 myMapView.invalidate();
+
                 return true;
             }
         });
@@ -353,8 +360,6 @@ public class GameActivity extends AppCompatActivity {
 
     //화면을 한번 클릭해 마커를 발생 후 타임아웃 발생시 정답 확인 과정
     private void timeOutAddUserMarker() {
-
-        Toast.makeText(context, "마커 등록 완료", Toast.LENGTH_SHORT).show();
         currentState = Answered;
         stopTimer = Stop;
 
@@ -365,25 +370,25 @@ public class GameActivity extends AppCompatActivity {
         myMapView.getOverlays().add(tmpMarker);
 
         int distance = calcDistance(currentMarker.getPosition(), answerMarker.getPosition());
-        answerMarker.setSnippet(distance+ "Km");
+        answerMarker.setSnippet(distance + "Km");
         animateMarker(myMapView, tmpMarker, answerMarker.getPosition(), new GeoPointInterpolator.Spherical());
         gotonextTextView.setVisibility(View.VISIBLE);
         calcScore();
-
     }
-    private void calcScore(){
+
+    private void calcScore() {
         final int CRITERIA = 500;
 
-        if (distanceScore>= 5000){
-            distanceScore=0;
-        }
-        else {
-            distanceScore = CRITERIA - distanceScore/10;
+        if (distanceScore >= 5000) {
+            distanceScore = 0;
+        } else {
+            distanceScore = CRITERIA - distanceScore / 10;
         }
 
-        score += distanceScore + timeScore/1000;
-        scoreTextView.setText("SCORE " +score);
+        score += distanceScore + timeScore / 1000;
+        scoreTextView.setText("SCORE " + score);
     }
+
     //정답 마커 생성
     private void setAnswerMarker(GeoPoint geoPoint, String name, int id) {
         answerMarker = new Marker(myMapView);
@@ -396,13 +401,13 @@ public class GameActivity extends AppCompatActivity {
 
     }
 
-    class MenuButtonClickListener implements View.OnClickListener{  //메뉴 버튼 클릭 시 다이얼로그 표시
+    class MenuButtonClickListener implements View.OnClickListener {  //메뉴 버튼 클릭 시 다이얼로그 표시
         @Override
         public void onClick(View view) {
             final List<String> listItems = new ArrayList<>();
             listItems.add("설정");
             listItems.add("종료");
-            final CharSequence[] items =  listItems.toArray(new String[ listItems.size()]);
+            final CharSequence[] items = listItems.toArray(new String[listItems.size()]);
 
             AlertDialog.Builder builder = new AlertDialog.Builder(GameActivity.this);
             builder.setTitle("Menu");
@@ -410,7 +415,7 @@ public class GameActivity extends AppCompatActivity {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
                     String selectedText = items[i].toString();
-                    if(selectedText.equals("종료")){
+                    if (selectedText.equals("종료")) {
                         finish();
                     }
                 }
