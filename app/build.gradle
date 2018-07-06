@@ -29,7 +29,7 @@ dependencies {
     implementation "org.jetbrains.anko:anko:$anko_version"
     implementation "org.jetbrains.anko:anko-constraint-layout:$anko_version"
     implementation 'com.android.support:appcompat-v7:27.1.1'
-    implementation 'com.android.support.constraint:constraint-layout:1.1.0'
+    implementation 'com.android.support.constraint:constraint-layout:1.1.2'
     implementation 'org.osmdroid:osmdroid-android:6.0.1'
     implementation 'org.mapsforge:mapsforge-map-android:0.9.1'
     implementation 'com.caverock:androidsvg:1.2.2-beta-1'
