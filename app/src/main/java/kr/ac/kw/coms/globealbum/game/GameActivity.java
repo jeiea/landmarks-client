@@ -5,7 +5,6 @@ import android.content.DialogInterface;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
@@ -21,13 +20,8 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.mapsforge.map.android.rendertheme.AssetsRenderTheme;
-import org.mapsforge.map.rendertheme.XmlRenderTheme;
 import org.osmdroid.config.Configuration;
 import org.osmdroid.events.MapEventsReceiver;
-import org.osmdroid.mapsforge.MapsForgeTileProvider;
-import org.osmdroid.mapsforge.MapsForgeTileSource;
-import org.osmdroid.tileprovider.util.SimpleRegisterReceiver;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.MapEventsOverlay;
@@ -35,13 +29,9 @@ import org.osmdroid.views.overlay.Marker;
 import org.osmdroid.views.overlay.Polyline;
 
 
-import java.io.File;
-import java.io.FileFilter;
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 
 import kr.ac.kw.coms.globealbum.R;
 import kr.ac.kw.coms.globealbum.common.PictureDialogFragment;
@@ -61,11 +51,18 @@ public class GameActivity extends AppCompatActivity {
     TextView stageTextView=null;
     Button menuButton=null;
     TextView gotonextTextView=null;
+    TextView scoreTextView =null;
+
+
 
     Drawable RED_FLAG_DRAWABLE;
     Drawable BLUE_FLAG_DRAWABLE;
     final int PICTURE_NUM = 4;
-    int stage = 1;
+    int problem = 1;
+    int score = 0;
+    int timeScore = 0;
+    int distanceScore = 0;
+    int stage=1;
     /**
      * 제한시간 타이머가 돌아가는 중인지.
      */
@@ -102,6 +99,7 @@ public class GameActivity extends AppCompatActivity {
         gotonextTextView = findViewById(R.id.gotonext_textview);
         progressBar = findViewById(R.id.progressbar);
         stageTextView = findViewById(R.id.textview_stage);
+        scoreTextView = findViewById(R.id.textview_score);
         menuButton = findViewById(R.id.game_button_menu);
         menuButton.setOnClickListener(new MenuButtonClickListener());
 
@@ -111,45 +109,14 @@ public class GameActivity extends AppCompatActivity {
 
         RED_FLAG_DRAWABLE = getResources().getDrawable(R.drawable.red_flag);
         BLUE_FLAG_DRAWABLE = getResources().getDrawable(R.drawable.blue_flag);
-a
-        stageTextView.setText("Stage " + stage);
+
+        stageTextView.setText("STAGE " + stage);
 
         //osmdroid 초기 구성
         context = getApplicationContext();
         Configuration.getInstance().load(context, PreferenceManager.getDefaultSharedPreferences(context));
         myMapView = findViewById(R.id.map);
 
-//
-        MapsForgeTileSource.createInstance(getApplication());
-        String path = Environment.getExternalStorageDirectory().getAbsolutePath();
-        File f = new File(path);
-        File[] maps = f.listFiles(new FileFilter() {
-            @Override
-            public boolean accept(File file) {
-
-                return file.getName().toLowerCase(Locale.US).endsWith(".map"); //확장자
-            }
-        });  //TODO scan/prompt for map files (.map)
-
-
-
-        XmlRenderTheme theme = null; //null is ok here, uses the default rendering theme if it's not set
-        try {
-            //this file should be picked up by the mapsforge dependencies
-            theme = new AssetsRenderTheme(this.getApplicationContext(), "renderthemes/", "rendertheme-v4.xml");
-            //alternative: theme = new ExternalRenderTheme(userDefinedRenderingFile);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-
-        MapsForgeTileSource fromFiles = MapsForgeTileSource.createFromFiles(maps, theme, "rendertheme-v4");
-        MapsForgeTileProvider forge = new MapsForgeTileProvider(
-                new SimpleRegisterReceiver(context),
-                fromFiles, null);
-
-        myMapView.setTileProvider(forge);
-
-//
 
         //마커 이벤트 등록
         listenerOverlay = markerEvent();
@@ -164,7 +131,7 @@ a
 
     //제한 시간 측정
     private void timeThreadHandler() {
-        int stageTimeLimitMs = TIME_LIMIT_MS - stage * 1000;
+        int stageTimeLimitMs = TIME_LIMIT_MS - problem * 1000;
         progressBar.setMax(stageTimeLimitMs);
 
         final long deadlineMs = new Date().getTime() + stageTimeLimitMs;
@@ -174,6 +141,8 @@ a
             public void run() {
                 long timeLeft = deadlineMs - new Date().getTime();
                 progressBar.setProgress((int)timeLeft);
+
+                timeScore = (int)timeLeft;
 
                 if (timeLeft > 0 && stopTimer != Stop) {
                     ui.postDelayed(this, 35); // about 30fps
@@ -258,6 +227,7 @@ a
                     myMapView.getOverlays().add(answerMarker);
 
                     gotonextTextView.setVisibility(View.VISIBLE);
+                    calcScore();
                     addPolyline(currentMarker.getPosition(), answerMarker.getPosition());    //마커 사이를 직선으로 연결
                     map.invalidate();
                 }
@@ -315,8 +285,8 @@ a
 
             myMapView.invalidate();
 
-            stage++;
-            switch (stage) {
+            problem++;
+            switch (problem) {
                 case 2:
                     setAnswerMarker(new GeoPoint(41.895466, 12.482323), "Roma, ITALY", R.drawable.sample1);
                     break;
@@ -324,16 +294,22 @@ a
                     setAnswerMarker(new GeoPoint(40.705, -73.975), "New York, USA", R.drawable.sample3);
                     break;
                 case 4:
+                    stage++;
+                    stageTextView.setText("STAGE "+ stage);
+                    score=0;
+                    scoreTextView.setText("SCORE " +score);
                     setAnswerMarker(new GeoPoint(34.6936, 135.502), "Osaka, JAPAN", R.drawable.sample5);
                     break;
                 case 5:
                     setAnswerMarker(new GeoPoint(-33.8667, 151.2), "Sydney, AUSTRALIA", R.drawable.sample6);
                     break;
+                case 6:
+                    finish();
+
 
             }
 
             currentState = Solving;
-            stageTextView.setText("Stage " + stage);
             stopTimer = Running;
 
             timeThreadHandler();
@@ -364,8 +340,8 @@ a
                 tmpMarker.setAnchor(0.0f, 1.0f);
                 myMapView.getOverlays().add(tmpMarker);
 
-
-                answerMarker.setSnippet(calcDistance(geoPoint, answerMarker.getPosition()) + "Km");    //거리를 마커의 Infowindow에 추가
+                int distance= calcDistance(geoPoint, answerMarker.getPosition());
+                answerMarker.setSnippet( distance+ "Km");    //거리를 마커의 Infowindow에 추가
                 animateMarker(myMapView, tmpMarker, answerMarker.getPosition(), new GeoPointInterpolator.Spherical()); //마커 이동 애니메이션
 
                 myMapView.invalidate();
@@ -388,13 +364,26 @@ a
         tmpMarker.setAnchor(0.0f, 1.0f);
         myMapView.getOverlays().add(tmpMarker);
 
-
-        answerMarker.setSnippet(calcDistance(currentMarker.getPosition(), answerMarker.getPosition()) + "Km");
+        int distance = calcDistance(currentMarker.getPosition(), answerMarker.getPosition());
+        answerMarker.setSnippet(distance+ "Km");
         animateMarker(myMapView, tmpMarker, answerMarker.getPosition(), new GeoPointInterpolator.Spherical());
         gotonextTextView.setVisibility(View.VISIBLE);
+        calcScore();
 
     }
+    private void calcScore(){
+        final int CRITERIA = 500;
 
+        if (distanceScore>= 5000){
+            distanceScore=0;
+        }
+        else {
+            distanceScore = CRITERIA - distanceScore/10;
+        }
+
+        score += distanceScore + timeScore/1000;
+        scoreTextView.setText("SCORE " +score);
+    }
     //정답 마커 생성
     private void setAnswerMarker(GeoPoint geoPoint, String name, int id) {
         answerMarker = new Marker(myMapView);

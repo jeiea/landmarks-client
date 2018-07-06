@@ -8,7 +8,6 @@ import org.osmdroid.api.IMapController;
 import org.osmdroid.events.MapListener;
 import org.osmdroid.events.ScrollEvent;
 import org.osmdroid.events.ZoomEvent;
-import org.osmdroid.mapsforge.MapsForgeTileSource;
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
 import org.osmdroid.util.TileSystem;
 import org.osmdroid.views.overlay.MapEventsOverlay;
