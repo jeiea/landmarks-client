@@ -131,9 +131,11 @@ public class activity_Navigator extends AppCompatActivity {
     {
         public String name;
         ArrayList<Bitmap> PictureList;
+        ArrayList<PictureProvider.Picture> pics;
         public PictureGroup(String name, ArrayList<Bitmap> PictureList)
         {
             this.name = name;
+            //TODO: Bitmap to Picture
             this.PictureList = PictureList;
         }
     }
