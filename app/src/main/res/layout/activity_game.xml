@@ -59,6 +59,14 @@
                     android:id="@+id/textview_score"
                     android:layout_below="@id/textview_stage"
                     android:layout_alignRight="@id/textview_stage"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentBottom="true"
+                    android:layout_centerHorizontal="true"
+                    android:text="Touch screen to continue"
+                    android:id="@+id/gotonext_textview"
+                    android:visibility="invisible"/>
             </RelativeLayout>
 
         </FrameLayout>
