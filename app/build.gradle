@@ -23,6 +23,12 @@ android {
     }
 }
 
+repositories {
+    flatDir {
+        dirs 'libs'
+    }
+}
+
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
@@ -30,8 +36,6 @@ dependencies {
     implementation "org.jetbrains.anko:anko-constraint-layout:$anko_version"
     implementation 'com.android.support:appcompat-v7:27.1.1'
     implementation 'com.android.support.constraint:constraint-layout:1.1.2'
-    implementation 'org.osmdroid:osmdroid-android:6.0.1'
-    implementation 'org.mapsforge:mapsforge-map-android:0.9.1'
     implementation 'com.caverock:androidsvg:1.2.2-beta-1'
     implementation 'com.squareup.okhttp3:okhttp:3.10.0'
     implementation 'com.google.code.gson:gson:2.8.4'
@@ -42,6 +46,11 @@ dependencies {
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
 
     implementation 'org.osmdroid:osmdroid-android:6.0.1'   //osmdroid map engine
+//    implementation 'org.osmdroid:osmdroid-mapsforge:6.0.1@aar'
+    implementation(name:'osmdroid-mapsforge-6.0.2-SNAPSHOT-debug', ext:'aar')
+    implementation 'org.mapsforge:mapsforge-map:0.9.1'
+    implementation 'org.mapsforge:mapsforge-map-android:0.9.1'
+    implementation 'org.mapsforge:mapsforge-themes:0.9.1'
     implementation 'com.drewnoakes:metadata-extractor:2.11.0' //metadata-extractor
 
     implementation 'com.android.support:recyclerview-v7:27.1.1'
