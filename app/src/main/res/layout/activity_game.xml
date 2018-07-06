@@ -28,7 +28,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="left|top"
                     android:text="MENU"
-                    android:id="@+id/button_menu"/>
+                    android:id="@+id/game_button_menu"/>
                 <ProgressBar
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"

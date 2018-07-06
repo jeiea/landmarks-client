@@ -40,5 +40,12 @@
             android:text="Open Diary"
             android:onClick="startOnClick"
             android:id="@+id/btn_start_diary"/>
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="start Login"
+            android:onClick="startLogin"
+            android:id="@+id/btn_start_login"
+            />
     </LinearLayout>
 </android.support.constraint.ConstraintLayout>

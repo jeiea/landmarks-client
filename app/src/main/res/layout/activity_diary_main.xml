@@ -45,48 +45,20 @@
         </RadioGroup>
     </RelativeLayout>
 
-    <android.support.v4.widget.DrawerLayout
+    <kr.ac.kw.coms.globealbum.album.GroupDiaryView
+        android:id="@+id/diary_main_ImageList"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/diary_main_Toolbar">
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-            <!-- https://stackoverflow.com/questions/18768360/draggable-drawer-with-a-handle-instead-of-action-bar-on-top-of-other-apps -->
-            <com.fscz.views.BounceViewPager
-                android:id="@+id/diary_main_content_pager"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_centerInParent="true"
-                />
-            <com.fscz.views.CirclePageIndicator
-                android:id="@+id/diary_main_content_indicator"
-                android:layout_height="wrap_content"
-                android:layout_width="wrap_content"
-                android:padding="10dp"
-                android:layout_centerHorizontal="true"
-                android:layout_alignParentBottom="true"
-                android:layout_marginTop="100dp"
-                style="@style/link"
-                />
-        </RelativeLayout>
-        <kr.ac.kw.coms.globealbum.album.GroupDiaryView
-            android:id="@+id/diary_main_ImageList"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:visibility="visible"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/diary_main_Toolbar"></kr.ac.kw.coms.globealbum.album.GroupDiaryView>
+        app:layout_constraintTop_toBottomOf="@id/diary_main_Toolbar"></kr.ac.kw.coms.globealbum.album.GroupDiaryView>
 
-        <kr.ac.kw.coms.globealbum.album.GroupDiaryView
-            android:id="@+id/diary_main_JourneyList"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:visibility="gone"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/diary_main_Toolbar"></kr.ac.kw.coms.globealbum.album.GroupDiaryView>
-    </android.support.v4.widget.DrawerLayout>
-
+    <kr.ac.kw.coms.globealbum.album.GroupDiaryView
+        android:id="@+id/diary_main_JourneyList"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/diary_main_Toolbar"></kr.ac.kw.coms.globealbum.album.GroupDiaryView>
 
 </android.support.constraint.ConstraintLayout>
