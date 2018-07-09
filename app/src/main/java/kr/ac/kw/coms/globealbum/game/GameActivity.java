@@ -5,6 +5,7 @@ import android.content.DialogInterface;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
@@ -20,8 +21,13 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.mapsforge.map.android.rendertheme.AssetsRenderTheme;
+import org.mapsforge.map.rendertheme.XmlRenderTheme;
 import org.osmdroid.config.Configuration;
 import org.osmdroid.events.MapEventsReceiver;
+import org.osmdroid.mapsforge.MapsForgeTileProvider;
+import org.osmdroid.mapsforge.MapsForgeTileSource;
+import org.osmdroid.tileprovider.util.SimpleRegisterReceiver;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.MapEventsOverlay;
@@ -29,9 +35,12 @@ import org.osmdroid.views.overlay.Marker;
 import org.osmdroid.views.overlay.Polyline;
 
 
+import java.io.File;
+import java.io.FileFilter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import kr.ac.kw.coms.globealbum.R;
 import kr.ac.kw.coms.globealbum.common.PictureDialogFragment;
@@ -116,6 +125,43 @@ public class GameActivity extends AppCompatActivity {
         context = getApplicationContext();
         Configuration.getInstance().load(context, PreferenceManager.getDefaultSharedPreferences(context));
         myMapView = findViewById(R.id.map);
+
+
+        /*
+        //      setMapsforge
+        //      https://github.com/osmdroid/osmdroid/wiki/Mapsforge
+
+
+        MapsForgeTileSource.createInstance(getApplication());
+        String path = Environment.getExternalStorageDirectory().getAbsolutePath();
+        File f = new File(path);
+        File[] maps = f.listFiles(new FileFilter() {
+            @Override
+            public boolean accept(File file) {
+                return file.getAbsolutePath().matches(".*\\.map");            }
+        });  //TODO scan/prompt for map files (.map)
+        Toast.makeText(context, maps[0].toString()+"", Toast.LENGTH_SHORT).show();
+
+
+        XmlRenderTheme theme = null; //null is ok here, uses the default rendering theme if it's not set
+
+        try {
+            //this file should be picked up by the mapsforge dependencies
+            theme = new AssetsRenderTheme(this.getApplicationContext(), "renderthemes/", "rendertheme-v4.xml");
+            //alternative: theme = new ExternalRenderTheme(userDefinedRenderingFile);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
+        MapsForgeTileSource fromFiles = MapsForgeTileSource.createFromFiles(maps, theme, "rendertheme-v4");
+        MapsForgeTileProvider forge = new MapsForgeTileProvider(
+                new SimpleRegisterReceiver(context),
+                fromFiles, null);
+
+        myMapView.setTileProvider(forge);
+        myMapView.getController().setZoom(fromFiles.getMinimumZoomLevel());
+        myMapView.zoomToBoundingBox(fromFiles.getBoundsOsmdroid(), true);
+        */
 
 
         //마커 이벤트 등록
