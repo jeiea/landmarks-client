@@ -17,7 +17,7 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 
 
-public class LandmarkClient {
+public class LandmarkClientJava {
 
     private OkHttpClient client = new OkHttpClient();
 

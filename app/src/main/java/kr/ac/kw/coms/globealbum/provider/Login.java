@@ -20,7 +20,7 @@ public class Login extends AppCompatActivity{
     String stEmail;
     String stPassword;
     Button btnAccount;
-    LandmarkClient LmC = new LandmarkClient();
+    LandmarkClientJava LmC = new LandmarkClientJava();
 
     @Override
     protected void onCreate(Bundle savedInstenceState){

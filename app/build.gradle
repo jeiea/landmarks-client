@@ -1,7 +1,5 @@
 apply plugin: 'com.android.application'
-
 apply plugin: 'kotlin-android'
-
 apply plugin: 'kotlin-android-extensions'
 
 android {
@@ -41,20 +39,44 @@ dependencies {
     implementation 'com.google.code.gson:gson:2.8.4'
     implementation 'com.google.android:flexbox:1.0.0'
     implementation 'com.android.support:support-v4:27.1.1'
-    testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
 
+
+
     implementation 'org.osmdroid:osmdroid-android:6.0.1'   //osmdroid map engine
 //    implementation 'org.osmdroid:osmdroid-mapsforge:6.0.1@aar'
-    implementation(name:'osmdroid-mapsforge-6.0.2-SNAPSHOT-debug', ext:'aar')
+    implementation(name: 'osmdroid-mapsforge-6.0.2-SNAPSHOT-debug', ext: 'aar')
     implementation 'org.mapsforge:mapsforge-map:0.9.1'
     implementation 'org.mapsforge:mapsforge-map-android:0.9.1'
     implementation 'org.mapsforge:mapsforge-themes:0.9.1'
     implementation 'com.drewnoakes:metadata-extractor:2.11.0' //metadata-extractor
 
     implementation 'com.android.support:recyclerview-v7:27.1.1'
-    implementation 'net.coobird:thumbnailator:0.4.8'
+
+    // Kotlin client dependencies
+
+    // http client
+//    implementation 'com.github.kittinunf.fuel:fuel-android:1.13.0' //for Android
+    implementation 'com.github.kittinunf.fuel:fuel-coroutines:1.13.0'
+    //for Kotlin Coroutines support
+    implementation 'com.github.kittinunf.fuel:fuel-gson:1.13.0' //for Gson support
+    // JSON
+    implementation 'com.beust:klaxon:3.0.1'
+    // JUnit 4 test framework
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher:1.2.0'
+    testCompileOnly 'org.junit.platform:junit-platform-runner:1.2.0'
+    // Spek, the kotlin test framework, with kotlin version replacement.
+    testCompileOnly "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
+    testCompileOnly('org.jetbrains.spek:spek-api:1.1.5') {
+        exclude group: 'org.jetbrains.kotlin'
+    }
+    testImplementation('org.jetbrains.spek:spek-junit-platform-engine:1.1.5') {
+        exclude group: 'org.junit.platform'
+        exclude group: 'org.jetbrains.kotlin'
+    }
+    // Assertion framework
+    testImplementation 'org.amshove.kluent:kluent:1.38'
 }
 
 kotlin {
