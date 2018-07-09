@@ -24,9 +24,6 @@ import com.google.android.flexbox.FlexboxLayoutManager
 import kotlinx.android.synthetic.main.activity_navigator.*
 import kr.ac.kw.coms.globealbum.R
 import kr.ac.kw.coms.globealbum.provider.PictureProvider
-import net.coobird.thumbnailator.Thumbnails
-import net.coobird.thumbnailator.util.BufferedImages
-import net.coobird.thumbnailator.util.ThumbnailatorUtils
 import org.jetbrains.anko.backgroundColor
 import org.jetbrains.anko.image
 import org.jetbrains.anko.matchParent
