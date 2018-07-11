@@ -11,11 +11,13 @@ import android.support.annotation.DrawableRes
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.RecyclerView
 import android.util.AttributeSet
+import android.util.Log
 import android.util.Pair
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import com.drew.lang.ByteConvert
 import com.google.android.flexbox.AlignItems
 import com.google.android.flexbox.FlexDirection
@@ -23,11 +25,14 @@ import com.google.android.flexbox.FlexWrap
 import com.google.android.flexbox.FlexboxLayoutManager
 import kotlinx.android.synthetic.main.activity_navigator.*
 import kr.ac.kw.coms.globealbum.R
+import kr.ac.kw.coms.globealbum.R.attr.flexDirection
 import kr.ac.kw.coms.globealbum.provider.PictureProvider
+import org.jetbrains.anko.Orientation
 import org.jetbrains.anko.backgroundColor
 import org.jetbrains.anko.image
 import org.jetbrains.anko.matchParent
 import java.io.InputStream
+import java.security.acl.Group
 import java.time.LocalDateTime
 import java.util.*
 
@@ -115,6 +120,9 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
      */
     internal val picAdapter = GroupedPicAdapter()
 
+    val ORIENTATION_HORIZONTAL: Int = 1
+    val ORIENTATION_VERTICAL: Int = 0
+
     init {
         adapter = picAdapter
         layoutManager = FlexboxLayoutManager(context).apply {
@@ -129,12 +137,28 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
         set(value) {
             picAdapter.data = value
         }
+
+    var orientation: Int
+        get() = layoutManager.layoutDirection
+        set(value: Int) {
+            var ori = if (value == ORIENTATION_HORIZONTAL) {
+                FlexDirection.COLUMN
+            } else {
+                FlexDirection.ROW
+            }
+            layoutManager = FlexboxLayoutManager(context).apply {
+                flexWrap = FlexWrap.WRAP
+                flexDirection = ori
+                alignItems = AlignItems.STRETCH
+            }
+        }
 }
 
 /***
  * RecyclerView를 제어하는 클래스. 상훈이만 알 필요 있음.
  * RecyclerView가 FlexboxLayoutManager의 제어를 받아 이 어댑터에 필요한 뷰를 요청하게 됨.
  */
+
 internal class GroupedPicAdapter : RecyclerView.Adapter<GroupedPicAdapter.ElementViewHolder>() {
 
     // 이걸 설정하면 notifyDataSetChanged를 따로 호출할 필요 없다!
@@ -149,21 +173,21 @@ internal class GroupedPicAdapter : RecyclerView.Adapter<GroupedPicAdapter.Elemen
         }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
-            when (viewType) {
-                0 -> SeparatorHolder(TextView(parent.context).apply {
-                    layoutParams = FlexboxLayoutManager.LayoutParams(matchParent, 40)
-                    backgroundColor = 0xffffff88.toInt()
-                })
-                else -> PictureHolder(ImageView(parent.context).apply {
-                    val metrics = parent.resources.displayMetrics
-                    val mw = metrics.widthPixels / 3
-                    val mh = metrics.heightPixels / 4
-                    scaleType = ImageView.ScaleType.CENTER_CROP
-                    layoutParams = FlexboxLayoutManager.LayoutParams(mw, mh).apply {
-                        flexGrow = 1f
-                    }
-                })
-            }
+        when (viewType) {
+            0 -> SeparatorHolder(TextView(parent.context).apply {
+                layoutParams = FlexboxLayoutManager.LayoutParams(matchParent, 40)
+                backgroundColor = 0xffffff88.toInt()
+            })
+            else -> PictureHolder(ImageView(parent.context).apply {
+                val metrics = parent.resources.displayMetrics
+                val mw = metrics.widthPixels / 3
+                val mh = metrics.heightPixels / 4
+                scaleType = ImageView.ScaleType.CENTER_CROP
+                layoutParams = FlexboxLayoutManager.LayoutParams(mw, mh).apply {
+                    flexGrow = 1f
+                }
+            })
+        }
 
     override fun getItemViewType(position: Int): Int {
         return if (viewData[position] is String) 0 else 1
@@ -173,6 +197,7 @@ internal class GroupedPicAdapter : RecyclerView.Adapter<GroupedPicAdapter.Elemen
         when (holder) {
             is SeparatorHolder -> {
                 holder.textView.text = viewData[position] as String
+                if (viewData[0].equals("")) holder.textView.visibility = TextView.GONE
             }
             is PictureHolder -> {
                 val pic = viewData[position] as ResourcePicture

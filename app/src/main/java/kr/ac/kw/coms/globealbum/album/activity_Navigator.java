@@ -127,11 +127,10 @@ public class activity_Navigator extends AppCompatActivity {
         }
     }
 
-    class PictureGroup
+    public class PictureGroup
     {
         public String name;
         ArrayList<Bitmap> PictureList;
-        ArrayList<PictureProvider.Picture> pics;
         public PictureGroup(String name, ArrayList<Bitmap> PictureList)
         {
             this.name = name;
