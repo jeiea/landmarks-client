@@ -1,0 +1,41 @@
+# service point: https://landmarks-coms.herokuapp.com
+
+# registration
+
+POST http://localhost:8080/auth/register HTTP/1.1
+User-Agent: landmarks-client
+Accept: application/json
+Content-Type: application/json
+Host: localhost:8080
+Content-Length: 73
+
+{"email":"acmee@grr.la", "login":"acmee","password":"asdf","nick":"fafa"}
+
+HTTP/1.1 200 OK
+Date: Fri, 13 Jul 2018 05:37:58 GMT
+Server: ktor-server-core/0.9.2 ktor-server-core/0.9.2
+Content-Length: 17
+Content-Type: application/json; charset=UTF-8
+
+{"msg":"success"}
+
+# login
+
+POST http://localhost:8080/auth/login HTTP/1.1
+User-Agent: landmarks-client
+Accept: application/json
+Content-Type: application/json
+Host: localhost:8080
+Content-Length: 35
+
+{"login":"acmee","password":"asdf"}
+
+HTTP/1.1 200 OK
+Date: Fri, 13 Jul 2018 05:38:29 GMT
+Server: ktor-server-core/0.9.2 ktor-server-core/0.9.2
+Set-Cookie: SESSION=92e202e22f6c7e9d2dc941a5554368b31d1cb51e9a506eae88ee8bef4632b616; Max-Age=604800; Expires=Fri, 20 Jul 2018 14:38:29 GMT; $x-enc=URI_ENCODING
+Content-Length: 23
+Content-Type: application/json; charset=UTF-8
+
+{"msg":"login success"}
+
