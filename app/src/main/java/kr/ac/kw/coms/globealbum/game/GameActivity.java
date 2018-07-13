@@ -2,6 +2,7 @@ package kr.ac.kw.coms.globealbum.game;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -10,7 +11,6 @@ import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
@@ -28,7 +28,6 @@ import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.MapEventsOverlay;
 import org.osmdroid.views.overlay.Marker;
 import org.osmdroid.views.overlay.Polyline;
-
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -59,7 +58,7 @@ public class GameActivity extends AppCompatActivity {
     Drawable RED_FLAG_DRAWABLE;
     Drawable BLUE_FLAG_DRAWABLE;
     final int PICTURE_NUM = 8;
-    int problem = 1;
+    int problem = 0;
     int score = 0;
     int timeScore = 0;
     int distanceScore = 0;
@@ -78,7 +77,7 @@ public class GameActivity extends AppCompatActivity {
     Marker answerMarker;    //정답 마커
     Polyline polyline;  //마커 사이를 이어주는 직선
 
-    List<Marker> questionPic= new ArrayList<>();
+    List<PictureInfo> questionPic= new ArrayList<>();
 
 
 
@@ -167,11 +166,15 @@ public class GameActivity extends AppCompatActivity {
         setQuestion();
 
         //정답 마커 등록
-        setAnswerMarker(new GeoPoint(48.85625, 2.34375), "Paris, France", R.drawable.sample8);    //파리를 정답으로 등록
+        setAnswerMarker(questionPic.get(problem));    //파리를 정답으로 등록
         setQuestion();
         timeThreadHandler();
     }
-
+    class PictureInfo{  //사진에 필요한 정보를 가지고 있는 클래스
+        int id;
+        GeoPoint geoPoint;
+        String name;
+    }
     //문제 세팅
     private void setQuestion(){
         int[] id = new int[PICTURE_NUM];
@@ -185,15 +188,19 @@ public class GameActivity extends AppCompatActivity {
             id[0] = id[random];
             id[random] = tmp;
         }
+        for(int i = 0; i < PICTURE_NUM; i++){
+            //GPS 정보 뽑아오기
+            exifInfo.setMetadata(getResources().openRawResource(id[i]));
+            GeoPoint geoPoint = exifInfo.getLocationGeopoint();
+            //String name =;
+            PictureInfo pictureInfo = new PictureInfo();
+            pictureInfo.geoPoint=geoPoint;
+            pictureInfo.id=id[i];
+            //pictureInfo.name=
+            questionPic.add(pictureInfo);
 
-        //GPS 정보 뽑아오기
-        exifInfo.setMetadata(getResources().openRawResource(id[0]));
-        GeoPoint geoPoint = exifInfo.getLocationGeopoint();
-        Toast.makeText(context, geoPoint.getLatitude()+" "+geoPoint.getLongitude(), Toast.LENGTH_SHORT).show();
-
-
+        }
     }
-
 
     //제한 시간 측정
     private void timeThreadHandler() {
@@ -361,25 +368,23 @@ public class GameActivity extends AppCompatActivity {
             problem++;
             switch (problem) {
                 case 2:
-                    setAnswerMarker(new GeoPoint(41.895466, 12.482323), "Roma, ITALY", R.drawable.sample1);
+                    setAnswerMarker(questionPic.get(problem));
                     break;
                 case 3:
-                    setAnswerMarker(new GeoPoint(40.705, -73.975), "New York, USA", R.drawable.sample3);
+                    setAnswerMarker(questionPic.get(problem));
                     break;
                 case 4:
                     stage++;
                     stageTextView.setText("STAGE " + stage);
                     score = 0;
                     scoreTextView.setText("SCORE " + score);
-                    setAnswerMarker(new GeoPoint(34.6936, 135.502), "Osaka, JAPAN", R.drawable.sample5);
+                    setAnswerMarker(questionPic.get(problem));
                     break;
                 case 5:
-                    setAnswerMarker(new GeoPoint(-33.8667, 151.2), "Sydney, AUSTRALIA", R.drawable.sample6);
+                    setAnswerMarker(questionPic.get(problem));
                     break;
                 case 6:
-                    finish();
-
-
+                    showDialogAfterGame();
             }
 
             currentState = Solving;
@@ -398,7 +403,7 @@ public class GameActivity extends AppCompatActivity {
         Marker marker = new Marker(myMapView);
         marker.setIcon(BLUE_FLAG_DRAWABLE);
         marker.setPosition(geoPoint);
-        marker.setAnchor(0.0f, 1.0f);
+        marker.setAnchor(0.25f, 1.0f);
         marker.setOnMarkerClickListener(new Marker.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(Marker marker, MapView mapView) {  //생성된 마커를 클릭하여 화면에 등록
@@ -409,7 +414,7 @@ public class GameActivity extends AppCompatActivity {
                 Marker tmpMarker = new Marker(myMapView);
                 tmpMarker.setIcon(BLUE_FLAG_DRAWABLE);
                 tmpMarker.setPosition(marker.getPosition());
-                tmpMarker.setAnchor(0.0f, 1.0f);
+                tmpMarker.setAnchor(0.25f, 1.0f);
                 myMapView.getOverlays().add(tmpMarker);
 
                 int distance = calcDistance(geoPoint, answerMarker.getPosition());
@@ -424,6 +429,31 @@ public class GameActivity extends AppCompatActivity {
         return marker;
     }
 
+    //게임이 끝난 후 다이얼로그 표시
+    void showDialogAfterGame(){
+        final List<String> listItems = new ArrayList<>();
+        listItems.add("다시하기");
+        listItems.add("종료");
+        final CharSequence[] items = listItems.toArray(new String[listItems.size()]);
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(GameActivity.this);
+        builder.setTitle("Menu");
+        builder.setItems(items, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                String selectedText = items[i].toString();
+                if (selectedText.equals("종료")) {
+                    finish();
+                }
+                else if (selectedText.equals("다시하기")){
+                    finish();
+                    startActivity(new Intent(GameActivity.this, GameActivity.class));
+                }
+            }
+        });
+        builder.show();
+    }
+
     //화면을 한번 클릭해 임시 마커 생성 후 타임아웃 발생시 정답 확인 과정
     private void timeOutAddUserMarker() {
         currentState = Answered;
@@ -432,7 +462,7 @@ public class GameActivity extends AppCompatActivity {
         Marker tmpMarker = new Marker(myMapView);
         tmpMarker.setIcon(BLUE_FLAG_DRAWABLE);
         tmpMarker.setPosition(currentMarker.getPosition());
-        tmpMarker.setAnchor(0.0f, 1.0f);
+        tmpMarker.setAnchor(0.25f, 1.0f);
         myMapView.getOverlays().add(tmpMarker);
 
         int distance = calcDistance(currentMarker.getPosition(), answerMarker.getPosition());
@@ -457,14 +487,14 @@ public class GameActivity extends AppCompatActivity {
     }
 
     //정답 마커 생성
-    private void setAnswerMarker(GeoPoint geoPoint, String name, int id) {
+    private void setAnswerMarker(PictureInfo pi) {
         answerMarker = new Marker(myMapView);
         answerMarker.setIcon(RED_FLAG_DRAWABLE);
-        answerMarker.setAnchor(0.0f, 1.0f);
-        answerMarker.setTitle(name);
-        answerMarker.setPosition(geoPoint);
+        answerMarker.setAnchor(0.25f, 1.0f);
+        answerMarker.setTitle(pi.name);
+        answerMarker.setPosition(pi.geoPoint);
 
-        questionImageView.setImageResource(id);
+        questionImageView.setImageResource(pi.id);
 
     }
 
