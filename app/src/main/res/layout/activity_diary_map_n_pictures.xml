@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".diary.Diary_mapNPictures">
+
     <kr.ac.kw.coms.globealbum.map.MyMapView
         android:id="@+id/diary_mapNpics_Map"
         android:layout_width="match_parent"
@@ -14,6 +15,7 @@
         app:layout_constraintTop_toTopOf="parent">
 
     </kr.ac.kw.coms.globealbum.map.MyMapView>
+
     <kr.ac.kw.coms.globealbum.album.GroupDiaryView
         android:id="@+id/diary_mapNpics_Pics"
         android:layout_width="match_parent"
@@ -23,60 +25,96 @@
         app:layout_constraintTop_toBottomOf="@id/diary_mapNpics_Map">
 
     </kr.ac.kw.coms.globealbum.album.GroupDiaryView>
+
     <android.support.constraint.ConstraintLayout
         android:id="@+id/diary_mapNpics_Write"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintHeight_percent="0.35"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent" >
+        app:layout_constraintLeft_toLeftOf="parent">
+
         <EditText
             android:id="@+id/diary_mapNpics_EditTitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintLeft_toLeftOf="parent"
+            android:hint="제목"
             android:maxLines="1"
-            android:hint="제목"/>
-        <FrameLayout
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <EditText
+            android:id="@+id/diary_mapNpics_EditBody"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            app:layout_constraintTop_toBottomOf="@id/diary_mapNpics_EditTitle"
+            android:hint="내용"
+            app:layout_constraintBottom_toTopOf="@id/diary_mapNpics_EditSave"
             app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintBottom_toTopOf="@id/diary_mapNpics_EditSave">
-            <EditText
-                android:id="@+id/diary_mapNpics_EditBody"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:lines="3"
-                android:hint="내용" />
-        </FrameLayout>
+            app:layout_constraintTop_toBottomOf="@id/diary_mapNpics_EditTitle" />
 
         <Button
             android:id="@+id/diary_mapNpics_EditSave"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintRight_toLeftOf="@id/diary_mapNpics_EditCancel"
+            android:onClick="diary_onSaveClick"
             android:text="저장"
-            android:onClick="diary_onSaveClick"/>
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintRight_toLeftOf="@id/diary_mapNpics_EditCancel" />
+
         <Button
             android:id="@+id/diary_mapNpics_EditCancel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
+            android:onClick="diary_onCancelClick"
             android:text="취소"
-            android:onClick="diary_onCancelClick"/>
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintRight_toRightOf="parent" />
 
     </android.support.constraint.ConstraintLayout>
-    <WebView
+
+    <android.support.constraint.ConstraintLayout
         android:id="@+id/diary_mapNpics_Read"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        app:layout_constraintHeight_percent="0.35"
-        app:layout_constraintLeft_toLeftOf="parent"
+        android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
-        android:visibility="gone"/>
+        app:layout_constraintHeight_percent="0.35"
+        app:layout_constraintLeft_toLeftOf="parent">
+
+        <TextView
+            android:id="@+id/diary_mapNpics_ReadTitle"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:gravity="center_vertical"
+            android:hint="제목"
+            android:maxLines="1"
+            app:layout_constraintBottom_toBottomOf="@id/diary_mapNpics_EditStart"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toLeftOf="@id/diary_mapNpics_EditStart"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <Button
+            android:id="@+id/diary_mapNpics_EditStart"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:onClick="diary_onEditClick"
+            android:text="수정"
+            app:layout_constraintLeft_toRightOf="@id/diary_mapNpics_ReadTitle"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/diary_mapNpics_ReadBody"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:hint="내용"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/diary_mapNpics_ReadTitle" />
+
+
+    </android.support.constraint.ConstraintLayout>
+
 
 </android.support.constraint.ConstraintLayout>

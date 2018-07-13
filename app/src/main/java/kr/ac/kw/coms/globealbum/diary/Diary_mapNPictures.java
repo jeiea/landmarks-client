@@ -6,6 +6,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.webkit.WebView;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -23,7 +24,21 @@ public class Diary_mapNPictures extends AppCompatActivity {
 
     MyMapView mapView = null;
     GroupDiaryView picView = null;
-    WebView JourneyInfoView = null;
+    class InfoText
+    {
+        public String Title;
+        public String Body;
+        public InfoText()
+        {
+            Title = "";
+            Body = "";
+        }
+        public InfoText(String title, String body)
+        {
+            Title = title;
+            Body = body;
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,7 +47,6 @@ public class Diary_mapNPictures extends AppCompatActivity {
 
         mapView = findViewById(R.id.diary_mapNpics_Map);
         picView = findViewById(R.id.diary_mapNpics_Pics);
-        JourneyInfoView = findViewById(R.id.diary_mapNpics_Read);
 
         ArrayList<PictureGroup> elementList = new ArrayList<>();
         ArrayList<PictureProvider.Picture> elementRow = new ArrayList<>();
@@ -84,24 +98,39 @@ public class Diary_mapNPictures extends AppCompatActivity {
         picView.setGroups(elementList);
         picView.setOrientation(1);
 
-        JourneyInfoView.loadData("<html><body><h1>empty title</h1><hr>empty body</body></html>", "text/html", "UTF-8");
+        //TODO: show info text
     }
 
     public void diary_onSaveClick(View view) {
         String title = ((TextView)findViewById(R.id.diary_mapNpics_EditTitle)).getText().toString();
         String body = ((TextView)findViewById(R.id.diary_mapNpics_EditBody)).getText().toString();
-        JourneyInfoView.loadData("<html><body><h1>" + title + "</h1><hr>" + StrToHtml(body) + "</body></html>", "text/html", "UTF-8");
+        if (title.isEmpty() || body.isEmpty())
+        {
+            Toast.makeText(this, "제목/내용을 입력하세요.", Toast.LENGTH_LONG).show();
+            return;
+        }
+        InfoText newInfo = new InfoText(title, body);
+
+        ((TextView)findViewById(R.id.diary_mapNpics_ReadTitle)).setText(newInfo.Title);
+        ((TextView)findViewById(R.id.diary_mapNpics_ReadBody)).setText(newInfo.Body);
         findViewById(R.id.diary_mapNpics_Write).setVisibility(View.GONE);
         findViewById(R.id.diary_mapNpics_Read).setVisibility(View.VISIBLE);
+        findViewById(R.id.diary_mapNpics_EditStart).setVisibility(View.VISIBLE);
     }
 
     public void diary_onCancelClick(View view) {
         findViewById(R.id.diary_mapNpics_Write).setVisibility(View.GONE);
         findViewById(R.id.diary_mapNpics_Read).setVisibility(View.VISIBLE);
+        findViewById(R.id.diary_mapNpics_EditStart).setVisibility(View.VISIBLE);
     }
 
-    private String StrToHtml(String PlainText)
+    public void diary_onEditClick(View view)
     {
-        return PlainText.replace("\n", "<br>");
+        ((EditText)findViewById(R.id.diary_mapNpics_EditTitle)).setText(((TextView)findViewById(R.id.diary_mapNpics_ReadTitle)).getText());
+        ((EditText)findViewById(R.id.diary_mapNpics_EditBody)).setText(((TextView)findViewById(R.id.diary_mapNpics_ReadBody)).getText());
+
+        findViewById(R.id.diary_mapNpics_Write).setVisibility(View.VISIBLE);
+        findViewById(R.id.diary_mapNpics_Read).setVisibility(View.GONE);
+        findViewById(R.id.diary_mapNpics_EditStart).setVisibility(View.GONE);
     }
 }
