@@ -5,12 +5,12 @@ import android.content.DialogInterface;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
@@ -21,13 +21,8 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.mapsforge.map.android.rendertheme.AssetsRenderTheme;
-import org.mapsforge.map.rendertheme.XmlRenderTheme;
 import org.osmdroid.config.Configuration;
 import org.osmdroid.events.MapEventsReceiver;
-import org.osmdroid.mapsforge.MapsForgeTileProvider;
-import org.osmdroid.mapsforge.MapsForgeTileSource;
-import org.osmdroid.tileprovider.util.SimpleRegisterReceiver;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.MapEventsOverlay;
@@ -35,16 +30,14 @@ import org.osmdroid.views.overlay.Marker;
 import org.osmdroid.views.overlay.Polyline;
 
 
-import java.io.File;
-import java.io.FileFilter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 
 import kr.ac.kw.coms.globealbum.R;
 import kr.ac.kw.coms.globealbum.common.PictureDialogFragment;
 import kr.ac.kw.coms.globealbum.map.MyMapView;
+import kr.ac.kw.coms.globealbum.provider.EXIFinfo;
 
 import static kr.ac.kw.coms.globealbum.game.GameActivity.GameState.Answered;
 import static kr.ac.kw.coms.globealbum.game.GameActivity.GameState.Solving;
@@ -55,7 +48,7 @@ import static kr.ac.kw.coms.globealbum.game.GameActivity.TimerState.Stop;
 public class GameActivity extends AppCompatActivity {
     Context context = null;
     MyMapView myMapView = null;
-    ImageView[] imageView = null;
+    ImageView questionImageView = null;
     ProgressBar progressBar = null;
     TextView stageTextView = null;
     Button menuButton = null;
@@ -65,7 +58,7 @@ public class GameActivity extends AppCompatActivity {
 
     Drawable RED_FLAG_DRAWABLE;
     Drawable BLUE_FLAG_DRAWABLE;
-    final int PICTURE_NUM = 4;
+    final int PICTURE_NUM = 8;
     int problem = 1;
     int score = 0;
     int timeScore = 0;
@@ -85,6 +78,10 @@ public class GameActivity extends AppCompatActivity {
     Marker answerMarker;    //정답 마커
     Polyline polyline;  //마커 사이를 이어주는 직선
 
+    List<Marker> questionPic= new ArrayList<>();
+
+
+
     enum GameState {
         Solving,
         Answered,
@@ -102,24 +99,23 @@ public class GameActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
 
-        //퀴즈에 나올 사진들을 연결
-        imageView = new ImageView[PICTURE_NUM];
-        imageView[0] = findViewById(R.id.picture1);
-
-        gotonextTextView = findViewById(R.id.gotonext_textview);
         progressBar = findViewById(R.id.progressbar);
         stageTextView = findViewById(R.id.textview_stage);
         scoreTextView = findViewById(R.id.textview_score);
         menuButton = findViewById(R.id.game_button_menu);
         menuButton.setOnClickListener(new MenuButtonClickListener());
-
-
-        imageView[0].setOnClickListener(new PictureClickListener());
+        gotonextTextView = findViewById(R.id.gotonext_textview);
 
         RED_FLAG_DRAWABLE = getResources().getDrawable(R.drawable.red_flag);
         BLUE_FLAG_DRAWABLE = getResources().getDrawable(R.drawable.blue_flag);
 
         stageTextView.setText("STAGE " + stage);
+
+        //퀴즈에 나올 사진들을 연결
+        questionImageView = findViewById(R.id.picture);
+        questionImageView .setOnClickListener(new PictureClickListener());
+
+
 
         //osmdroid 초기 구성
         context = getApplicationContext();
@@ -168,10 +164,34 @@ public class GameActivity extends AppCompatActivity {
         listenerOverlay = markerEvent();
         myMapView.getOverlays().add(listenerOverlay);
 
+        setQuestion();
+
         //정답 마커 등록
         setAnswerMarker(new GeoPoint(48.85625, 2.34375), "Paris, France", R.drawable.sample8);    //파리를 정답으로 등록
-
+        setQuestion();
         timeThreadHandler();
+    }
+
+    //문제 세팅
+    private void setQuestion(){
+        int[] id = new int[PICTURE_NUM];
+        EXIFinfo exifInfo = new EXIFinfo();
+        for(int i = 0 ; i < PICTURE_NUM ; i++){ //사진 리소스 id 배열에 저장
+            id[i]= R.drawable.coord0+i;
+        }
+        for(int i = 0 ; i < 1000; i++) {    //반복하여 리소스 id 섞음
+            int random = (int)(Math.random()*PICTURE_NUM);
+            int tmp = id[0];
+            id[0] = id[random];
+            id[random] = tmp;
+        }
+
+        //GPS 정보 뽑아오기
+        exifInfo.setMetadata(getResources().openRawResource(id[0]));
+        GeoPoint geoPoint = exifInfo.getLocationGeopoint();
+        Toast.makeText(context, geoPoint.getLatitude()+" "+geoPoint.getLongitude(), Toast.LENGTH_SHORT).show();
+
+
     }
 
 
@@ -404,7 +424,7 @@ public class GameActivity extends AppCompatActivity {
         return marker;
     }
 
-    //화면을 한번 클릭해 마커를 발생 후 타임아웃 발생시 정답 확인 과정
+    //화면을 한번 클릭해 임시 마커 생성 후 타임아웃 발생시 정답 확인 과정
     private void timeOutAddUserMarker() {
         currentState = Answered;
         stopTimer = Stop;
@@ -422,6 +442,7 @@ public class GameActivity extends AppCompatActivity {
         calcScore();
     }
 
+    //점수 계산
     private void calcScore() {
         final int CRITERIA = 500;
 
@@ -443,11 +464,12 @@ public class GameActivity extends AppCompatActivity {
         answerMarker.setTitle(name);
         answerMarker.setPosition(geoPoint);
 
-        imageView[0].setImageResource(id);
+        questionImageView.setImageResource(id);
 
     }
 
-    class MenuButtonClickListener implements View.OnClickListener {  //메뉴 버튼 클릭 시 다이얼로그 표시
+    //메뉴 버튼 클릭 시 다이얼로그 표시
+    class MenuButtonClickListener implements View.OnClickListener {
         @Override
         public void onClick(View view) {
             final List<String> listItems = new ArrayList<>();
@@ -470,7 +492,7 @@ public class GameActivity extends AppCompatActivity {
         }
     }
 
-    //사진 클릭 시 크게 띄워주는 이벤트 등록
+    //문제 사진 클릭 시 크게 띄워주는 이벤트 등록
     class PictureClickListener implements View.OnClickListener {
         @Override
         public void onClick(View view) {    //이미지뷰를 다이얼로그로 화면에 표시

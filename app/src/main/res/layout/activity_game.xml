@@ -75,6 +75,19 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical"
+            android:layout_weight="1">
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:id="@+id/picture"/>
+        </LinearLayout>
+
+
+        <!--
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
             android:layout_weight="1"
             android:weightSum="2">
             <LinearLayout
@@ -94,6 +107,7 @@
                     android:id="@+id/picture2"
                     android:layout_weight="1"/>
             </LinearLayout>
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
@@ -111,5 +125,7 @@
                     android:layout_weight="1"/>
             </LinearLayout>
         </LinearLayout>
+        -->
+
     </LinearLayout>
 </android.support.constraint.ConstraintLayout>
