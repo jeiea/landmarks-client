@@ -33,10 +33,16 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import kotlin.Pair;
+import kotlin.Unit;
+import kotlin.jvm.functions.Function1;
+import kotlinx.coroutines.experimental.Deferred;
 import kr.ac.kw.coms.globealbum.R;
 import kr.ac.kw.coms.globealbum.common.PictureDialogFragment;
 import kr.ac.kw.coms.globealbum.map.MyMapView;
 import kr.ac.kw.coms.globealbum.provider.EXIFinfo;
+import kr.ac.kw.coms.globealbum.provider.LandmarkClientJava;
+import kr.ac.kw.coms.globealbum.provider.LandmarksClient;
 
 import static kr.ac.kw.coms.globealbum.game.GameActivity.GameState.Answered;
 import static kr.ac.kw.coms.globealbum.game.GameActivity.GameState.Solving;
@@ -65,9 +71,10 @@ public class GameActivity extends AppCompatActivity {
     int stage = 1;
     /**
      * 제한시간 타이머가 돌아가는 중인지.
-     */
+    */
     TimerState stopTimer = Running;
     private Handler animateHandler = null;
+    private Handler ui;
 
 
     final int TIME_LIMIT_MS = 14000;
@@ -78,8 +85,6 @@ public class GameActivity extends AppCompatActivity {
     Polyline polyline;  //마커 사이를 이어주는 직선
 
     List<PictureInfo> questionPic= new ArrayList<>();
-
-
 
     enum GameState {
         Solving,
@@ -114,61 +119,27 @@ public class GameActivity extends AppCompatActivity {
         questionImageView = findViewById(R.id.picture);
         questionImageView .setOnClickListener(new PictureClickListener());
 
-
-
         //osmdroid 초기 구성
         context = getApplicationContext();
         Configuration.getInstance().load(context, PreferenceManager.getDefaultSharedPreferences(context));
         myMapView = findViewById(R.id.map);
 
-
-        /*
-        //      setMapsforge
-        //      https://github.com/osmdroid/osmdroid/wiki/Mapsforge
-
-
-        MapsForgeTileSource.createInstance(getApplication());
-        String path = Environment.getExternalStorageDirectory().getAbsolutePath();
-        File f = new File(path);
-        File[] maps = f.listFiles(new FileFilter() {
-            @Override
-            public boolean accept(File file) {
-                return file.getAbsolutePath().matches(".*\\.map");            }
-        });  //TODO scan/prompt for map files (.map)
-        Toast.makeText(context, maps[0].toString()+"", Toast.LENGTH_SHORT).show();
-
-
-        XmlRenderTheme theme = null; //null is ok here, uses the default rendering theme if it's not set
-
-        try {
-            //this file should be picked up by the mapsforge dependencies
-            theme = new AssetsRenderTheme(this.getApplicationContext(), "renderthemes/", "rendertheme-v4.xml");
-            //alternative: theme = new ExternalRenderTheme(userDefinedRenderingFile);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-
-        MapsForgeTileSource fromFiles = MapsForgeTileSource.createFromFiles(maps, theme, "rendertheme-v4");
-        MapsForgeTileProvider forge = new MapsForgeTileProvider(
-                new SimpleRegisterReceiver(context),
-                fromFiles, null);
-
-        myMapView.setTileProvider(forge);
-        myMapView.getController().setZoom(fromFiles.getMinimumZoomLevel());
-        myMapView.zoomToBoundingBox(fromFiles.getBoundsOsmdroid(), true);
-        */
-
-
         //마커 이벤트 등록
         listenerOverlay = markerEvent();
         myMapView.getOverlays().add(listenerOverlay);
+        ui = new Handler();
 
-        setQuestion();
 
+        Thread th = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                setQuestion();
+            }
+        });
+        th.start();
         //정답 마커 등록
-        setAnswerMarker(questionPic.get(problem));    //파리를 정답으로 등록
-        setQuestion();
-        timeThreadHandler();
+
+        //timeThreadHandler();
     }
     class PictureInfo{  //사진에 필요한 정보를 가지고 있는 클래스
         int id;
@@ -179,6 +150,7 @@ public class GameActivity extends AppCompatActivity {
     private void setQuestion(){
         int[] id = new int[PICTURE_NUM];
         EXIFinfo exifInfo = new EXIFinfo();
+        LandmarksClient landmarksClient = new LandmarksClient();
         for(int i = 0 ; i < PICTURE_NUM ; i++){ //사진 리소스 id 배열에 저장
             id[i]= R.drawable.coord0+i;
         }
@@ -188,16 +160,34 @@ public class GameActivity extends AppCompatActivity {
             id[0] = id[random];
             id[random] = tmp;
         }
+
         for(int i = 0; i < PICTURE_NUM; i++){
             //GPS 정보 뽑아오기
             exifInfo.setMetadata(getResources().openRawResource(id[i]));
-            GeoPoint geoPoint = exifInfo.getLocationGeopoint();
-            //String name =;
-            PictureInfo pictureInfo = new PictureInfo();
-            pictureInfo.geoPoint=geoPoint;
-            pictureInfo.id=id[i];
-            //pictureInfo.name=
-            questionPic.add(pictureInfo);
+            final GeoPoint geoPoint = exifInfo.getLocationGeopoint();
+            final int s = id[i];
+            //역지오코딩을 통해 지역 정보 뽑아오기
+            final Deferred<Pair<String, String>> d = landmarksClient.reverseGeoJava(geoPoint.getLatitude(),geoPoint.getLongitude());
+            d.invokeOnCompletion(new Function1<Throwable, Unit>() {
+                @Override
+                public Unit invoke(Throwable throwable) {
+                    Pair<String,String> place = d.getCompleted();
+                    String name = place.getFirst() +  " " + place.getSecond();
+                    PictureInfo pictureInfo = new PictureInfo();
+                    pictureInfo.geoPoint=geoPoint;
+                    pictureInfo.id = s;
+                    pictureInfo.name= name;
+                    questionPic.add(pictureInfo);
+
+                    ui.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            setAnswerMarker(questionPic.get(problem));  //정답 마커 설정
+                        }
+                    });
+                    return null;
+                }
+            });
 
         }
     }
@@ -390,7 +380,7 @@ public class GameActivity extends AppCompatActivity {
             currentState = Solving;
             stopTimer = Running;
 
-            timeThreadHandler();
+            //timeThreadHandler();
 
             return true;
         }
