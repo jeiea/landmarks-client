@@ -5,6 +5,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
@@ -20,6 +21,9 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.target.DrawableImageViewTarget;
 
 import org.osmdroid.config.Configuration;
 import org.osmdroid.events.MapEventsReceiver;
@@ -71,7 +75,7 @@ public class GameActivity extends AppCompatActivity {
     int stage = 1;
     /**
      * 제한시간 타이머가 돌아가는 중인지.
-    */
+     */
     TimerState stopTimer = Running;
     private Handler animateHandler = null;
     private Handler ui;
@@ -84,7 +88,7 @@ public class GameActivity extends AppCompatActivity {
     Marker answerMarker;    //정답 마커
     Polyline polyline;  //마커 사이를 이어주는 직선
 
-    List<PictureInfo> questionPic= new ArrayList<>();
+    List<PictureInfo> questionPic = new ArrayList<>();
 
     enum GameState {
         Solving,
@@ -98,93 +102,85 @@ public class GameActivity extends AppCompatActivity {
 
     GameState currentState = Solving;
 
+    private class LoadingTask extends AsyncTask<Void, Void, Void> {
+        @Override
+        protected void onPreExecute() { //로딩 이미지 시작
+            super.onPreExecute();
+
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {//로딩이미지뷰 중지
+            super.onPostExecute(aVoid);
+
+
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {  //게임 액티비티 초기화
+            setQuestion();
+            return null;
+        }
+    }
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_game);
-
-        progressBar = findViewById(R.id.progressbar);
-        stageTextView = findViewById(R.id.textview_stage);
-        scoreTextView = findViewById(R.id.textview_score);
-        menuButton = findViewById(R.id.game_button_menu);
-        menuButton.setOnClickListener(new MenuButtonClickListener());
-        gotonextTextView = findViewById(R.id.gotonext_textview);
-
-        RED_FLAG_DRAWABLE = getResources().getDrawable(R.drawable.red_flag);
-        BLUE_FLAG_DRAWABLE = getResources().getDrawable(R.drawable.blue_flag);
-
-        stageTextView.setText("STAGE " + stage);
-
-        //퀴즈에 나올 사진들을 연결
-        questionImageView = findViewById(R.id.picture);
-        questionImageView .setOnClickListener(new PictureClickListener());
-
-        //osmdroid 초기 구성
-        context = getApplicationContext();
-        Configuration.getInstance().load(context, PreferenceManager.getDefaultSharedPreferences(context));
-        myMapView = findViewById(R.id.map);
-
-        //마커 이벤트 등록
-        listenerOverlay = markerEvent();
-        myMapView.getOverlays().add(listenerOverlay);
+        setContentView(R.layout.layout_game_loading_animation);
+        ImageView loadigImageView = findViewById(R.id.gif_loading);
+        DrawableImageViewTarget gifImage = new DrawableImageViewTarget(loadigImageView);
+        Glide.with(GameActivity.this).load(R.drawable.owl).into(gifImage);
         ui = new Handler();
-
-
-        Thread th = new Thread(new Runnable() {
+        AsyncTask.execute(new Runnable() {
             @Override
             public void run() {
                 setQuestion();
             }
         });
-        th.start();
-        //정답 마커 등록
-
-        //timeThreadHandler();
     }
-    class PictureInfo{  //사진에 필요한 정보를 가지고 있는 클래스
+
+    class PictureInfo {  //사진에 필요한 정보를 가지고 있는 클래스
         int id;
         GeoPoint geoPoint;
         String name;
     }
+
     //문제 세팅
-    private void setQuestion(){
+    private void setQuestion() {
         int[] id = new int[PICTURE_NUM];
         EXIFinfo exifInfo = new EXIFinfo();
         LandmarksClient landmarksClient = new LandmarksClient();
-        for(int i = 0 ; i < PICTURE_NUM ; i++){ //사진 리소스 id 배열에 저장
-            id[i]= R.drawable.coord0+i;
+        for (int i = 0; i < PICTURE_NUM; i++) { //사진 리소스 id 배열에 저장
+            id[i] = R.drawable.coord0 + i;
         }
-        for(int i = 0 ; i < 1000; i++) {    //반복하여 리소스 id 섞음
-            int random = (int)(Math.random()*PICTURE_NUM);
+        for (int i = 0; i < 1000; i++) {    //반복하여 리소스 id 섞음
+            int random = (int) (Math.random() * PICTURE_NUM);
             int tmp = id[0];
             id[0] = id[random];
             id[random] = tmp;
         }
 
-        for(int i = 0; i < PICTURE_NUM; i++){
+        for (int i = 0; i < PICTURE_NUM; i++) {
             //GPS 정보 뽑아오기
             exifInfo.setMetadata(getResources().openRawResource(id[i]));
             final GeoPoint geoPoint = exifInfo.getLocationGeopoint();
             final int s = id[i];
             //역지오코딩을 통해 지역 정보 뽑아오기
-            final Deferred<Pair<String, String>> d = landmarksClient.reverseGeoJava(geoPoint.getLatitude(),geoPoint.getLongitude());
+            final Deferred<Pair<String, String>> d = landmarksClient.reverseGeoJava(geoPoint.getLatitude(), geoPoint.getLongitude());
             d.invokeOnCompletion(new Function1<Throwable, Unit>() {
                 @Override
                 public Unit invoke(Throwable throwable) {
-                    Pair<String,String> place = d.getCompleted();
-                    String name = place.getFirst() +  " " + place.getSecond();
+                    Pair<String, String> place = d.getCompleted();
+                    String name = place.getFirst() + " " + place.getSecond();
                     PictureInfo pictureInfo = new PictureInfo();
-                    pictureInfo.geoPoint=geoPoint;
+                    pictureInfo.geoPoint = geoPoint;
                     pictureInfo.id = s;
-                    pictureInfo.name= name;
+                    pictureInfo.name = name;
                     questionPic.add(pictureInfo);
-
-                    ui.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            setAnswerMarker(questionPic.get(problem));  //정답 마커 설정
-                        }
-                    });
+                    if (questionPic.size() == 1) {
+                        ui.post(afterInit);
+                    }
                     return null;
                 }
             });
@@ -192,8 +188,43 @@ public class GameActivity extends AppCompatActivity {
         }
     }
 
+    Runnable afterInit = new Runnable() {
+        @Override
+        public void run() {
+            setContentView(R.layout.activity_game);
+            progressBar = findViewById(R.id.progressbar);
+            stageTextView = findViewById(R.id.textview_stage);
+            scoreTextView = findViewById(R.id.textview_score);
+            menuButton = findViewById(R.id.game_button_menu);
+            menuButton.setOnClickListener(new MenuButtonClickListener());
+            gotonextTextView = findViewById(R.id.gotonext_textview);
+
+            RED_FLAG_DRAWABLE = getResources().getDrawable(R.drawable.red_flag);
+            BLUE_FLAG_DRAWABLE = getResources().getDrawable(R.drawable.blue_flag);
+
+            stageTextView.setText("STAGE " + stage);
+
+            //퀴즈에 나올 사진들을 연결
+            questionImageView = findViewById(R.id.picture);
+            questionImageView.setOnClickListener(new PictureClickListener());
+
+            //osmdroid 초기 구성
+            context = getApplicationContext();
+            Configuration.getInstance().load(context, PreferenceManager.getDefaultSharedPreferences(context));
+            myMapView = findViewById(R.id.map);
+
+            //마커 이벤트 등록
+            listenerOverlay = markerEvent();
+            myMapView.getOverlays().add(listenerOverlay);
+
+
+            timeThreadhandler();
+            setAnswerMarker(questionPic.get(problem));  //정답 마커 설정
+        }
+    };
+
     //제한 시간 측정
-    private void timeThreadHandler() {
+    private void timeThreadhandler() {
         int stageTimeLimitMs = TIME_LIMIT_MS - problem * 1000;
         progressBar.setMax(stageTimeLimitMs);
 
@@ -240,7 +271,7 @@ public class GameActivity extends AppCompatActivity {
             public boolean singleTapConfirmedHelper(GeoPoint p) {   //화면 한번 터치시
 
                 if (currentMarker != null) {
-                    if( animateHandler == null) {
+                    if (animateHandler == null) {
                         currentMarker.setPosition(p);
 
                     }
@@ -357,30 +388,30 @@ public class GameActivity extends AppCompatActivity {
 
             problem++;
             switch (problem) {
+                case 1:
+                    setAnswerMarker(questionPic.get(problem));
+                    break;
                 case 2:
                     setAnswerMarker(questionPic.get(problem));
                     break;
                 case 3:
-                    setAnswerMarker(questionPic.get(problem));
-                    break;
-                case 4:
                     stage++;
                     stageTextView.setText("STAGE " + stage);
                     score = 0;
                     scoreTextView.setText("SCORE " + score);
                     setAnswerMarker(questionPic.get(problem));
                     break;
-                case 5:
+                case 4:
                     setAnswerMarker(questionPic.get(problem));
                     break;
-                case 6:
+                case 5:
                     showDialogAfterGame();
             }
 
             currentState = Solving;
             stopTimer = Running;
 
-            //timeThreadHandler();
+            timeThreadhandler();
 
             return true;
         }
@@ -420,7 +451,7 @@ public class GameActivity extends AppCompatActivity {
     }
 
     //게임이 끝난 후 다이얼로그 표시
-    void showDialogAfterGame(){
+    void showDialogAfterGame() {
         final List<String> listItems = new ArrayList<>();
         listItems.add("다시하기");
         listItems.add("종료");
@@ -434,8 +465,7 @@ public class GameActivity extends AppCompatActivity {
                 String selectedText = items[i].toString();
                 if (selectedText.equals("종료")) {
                     finish();
-                }
-                else if (selectedText.equals("다시하기")){
+                } else if (selectedText.equals("다시하기")) {
                     finish();
                     startActivity(new Intent(GameActivity.this, GameActivity.class));
                 }
