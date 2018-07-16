@@ -4,6 +4,7 @@ package kr.ac.kw.coms.globealbum.provider
 import awaitStringResult
 import com.beust.klaxon.JsonObject
 import com.beust.klaxon.Parser
+import com.beust.klaxon.internal.firstNotNullResult
 import com.beust.klaxon.json
 import com.github.kittinunf.fuel.Fuel
 import com.google.gson.Gson
@@ -47,10 +48,11 @@ class LandmarksClient {
       .awaitStringResult()
     val res = Parser().parse(StringBuilder(json)) as JsonObject
     val addr = res.obj("address") ?: return null
-    return addr.string("country") to addr.string("city")
+    val detail = listOf("city", "county", "town", "attraction").map(addr::string).firstNotNullResult { it }
+    return addr.string("country") to detail
   }
 
-  fun<T> reverseGeoJava(latitude: Double, longitude: Double): Deferred<Pair<String?, String?>?> {
+  fun <T> reverseGeoJava(latitude: Double, longitude: Double): Deferred<Pair<String?, String?>?> {
     return async(CommonPool) {
       reverseGeocode(latitude, longitude)
     }
