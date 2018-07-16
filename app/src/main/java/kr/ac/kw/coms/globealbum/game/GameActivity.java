@@ -78,6 +78,8 @@ public class GameActivity extends AppCompatActivity {
      */
     TimerState stopTimer = Running;
     private Handler animateHandler = null;
+
+
     private Handler ui;
 
 
@@ -102,36 +104,18 @@ public class GameActivity extends AppCompatActivity {
 
     GameState currentState = Solving;
 
-    private class LoadingTask extends AsyncTask<Void, Void, Void> {
-        @Override
-        protected void onPreExecute() { //로딩 이미지 시작
-            super.onPreExecute();
-
-        }
-
-        @Override
-        protected void onPostExecute(Void aVoid) {//로딩이미지뷰 중지
-            super.onPostExecute(aVoid);
-
-
-        }
-
-        @Override
-        protected Void doInBackground(Void... voids) {  //게임 액티비티 초기화
-            setQuestion();
-            return null;
-        }
-    }
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        //로팅화면 적용
         setContentView(R.layout.layout_game_loading_animation);
         ImageView loadigImageView = findViewById(R.id.gif_loading);
         DrawableImageViewTarget gifImage = new DrawableImageViewTarget(loadigImageView);
         Glide.with(GameActivity.this).load(R.drawable.owl).into(gifImage);
         ui = new Handler();
+
+        //게임 시작 전 문제 세팅
         AsyncTask.execute(new Runnable() {
             @Override
             public void run() {
@@ -178,7 +162,8 @@ public class GameActivity extends AppCompatActivity {
                     pictureInfo.id = s;
                     pictureInfo.name = name;
                     questionPic.add(pictureInfo);
-                    if (questionPic.size() == 1) {
+
+                    if (questionPic.size() == 1) {  //문제가 하나 완성 시 초기 구성 진행
                         ui.post(afterInit);
                     }
                     return null;
@@ -188,7 +173,7 @@ public class GameActivity extends AppCompatActivity {
         }
     }
 
-    Runnable afterInit = new Runnable() {
+    Runnable afterInit = new Runnable() {   //문제가 하나 완성된 후 맵뷰 기본 구성 및 게임 액티비티 진행
         @Override
         public void run() {
             setContentView(R.layout.activity_game);
@@ -229,38 +214,43 @@ public class GameActivity extends AppCompatActivity {
         progressBar.setMax(stageTimeLimitMs);
 
         final long deadlineMs = new Date().getTime() + stageTimeLimitMs;
-        final Handler ui = new Handler();
-        ui.post(new Runnable() {
-            @Override
-            public void run() {
-                long timeLeft = deadlineMs - new Date().getTime();
-                progressBar.setProgress((int) timeLeft);
+        //final Handler ui = new Handler();
+        if( ui != null){
+            ui.post(new Runnable() {
+                @Override
+                public void run() {
+                    long timeLeft = deadlineMs - new Date().getTime();
+                    progressBar.setProgress((int) timeLeft);
 
-                timeScore = (int) timeLeft;
+                    timeScore = (int) timeLeft;
 
-                if (timeLeft > 0 && stopTimer != Stop) {
-                    ui.postDelayed(this, 35); // about 30fps
-                    return;
-                } else if (stopTimer == Stop) {
-                    return;
+                    if (timeLeft > 0 && stopTimer ==Running) {
+                        ui.postDelayed(this, 35); // about 30fps
+                        return;
+                    } else if (stopTimer == Stop) {
+                        return;
+                    }
+
+                    // 화면을 한번 터치해 마커를 생성하고 난 후
+                    // 타임아웃 발생시 그 마커를 위치로 정답 확인
+                    if (currentMarker != null) {
+                        timeOutAddUserMarker();
+                    } else {
+                        //화면에 마커 생성 없이 타임아웃 발생시 정답 확인
+                        currentMarker = new Marker(myMapView);
+                        currentState = Answered;
+
+                        answerMarker.showInfoWindow();
+                        myMapView.getOverlays().add(answerMarker);
+                        gotonextTextView.setVisibility(View.VISIBLE);
+
+
+                    }
+                    myMapView.invalidate();
                 }
+            });
+        }
 
-                // 화면을 한번 터치해 마커를 생성하고 난 후
-                // 타임아웃 발생시 그 마커를 위치로 정답 확인
-                if (currentMarker != null) {
-                    timeOutAddUserMarker();
-                } else {
-                    //화면에 마커 생성 없이 타임아웃 발생시 정답 확인
-                    currentMarker = new Marker(myMapView);
-                    currentState = Answered;
-
-                    answerMarker.showInfoWindow();
-                    myMapView.getOverlays().add(answerMarker);
-
-                }
-                myMapView.invalidate();
-            }
-        });
     }
 
     //맵뷰를 클릭하였을 때 발생하는 이벤트
@@ -410,7 +400,6 @@ public class GameActivity extends AppCompatActivity {
 
             currentState = Solving;
             stopTimer = Running;
-
             timeThreadhandler();
 
             return true;
@@ -456,6 +445,9 @@ public class GameActivity extends AppCompatActivity {
         listItems.add("다시하기");
         listItems.add("종료");
         final CharSequence[] items = listItems.toArray(new String[listItems.size()]);
+
+        stopTimer=Stop;
+        ui = null;
 
         AlertDialog.Builder builder = new AlertDialog.Builder(GameActivity.this);
         builder.setTitle("Menu");
