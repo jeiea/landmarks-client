@@ -6,6 +6,8 @@ import android.graphics.drawable.Drawable;
 import android.support.v7.widget.RecyclerView;
 import android.util.Pair;
 
+import com.bumptech.glide.RequestBuilder;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 
@@ -17,7 +19,7 @@ public abstract class PictureProvider {
     // 사진 하나를 나타냄
     public interface Picture {
         // 비트맵
-        Drawable getDrawable();
+        RequestBuilder<Drawable> getDrawable();
 
         // 제목
         String getTitle();

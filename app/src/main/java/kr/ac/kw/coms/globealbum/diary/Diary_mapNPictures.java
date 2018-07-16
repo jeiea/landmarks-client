@@ -1,5 +1,6 @@
 package kr.ac.kw.coms.globealbum.diary;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.support.v7.app.AppCompatActivity;
@@ -50,44 +51,44 @@ public class Diary_mapNPictures extends AppCompatActivity {
 
         ArrayList<PictureGroup> elementList = new ArrayList<>();
         ArrayList<PictureProvider.Picture> elementRow = new ArrayList<>();
-        Resources r = getResources();
-        elementRow.add(new ResourcePicture(r, R.drawable.sample0, new View.OnClickListener() {
+        Context c = getBaseContext();
+        elementRow.add(new ResourcePicture(c, R.drawable.sample0, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Toast.makeText(Diary_mapNPictures.this, "0", Toast.LENGTH_SHORT).show();
             }
         }));
-        elementRow.add(new ResourcePicture(r, R.drawable.sample1, new View.OnClickListener() {
+        elementRow.add(new ResourcePicture(c, R.drawable.sample1, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Toast.makeText(Diary_mapNPictures.this, "1", Toast.LENGTH_SHORT).show();
             }
         }));
-        elementRow.add(new ResourcePicture(r, R.drawable.sample2, new View.OnClickListener() {
+        elementRow.add(new ResourcePicture(c, R.drawable.sample2, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Toast.makeText(Diary_mapNPictures.this, "2", Toast.LENGTH_SHORT).show();
             }
         }));
-        elementRow.add(new ResourcePicture(r, R.drawable.sample3, new View.OnClickListener() {
+        elementRow.add(new ResourcePicture(c, R.drawable.sample3, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Toast.makeText(Diary_mapNPictures.this, "3", Toast.LENGTH_SHORT).show();
             }
         }));
-        elementRow.add(new ResourcePicture(r, R.drawable.sample4, new View.OnClickListener() {
+        elementRow.add(new ResourcePicture(c, R.drawable.sample4, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Toast.makeText(Diary_mapNPictures.this, "4", Toast.LENGTH_SHORT).show();
             }
         }));
-        elementRow.add(new ResourcePicture(r, R.drawable.sample5, new View.OnClickListener() {
+        elementRow.add(new ResourcePicture(c, R.drawable.sample5, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Toast.makeText(Diary_mapNPictures.this, "5", Toast.LENGTH_SHORT).show();
             }
         }));
-        elementRow.add(new ResourcePicture(r, R.drawable.sample6, new View.OnClickListener() {
+        elementRow.add(new ResourcePicture(c, R.drawable.sample6, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Toast.makeText(Diary_mapNPictures.this, "6", Toast.LENGTH_SHORT).show();

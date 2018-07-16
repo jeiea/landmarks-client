@@ -2,6 +2,7 @@ package kr.ac.kw.coms.globealbum.album;
 /* 작성자: 이상훈 */
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -127,34 +128,23 @@ public class activity_Navigator extends AppCompatActivity {
         }
     }
 
-    public class PictureGroup
-    {
-        public String name;
-        ArrayList<Bitmap> PictureList;
-        public PictureGroup(String name, ArrayList<Bitmap> PictureList)
-        {
-            this.name = name;
-            //TODO: Bitmap to Picture
-            this.PictureList = PictureList;
-        }
-    }
-
     public void getData()
     {
         data = new ArrayList<>();
-        ArrayList<Bitmap> group1 = new ArrayList<>();
-        group1.add(BitmapFactory.decodeResource(getResources(), R.drawable.sample0));
-        group1.add(BitmapFactory.decodeResource(getResources(), R.drawable.sample1));
-        group1.add(BitmapFactory.decodeResource(getResources(), R.drawable.sample2));
-        group1.add(BitmapFactory.decodeResource(getResources(), R.drawable.sample3));
-        group1.add(BitmapFactory.decodeResource(getResources(), R.drawable.sample4));
+        Context c = getBaseContext();
+        ArrayList<PictureProvider.Picture> group1 = new ArrayList<>();
+        group1.add(new ResourcePicture(c, R.drawable.sample0, null));
+        group1.add(new ResourcePicture(c, R.drawable.sample1, null));
+        group1.add(new ResourcePicture(c, R.drawable.sample2, null));
+        group1.add(new ResourcePicture(c, R.drawable.sample3, null));
+        group1.add(new ResourcePicture(c, R.drawable.sample4, null));
         data.add(new PictureGroup("group 1", group1));
-        ArrayList<Bitmap> group2 = new ArrayList<>();
-        group2.add(BitmapFactory.decodeResource(getResources(), R.drawable.sample5));
-        group2.add(BitmapFactory.decodeResource(getResources(), R.drawable.sample6));
-        group2.add(BitmapFactory.decodeResource(getResources(), R.drawable.sample7));
-        group2.add(BitmapFactory.decodeResource(getResources(), R.drawable.sample8));
-        group2.add(BitmapFactory.decodeResource(getResources(), R.drawable.sample9));
+        ArrayList<PictureProvider.Picture> group2 = new ArrayList<>();
+        group1.add(new ResourcePicture(c, R.drawable.sample5, null));
+        group1.add(new ResourcePicture(c, R.drawable.sample6, null));
+        group1.add(new ResourcePicture(c, R.drawable.sample7, null));
+        group1.add(new ResourcePicture(c, R.drawable.sample8, null));
+        group1.add(new ResourcePicture(c, R.drawable.sample9, null));
         data.add(new PictureGroup("group 2", group2));
     }
 
@@ -224,7 +214,7 @@ public class activity_Navigator extends AppCompatActivity {
             else if (holder instanceof PictureHolder)
             {
                 PictureProvider.Picture pic = (PictureProvider.Picture)viewData.get(position);
-                ((PictureHolder) holder).imageView.setImageDrawable(pic.getDrawable());
+                pic.getDrawable().into(((PictureHolder) holder).imageView);
             }
         }
 
