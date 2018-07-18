@@ -30,6 +30,8 @@ public class Diary_main extends AppCompatActivity {
         diaryImageView = findViewById(R.id.diary_main_ImageList);
         diaryJourneyView = findViewById(R.id.diary_main_JourneyList);
         diaryOtherView = findViewById(R.id.diary_main_Otherlist);
+        diaryOtherView.setNameTextSize(50);
+        diaryOtherView.setNameBackgroundColor(0xffffffff);
 
         ArrayList<PictureGroup> elementList = new ArrayList<>();
         ArrayList<PictureProvider.Picture> elementRow = new ArrayList<>();
@@ -55,37 +57,11 @@ public class Diary_main extends AppCompatActivity {
                 startActivity(new Intent(getApplicationContext(), Diary_mapNPictures.class).putExtra("whose", "mine"));
             }
         }));
-        elementRow.add(new ResourcePicture(c, R.drawable.sample3, new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(Diary_main.this, "3", Toast.LENGTH_SHORT).show();
-                startActivity(new Intent(getApplicationContext(), Diary_mapNPictures.class).putExtra("whose", "mine"));
-            }
-        }));
-        elementRow.add(new ResourcePicture(c, R.drawable.sample4, new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(Diary_main.this, "4", Toast.LENGTH_SHORT).show();
-                startActivity(new Intent(getApplicationContext(), Diary_mapNPictures.class).putExtra("whose", "mine"));
-            }
-        }));
-        elementRow.add(new ResourcePicture(c, R.drawable.sample5, new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(Diary_main.this, "5", Toast.LENGTH_SHORT).show();
-                startActivity(new Intent(getApplicationContext(), Diary_mapNPictures.class).putExtra("whose", "mine"));
-            }
-        }));
-        elementRow.add(new ResourcePicture(c, R.drawable.sample6, new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(Diary_main.this, "6", Toast.LENGTH_SHORT).show();
-                startActivity(new Intent(getApplicationContext(), Diary_mapNPictures.class).putExtra("whose", "mine"));
-            }
-        }));
 
-        elementList.add(new PictureGroup("group1", elementRow));
+        elementList.add(new PictureGroup("My Photos", elementRow));
         diaryImageView.setGroups(elementList);
+        elementList.clear();
+        elementList.add(new PictureGroup("group1", elementRow));
         elementList.add(new PictureGroup("group2", elementRow));
         diaryJourneyView.setGroups(elementList);
         elementList.clear();

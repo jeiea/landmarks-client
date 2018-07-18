@@ -3,6 +3,7 @@ package kr.ac.kw.coms.globealbum.diary;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
+import android.graphics.Color;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -182,12 +183,14 @@ public class Diary_mapNPictures extends AppCompatActivity {
         findViewById(R.id.diary_mapNpics_Write).setVisibility(View.GONE);
         findViewById(R.id.diary_mapNpics_Read).setVisibility(View.VISIBLE);
         findViewById(R.id.diary_mapNpics_EditStart).setVisibility(View.VISIBLE);
+        findViewById(R.id.diary_mapNpics_Map_Outer).setBackgroundColor(Color.TRANSPARENT);
     }
 
     public void diary_onCancelClick(View view) {
         findViewById(R.id.diary_mapNpics_Write).setVisibility(View.GONE);
         findViewById(R.id.diary_mapNpics_Read).setVisibility(View.VISIBLE);
         findViewById(R.id.diary_mapNpics_EditStart).setVisibility(View.VISIBLE);
+        findViewById(R.id.diary_mapNpics_Map_Outer).setBackgroundColor(Color.TRANSPARENT);
     }
 
     public void diary_onEditClick(View view)
@@ -198,5 +201,6 @@ public class Diary_mapNPictures extends AppCompatActivity {
         findViewById(R.id.diary_mapNpics_Write).setVisibility(View.VISIBLE);
         findViewById(R.id.diary_mapNpics_Read).setVisibility(View.GONE);
         findViewById(R.id.diary_mapNpics_EditStart).setVisibility(View.GONE);
+        findViewById(R.id.diary_mapNpics_Map_Outer).setBackgroundColor(Color.RED);
     }
 }
