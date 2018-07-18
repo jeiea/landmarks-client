@@ -38,49 +38,49 @@ public class Diary_main extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Toast.makeText(Diary_main.this, "0", Toast.LENGTH_SHORT).show();
-                startActivity(new Intent(getApplicationContext(), Diary_mapNPictures.class));
+                startActivity(new Intent(getApplicationContext(), Diary_mapNPictures.class).putExtra("whose", "mine"));
             }
         }));
         elementRow.add(new ResourcePicture(c, R.drawable.sample1, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Toast.makeText(Diary_main.this, "1", Toast.LENGTH_SHORT).show();
-                startActivity(new Intent(getApplicationContext(), Diary_mapNPictures.class));
+                startActivity(new Intent(getApplicationContext(), Diary_mapNPictures.class).putExtra("whose", "mine"));
             }
         }));
         elementRow.add(new ResourcePicture(c, R.drawable.sample2, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Toast.makeText(Diary_main.this, "2", Toast.LENGTH_SHORT).show();
-                startActivity(new Intent(getApplicationContext(), Diary_mapNPictures.class));
+                startActivity(new Intent(getApplicationContext(), Diary_mapNPictures.class).putExtra("whose", "mine"));
             }
         }));
         elementRow.add(new ResourcePicture(c, R.drawable.sample3, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Toast.makeText(Diary_main.this, "3", Toast.LENGTH_SHORT).show();
-                startActivity(new Intent(getApplicationContext(), Diary_mapNPictures.class));
+                startActivity(new Intent(getApplicationContext(), Diary_mapNPictures.class).putExtra("whose", "mine"));
             }
         }));
         elementRow.add(new ResourcePicture(c, R.drawable.sample4, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Toast.makeText(Diary_main.this, "4", Toast.LENGTH_SHORT).show();
-                startActivity(new Intent(getApplicationContext(), Diary_mapNPictures.class));
+                startActivity(new Intent(getApplicationContext(), Diary_mapNPictures.class).putExtra("whose", "mine"));
             }
         }));
         elementRow.add(new ResourcePicture(c, R.drawable.sample5, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Toast.makeText(Diary_main.this, "5", Toast.LENGTH_SHORT).show();
-                startActivity(new Intent(getApplicationContext(), Diary_mapNPictures.class));
+                startActivity(new Intent(getApplicationContext(), Diary_mapNPictures.class).putExtra("whose", "mine"));
             }
         }));
         elementRow.add(new ResourcePicture(c, R.drawable.sample6, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Toast.makeText(Diary_main.this, "6", Toast.LENGTH_SHORT).show();
-                startActivity(new Intent(getApplicationContext(), Diary_mapNPictures.class));
+                startActivity(new Intent(getApplicationContext(), Diary_mapNPictures.class).putExtra("whose", "mine"));
             }
         }));
 
@@ -89,7 +89,15 @@ public class Diary_main extends AppCompatActivity {
         elementList.add(new PictureGroup("group2", elementRow));
         diaryJourneyView.setGroups(elementList);
         elementList.clear();
-        elementList.add(new PictureGroup("OTHER", elementRow));
+        elementRow.clear();
+        elementRow.add(new ResourcePicture(c, R.drawable.sample7, new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(Diary_main.this, "Other", Toast.LENGTH_SHORT).show();
+                startActivity(new Intent(getApplicationContext(), Diary_mapNPictures.class).putExtra("whose", "other"));
+            }
+        }));
+        elementList.add(new PictureGroup("Other", elementRow));
         diaryOtherView.setGroups(elementList);
     }
 

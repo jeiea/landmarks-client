@@ -48,6 +48,7 @@ public class Diary_mapNPictures extends AppCompatActivity {
 
         mapView = findViewById(R.id.diary_mapNpics_Map);
         picView = findViewById(R.id.diary_mapNpics_Pics);
+        picView.setPadding(20);
 
         ArrayList<PictureGroup> elementList = new ArrayList<>();
         ArrayList<PictureProvider.Picture> elementRow = new ArrayList<>();
@@ -100,6 +101,11 @@ public class Diary_mapNPictures extends AppCompatActivity {
         picView.setOrientation(1);
 
         //TODO: show info text
+
+        if (getIntent().getStringExtra("whose").equals("other"))
+        {
+            findViewById(R.id.diary_mapNpics_EditStart).setVisibility(View.GONE);
+        }
     }
 
     public void diary_onSaveClick(View view) {
