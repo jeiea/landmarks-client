@@ -5,6 +5,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
@@ -20,6 +21,9 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.target.DrawableImageViewTarget;
 
 import org.osmdroid.config.Configuration;
 import org.osmdroid.events.MapEventsReceiver;
@@ -71,9 +75,11 @@ public class GameActivity extends AppCompatActivity {
     int stage = 1;
     /**
      * 제한시간 타이머가 돌아가는 중인지.
-    */
+     */
     TimerState stopTimer = Running;
     private Handler animateHandler = null;
+
+
     private Handler ui;
 
 
@@ -84,7 +90,7 @@ public class GameActivity extends AppCompatActivity {
     Marker answerMarker;    //정답 마커
     Polyline polyline;  //마커 사이를 이어주는 직선
 
-    List<PictureInfo> questionPic= new ArrayList<>();
+    List<PictureInfo> questionPic = new ArrayList<>();
 
     enum GameState {
         Solving,
@@ -101,90 +107,65 @@ public class GameActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_game);
 
-        progressBar = findViewById(R.id.progressbar);
-        stageTextView = findViewById(R.id.textview_stage);
-        scoreTextView = findViewById(R.id.textview_score);
-        menuButton = findViewById(R.id.game_button_menu);
-        menuButton.setOnClickListener(new MenuButtonClickListener());
-        gotonextTextView = findViewById(R.id.gotonext_textview);
-
-        RED_FLAG_DRAWABLE = getResources().getDrawable(R.drawable.red_flag);
-        BLUE_FLAG_DRAWABLE = getResources().getDrawable(R.drawable.blue_flag);
-
-        stageTextView.setText("STAGE " + stage);
-
-        //퀴즈에 나올 사진들을 연결
-        questionImageView = findViewById(R.id.picture);
-        questionImageView .setOnClickListener(new PictureClickListener());
-
-        //osmdroid 초기 구성
-        context = getApplicationContext();
-        Configuration.getInstance().load(context, PreferenceManager.getDefaultSharedPreferences(context));
-        myMapView = findViewById(R.id.map);
-
-        //마커 이벤트 등록
-        listenerOverlay = markerEvent();
-        myMapView.getOverlays().add(listenerOverlay);
+        //로팅화면 적용
+        setContentView(R.layout.layout_game_loading_animation);
+        ImageView loadigImageView = findViewById(R.id.gif_loading);
+        DrawableImageViewTarget gifImage = new DrawableImageViewTarget(loadigImageView);
+        Glide.with(GameActivity.this).load(R.drawable.owl).into(gifImage);
         ui = new Handler();
 
-
-        Thread th = new Thread(new Runnable() {
+        //게임 시작 전 문제 세팅
+        AsyncTask.execute(new Runnable() {
             @Override
             public void run() {
                 setQuestion();
             }
         });
-        th.start();
-        //정답 마커 등록
-
-        //timeThreadHandler();
     }
-    class PictureInfo{  //사진에 필요한 정보를 가지고 있는 클래스
+
+    class PictureInfo {  //사진에 필요한 정보를 가지고 있는 클래스
         int id;
         GeoPoint geoPoint;
         String name;
     }
+
     //문제 세팅
-    private void setQuestion(){
+    private void setQuestion() {
         int[] id = new int[PICTURE_NUM];
         EXIFinfo exifInfo = new EXIFinfo();
         LandmarksClient landmarksClient = new LandmarksClient();
-        for(int i = 0 ; i < PICTURE_NUM ; i++){ //사진 리소스 id 배열에 저장
-            id[i]= R.drawable.coord0+i;
+        for (int i = 0; i < PICTURE_NUM; i++) { //사진 리소스 id 배열에 저장
+            id[i] = R.drawable.coord0 + i;
         }
-        for(int i = 0 ; i < 1000; i++) {    //반복하여 리소스 id 섞음
-            int random = (int)(Math.random()*PICTURE_NUM);
+        for (int i = 0; i < 1000; i++) {    //반복하여 리소스 id 섞음
+            int random = (int) (Math.random() * PICTURE_NUM);
             int tmp = id[0];
             id[0] = id[random];
             id[random] = tmp;
         }
 
-        for(int i = 0; i < PICTURE_NUM; i++){
+        for (int i = 0; i < PICTURE_NUM; i++) {
             //GPS 정보 뽑아오기
             exifInfo.setMetadata(getResources().openRawResource(id[i]));
             final GeoPoint geoPoint = exifInfo.getLocationGeopoint();
             final int s = id[i];
             //역지오코딩을 통해 지역 정보 뽑아오기
-            final Deferred<Pair<String, String>> d = landmarksClient.reverseGeoJava(geoPoint.getLatitude(),geoPoint.getLongitude());
+            final Deferred<Pair<String, String>> d = landmarksClient.reverseGeoJava(geoPoint.getLatitude(), geoPoint.getLongitude());
             d.invokeOnCompletion(new Function1<Throwable, Unit>() {
                 @Override
                 public Unit invoke(Throwable throwable) {
-                    Pair<String,String> place = d.getCompleted();
-                    String name = place.getFirst() +  " " + place.getSecond();
+                    Pair<String, String> place = d.getCompleted();
+                    String name = place.getFirst() + " " + place.getSecond();
                     PictureInfo pictureInfo = new PictureInfo();
-                    pictureInfo.geoPoint=geoPoint;
+                    pictureInfo.geoPoint = geoPoint;
                     pictureInfo.id = s;
-                    pictureInfo.name= name;
+                    pictureInfo.name = name;
                     questionPic.add(pictureInfo);
 
-                    ui.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            setAnswerMarker(questionPic.get(problem));  //정답 마커 설정
-                        }
-                    });
+                    if (questionPic.size() == 1) {  //문제가 하나 완성 시 초기 구성 진행
+                        ui.post(afterInit);
+                    }
                     return null;
                 }
             });
@@ -192,44 +173,84 @@ public class GameActivity extends AppCompatActivity {
         }
     }
 
+    Runnable afterInit = new Runnable() {   //문제가 하나 완성된 후 맵뷰 기본 구성 및 게임 액티비티 진행
+        @Override
+        public void run() {
+            setContentView(R.layout.activity_game);
+            progressBar = findViewById(R.id.progressbar);
+            stageTextView = findViewById(R.id.textview_stage);
+            scoreTextView = findViewById(R.id.textview_score);
+            menuButton = findViewById(R.id.game_button_menu);
+            menuButton.setOnClickListener(new MenuButtonClickListener());
+            gotonextTextView = findViewById(R.id.gotonext_textview);
+
+            RED_FLAG_DRAWABLE = getResources().getDrawable(R.drawable.red_flag);
+            BLUE_FLAG_DRAWABLE = getResources().getDrawable(R.drawable.blue_flag);
+
+            stageTextView.setText("STAGE " + stage);
+
+            //퀴즈에 나올 사진들을 연결
+            questionImageView = findViewById(R.id.picture);
+            questionImageView.setOnClickListener(new PictureClickListener());
+
+            //osmdroid 초기 구성
+            context = getApplicationContext();
+            Configuration.getInstance().load(context, PreferenceManager.getDefaultSharedPreferences(context));
+            myMapView = findViewById(R.id.map);
+
+            //마커 이벤트 등록
+            listenerOverlay = markerEvent();
+            myMapView.getOverlays().add(listenerOverlay);
+
+
+            timeThreadhandler();
+            setAnswerMarker(questionPic.get(problem));  //정답 마커 설정
+        }
+    };
+
     //제한 시간 측정
-    private void timeThreadHandler() {
+    private void timeThreadhandler() {
         int stageTimeLimitMs = TIME_LIMIT_MS - problem * 1000;
         progressBar.setMax(stageTimeLimitMs);
 
         final long deadlineMs = new Date().getTime() + stageTimeLimitMs;
-        final Handler ui = new Handler();
-        ui.post(new Runnable() {
-            @Override
-            public void run() {
-                long timeLeft = deadlineMs - new Date().getTime();
-                progressBar.setProgress((int) timeLeft);
+        //final Handler ui = new Handler();
+        if( ui != null){
+            ui.post(new Runnable() {
+                @Override
+                public void run() {
+                    long timeLeft = deadlineMs - new Date().getTime();
+                    progressBar.setProgress((int) timeLeft);
 
-                timeScore = (int) timeLeft;
+                    timeScore = (int) timeLeft;
 
-                if (timeLeft > 0 && stopTimer != Stop) {
-                    ui.postDelayed(this, 35); // about 30fps
-                    return;
-                } else if (stopTimer == Stop) {
-                    return;
+                    if (timeLeft > 0 && stopTimer ==Running) {
+                        ui.postDelayed(this, 35); // about 30fps
+                        return;
+                    } else if (stopTimer == Stop) {
+                        return;
+                    }
+
+                    // 화면을 한번 터치해 마커를 생성하고 난 후
+                    // 타임아웃 발생시 그 마커를 위치로 정답 확인
+                    if (currentMarker != null) {
+                        timeOutAddUserMarker();
+                    } else {
+                        //화면에 마커 생성 없이 타임아웃 발생시 정답 확인
+                        currentMarker = new Marker(myMapView);
+                        currentState = Answered;
+
+                        answerMarker.showInfoWindow();
+                        myMapView.getOverlays().add(answerMarker);
+                        gotonextTextView.setVisibility(View.VISIBLE);
+
+
+                    }
+                    myMapView.invalidate();
                 }
+            });
+        }
 
-                // 화면을 한번 터치해 마커를 생성하고 난 후
-                // 타임아웃 발생시 그 마커를 위치로 정답 확인
-                if (currentMarker != null) {
-                    timeOutAddUserMarker();
-                } else {
-                    //화면에 마커 생성 없이 타임아웃 발생시 정답 확인
-                    currentMarker = new Marker(myMapView);
-                    currentState = Answered;
-
-                    answerMarker.showInfoWindow();
-                    myMapView.getOverlays().add(answerMarker);
-
-                }
-                myMapView.invalidate();
-            }
-        });
     }
 
     //맵뷰를 클릭하였을 때 발생하는 이벤트
@@ -240,7 +261,7 @@ public class GameActivity extends AppCompatActivity {
             public boolean singleTapConfirmedHelper(GeoPoint p) {   //화면 한번 터치시
 
                 if (currentMarker != null) {
-                    if( animateHandler == null) {
+                    if (animateHandler == null) {
                         currentMarker.setPosition(p);
 
                     }
@@ -357,30 +378,29 @@ public class GameActivity extends AppCompatActivity {
 
             problem++;
             switch (problem) {
+                case 1:
+                    setAnswerMarker(questionPic.get(problem));
+                    break;
                 case 2:
                     setAnswerMarker(questionPic.get(problem));
                     break;
                 case 3:
-                    setAnswerMarker(questionPic.get(problem));
-                    break;
-                case 4:
                     stage++;
                     stageTextView.setText("STAGE " + stage);
                     score = 0;
                     scoreTextView.setText("SCORE " + score);
                     setAnswerMarker(questionPic.get(problem));
                     break;
-                case 5:
+                case 4:
                     setAnswerMarker(questionPic.get(problem));
                     break;
-                case 6:
+                case 5:
                     showDialogAfterGame();
             }
 
             currentState = Solving;
             stopTimer = Running;
-
-            //timeThreadHandler();
+            timeThreadhandler();
 
             return true;
         }
@@ -420,11 +440,14 @@ public class GameActivity extends AppCompatActivity {
     }
 
     //게임이 끝난 후 다이얼로그 표시
-    void showDialogAfterGame(){
+    void showDialogAfterGame() {
         final List<String> listItems = new ArrayList<>();
         listItems.add("다시하기");
         listItems.add("종료");
         final CharSequence[] items = listItems.toArray(new String[listItems.size()]);
+
+        stopTimer=Stop;
+        ui = null;
 
         AlertDialog.Builder builder = new AlertDialog.Builder(GameActivity.this);
         builder.setTitle("Menu");
@@ -434,8 +457,7 @@ public class GameActivity extends AppCompatActivity {
                 String selectedText = items[i].toString();
                 if (selectedText.equals("종료")) {
                     finish();
-                }
-                else if (selectedText.equals("다시하기")){
+                } else if (selectedText.equals("다시하기")) {
                     finish();
                     startActivity(new Intent(GameActivity.this, GameActivity.class));
                 }
