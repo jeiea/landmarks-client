@@ -67,12 +67,13 @@ public class GameActivity extends AppCompatActivity {
 
     Drawable RED_FLAG_DRAWABLE;
     Drawable BLUE_FLAG_DRAWABLE;
-    final int PICTURE_NUM = 8;
+    final int PICTURE_NUM = 4;
     int problem = 0;
     int score = 0;
     int timeScore = 0;
     int distanceScore = 0;
     int stage = 1;
+    boolean startFlag;
     /**
      * 제한시간 타이머가 돌아가는 중인지.
      */
@@ -111,10 +112,12 @@ public class GameActivity extends AppCompatActivity {
         //로팅화면 적용
         setContentView(R.layout.layout_game_loading_animation);
         ImageView loadigImageView = findViewById(R.id.gif_loading);
+        loadigImageView.setClickable(false);
         DrawableImageViewTarget gifImage = new DrawableImageViewTarget(loadigImageView);
         Glide.with(GameActivity.this).load(R.drawable.owl).into(gifImage);
         ui = new Handler();
 
+        startFlag=false;
         //게임 시작 전 문제 세팅
         AsyncTask.execute(new Runnable() {
             @Override
@@ -202,7 +205,7 @@ public class GameActivity extends AppCompatActivity {
             listenerOverlay = markerEvent();
             myMapView.getOverlays().add(listenerOverlay);
 
-
+            startFlag=true;
             timeThreadhandler();
             setAnswerMarker(questionPic.get(problem));  //정답 마커 설정
         }
@@ -364,45 +367,44 @@ public class GameActivity extends AppCompatActivity {
     //기존 화면 오버레이들을 지우고 정답 마커 다시 설정, 타이머 재시작
     @Override
     public boolean dispatchTouchEvent(MotionEvent ev) { //문제를 맞춘 후 다시 맵 로드
-        gotonextTextView.setVisibility(View.GONE);
-        if (currentState == Answered && animateHandler == null) {
+        if(startFlag){
+            gotonextTextView.setVisibility(View.GONE);
+            if (currentState == Answered && animateHandler == null) {
 
-            currentMarker.remove(myMapView);
-            currentMarker = null;
+                currentMarker.remove(myMapView);
+                currentMarker = null;
 
-            answerMarker.closeInfoWindow();
-            myMapView.getOverlays().remove(answerMarker);
-            myMapView.getOverlays().remove(polyline);
+                answerMarker.closeInfoWindow();
+                myMapView.getOverlays().remove(answerMarker);
+                myMapView.getOverlays().remove(polyline);
 
-            myMapView.invalidate();
+                myMapView.invalidate();
 
-            problem++;
-            switch (problem) {
-                case 1:
-                    setAnswerMarker(questionPic.get(problem));
-                    break;
-                case 2:
-                    setAnswerMarker(questionPic.get(problem));
-                    break;
-                case 3:
-                    stage++;
-                    stageTextView.setText("STAGE " + stage);
-                    score = 0;
-                    scoreTextView.setText("SCORE " + score);
-                    setAnswerMarker(questionPic.get(problem));
-                    break;
-                case 4:
-                    setAnswerMarker(questionPic.get(problem));
-                    break;
-                case 5:
-                    showDialogAfterGame();
+                problem++;
+                switch (problem) {
+                    case 1:
+                        setAnswerMarker(questionPic.get(problem));
+                        break;
+                    case 2:
+                        stage++;
+                        stageTextView.setText("STAGE " + stage);
+                        score = 0;
+                        scoreTextView.setText("SCORE " + score);
+                        setAnswerMarker(questionPic.get(problem));
+                        break;
+                    case 3:
+                        setAnswerMarker(questionPic.get(problem));
+                        break;
+                    case 4:
+                        showDialogAfterGame();
+                        break;
+                }
+                currentState = Solving;
+                stopTimer = Running;
+                timeThreadhandler();
+
+                return true;
             }
-
-            currentState = Solving;
-            stopTimer = Running;
-            timeThreadhandler();
-
-            return true;
         }
         return super.dispatchTouchEvent(ev);
     }
