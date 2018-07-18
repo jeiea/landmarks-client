@@ -3,6 +3,7 @@ package kr.ac.kw.coms.globealbum.album
 import android.content.Context
 import android.content.res.Resources
 import android.graphics.BitmapFactory
+import android.graphics.Color
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.media.ThumbnailUtils
@@ -29,10 +30,7 @@ import kotlinx.android.synthetic.main.activity_navigator.*
 import kr.ac.kw.coms.globealbum.R
 import kr.ac.kw.coms.globealbum.R.attr.flexDirection
 import kr.ac.kw.coms.globealbum.provider.PictureProvider
-import org.jetbrains.anko.Orientation
-import org.jetbrains.anko.backgroundColor
-import org.jetbrains.anko.image
-import org.jetbrains.anko.matchParent
+import org.jetbrains.anko.*
 import java.io.File
 import java.io.InputStream
 import java.security.acl.Group
@@ -49,7 +47,6 @@ class ExampleDiary : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_navigator)
-
         val idToPic: (Int) -> ResourcePicture = resPicGetter(baseContext)
 
         val data = arrayListOf(
@@ -185,6 +182,16 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
         set(value: Int) {
             picAdapter.padding = value
         }
+
+    var nameTextSize: Int = 20
+        set(value: Int) {
+            picAdapter.nameTextSize = value
+        }
+
+    var nameBackgroundColor: Long = 0xffffff88
+        set(value: Long) {
+            picAdapter.nameBackgroundColor = value
+        }
 }
 
 /***
@@ -205,12 +212,15 @@ internal class GroupedPicAdapter : RecyclerView.Adapter<GroupedPicAdapter.Elemen
             notifyDataSetChanged()
         }
     var padding: Int = 0
+    var nameTextSize: Int = 20
+    var nameBackgroundColor: Long = 0xffffff88
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
             when (viewType) {
                 0 -> SeparatorHolder(TextView(parent.context).apply {
-                    layoutParams = FlexboxLayoutManager.LayoutParams(matchParent, 40)
-                    backgroundColor = 0xffffff88.toInt()
+                    layoutParams = FlexboxLayoutManager.LayoutParams(matchParent, wrapContent)
+                    backgroundColor = nameBackgroundColor.toInt()
+                    textSize = nameTextSize.toFloat()
                 })
                 else -> PictureHolder(ImageView(parent.context).apply {
                     val metrics = parent.resources.displayMetrics
@@ -231,7 +241,9 @@ internal class GroupedPicAdapter : RecyclerView.Adapter<GroupedPicAdapter.Elemen
         when (holder) {
             is SeparatorHolder -> {
                 holder.textView.text = viewData[position] as String
-                if (viewData[0].equals("")) holder.textView.visibility = TextView.GONE
+                if (viewData[0].equals("")) {
+                    holder.textView.visibility = TextView.GONE
+                }
             }
             is PictureHolder -> {
                 val pic = viewData[position] as ResourcePicture
