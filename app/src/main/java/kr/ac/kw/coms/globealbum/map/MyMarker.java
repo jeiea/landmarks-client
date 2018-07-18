@@ -11,6 +11,7 @@ import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.DefaultOverlayManager;
 import org.osmdroid.views.overlay.FolderOverlay;
+import org.osmdroid.views.overlay.GroundOverlay2;
 import org.osmdroid.views.overlay.Marker;
 import org.osmdroid.views.overlay.Overlay;
 import org.osmdroid.views.overlay.OverlayManager;
@@ -66,6 +67,7 @@ public class MyMarker extends FolderOverlay{
 
     //마커와 라인(루트)을 OverlayManager에 추가
     public boolean addMarkerLine(Overlay item) {
+        /*
         ((Marker) item).setOnMarkerClickListener(new Marker.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(Marker marker, MapView mapView) {
@@ -74,7 +76,7 @@ public class MyMarker extends FolderOverlay{
                 return true;
             }
         });
-
+        */
         int overlayListSize = getItems().size();
         if (overlayListSize > 0) {
             drawPolygon(getItems().get(overlayListSize - 1), item, overlayListSize);
@@ -136,6 +138,7 @@ public class MyMarker extends FolderOverlay{
 
         geoPoints.add(((Marker)frontOverlay).getPosition());
         geoPoints.add(((Marker)backOverlay).getPosition());
+
         polygon.setPoints(geoPoints);
         super.mOverlayManager.add(index,polygon);
     }

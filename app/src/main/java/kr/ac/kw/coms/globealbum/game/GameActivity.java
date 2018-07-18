@@ -20,7 +20,6 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.DrawableImageViewTarget;
@@ -45,7 +44,6 @@ import kr.ac.kw.coms.globealbum.R;
 import kr.ac.kw.coms.globealbum.common.PictureDialogFragment;
 import kr.ac.kw.coms.globealbum.map.MyMapView;
 import kr.ac.kw.coms.globealbum.provider.EXIFinfo;
-import kr.ac.kw.coms.globealbum.provider.LandmarkClientJava;
 import kr.ac.kw.coms.globealbum.provider.LandmarksClient;
 
 import static kr.ac.kw.coms.globealbum.game.GameActivity.GameState.Answered;
