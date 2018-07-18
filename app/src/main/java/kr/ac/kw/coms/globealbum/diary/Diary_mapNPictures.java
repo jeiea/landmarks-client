@@ -3,6 +3,8 @@ package kr.ac.kw.coms.globealbum.diary;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -13,6 +15,7 @@ import android.widget.Toast;
 
 import org.osmdroid.events.MapEventsReceiver;
 import org.osmdroid.util.GeoPoint;
+import org.osmdroid.views.overlay.GroundOverlay2;
 import org.osmdroid.views.overlay.MapEventsOverlay;
 import org.osmdroid.views.overlay.Marker;
 
@@ -126,10 +129,17 @@ public class Diary_mapNPictures extends AppCompatActivity {
         for(int i = 0 ; i < PICTURE_NUM ; i++){
             exifInfo.setMetadata(getResources().openRawResource(id[i]));
             GeoPoint geoPoint = exifInfo.getLocationGeopoint();
-            Marker marker= new Marker(mapView);
-            marker.setPosition(geoPoint);
-            markerFolderOverlay.addMarkerLine(marker);
+
+            GroundOverlay2 overlay = new GroundOverlay2();
+            Bitmap icon = BitmapFactory.decodeResource(Diary_mapNPictures.this.getResources(),id[i]);
+            overlay.setImage(icon);
+            overlay.setPosition(new GeoPoint(geoPoint.getLatitude() +10, geoPoint.getLongitude() - 20), geoPoint);
+            mapView.getOverlayManager().add(overlay);
+
+            //markerFolderOverlay.addMarkerLine(overlay);
         }
+
+        //mapView.getOverlays().add(markerFolderOverlay);
         mapView.invalidate();
     }
 
