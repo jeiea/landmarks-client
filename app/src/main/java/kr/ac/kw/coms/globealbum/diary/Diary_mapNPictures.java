@@ -1,18 +1,18 @@
 package kr.ac.kw.coms.globealbum.diary;
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
+import android.content.Intent;
+import android.content.res.Resources;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.webkit.WebView;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import org.osmdroid.events.MapEventsReceiver;
 import org.osmdroid.util.GeoPoint;
-import org.osmdroid.views.overlay.GroundOverlay2;
 import org.osmdroid.views.overlay.MapEventsOverlay;
 import org.osmdroid.views.overlay.Marker;
 
@@ -22,6 +22,7 @@ import kr.ac.kw.coms.globealbum.R;
 import kr.ac.kw.coms.globealbum.album.GroupDiaryView;
 import kr.ac.kw.coms.globealbum.album.PictureGroup;
 import kr.ac.kw.coms.globealbum.album.ResourcePicture;
+import kr.ac.kw.coms.globealbum.diary.Diary_main;
 import kr.ac.kw.coms.globealbum.map.MyMapView;
 import kr.ac.kw.coms.globealbum.map.MyMarker;
 import kr.ac.kw.coms.globealbum.provider.EXIFinfo;
@@ -110,7 +111,6 @@ public class Diary_mapNPictures extends AppCompatActivity {
 
         //맵뷰에 마커들 등록
         markerFolderOverlay = new MyMarker(mapView);
-
         setMarkerToMapview();
 
     }
@@ -126,17 +126,10 @@ public class Diary_mapNPictures extends AppCompatActivity {
         for(int i = 0 ; i < PICTURE_NUM ; i++){
             exifInfo.setMetadata(getResources().openRawResource(id[i]));
             GeoPoint geoPoint = exifInfo.getLocationGeopoint();
-
-            GroundOverlay2 overlay = new GroundOverlay2();
-            Bitmap icon = BitmapFactory.decodeResource(Diary_mapNPictures.this.getResources(),id[i]);
-            overlay.setImage(icon);
-            overlay.setPosition(new GeoPoint(geoPoint.getLatitude() +10, geoPoint.getLongitude() - 20), geoPoint);
-            mapView.getOverlayManager().add(overlay);
-
-            //markerFolderOverlay.addMarkerLine(overlay);
+            Marker marker= new Marker(mapView);
+            marker.setPosition(geoPoint);
+            markerFolderOverlay.addMarkerLine(marker);
         }
-
-        //mapView.getOverlays().add(markerFolderOverlay);
         mapView.invalidate();
     }
 
