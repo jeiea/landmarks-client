@@ -6,8 +6,13 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
+import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -17,6 +22,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.RequestBuilder;
+import com.bumptech.glide.request.RequestOptions;
+import com.bumptech.glide.request.target.BitmapImageViewTarget;
+import com.bumptech.glide.request.target.SimpleTarget;
+import com.bumptech.glide.request.transition.Transition;
 
 import org.osmdroid.events.MapEventsReceiver;
 import org.osmdroid.util.GeoPoint;
@@ -135,30 +145,27 @@ public class Diary_mapNPictures extends AppCompatActivity {
         EXIFinfo exifInfo = new EXIFinfo();
         for(int i = 0 ; i < PICTURE_NUM ; i++){
             exifInfo.setMetadata(getResources().openRawResource(id[i]));
-            GeoPoint geoPoint = exifInfo.getLocationGeopoint();
+            final GeoPoint geoPoint = exifInfo.getLocationGeopoint();
 
-            /*
-            GroundOverlay2 overlay = new GroundOverlay2();
-            Bitmap icon = BitmapFactory.decodeResource(Diary_mapNPictures.this.getResources(),id[i]);
-            overlay.setImage(icon);
-            overlay.setPosition(new GeoPoint(geoPoint.getLatitude() +10, geoPoint.getLongitude() - 20), geoPoint);
-            mapView.getOverlayManager().add(overlay);
+            try{    //화면에 사진을 원형 아이콘으로 표시
 
-            */
-
-
-            try{
-                Drawable drawable= Glide.with(this)
+                Glide.with(this)
                         .load(resourceToUri(this, id[i]))
-                        .submit(50, 50)
-                        .get();
-//                Drawable drawable = this.getResources().getDrawable(id[i]);
-                Marker marker = addPicMarker(geoPoint,drawable);
-                markerFolderOverlay.addMarkerLine(marker);
+                        .apply(RequestOptions.circleCropTransform().override(100,100))
+                        .into(new SimpleTarget<Drawable>() {
+                    @Override
+                    public void onResourceReady(@NonNull Drawable resource, @Nullable Transition<? super Drawable> transition) {
+
+                        Marker marker = addPicMarker(geoPoint,resource);
+                        markerFolderOverlay.addMarkerLine(marker);
+                    }
+                });
+
             }
             catch (Throwable e){
                 e.printStackTrace();
             }
+
         }
 
         mapView.getOverlays().add(markerFolderOverlay);

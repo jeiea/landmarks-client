@@ -36,7 +36,7 @@ public class Diary_main extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_diary_main);
 
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        //getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         DrawerLayout drawerLayout = findViewById(R.id.diary_main_Root);
         prepareViewSample();
 
