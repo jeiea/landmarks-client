@@ -9,6 +9,8 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.RadioButton;
@@ -30,26 +32,28 @@ public class Diary_main extends AppCompatActivity {
     GroupDiaryView diaryOtherView = null;
 
     ActionBarDrawerToggle drawerToggle;
-//https://medium.com/android-develop-android/android%EA%B0%9C%EB%B0%9C-7-%EB%84%A4%EB%B9%84%EA%B2%8C%EC%9D%B4%EC%85%98-%EB%93%9C%EB%A1%9C%EC%96%B4-nevigation-drawer-942534d5535d
+
+    //https://medium.com/android-develop-android/android%EA%B0%9C%EB%B0%9C-7-%EB%84%A4%EB%B9%84%EA%B2%8C%EC%9D%B4%EC%85%98-%EB%93%9C%EB%A1%9C%EC%96%B4-nevigation-drawer-942534d5535d
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_diary_main);
 
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        //getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         DrawerLayout drawerLayout = findViewById(R.id.diary_main_Root);
         prepareViewSample();
 
-        drawerToggle = new ActionBarDrawerToggle(this, drawerLayout, R.string.open, R.string.close)
-        {
+        drawerToggle = new ActionBarDrawerToggle(this, drawerLayout, R.string.open, R.string.close) {
             @Override
             public void onDrawerOpened(View drawerView) {
                 super.onDrawerOpened(drawerView);
+                Log.i("DRAWER", "Open");
             }
 
             @Override
             public void onDrawerClosed(View drawerView) {
                 super.onDrawerClosed(drawerView);
+                Log.i("DRAWER", "Close");
             }
         };
         drawerLayout.addDrawerListener(drawerToggle);
@@ -143,8 +147,7 @@ public class Diary_main extends AppCompatActivity {
         finish();
     }
 
-
-
     public void diary_openDrawer(View view) {
+        ((DrawerLayout)findViewById(R.id.diary_main_Root)).openDrawer(Gravity.LEFT);
     }
 }
