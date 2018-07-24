@@ -1,10 +1,13 @@
 package kr.ac.kw.coms.globealbum.diary;
 
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -13,8 +16,11 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
+
 import org.osmdroid.events.MapEventsReceiver;
 import org.osmdroid.util.GeoPoint;
+import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.GroundOverlay2;
 import org.osmdroid.views.overlay.MapEventsOverlay;
 import org.osmdroid.views.overlay.Marker;
@@ -26,6 +32,7 @@ import kr.ac.kw.coms.globealbum.album.GroupDiaryView;
 import kr.ac.kw.coms.globealbum.album.PictureGroup;
 import kr.ac.kw.coms.globealbum.album.ResourcePicture;
 import kr.ac.kw.coms.globealbum.diary.Diary_main;
+import kr.ac.kw.coms.globealbum.game.GeoPointInterpolator;
 import kr.ac.kw.coms.globealbum.map.MyMapView;
 import kr.ac.kw.coms.globealbum.map.MyMarker;
 import kr.ac.kw.coms.globealbum.provider.EXIFinfo;
@@ -130,17 +137,59 @@ public class Diary_mapNPictures extends AppCompatActivity {
             exifInfo.setMetadata(getResources().openRawResource(id[i]));
             GeoPoint geoPoint = exifInfo.getLocationGeopoint();
 
+            /*
             GroundOverlay2 overlay = new GroundOverlay2();
             Bitmap icon = BitmapFactory.decodeResource(Diary_mapNPictures.this.getResources(),id[i]);
             overlay.setImage(icon);
             overlay.setPosition(new GeoPoint(geoPoint.getLatitude() +10, geoPoint.getLongitude() - 20), geoPoint);
             mapView.getOverlayManager().add(overlay);
 
-            //markerFolderOverlay.addMarkerLine(overlay);
+            */
+
+
+            try{
+                Drawable drawable= Glide.with(this)
+                        .load(resourceToUri(this, id[i]))
+                        .submit(50, 50)
+                        .get();
+//                Drawable drawable = this.getResources().getDrawable(id[i]);
+                Marker marker = addPicMarker(geoPoint,drawable);
+                markerFolderOverlay.addMarkerLine(marker);
+            }
+            catch (Throwable e){
+                e.printStackTrace();
+            }
         }
 
-        //mapView.getOverlays().add(markerFolderOverlay);
+        mapView.getOverlays().add(markerFolderOverlay);
         mapView.invalidate();
+    }
+
+
+
+    public static Uri resourceToUri(Context context, int resID) {
+        return Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE + "://" +
+                context.getResources().getResourcePackageName(resID) + '/' +
+                context.getResources().getResourceTypeName(resID) + '/' +
+                context.getResources().getResourceEntryName(resID) );
+    }
+
+
+
+    //관광지 사진을 이미지로 가진 마커 생성
+    private Marker addPicMarker(final GeoPoint geoPoint, Drawable drawable) {
+        //마커 생성 및 설정
+        Marker marker = new Marker(mapView);
+        marker.setIcon(drawable);
+        marker.setPosition(geoPoint);
+        marker.setAnchor(0.25f, 1.0f);
+        marker.setOnMarkerClickListener(new Marker.OnMarkerClickListener() {
+            @Override
+            public boolean onMarkerClick(Marker marker, MapView mapView) {  //마커 클릭 시 행동
+                return true;
+            }
+        });
+        return marker;
     }
 
     //경로를 보여주는 다이어리 화면에서 맵뷰를 클릭하였을 때 발생하는 이벤트
