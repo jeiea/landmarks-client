@@ -76,9 +76,9 @@
             app:layout_constraintTop_toBottomOf="@id/diary_main_Toolbar" />
 
         <ImageButton
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            app:layout_constraintLeft_toLeftOf="parent"
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            app:layout_constraintRight_toRightOf="parent"
             android:src="@drawable/arrow_left"
             android:scaleType="fitXY"
             app:layout_constraintTop_toTopOf="parent"
@@ -92,5 +92,5 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:visibility="visible"
-        android:layout_gravity="left"/>
+        android:layout_gravity="right"/>
 </android.support.v4.widget.DrawerLayout>
