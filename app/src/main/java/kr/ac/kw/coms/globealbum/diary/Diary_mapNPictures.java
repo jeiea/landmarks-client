@@ -27,6 +27,7 @@ import org.osmdroid.views.overlay.Marker;
 import java.util.ArrayList;
 
 import kr.ac.kw.coms.globealbum.R;
+import kr.ac.kw.coms.globealbum.album.GalleryDetail;
 import kr.ac.kw.coms.globealbum.album.GroupDiaryView;
 import kr.ac.kw.coms.globealbum.album.PictureGroup;
 import kr.ac.kw.coms.globealbum.album.ResourcePicture;
@@ -68,33 +69,32 @@ public class Diary_mapNPictures extends AppCompatActivity {
         picView = findViewById(R.id.diary_mapNpics_Pics);
         picView.setPadding(20);
 
+        final ArrayList<Integer> PicturesArray = new ArrayList<>();
+        PicturesArray.add(R.drawable.coord0);
+        PicturesArray.add(R.drawable.coord1);
+        PicturesArray.add(R.drawable.coord2);
+        PicturesArray.add(R.drawable.coord3);
+        final ArrayList<String> urls = new ArrayList<String>();
+        for (Integer i : PicturesArray) {
+            urls.add(resourceToUri(this, i).toString());
+        }
+
         ArrayList<PictureGroup> elementList = new ArrayList<>();
         ArrayList<PictureProvider.Picture> elementRow = new ArrayList<>();
-        Context c = getBaseContext();
-        elementRow.add(new ResourcePicture(c, R.drawable.coord0, new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(Diary_mapNPictures.this, "0", Toast.LENGTH_SHORT).show();
-            }
-        }));
-        elementRow.add(new ResourcePicture(c, R.drawable.coord1, new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(Diary_mapNPictures.this, "1", Toast.LENGTH_SHORT).show();
-            }
-        }));
-        elementRow.add(new ResourcePicture(c, R.drawable.coord2, new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(Diary_mapNPictures.this, "2", Toast.LENGTH_SHORT).show();
-            }
-        }));
-        elementRow.add(new ResourcePicture(c, R.drawable.coord3, new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(Diary_mapNPictures.this, "3", Toast.LENGTH_SHORT).show();
-            }
-        }));
+        final   Context c = getBaseContext();
+        for (int i = 0; i < PicturesArray.size(); i++) {
+            final int idx = i;
+            elementRow.add(idx, new ResourcePicture(c, PicturesArray.get(idx), new View.OnClickListener()
+            {
+                @Override
+                public void onClick(View view) {
+                    Intent intent = new Intent(getBaseContext(), GalleryDetail.class);
+                    intent.putExtra("urls", urls);
+                    intent.putExtra("index", idx);
+                    startActivity(intent);
+                }
+            }));
+        }
 
         elementList.add(new PictureGroup("", elementRow));
         picView.setGroups(elementList);

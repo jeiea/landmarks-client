@@ -1,11 +1,14 @@
 package kr.ac.kw.coms.globealbum.album;
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
@@ -16,10 +19,31 @@ import java.nio.file.FileSystem;
 import java.util.ArrayList;
 
 import kr.ac.kw.coms.globealbum.R;
+import kr.ac.kw.coms.globealbum.provider.PictureProvider;
+
 public class GalleryDetail extends AppCompatActivity {
     int index;
     String[] mDataset;
     String[] filename;
+
+    /*OnSwipeTouchListener swipeTouchListener = new OnSwipeTouchListener(this)
+    {
+        public void onSwipeRight() {
+            index = (index - 1 + mDataset.length) % mDataset.length;
+            ((ImageView)findViewById(R.id.gallerydetail_Image)).setImageBitmap(BitmapFactory.decodeFile(mDataset[index]));
+            filename = mDataset[index].split("\\/");
+            ((TextView)findViewById(R.id.gallerydetail_imagename)).setText(filename[filename.length-1]);
+        }
+
+        public void onSwipeLeft() {
+            index = (index + 1) % mDataset.length;
+            ((ImageView)findViewById(R.id.gallerydetail_Image)).setImageBitmap(BitmapFactory.decodeFile(mDataset[index]));
+            filename = mDataset[index].split("\\/");
+            ((TextView)findViewById(R.id.gallerydetail_imagename)).setText(filename[filename.length-1]);
+        }
+
+    };*/
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -31,28 +55,16 @@ public class GalleryDetail extends AppCompatActivity {
         Intent intent = getIntent();
         index = intent.getIntExtra("index", 0);
         mDataset = intent.getStringArrayExtra("Dataset");
-        ((ImageView)findViewById(R.id.gallerydetail_Image)).setImageBitmap(BitmapFactory.decodeFile(mDataset[index]));
-        filename = mDataset[index].split("\\/");
-        ((TextView)findViewById(R.id.gallerydetail_imagename)).setText(filename[filename.length-1]);
+        if (mDataset == null)
+            mDataset = intent.getStringArrayListExtra("urls").toArray(new String[0]);
+        UriPicture pic  = new UriPicture(Uri.parse(mDataset[index]), this);
+        pic.getDrawable().into((ImageView)findViewById(R.id.gallerydetail_Image));
+        Log.i("URL", mDataset[index]);
+//        filename = mDataset[index].split("\\/");
+        ((TextView)findViewById(R.id.gallerydetail_imagename)).setText(pic.getTitle());
 
         //이미지 스와이프 시 이벤트 구현
-        ((ImageView)findViewById(R.id.gallerydetail_Image)).setOnTouchListener(new OnSwipeTouchListener(this)
-        {
-            public void onSwipeRight() {
-                index = (index - 1 + mDataset.length) % mDataset.length;
-                ((ImageView)findViewById(R.id.gallerydetail_Image)).setImageBitmap(BitmapFactory.decodeFile(mDataset[index]));
-                filename = mDataset[index].split("\\/");
-                ((TextView)findViewById(R.id.gallerydetail_imagename)).setText(filename[filename.length-1]);
-            }
-
-            public void onSwipeLeft() {
-                index = (index + 1) % mDataset.length;
-                ((ImageView)findViewById(R.id.gallerydetail_Image)).setImageBitmap(BitmapFactory.decodeFile(mDataset[index]));
-                filename = mDataset[index].split("\\/");
-                ((TextView)findViewById(R.id.gallerydetail_imagename)).setText(filename[filename.length-1]);
-            }
-
-        });
+        //findViewById(R.id.gallerydetail_Image).setOnTouchListener(swipeTouchListener);
     }
 
     public void gallerydetail_onClick(View view) {

@@ -148,6 +148,14 @@ public class Diary_main extends AppCompatActivity {
     }
 
     public void diary_openDrawer(View view) {
-        ((DrawerLayout)findViewById(R.id.diary_main_Root)).openDrawer(Gravity.LEFT);
+        ((DrawerLayout) findViewById(R.id.diary_main_Root)).openDrawer(Gravity.RIGHT);
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (((DrawerLayout) findViewById(R.id.diary_main_Root)).isDrawerOpen(Gravity.RIGHT))
+            ((DrawerLayout) findViewById(R.id.diary_main_Root)).closeDrawer(Gravity.RIGHT);
+        else
+            super.onBackPressed();
     }
 }

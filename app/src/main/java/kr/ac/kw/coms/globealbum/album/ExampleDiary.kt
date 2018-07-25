@@ -75,6 +75,31 @@ data class PictureGroup(val name: String, val pics: ArrayList<PictureProvider.Pi
 fun resPicGetter(context: Context): (Int) -> ResourcePicture = { i ->
     ResourcePicture(context, i, null)
 }
+class UriPicture(val uri: android.net.Uri, val context: Context) : PictureProvider.Picture {
+
+    override fun getDrawable(): RequestBuilder<Drawable> {
+        return Glide.with(context).load(uri)
+    }
+
+    override fun getTitle(): String = uri.lastPathSegment
+
+    override fun setTitle(title: String?) {
+        throw Exception("invalid")
+    }
+
+    override fun getTime(): LocalDateTime {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    override fun getCoords(): Pair<Double, Double> {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    override fun delete() {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+}
 
 class LocalPicture(val path: String, val context: Context) : PictureProvider.Picture {
 
