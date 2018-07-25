@@ -2,6 +2,7 @@ package kr.ac.kw.coms.globealbum.diary;
 
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.support.annotation.NonNull;
@@ -31,7 +32,7 @@ import kr.ac.kw.coms.globealbum.album.GalleryDetail;
 import kr.ac.kw.coms.globealbum.album.GroupDiaryView;
 import kr.ac.kw.coms.globealbum.album.PictureGroup;
 import kr.ac.kw.coms.globealbum.album.ResourcePicture;
-import kr.ac.kw.coms.globealbum.map.DrawCircleOvrlay;
+import kr.ac.kw.coms.globealbum.map.DrawCircleOverlay;
 import kr.ac.kw.coms.globealbum.map.MyMapView;
 import kr.ac.kw.coms.globealbum.map.MyMarker;
 import kr.ac.kw.coms.globealbum.provider.EXIFinfo;
@@ -122,8 +123,8 @@ public class Diary_mapNPictures extends AppCompatActivity {
         setMarkerToMapview();
 
 
-        DrawCircleOvrlay drawCircleOvrlay = new DrawCircleOvrlay(new GeoPoint(50.0,50.0), new GeoPoint(100.0,100.0),mapView);
-        mapView.getOverlays().add(drawCircleOvrlay);
+        DrawCircleOverlay drawCircleOverlay = new DrawCircleOverlay(new GeoPoint( 48.85625,2.34375 ), new GeoPoint(40.7306458,-73.9866136),mapView);
+        mapView.getOverlays().add(drawCircleOverlay);
 
     }
 
