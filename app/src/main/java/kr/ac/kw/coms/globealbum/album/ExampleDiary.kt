@@ -1,40 +1,30 @@
 package kr.ac.kw.coms.globealbum.album
 
 import android.content.Context
-import android.content.res.Resources
-import android.graphics.BitmapFactory
-import android.graphics.Color
-import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
-import android.media.ThumbnailUtils
 import android.os.Bundle
 import android.support.annotation.DrawableRes
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.RecyclerView
 import android.util.AttributeSet
-import android.util.Log
 import android.util.Pair
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
-import android.widget.Toast
 import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestBuilder
-import com.drew.lang.ByteConvert
 import com.google.android.flexbox.AlignItems
 import com.google.android.flexbox.FlexDirection
 import com.google.android.flexbox.FlexWrap
 import com.google.android.flexbox.FlexboxLayoutManager
 import kotlinx.android.synthetic.main.activity_navigator.*
 import kr.ac.kw.coms.globealbum.R
-import kr.ac.kw.coms.globealbum.R.attr.flexDirection
 import kr.ac.kw.coms.globealbum.provider.PictureProvider
-import org.jetbrains.anko.*
+import org.jetbrains.anko.backgroundColor
+import org.jetbrains.anko.matchParent
+import org.jetbrains.anko.wrapContent
 import java.io.File
-import java.io.InputStream
-import java.security.acl.Group
-import java.time.LocalDateTime
 import java.util.*
 
 /**
@@ -44,117 +34,118 @@ import java.util.*
  */
 class ExampleDiary : AppCompatActivity() {
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_navigator)
-        val idToPic: (Int) -> ResourcePicture = resPicGetter(baseContext)
+  override fun onCreate(savedInstanceState: Bundle?) {
+    super.onCreate(savedInstanceState)
+    setContentView(R.layout.activity_navigator)
+    val idToPic: (Int) -> ResourcePicture = resPicGetter(baseContext)
 
-        val data = arrayListOf(
-                PictureGroup("group 1", arrayListOf(
-                        idToPic(R.drawable.sample0),
-                        idToPic(R.drawable.sample1),
-                        idToPic(R.drawable.sample2),
-                        idToPic(R.drawable.sample3),
-                        idToPic(R.drawable.sample4)
-                )),
-                PictureGroup("group 2", arrayListOf(
-                        idToPic(R.drawable.sample5),
-                        idToPic(R.drawable.sample6),
-                        idToPic(R.drawable.sample7),
-                        idToPic(R.drawable.sample8),
-                        idToPic(R.drawable.sample9)
-                ))
-        )
+    val data = arrayListOf(
+      PictureGroup("group 1", arrayListOf(
+        idToPic(R.drawable.sample0),
+        idToPic(R.drawable.sample1),
+        idToPic(R.drawable.sample2),
+        idToPic(R.drawable.sample3),
+        idToPic(R.drawable.sample4)
+      )),
+      PictureGroup("group 2", arrayListOf(
+        idToPic(R.drawable.sample5),
+        idToPic(R.drawable.sample6),
+        idToPic(R.drawable.sample7),
+        idToPic(R.drawable.sample8),
+        idToPic(R.drawable.sample9)
+      ))
+    )
 
-        recycle_gallery.groups = data
-    }
+    recycle_gallery.groups = data
+  }
 }
 
 data class PictureGroup(val name: String, val pics: ArrayList<PictureProvider.Picture>)
 
 fun resPicGetter(context: Context): (Int) -> ResourcePicture = { i ->
-    ResourcePicture(context, i, null)
+  ResourcePicture(context, i, null)
 }
+
 class UriPicture(val uri: android.net.Uri, val context: Context) : PictureProvider.Picture {
 
-    override fun getDrawable(): RequestBuilder<Drawable> {
-        return Glide.with(context).load(uri)
-    }
+  override fun getDrawable(): RequestBuilder<Drawable> {
+    return Glide.with(context).load(uri)
+  }
 
-    override fun getTitle(): String = uri.lastPathSegment
+  override fun getTitle(): String = uri.lastPathSegment
 
-    override fun setTitle(title: String?) {
-        throw Exception("invalid")
-    }
+  override fun setTitle(title: String?) {
+    throw Exception("invalid")
+  }
 
-    override fun getTime(): LocalDateTime {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
+  override fun getTime(): Date {
+    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+  }
 
-    override fun getCoords(): Pair<Double, Double> {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
+  override fun getCoords(): Pair<Double, Double> {
+    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+  }
 
-    override fun delete() {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
+  override fun delete() {
+    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+  }
 
 }
 
 class LocalPicture(val path: String, val context: Context) : PictureProvider.Picture {
 
-    override fun getDrawable(): RequestBuilder<Drawable> {
-        return Glide.with(context).load(File(path))
-    }
+  override fun getDrawable(): RequestBuilder<Drawable> {
+    return Glide.with(context).load(File(path))
+  }
 
-    override fun getTitle(): String =
-            File(path).nameWithoutExtension
+  override fun getTitle(): String =
+    File(path).nameWithoutExtension
 
-    override fun setTitle(title: String?) {
-        throw Exception("invalid")
-    }
+  override fun setTitle(title: String?) {
+    throw Exception("invalid")
+  }
 
-    override fun getTime(): LocalDateTime {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
+  override fun getTime(): Date {
+    return Date(File(path).lastModified())
+  }
 
-    override fun getCoords(): Pair<Double, Double> {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
+  override fun getCoords(): Pair<Double, Double> {
+    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+  }
 
-    override fun delete() {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
+  override fun delete() {
+    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+  }
 
 }
 
 class ResourcePicture(val context: Context, @DrawableRes val id: Int, val clickListener: View.OnClickListener?) : PictureProvider.Picture {
 
-    override fun getDrawable(): RequestBuilder<Drawable>? {
-        return Glide.with(context).load(id)
-    }
+  override fun getDrawable(): RequestBuilder<Drawable>? {
+    return Glide.with(context).load(id)
+  }
 
-    fun getEventListener(): View.OnClickListener? = clickListener
+  fun getEventListener(): View.OnClickListener? = clickListener
 
-    override fun getTitle(): String {
-        TODO("not implemented")
-    }
+  override fun getTitle(): String {
+    TODO("not implemented")
+  }
 
-    override fun setTitle(title: String?) {
-        TODO("not implemented")
-    }
+  override fun setTitle(title: String?) {
+    TODO("not implemented")
+  }
 
-    override fun getTime(): LocalDateTime {
-        TODO("not implemented")
-    }
+  override fun getTime(): Date {
+    return Date(1000000L + 1000 * (100 - id))
+  }
 
-    override fun getCoords(): Pair<Double, Double> {
-        TODO("not implemented")
-    }
+  override fun getCoords(): Pair<Double, Double> {
+    TODO("not implemented")
+  }
 
-    override fun delete() {
-        TODO("not implemented")
-    }
+  override fun delete() {
+    TODO("not implemented")
+  }
 }
 
 /**
@@ -163,60 +154,60 @@ class ResourcePicture(val context: Context, @DrawableRes val id: Int, val clickL
  */
 class GroupDiaryView @JvmOverloads
 constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
-        RecyclerView(context, attrs, defStyle) {
+  RecyclerView(context, attrs, defStyle) {
 
-    /**
-     * 사진과 구분자 뷰 제공 어댑터
-     */
-    internal val picAdapter = GroupedPicAdapter()
+  /**
+   * 사진과 구분자 뷰 제공 어댑터
+   */
+  internal val picAdapter = GroupedPicAdapter()
 
-    val ORIENTATION_HORIZONTAL: Int = 1
-    val ORIENTATION_VERTICAL: Int = 0
+  val ORIENTATION_HORIZONTAL: Int = 1
+  val ORIENTATION_VERTICAL: Int = 0
 
-    init {
-        adapter = picAdapter
-        layoutManager = FlexboxLayoutManager(context).apply {
-            flexWrap = FlexWrap.WRAP
-            flexDirection = FlexDirection.ROW
-            alignItems = AlignItems.STRETCH
-        }
+  init {
+    adapter = picAdapter
+    layoutManager = FlexboxLayoutManager(context).apply {
+      flexWrap = FlexWrap.WRAP
+      flexDirection = FlexDirection.ROW
+      alignItems = AlignItems.STRETCH
+    }
+  }
+
+  var groups: List<PictureGroup>
+    get() = picAdapter.data
+    set(value) {
+      picAdapter.data = value
     }
 
-    var groups: List<PictureGroup>
-        get() = picAdapter.data
-        set(value) {
-            picAdapter.data = value
-        }
+  var orientation: Int
+    get() = layoutManager.layoutDirection
+    set(value: Int) {
+      var ori = if (value == ORIENTATION_HORIZONTAL) {
+        FlexDirection.COLUMN
+      } else {
+        FlexDirection.ROW
+      }
+      layoutManager = FlexboxLayoutManager(context).apply {
+        flexWrap = FlexWrap.WRAP
+        flexDirection = ori
+        alignItems = AlignItems.STRETCH
+      }
+    }
 
-    var orientation: Int
-        get() = layoutManager.layoutDirection
-        set(value: Int) {
-            var ori = if (value == ORIENTATION_HORIZONTAL) {
-                FlexDirection.COLUMN
-            } else {
-                FlexDirection.ROW
-            }
-            layoutManager = FlexboxLayoutManager(context).apply {
-                flexWrap = FlexWrap.WRAP
-                flexDirection = ori
-                alignItems = AlignItems.STRETCH
-            }
-        }
+  var padding: Int = 0
+    set(value: Int) {
+      picAdapter.padding = value
+    }
 
-    var padding: Int = 0
-        set(value: Int) {
-            picAdapter.padding = value
-        }
+  var nameTextSize: Int = 20
+    set(value: Int) {
+      picAdapter.nameTextSize = value
+    }
 
-    var nameTextSize: Int = 20
-        set(value: Int) {
-            picAdapter.nameTextSize = value
-        }
-
-    var nameBackgroundColor: Long = 0xffffff88
-        set(value: Long) {
-            picAdapter.nameBackgroundColor = value
-        }
+  var nameBackgroundColor: Long = 0xffffff88
+    set(value: Long) {
+      picAdapter.nameBackgroundColor = value
+    }
 }
 
 /***
@@ -226,63 +217,63 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
 
 internal class GroupedPicAdapter : RecyclerView.Adapter<GroupedPicAdapter.ElementViewHolder>() {
 
-    // 이걸 설정하면 notifyDataSetChanged를 따로 호출할 필요 없다!
-    var viewData = arrayListOf<Any>()
-    var data: List<PictureGroup> = listOf()
-        set(value) {
-            for (g: PictureGroup in value) {
-                viewData.add(g.name)
-                viewData.addAll(g.pics)
-            }
-            notifyDataSetChanged()
+  // 이걸 설정하면 notifyDataSetChanged를 따로 호출할 필요 없다!
+  var viewData = arrayListOf<Any>()
+  var data: List<PictureGroup> = listOf()
+    set(value) {
+      for (g: PictureGroup in value) {
+        viewData.add(g.name)
+        viewData.addAll(g.pics)
+      }
+      notifyDataSetChanged()
+    }
+  var padding: Int = 0
+  var nameTextSize: Int = 20
+  var nameBackgroundColor: Long = 0xffffff88
+
+  override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
+    when (viewType) {
+      0 -> SeparatorHolder(TextView(parent.context).apply {
+        layoutParams = FlexboxLayoutManager.LayoutParams(matchParent, wrapContent)
+        backgroundColor = nameBackgroundColor.toInt()
+        textSize = nameTextSize.toFloat()
+      })
+      else -> PictureHolder(ImageView(parent.context).apply {
+        val metrics = parent.resources.displayMetrics
+        val mw = metrics.widthPixels / 3
+        val mh = metrics.heightPixels / 4
+        scaleType = ImageView.ScaleType.CENTER_CROP
+        layoutParams = FlexboxLayoutManager.LayoutParams(mw, mh).apply {
+          flexGrow = 1f
         }
-    var padding: Int = 0
-    var nameTextSize: Int = 20
-    var nameBackgroundColor: Long = 0xffffff88
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
-            when (viewType) {
-                0 -> SeparatorHolder(TextView(parent.context).apply {
-                    layoutParams = FlexboxLayoutManager.LayoutParams(matchParent, wrapContent)
-                    backgroundColor = nameBackgroundColor.toInt()
-                    textSize = nameTextSize.toFloat()
-                })
-                else -> PictureHolder(ImageView(parent.context).apply {
-                    val metrics = parent.resources.displayMetrics
-                    val mw = metrics.widthPixels / 3
-                    val mh = metrics.heightPixels / 4
-                    scaleType = ImageView.ScaleType.CENTER_CROP
-                    layoutParams = FlexboxLayoutManager.LayoutParams(mw, mh).apply {
-                        flexGrow = 1f
-                    }
-                })
-            }
-
-    override fun getItemViewType(position: Int): Int {
-        return if (viewData[position] is String) 0 else 1
+      })
     }
 
-    override fun onBindViewHolder(holder: ElementViewHolder, position: Int) {
-        when (holder) {
-            is SeparatorHolder -> {
-                holder.textView.text = viewData[position] as String
-                if (viewData[0].equals("")) {
-                    holder.textView.visibility = TextView.GONE
-                }
-            }
-            is PictureHolder -> {
-                val pic = viewData[position] as ResourcePicture
-                pic.drawable?.into(holder.imageView)
-                holder.imageView.setOnClickListener(pic.clickListener)
-                holder.imageView.scaleType = ImageView.ScaleType.FIT_XY
-                holder.imageView.setPadding(padding / 2, 0, padding / 2, 0)
-            }
+  override fun getItemViewType(position: Int): Int {
+    return if (viewData[position] is String) 0 else 1
+  }
+
+  override fun onBindViewHolder(holder: ElementViewHolder, position: Int) {
+    when (holder) {
+      is SeparatorHolder -> {
+        holder.textView.text = viewData[position] as String
+        if (viewData[0].equals("")) {
+          holder.textView.visibility = TextView.GONE
         }
+      }
+      is PictureHolder -> {
+        val pic = viewData[position] as ResourcePicture
+        pic.drawable?.into(holder.imageView)
+        holder.imageView.setOnClickListener(pic.clickListener)
+        holder.imageView.scaleType = ImageView.ScaleType.FIT_XY
+        holder.imageView.setPadding(padding / 2, 0, padding / 2, 0)
+      }
     }
+  }
 
-    override fun getItemCount() = viewData.size
+  override fun getItemCount() = viewData.size
 
-    open class ElementViewHolder(val view: View) : RecyclerView.ViewHolder(view)
-    class SeparatorHolder(val textView: TextView) : ElementViewHolder(textView)
-    class PictureHolder(val imageView: ImageView) : ElementViewHolder(imageView)
+  open class ElementViewHolder(val view: View) : RecyclerView.ViewHolder(view)
+  class SeparatorHolder(val textView: TextView) : ElementViewHolder(textView)
+  class PictureHolder(val imageView: ImageView) : ElementViewHolder(imageView)
 }

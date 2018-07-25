@@ -8,8 +8,8 @@ import android.util.Pair;
 
 import com.bumptech.glide.RequestBuilder;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Date;
 
 /**
  * 사진 제공 클래스 프로토타입
@@ -26,7 +26,7 @@ public abstract class PictureProvider {
         void setTitle(String title);
 
         // 생성시각
-        LocalDateTime getTime();
+        Date getTime();
 
         // 위치
         Pair<Double, Double> getCoords();
