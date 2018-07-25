@@ -24,30 +24,31 @@ import kr.ac.kw.coms.globealbum.provider.PictureProvider;
 public class GalleryDetail extends AppCompatActivity {
     int index;
     String[] mDataset;
-    String[] filename;
 
-    /*OnSwipeTouchListener swipeTouchListener = new OnSwipeTouchListener(this)
-    {
-        public void onSwipeRight() {
-            index = (index - 1 + mDataset.length) % mDataset.length;
-            ((ImageView)findViewById(R.id.gallerydetail_Image)).setImageBitmap(BitmapFactory.decodeFile(mDataset[index]));
-            filename = mDataset[index].split("\\/");
-            ((TextView)findViewById(R.id.gallerydetail_imagename)).setText(filename[filename.length-1]);
-        }
-
-        public void onSwipeLeft() {
-            index = (index + 1) % mDataset.length;
-            ((ImageView)findViewById(R.id.gallerydetail_Image)).setImageBitmap(BitmapFactory.decodeFile(mDataset[index]));
-            filename = mDataset[index].split("\\/");
-            ((TextView)findViewById(R.id.gallerydetail_imagename)).setText(filename[filename.length-1]);
-        }
-
-    };*/
+    OnSwipeTouchListener swipeTouchListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_gallery_detail);
+
+        swipeTouchListener = new OnSwipeTouchListener(this)
+        {
+            public void onSwipeRight() {
+                index = (index - 1 + mDataset.length) % mDataset.length;
+                UriPicture pic  = new UriPicture(Uri.parse(mDataset[index]), getBaseContext());
+                pic.getDrawable().into((ImageView)findViewById(R.id.gallerydetail_Image));
+                ((TextView)findViewById(R.id.gallerydetail_imagename)).setText(pic.getTitle());
+            }
+
+            public void onSwipeLeft() {
+                index = (index + 1) % mDataset.length;
+                UriPicture pic  = new UriPicture(Uri.parse(mDataset[index]), getBaseContext());
+                pic.getDrawable().into((ImageView)findViewById(R.id.gallerydetail_Image));
+                ((TextView)findViewById(R.id.gallerydetail_imagename)).setText(pic.getTitle());
+            }
+
+        };
 
         //이미지 데이터 불러오기
         //index: 선택한 이미지 번호 (int)
@@ -60,11 +61,10 @@ public class GalleryDetail extends AppCompatActivity {
         UriPicture pic  = new UriPicture(Uri.parse(mDataset[index]), this);
         pic.getDrawable().into((ImageView)findViewById(R.id.gallerydetail_Image));
         Log.i("URL", mDataset[index]);
-//        filename = mDataset[index].split("\\/");
         ((TextView)findViewById(R.id.gallerydetail_imagename)).setText(pic.getTitle());
 
         //이미지 스와이프 시 이벤트 구현
-        //findViewById(R.id.gallerydetail_Image).setOnTouchListener(swipeTouchListener);
+        findViewById(R.id.gallerydetail_Image).setOnTouchListener(swipeTouchListener);
     }
 
     public void gallerydetail_onClick(View view) {

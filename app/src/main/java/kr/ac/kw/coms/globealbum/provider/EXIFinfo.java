@@ -8,6 +8,7 @@ import com.drew.imaging.ImageProcessingException;
 import com.drew.lang.GeoLocation;
 import com.drew.lang.annotations.NotNull;
 import com.drew.metadata.Metadata;
+import com.drew.metadata.exif.ExifSubIFDDirectory;
 import com.drew.metadata.exif.GpsDirectory;
 
 import org.osmdroid.util.GeoPoint;
@@ -15,6 +16,7 @@ import org.osmdroid.util.GeoPoint;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Date;
 
 import kr.ac.kw.coms.globealbum.R;
 
@@ -56,4 +58,8 @@ public class EXIFinfo {
         return d_location;
     }
 
+    public long getTimeTaken() //사진 촬영일 읽기(ms 단위의 Unix Time)
+    {
+        return metadata.getFirstDirectoryOfType(ExifSubIFDDirectory.class).getDateDigitized().getTime();
+    }
 }
