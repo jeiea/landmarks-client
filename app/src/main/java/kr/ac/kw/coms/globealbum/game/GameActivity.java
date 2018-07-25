@@ -3,7 +3,10 @@ package kr.ac.kw.coms.globealbum.game;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Point;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -28,8 +31,10 @@ import org.osmdroid.config.Configuration;
 import org.osmdroid.events.MapEventsReceiver;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
+import org.osmdroid.views.Projection;
 import org.osmdroid.views.overlay.MapEventsOverlay;
 import org.osmdroid.views.overlay.Marker;
+import org.osmdroid.views.overlay.Overlay;
 import org.osmdroid.views.overlay.Polyline;
 
 import java.util.ArrayList;
@@ -206,6 +211,7 @@ public class GameActivity extends AppCompatActivity {
             startFlag=true;
             timeThreadhandler();
             setAnswerMarker(questionPic.get(problem));  //정답 마커 설정
+
         }
     };
 
@@ -558,3 +564,5 @@ public class GameActivity extends AppCompatActivity {
             myMapView.onPause(); //osmdroid configuration refresh
     }
 }
+
+

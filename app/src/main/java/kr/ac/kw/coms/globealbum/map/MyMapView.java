@@ -53,7 +53,6 @@ public class MyMapView extends org.osmdroid.views.MapView{
         setHorizontalMapRepetitionEnabled(false);
         setVerticalMapRepetitionEnabled(false);
 
-
         double logZoom = getLogZoom();
 
         setMinZoomLevel(logZoom);   //최소 줌 조절

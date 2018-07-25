@@ -55,7 +55,7 @@ public class MyMarker extends FolderOverlay{
             ((Marker)item).setOnMarkerClickListener(new Marker.OnMarkerClickListener() {
                 @Override
                 public boolean onMarkerClick(Marker marker, MapView mapView) {
-                    showPopupMenu(marker.getPosition(),SHOWN_MARKER);
+                    //showPopupMenu(marker.getPosition(),SHOWN_MARKER);
                     ((MyMapView)mapView).dispatchMarkerTouch(MyMarker.this, marker);
                     return true;
                 }
@@ -71,7 +71,7 @@ public class MyMarker extends FolderOverlay{
         ((Marker) item).setOnMarkerClickListener(new Marker.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(Marker marker, MapView mapView) {
-                showPopupMenu(marker.getPosition(),SHOWN_MARKER);
+                //showPopupMenu(marker.getPosition(),SHOWN_MARKER);
                 ((MyMapView)mapView).dispatchMarkerTouch(MyMarker.this, marker);
                 return true;
             }
