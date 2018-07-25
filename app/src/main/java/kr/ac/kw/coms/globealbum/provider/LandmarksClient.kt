@@ -11,8 +11,10 @@ import com.google.gson.Gson
 import kotlinx.coroutines.experimental.CommonPool
 import kotlinx.coroutines.experimental.Deferred
 import kotlinx.coroutines.experimental.async
+import kotlinx.coroutines.experimental.delay
 import okhttp3.FormBody
 import okhttp3.Request
+import java.util.*
 
 class LandmarksClient {
 
@@ -37,19 +39,26 @@ class LandmarksClient {
     val request = Request.Builder().url(url).post(requestBody).build()
   }
 
+  val lastHostReqTime = hashMapOf<String, Long>()
+  val reverseGeocodeLock = Any()
+
   val chromeAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.59 Safari/537.36"
   suspend fun reverseGeocode(latitude: Double, longitude: Double): Pair<String?, String?>? {
-    val params = listOf(
-      "format" to "json",
-      "lat" to latitude,
-      "lon" to longitude)
-    val json: String = Fuel.get("https://nominatim.openstreetmap.org/reverse", params)
-      .header("User-Agent" to chromeAgent)
-      .awaitStringResult()
-    val res = Parser().parse(StringBuilder(json)) as JsonObject
-    val addr = res.obj("address") ?: return null
-    val detail = listOf("city", "county", "town", "attraction").map(addr::string).firstNotNullResult { it }
-    return addr.string("country") to detail
+    synchronized(reverseGeocodeLock) {
+      val last: Long = lastHostReqTime["nominatim.openstreetmap.org"] ?: 0
+      delay(last + 1000 - Date().time)
+      val params = listOf(
+        "format" to "json",
+        "lat" to latitude,
+        "lon" to longitude)
+      val json: String = Fuel.get("https://nominatim.openstreetmap.org/reverse", params)
+        .header("User-Agent" to chromeAgent)
+        .awaitStringResult()
+      val res = Parser().parse(StringBuilder(json)) as JsonObject
+      val addr = res.obj("address") ?: return null
+      val detail = listOf("city", "county", "town", "attraction").map(addr::string).firstNotNullResult { it }
+      return addr.string("country") to detail
+    }
   }
 
   fun <T> reverseGeoJava(latitude: Double, longitude: Double): Deferred<Pair<String?, String?>?> {
