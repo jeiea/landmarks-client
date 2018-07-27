@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
+import kr.ac.kw.coms.globealbum.album.GalleryDetail;
 import kr.ac.kw.coms.globealbum.diary.Diary_mapNPictures;
 import kr.ac.kw.coms.globealbum.R;
 import kr.ac.kw.coms.globealbum.album.GroupDiaryView;
@@ -102,27 +103,9 @@ public class Diary_main extends AppCompatActivity {
         ArrayList<PictureGroup> elementList = new ArrayList<>();
         ArrayList<PictureProvider.Picture> elementRow = new ArrayList<>();
         Context c = getBaseContext();
-        elementRow.add(new ResourcePicture(c, R.drawable.sample0, new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(Diary_main.this, "0", Toast.LENGTH_SHORT).show();
-                startActivity(new Intent(getApplicationContext(), Diary_mapNPictures.class).putExtra("whose", "mine"));
-            }
-        }));
-        elementRow.add(new ResourcePicture(c, R.drawable.sample1, new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(Diary_main.this, "1", Toast.LENGTH_SHORT).show();
-                startActivity(new Intent(getApplicationContext(), Diary_mapNPictures.class).putExtra("whose", "mine"));
-            }
-        }));
-        elementRow.add(new ResourcePicture(c, R.drawable.sample2, new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(Diary_main.this, "2", Toast.LENGTH_SHORT).show();
-                startActivity(new Intent(getApplicationContext(), Diary_mapNPictures.class).putExtra("whose", "mine"));
-            }
-        }));
+        elementRow.add(new ResourcePicture(c, R.drawable.sample0, null));
+        elementRow.add(new ResourcePicture(c, R.drawable.sample1, null));
+        elementRow.add(new ResourcePicture(c, R.drawable.sample2, null));
 
         Collections.sort(elementRow, new Comparator<PictureProvider.Picture>() {
             @Override
@@ -131,19 +114,60 @@ public class Diary_main extends AppCompatActivity {
             }
         });
 
+        final ArrayList<String> urls = new ArrayList<>();
+
+        for (PictureProvider.Picture i : elementRow) {
+            urls.add(Diary_mapNPictures.resourceToUri(this, ((ResourcePicture) i).getid()).toString());
+        }
+
+        for (int i = 0; i < elementRow.size(); i++) {
+            final int idx = i;
+            ResourcePicture resourcePicture = (ResourcePicture) elementRow.get(i);
+            resourcePicture.seteEventListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(getBaseContext(), GalleryDetail.class);
+                    intent.putExtra("urls", urls);
+                    intent.putExtra("index", idx);
+                    startActivity(intent);
+                }
+            });
+            elementRow.set(i, resourcePicture);
+        }
+
         elementList.add(new PictureGroup("My Photos", elementRow));
         diaryImageView.setGroups(elementList);
+
+
         elementList.clear();
+        elementRow.clear();
+        elementRow.add(new ResourcePicture(c, R.drawable.sample0, new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(Diary_main.this, "0", Toast.LENGTH_SHORT).show();
+                startActivity(new Intent(getBaseContext(), Diary_mapNPictures.class).putExtra("whose", "mine"));
+            }
+        }));
+        elementRow.add(new ResourcePicture(c, R.drawable.sample1, new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(Diary_main.this, "1", Toast.LENGTH_SHORT).show();
+                startActivity(new Intent(getBaseContext(), Diary_mapNPictures.class).putExtra("whose", "mine"));
+            }
+        }));
+
         elementList.add(new PictureGroup("group1", elementRow));
         elementList.add(new PictureGroup("group2", elementRow));
         diaryJourneyView.setGroups(elementList);
+
+
         elementList.clear();
         elementRow.clear();
         elementRow.add(new ResourcePicture(c, R.drawable.sample7, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Toast.makeText(Diary_main.this, "Other", Toast.LENGTH_SHORT).show();
-                startActivity(new Intent(getApplicationContext(), Diary_mapNPictures.class).putExtra("whose", "other"));
+                startActivity(new Intent(getBaseContext(), Diary_mapNPictures.class).putExtra("whose", "other"));
             }
         }));
         elementList.add(new PictureGroup("Other", elementRow));
