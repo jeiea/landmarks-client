@@ -172,6 +172,7 @@ public class GameActivity extends AppCompatActivity {
                     pictureInfo.name = name;
                     questionPic.add(pictureInfo);
 
+
                     if (questionPic.size() == 1) {  //문제가 하나 완성 시 초기 구성 진행
                         ui.post(afterInit);
                     }
@@ -425,7 +426,7 @@ public class GameActivity extends AppCompatActivity {
     private Marker addUserMarker(final GeoPoint geoPoint) {
         //마커 생성 및 설정
         Marker marker = new Marker(myMapView);
-        marker.setIcon(BLUE_FLAG_DRAWABLE);
+        //marker.setIcon(BLUE_FLAG_DRAWABLE);
         marker.setPosition(geoPoint);
         marker.setAnchor(0.25f, 1.0f);
         marker.setOnMarkerClickListener(new Marker.OnMarkerClickListener() {
@@ -436,7 +437,7 @@ public class GameActivity extends AppCompatActivity {
 
                 //유저가 선택한 위치의 마커에서 정답 마커까지 이동하는 애니메이션 동작을 하는 마커 생성
                 Marker tmpMarker = new Marker(myMapView);
-                tmpMarker.setIcon(BLUE_FLAG_DRAWABLE);
+                //tmpMarker.setIcon(BLUE_FLAG_DRAWABLE);
                 tmpMarker.setPosition(marker.getPosition());
                 tmpMarker.setAnchor(0.25f, 1.0f);
                 myMapView.getOverlays().add(tmpMarker);
@@ -486,7 +487,7 @@ public class GameActivity extends AppCompatActivity {
         stopTimer = Stop;
 
         Marker tmpMarker = new Marker(myMapView);
-        tmpMarker.setIcon(BLUE_FLAG_DRAWABLE);
+        //tmpMarker.setIcon(BLUE_FLAG_DRAWABLE);
         tmpMarker.setPosition(currentMarker.getPosition());
         tmpMarker.setAnchor(0.25f, 1.0f);
         myMapView.getOverlays().add(tmpMarker);
