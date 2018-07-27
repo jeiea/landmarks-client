@@ -139,10 +139,6 @@ public class Diary_mapNPictures extends AppCompatActivity {
         markerFolderOverlay = new MyMarker(mapView);
         setMarkerToMapview();
 
-
-        DrawCircleOverlay drawCircleOverlay = new DrawCircleOverlay(new GeoPoint( 48.85625,2.34375 ), new GeoPoint(40.7306458,-73.9866136),mapView);
-        mapView.getOverlays().add(drawCircleOverlay);
-
     }
 
 
