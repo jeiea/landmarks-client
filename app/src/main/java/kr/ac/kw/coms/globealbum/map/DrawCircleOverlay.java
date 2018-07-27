@@ -19,9 +19,9 @@ public class DrawCircleOverlay extends Overlay {
 
     private Paint circlePainter;
     private Point userSelectedPoint;
-    private Point answerPoint;
-    private GeoPoint userSelectedGeopoint;
-    private GeoPoint answerGeopoint;
+    private Point answerPoint;      //정답 좌표를 화면의 좌표로 변경
+    private GeoPoint userSelectedGeopoint;  //유저가 정답을 선택한 좌표
+    private GeoPoint answerGeopoint;        //정답 좌표
     private MapView mapView;
     private long startTime;
     private double radius;
@@ -38,16 +38,15 @@ public class DrawCircleOverlay extends Overlay {
         answerPoint = new Point();
 
         setCirclePainter();
-
         startTime = new Date().getTime();
 
-        drawCircleHandler.post(new Runnable() {
+        drawCircleHandler.post(new Runnable() { //반복 진행하면서 원 그리기
             @Override
             public void run() {
-                mapView.invalidate();
                 long nowTime = new Date().getTime();
                 long elapsed = nowTime - startTime;
                 ratio = Math.min(1000, elapsed) / 1000.f;
+                mapView.invalidate();
                 if (ratio < 1) {
                     drawCircleHandler.postDelayed(this, 1000 / 60);
                 }
@@ -57,8 +56,6 @@ public class DrawCircleOverlay extends Overlay {
 
 
     public void setCirclePainter() {
-        // Set the painter to paint our circle. setColor = blue, setAlpha = 70 so the background
-        // can still be seen. Feel free to change these settings
         circlePainter = new Paint();
         circlePainter.setAntiAlias(true);
         circlePainter.setStrokeWidth(2.0f);
@@ -83,8 +80,6 @@ public class DrawCircleOverlay extends Overlay {
     public void draw(Canvas c, MapView mapView, boolean shadow) {
         changeGeopointToPoint();
 
-
-        // 여기서 반지름 계산
-        c.drawCircle(userSelectedPoint.x, userSelectedPoint.y, (float) radius * ratio, circlePainter);
+        c.drawCircle(userSelectedPoint.x, userSelectedPoint.y, (float) radius * ratio, circlePainter); //원 그리기
     }
 }

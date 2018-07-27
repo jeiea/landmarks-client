@@ -47,6 +47,7 @@ import kotlin.jvm.functions.Function1;
 import kotlinx.coroutines.experimental.Deferred;
 import kr.ac.kw.coms.globealbum.R;
 import kr.ac.kw.coms.globealbum.common.PictureDialogFragment;
+import kr.ac.kw.coms.globealbum.map.DrawCircleOverlay;
 import kr.ac.kw.coms.globealbum.map.MyMapView;
 import kr.ac.kw.coms.globealbum.provider.EXIFinfo;
 import kr.ac.kw.coms.globealbum.provider.LandmarksClient;
@@ -93,6 +94,8 @@ public class GameActivity extends AppCompatActivity {
     Marker currentMarker;   //사용자가 찍은 마커
     Marker answerMarker;    //정답 마커
     Polyline polyline;  //마커 사이를 이어주는 직선
+
+    DrawCircleOverlay drawCircleOverlay;
 
     List<PictureInfo> questionPic = new ArrayList<>();
 
@@ -296,7 +299,11 @@ public class GameActivity extends AppCompatActivity {
         animateHandler = new Handler();
         final long start = SystemClock.uptimeMillis();
         final Interpolator interpolator = new AccelerateDecelerateInterpolator();
-        final float durationInMs = 2000;
+        final float durationInMs = 1000;
+
+
+        drawCircleOverlay = new DrawCircleOverlay(marker.getPosition(), finalPosition, map);
+        myMapView.getOverlays().add(drawCircleOverlay);
 
         animateHandler.post(new Runnable() {
             long elapsed;
@@ -315,7 +322,7 @@ public class GameActivity extends AppCompatActivity {
                 // Repeat till progress is complete.
                 if (t < 1) {
                     // 16ms 후 다시 시작
-                    animateHandler.postDelayed(this, 16);
+                    animateHandler.postDelayed(this, 1000 / 60);
                 } else {   //정답 마커 위치로 이동되면 정답 마커 추가
                     marker.remove(myMapView);
                     answerMarker.showInfoWindow();
@@ -381,6 +388,7 @@ public class GameActivity extends AppCompatActivity {
                 answerMarker.closeInfoWindow();
                 myMapView.getOverlays().remove(answerMarker);
                 myMapView.getOverlays().remove(polyline);
+                myMapView.getOverlays().remove(drawCircleOverlay);
 
                 myMapView.invalidate();
 

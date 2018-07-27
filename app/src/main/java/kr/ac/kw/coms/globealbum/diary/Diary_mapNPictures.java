@@ -32,7 +32,6 @@ import kr.ac.kw.coms.globealbum.album.GalleryDetail;
 import kr.ac.kw.coms.globealbum.album.GroupDiaryView;
 import kr.ac.kw.coms.globealbum.album.PictureGroup;
 import kr.ac.kw.coms.globealbum.album.ResourcePicture;
-import kr.ac.kw.coms.globealbum.map.DrawCircleOverlay;
 import kr.ac.kw.coms.globealbum.map.MyMapView;
 import kr.ac.kw.coms.globealbum.map.MyMarker;
 import kr.ac.kw.coms.globealbum.provider.EXIFinfo;
@@ -118,13 +117,6 @@ public class Diary_mapNPictures extends AppCompatActivity {
         //맵뷰에 마커들 등록
         markerFolderOverlay = new MyMarker(mapView);
         setMarkerToMapview();
-
-
-        //원 그리는 예제
-        final DrawCircleOverlay drawCircleOverlay = new DrawCircleOverlay(new GeoPoint(48.85625, 2.34375), new GeoPoint(40.7306458, -73.9866136), mapView);
-        mapView.getOverlays().add(drawCircleOverlay);
-
-
     }
 
 
