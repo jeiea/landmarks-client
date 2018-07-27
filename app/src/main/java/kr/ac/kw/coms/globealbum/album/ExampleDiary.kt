@@ -20,6 +20,7 @@ import com.google.android.flexbox.FlexWrap
 import com.google.android.flexbox.FlexboxLayoutManager
 import kotlinx.android.synthetic.main.activity_navigator.*
 import kr.ac.kw.coms.globealbum.R
+import kr.ac.kw.coms.globealbum.provider.EXIFinfo
 import kr.ac.kw.coms.globealbum.provider.PictureProvider
 import org.jetbrains.anko.backgroundColor
 import org.jetbrains.anko.matchParent
@@ -106,7 +107,7 @@ class LocalPicture(val path: String, val context: Context) : PictureProvider.Pic
   }
 
   override fun getTime(): Date {
-    return Date(File(path).lastModified())
+    return Date(EXIFinfo(path).timeTaken);
   }
 
   override fun getCoords(): Pair<Double, Double> {
@@ -119,13 +120,20 @@ class LocalPicture(val path: String, val context: Context) : PictureProvider.Pic
 
 }
 
-class ResourcePicture(val context: Context, @DrawableRes val id: Int, val clickListener: View.OnClickListener?) : PictureProvider.Picture {
+class ResourcePicture(val context: Context, @DrawableRes val id: Int, var clickListener: View.OnClickListener?) : PictureProvider.Picture {
 
   override fun getDrawable(): RequestBuilder<Drawable>? {
     return Glide.with(context).load(id)
   }
 
   fun getEventListener(): View.OnClickListener? = clickListener
+
+  fun seteEventListener(clickListener: View.OnClickListener?)
+  {
+    this.clickListener = clickListener
+  }
+
+  fun getid(): Int = id;
 
   override fun getTitle(): String {
     TODO("not implemented")
@@ -223,6 +231,7 @@ internal class GroupedPicAdapter : RecyclerView.Adapter<GroupedPicAdapter.Elemen
     set(value) {
       for (g: PictureGroup in value) {
         viewData.add(g.name)
+        g.pics.sortBy { it.time }
         viewData.addAll(g.pics)
       }
       notifyDataSetChanged()

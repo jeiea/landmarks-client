@@ -26,6 +26,8 @@ import org.osmdroid.views.overlay.MapEventsOverlay;
 import org.osmdroid.views.overlay.Marker;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 
 import kr.ac.kw.coms.globealbum.R;
 import kr.ac.kw.coms.globealbum.album.GalleryDetail;
@@ -76,25 +78,40 @@ public class Diary_mapNPictures extends AppCompatActivity {
         PicturesArray.add(R.drawable.coord2);
         PicturesArray.add(R.drawable.coord3);
         final ArrayList<String> urls = new ArrayList<String>();
-        for (Integer i : PicturesArray) {
-            urls.add(resourceToUri(this, i).toString());
-        }
 
         ArrayList<PictureGroup> elementList = new ArrayList<>();
         ArrayList<PictureProvider.Picture> elementRow = new ArrayList<>();
         final   Context c = getBaseContext();
         for (int i = 0; i < PicturesArray.size(); i++) {
             final int idx = i;
-            elementRow.add(idx, new ResourcePicture(c, PicturesArray.get(idx), new View.OnClickListener()
-            {
+            elementRow.add(idx, new ResourcePicture(c, PicturesArray.get(idx), null));
+        }
+
+        Collections.sort(elementRow, new Comparator<PictureProvider.Picture>() {
+            @Override
+            public int compare(PictureProvider.Picture o1, PictureProvider.Picture o2) {
+                return o1.getTime().compareTo(o2.getTime());
+            }
+        });
+
+        for (PictureProvider.Picture i: elementRow)
+        {
+            urls.add(resourceToUri(this, ((ResourcePicture)i).getid()).toString());
+        }
+
+        for (int i = 0; i<elementRow.size(); i++)
+        {
+            final int idx = i;
+            ResourcePicture resourcePicture = (ResourcePicture) elementRow.get(i);
+            resourcePicture.seteEventListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     Intent intent = new Intent(getBaseContext(), GalleryDetail.class);
                     intent.putExtra("urls", urls);
                     intent.putExtra("index", idx);
                     startActivity(intent);
-                }
-            }));
+                }});
+            elementRow.set(i, resourcePicture);
         }
 
         elementList.add(new PictureGroup("", elementRow));

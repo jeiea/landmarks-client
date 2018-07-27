@@ -17,6 +17,8 @@ import android.widget.RadioButton;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 
 import kr.ac.kw.coms.globealbum.diary.Diary_mapNPictures;
 import kr.ac.kw.coms.globealbum.R;
@@ -33,13 +35,11 @@ public class Diary_main extends AppCompatActivity {
 
     ActionBarDrawerToggle drawerToggle;
 
-    //https://medium.com/android-develop-android/android%EA%B0%9C%EB%B0%9C-7-%EB%84%A4%EB%B9%84%EA%B2%8C%EC%9D%B4%EC%85%98-%EB%93%9C%EB%A1%9C%EC%96%B4-nevigation-drawer-942534d5535d
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_diary_main);
 
-        //getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         DrawerLayout drawerLayout = findViewById(R.id.diary_main_Root);
         prepareViewSample();
 
@@ -123,6 +123,13 @@ public class Diary_main extends AppCompatActivity {
                 startActivity(new Intent(getApplicationContext(), Diary_mapNPictures.class).putExtra("whose", "mine"));
             }
         }));
+
+        Collections.sort(elementRow, new Comparator<PictureProvider.Picture>() {
+            @Override
+            public int compare(PictureProvider.Picture o1, PictureProvider.Picture o2) {
+                return o1.getTime().compareTo(o2.getTime());
+            }
+        });
 
         elementList.add(new PictureGroup("My Photos", elementRow));
         diaryImageView.setGroups(elementList);
