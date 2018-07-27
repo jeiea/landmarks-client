@@ -5,10 +5,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -42,20 +42,20 @@ public class Diary_mapNPictures extends AppCompatActivity {
 
     MyMapView mapView = null;   //맵뷰 인스턴스
     MapEventsOverlay mapviewClickEventOverlay; //맵 이벤트를 등록하는 오버레이
-    final int PICTURE_NUM=4;
+    final int PICTURE_NUM = 4;
 
     GroupDiaryView picView = null;
-    class InfoText
-    {
+
+    class InfoText {
         public String Title;
         public String Body;
-        public InfoText()
-        {
+
+        public InfoText() {
             Title = "";
             Body = "";
         }
-        public InfoText(String title, String body)
-        {
+
+        public InfoText(String title, String body) {
             Title = title;
             Body = body;
         }
@@ -82,11 +82,10 @@ public class Diary_mapNPictures extends AppCompatActivity {
 
         ArrayList<PictureGroup> elementList = new ArrayList<>();
         ArrayList<PictureProvider.Picture> elementRow = new ArrayList<>();
-        final   Context c = getBaseContext();
+        final Context c = getBaseContext();
         for (int i = 0; i < PicturesArray.size(); i++) {
             final int idx = i;
-            elementRow.add(idx, new ResourcePicture(c, PicturesArray.get(idx), new View.OnClickListener()
-            {
+            elementRow.add(idx, new ResourcePicture(c, PicturesArray.get(idx), new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     Intent intent = new Intent(getBaseContext(), GalleryDetail.class);
@@ -102,16 +101,14 @@ public class Diary_mapNPictures extends AppCompatActivity {
         picView.setOrientation(1);
 
         //TODO: show info text
-        if (getIntent().getStringExtra("whose").equals("other"))
-        {
+        if (getIntent().getStringExtra("whose").equals("other")) {
             findViewById(R.id.diary_mapNpics_EditStart).setVisibility(View.GONE);
         }
 
 
-
         //drawable의 id 등록
-        for(int i = 0 ; i  < PICTURE_NUM; i++) {
-            id[i] = R.drawable.coord0 +i;
+        for (int i = 0; i < PICTURE_NUM; i++) {
+            id[i] = R.drawable.coord0 + i;
         }
 
         //마커 이벤트 등록
@@ -123,8 +120,10 @@ public class Diary_mapNPictures extends AppCompatActivity {
         setMarkerToMapview();
 
 
-        DrawCircleOverlay drawCircleOverlay = new DrawCircleOverlay(new GeoPoint( 48.85625,2.34375 ), new GeoPoint(40.7306458,-73.9866136),mapView);
+        //원 그리는 예제
+        final DrawCircleOverlay drawCircleOverlay = new DrawCircleOverlay(new GeoPoint(48.85625, 2.34375), new GeoPoint(40.7306458, -73.9866136), mapView);
         mapView.getOverlays().add(drawCircleOverlay);
+
 
     }
 
@@ -133,29 +132,28 @@ public class Diary_mapNPictures extends AppCompatActivity {
     int[] id = new int[PICTURE_NUM];
 
     //다이어리 액티비티 실행시 가져오는 사진들의 정보를 가지고 마커를 맵뷰에 띄워줌
-    private void setMarkerToMapview(){
+    private void setMarkerToMapview() {
         //GPS 정보 뽑아오기
         EXIFinfo exifInfo = new EXIFinfo();
-        for(int i = 0 ; i < PICTURE_NUM ; i++){
+        for (int i = 0; i < PICTURE_NUM; i++) {
             exifInfo.setMetadata(getResources().openRawResource(id[i]));
             final GeoPoint geoPoint = exifInfo.getLocationGeopoint();
 
-            try{    //화면에 사진을 원형 아이콘으로 표시
+            try {    //화면에 사진을 원형 아이콘으로 표시
 
                 Glide.with(this)
                         .load(resourceToUri(this, id[i]))
-                        .apply(RequestOptions.circleCropTransform().override(100,100))
+                        .apply(RequestOptions.circleCropTransform().override(100, 100))
                         .into(new SimpleTarget<Drawable>() {
-                    @Override
-                    public void onResourceReady(@NonNull Drawable resource, @Nullable Transition<? super Drawable> transition) {
+                            @Override
+                            public void onResourceReady(@NonNull Drawable resource, @Nullable Transition<? super Drawable> transition) {
 
-                        Marker marker = addPicMarker(geoPoint,resource);
-                        markerFolderOverlay.addMarkerLine(marker);
-                    }
-                });
+                                Marker marker = addPicMarker(geoPoint, resource);
+                                markerFolderOverlay.addMarkerLine(marker);
+                            }
+                        });
 
-            }
-            catch (Throwable e){
+            } catch (Throwable e) {
                 e.printStackTrace();
             }
 
@@ -166,14 +164,12 @@ public class Diary_mapNPictures extends AppCompatActivity {
     }
 
 
-
     public static Uri resourceToUri(Context context, int resID) {
         return Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE + "://" +
                 context.getResources().getResourcePackageName(resID) + '/' +
                 context.getResources().getResourceTypeName(resID) + '/' +
-                context.getResources().getResourceEntryName(resID) );
+                context.getResources().getResourceEntryName(resID));
     }
-
 
 
     //관광지 사진을 이미지로 가진 마커 생성
@@ -225,19 +221,17 @@ public class Diary_mapNPictures extends AppCompatActivity {
     }
 
 
-
     public void diary_onSaveClick(View view) {
-        String title = ((TextView)findViewById(R.id.diary_mapNpics_EditTitle)).getText().toString();
-        String body = ((TextView)findViewById(R.id.diary_mapNpics_EditBody)).getText().toString();
-        if (title.isEmpty() || body.isEmpty())
-        {
+        String title = ((TextView) findViewById(R.id.diary_mapNpics_EditTitle)).getText().toString();
+        String body = ((TextView) findViewById(R.id.diary_mapNpics_EditBody)).getText().toString();
+        if (title.isEmpty() || body.isEmpty()) {
             Toast.makeText(this, "제목/내용을 입력하세요.", Toast.LENGTH_LONG).show();
             return;
         }
         InfoText newInfo = new InfoText(title, body);
 
-        ((TextView)findViewById(R.id.diary_mapNpics_ReadTitle)).setText(newInfo.Title);
-        ((TextView)findViewById(R.id.diary_mapNpics_ReadBody)).setText(newInfo.Body);
+        ((TextView) findViewById(R.id.diary_mapNpics_ReadTitle)).setText(newInfo.Title);
+        ((TextView) findViewById(R.id.diary_mapNpics_ReadBody)).setText(newInfo.Body);
         findViewById(R.id.diary_mapNpics_Write).setVisibility(View.GONE);
         findViewById(R.id.diary_mapNpics_Read).setVisibility(View.VISIBLE);
         findViewById(R.id.diary_mapNpics_EditStart).setVisibility(View.VISIBLE);
@@ -249,10 +243,9 @@ public class Diary_mapNPictures extends AppCompatActivity {
         findViewById(R.id.diary_mapNpics_EditStart).setVisibility(View.VISIBLE);
     }
 
-    public void diary_onEditClick(View view)
-    {
-        ((EditText)findViewById(R.id.diary_mapNpics_EditTitle)).setText(((TextView)findViewById(R.id.diary_mapNpics_ReadTitle)).getText());
-        ((EditText)findViewById(R.id.diary_mapNpics_EditBody)).setText(((TextView)findViewById(R.id.diary_mapNpics_ReadBody)).getText());
+    public void diary_onEditClick(View view) {
+        ((EditText) findViewById(R.id.diary_mapNpics_EditTitle)).setText(((TextView) findViewById(R.id.diary_mapNpics_ReadTitle)).getText());
+        ((EditText) findViewById(R.id.diary_mapNpics_EditBody)).setText(((TextView) findViewById(R.id.diary_mapNpics_ReadBody)).getText());
 
         findViewById(R.id.diary_mapNpics_Write).setVisibility(View.VISIBLE);
         findViewById(R.id.diary_mapNpics_Read).setVisibility(View.GONE);
