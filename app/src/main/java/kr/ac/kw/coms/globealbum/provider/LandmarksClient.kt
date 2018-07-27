@@ -15,6 +15,9 @@ import kotlinx.coroutines.experimental.delay
 import okhttp3.FormBody
 import okhttp3.Request
 import java.util.*
+import kotlin.math.absoluteValue
+import kotlin.math.max
+import kotlin.math.min
 
 class LandmarksClient {
 
@@ -46,7 +49,7 @@ class LandmarksClient {
   suspend fun reverseGeocode(latitude: Double, longitude: Double): Pair<String?, String?>? {
     synchronized(reverseGeocodeLock) {
       val last: Long = lastHostReqTime["nominatim.openstreetmap.org"] ?: 0
-      delay(last + 1000 - Date().time)
+      delay(max(0, last + 1000 - Date().time))
       val params = listOf(
         "format" to "json",
         "lat" to latitude,
