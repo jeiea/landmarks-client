@@ -238,7 +238,7 @@ internal class GroupedPicAdapter : RecyclerView.Adapter<GroupedPicAdapter.Elemen
     }
   var padding: Int = 0
   var nameTextSize: Int = 20
-  var nameBackgroundColor: Long = 0xffffff88
+  var nameBackgroundColor: Long = 0xFFFFFFFF
 
   override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
     when (viewType) {

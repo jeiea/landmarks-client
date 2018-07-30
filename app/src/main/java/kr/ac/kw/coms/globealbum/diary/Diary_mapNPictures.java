@@ -47,6 +47,7 @@ public class Diary_mapNPictures extends AppCompatActivity {
     MyMapView mapView = null;   //맵뷰 인스턴스
     MapEventsOverlay mapviewClickEventOverlay; //맵 이벤트를 등록하는 오버레이
     final int PICTURE_NUM=4;
+    final ArrayList<Integer> PicturesArray = new ArrayList<>();
 
     GroupDiaryView picView = null;
     class InfoText
@@ -74,7 +75,6 @@ public class Diary_mapNPictures extends AppCompatActivity {
         picView = findViewById(R.id.diary_mapNpics_Pics);
         picView.setPadding(20);
 
-        final ArrayList<Integer> PicturesArray = new ArrayList<>();
         PicturesArray.add(R.drawable.coord0);
         PicturesArray.add(R.drawable.coord1);
         PicturesArray.add(R.drawable.coord2);
@@ -128,11 +128,6 @@ public class Diary_mapNPictures extends AppCompatActivity {
 
 
 
-        //drawable의 id 등록
-        for(int i = 0 ; i  < PICTURE_NUM; i++) {
-            id[i] = R.drawable.coord0 +i;
-        }
-
         //마커 이벤트 등록
         mapviewClickEventOverlay = mapviewClickEventDisplay();
         mapView.getOverlays().add(mapviewClickEventOverlay);
@@ -145,20 +140,19 @@ public class Diary_mapNPictures extends AppCompatActivity {
 
 
     MyMarker markerFolderOverlay;  //마커들을 가지고 있는 오버레이
-    int[] id = new int[PICTURE_NUM];
 
     //다이어리 액티비티 실행시 가져오는 사진들의 정보를 가지고 마커를 맵뷰에 띄워줌
     private void setMarkerToMapview(){
         //GPS 정보 뽑아오기
         EXIFinfo exifInfo = new EXIFinfo();
-        for(int i = 0 ; i < PICTURE_NUM ; i++){
-            exifInfo.setMetadata(getResources().openRawResource(id[i]));
+        for(int i = 0 ; i < PicturesArray.size() ; i++){
+            exifInfo.setMetadata(getResources().openRawResource(PicturesArray.get(i)));
             final GeoPoint geoPoint = exifInfo.getLocationGeopoint();
 
             try{    //화면에 사진을 원형 아이콘으로 표시
 
                 Glide.with(this)
-                        .load(resourceToUri(this, id[i]))
+                        .load(resourceToUri(this, PicturesArray.get(i)))
                         .apply(RequestOptions.circleCropTransform().override(100,100))
                         .into(new SimpleTarget<Drawable>() {
                     @Override
