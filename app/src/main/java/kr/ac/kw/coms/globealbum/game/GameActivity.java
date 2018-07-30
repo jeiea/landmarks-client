@@ -23,6 +23,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.DrawableImageViewTarget;
@@ -293,7 +294,6 @@ public class GameActivity extends AppCompatActivity {
         });
     }
 
-
     //사용자가 찍은 마커가 위치에서 시작하여 정답마커까지 이동하는 애니메이션
     private void animateMarker(final MapView map, final Marker marker, final GeoPoint finalPosition, final GeoPointInterpolator GeoPointInterpolator) {
         final GeoPoint startPosition = marker.getPosition();
@@ -301,7 +301,7 @@ public class GameActivity extends AppCompatActivity {
         final long start = SystemClock.uptimeMillis();
         final Interpolator interpolator = new AccelerateDecelerateInterpolator();
         final float durationInMs = 1000;
-
+        map.getController().zoomTo(myMapView.getLogZoom(),1700L);          //인자의 속도에 맞춰서 줌 아웃
 
         drawCircleOverlay = new DrawCircleOverlay(marker.getPosition(), finalPosition, map);
         myMapView.getOverlays().add(drawCircleOverlay);
@@ -319,6 +319,8 @@ public class GameActivity extends AppCompatActivity {
                 v = interpolator.getInterpolation(t);
 
                 marker.setPosition(GeoPointInterpolator.interpolate(v, startPosition, finalPosition)); //보간법 이용, 시작 위치에서 끝 위치까지 가는 구 모양의 경로 도출
+
+                //map.getController().zoomOut(2000L);          //인자의 속도에 맞춰서 줌 아웃
                 map.invalidate();
                 // Repeat till progress is complete.
                 if (t < 1) {
@@ -328,7 +330,6 @@ public class GameActivity extends AppCompatActivity {
                     marker.remove(myMapView);
                     answerMarker.showInfoWindow();
                     myMapView.getOverlays().add(answerMarker);
-
 
                     gotonextTextView.setVisibility(View.VISIBLE);
                     calcScore();
@@ -434,7 +435,6 @@ public class GameActivity extends AppCompatActivity {
             public boolean onMarkerClick(Marker marker, MapView mapView) {  //생성된 마커를 클릭하여 화면에 등록
                 currentState = Answered;
                 stopTimer = Stop;
-
                 //유저가 선택한 위치의 마커에서 정답 마커까지 이동하는 애니메이션 동작을 하는 마커 생성
                 Marker tmpMarker = new Marker(myMapView);
                 //tmpMarker.setIcon(BLUE_FLAG_DRAWABLE);
@@ -446,6 +446,7 @@ public class GameActivity extends AppCompatActivity {
                 answerMarker.setSnippet(distance + "Km");    //거리를 마커의 Infowindow에 추가
                 animateMarker(myMapView, tmpMarker, answerMarker.getPosition(), new GeoPointInterpolator.Spherical()); //마커 이동 애니메이션
 
+                marker.remove(myMapView);
                 myMapView.invalidate();
 
                 return true;
@@ -496,6 +497,7 @@ public class GameActivity extends AppCompatActivity {
         answerMarker.setSnippet(distance + "Km");
         animateMarker(myMapView, tmpMarker, answerMarker.getPosition(), new GeoPointInterpolator.Spherical());
         gotonextTextView.setVisibility(View.VISIBLE);
+        currentMarker.remove(myMapView);
         calcScore();
     }
 
@@ -521,6 +523,7 @@ public class GameActivity extends AppCompatActivity {
         answerMarker.setTitle(pi.name);
         answerMarker.setPosition(pi.geoPoint);
 
+        myMapView.getController().setZoom(myMapView.getLogZoom());
         questionImageView.setImageResource(pi.id);
 
     }
