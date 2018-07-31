@@ -22,6 +22,7 @@ android {
 }
 
 repositories {
+    maven { url 'https://dl.bintray.com/kotlin/ktor' }
     flatDir {
         dirs 'libs'
     }
@@ -61,10 +62,12 @@ dependencies {
     // Kotlin client dependencies
 
     // http client
-//    implementation 'com.github.kittinunf.fuel:fuel-android:1.13.0' //for Android
-    implementation 'com.github.kittinunf.fuel:fuel-coroutines:1.13.0'
-    //for Kotlin Coroutines support
+    implementation 'io.ktor:ktor-client-core:0.9.3'
+    implementation 'io.ktor:ktor-client-apache:0.9.3'
+    implementation 'io.ktor:ktor-client-json:0.9.3'
+    implementation 'com.github.kittinunf.fuel:fuel-coroutines:1.14.0'
     implementation 'com.github.kittinunf.fuel:fuel-gson:1.13.0' //for Gson support
+
     // JSON
     implementation 'com.beust:klaxon:3.0.1'
 
