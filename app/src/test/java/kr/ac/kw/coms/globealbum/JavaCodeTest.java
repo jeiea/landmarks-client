@@ -1,13 +1,12 @@
 package kr.ac.kw.coms.globealbum;
 
+import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import kotlin.Pair;
-import kotlin.Unit;
-import kotlin.jvm.functions.Function1;
-import kotlinx.coroutines.experimental.Deferred;
-import kr.ac.kw.coms.globealbum.provider.LandmarksClient;
+import kr.ac.kw.coms.globealbum.provider.Promise;
+import kr.ac.kw.coms.globealbum.provider.RemoteJava;
 
 import static org.junit.Assert.assertEquals;
 
@@ -15,18 +14,17 @@ public class JavaCodeTest {
     @org.junit.Test
     public void clientTest() throws Exception {
         final CountDownLatch lock = new CountDownLatch(1);
-        Deferred<Pair<String, String>> d = new LandmarksClient()
-                .reverseGeoJava(37.54567, 126.9944);
-        d.invokeOnCompletion(new Function1<Throwable, Unit>() {
+        RemoteJava remote = new RemoteJava();
+        Promise<Pair<String, String>> prom = new Promise<Pair<String, String>>() {
             @Override
-            public Unit invoke(Throwable throwable) {
+            public void resolve(Pair<String, String> result) {
+                super.resolve(result);
                 lock.countDown();
-                return null;
             }
-        });
+        };
+        remote.reverseGeocode(37.54567, 126.9944, prom);
         lock.await(100, TimeUnit.SECONDS);
-        Pair<String, String> p = d.getCompleted();
-        assertEquals(p.getFirst(), "대한민국");
-        assertEquals(p.getSecond(), "서울특별시");
+        assertEquals(Objects.requireNonNull(prom.getAns()).getFirst(), "대한민국");
+        assertEquals(prom.getAns().getSecond(), "서울특별시");
     }
 }

@@ -3,10 +3,7 @@ package kr.ac.kw.coms.globealbum.game;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.Point;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -23,6 +20,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.DrawableImageViewTarget;
@@ -31,10 +29,8 @@ import org.osmdroid.config.Configuration;
 import org.osmdroid.events.MapEventsReceiver;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
-import org.osmdroid.views.Projection;
 import org.osmdroid.views.overlay.MapEventsOverlay;
 import org.osmdroid.views.overlay.Marker;
-import org.osmdroid.views.overlay.Overlay;
 import org.osmdroid.views.overlay.Polyline;
 
 import java.util.ArrayList;
@@ -42,15 +38,13 @@ import java.util.Date;
 import java.util.List;
 
 import kotlin.Pair;
-import kotlin.Unit;
-import kotlin.jvm.functions.Function1;
-import kotlinx.coroutines.experimental.Deferred;
 import kr.ac.kw.coms.globealbum.R;
 import kr.ac.kw.coms.globealbum.common.PictureDialogFragment;
 import kr.ac.kw.coms.globealbum.map.DrawCircleOverlay;
 import kr.ac.kw.coms.globealbum.map.MyMapView;
 import kr.ac.kw.coms.globealbum.provider.EXIFinfo;
-import kr.ac.kw.coms.globealbum.provider.LandmarksClient;
+import kr.ac.kw.coms.globealbum.provider.Promise;
+import kr.ac.kw.coms.globealbum.provider.RemoteJava;
 
 import static kr.ac.kw.coms.globealbum.game.GameActivity.GameState.Answered;
 import static kr.ac.kw.coms.globealbum.game.GameActivity.GameState.Solving;
@@ -123,7 +117,7 @@ public class GameActivity extends AppCompatActivity {
         Glide.with(GameActivity.this).load(R.drawable.owl).into(gifImage);
         ui = new Handler();
 
-        startFlag=false;
+        startFlag = false;
         //게임 시작 전 문제 세팅
         AsyncTask.execute(new Runnable() {
             @Override
@@ -143,7 +137,7 @@ public class GameActivity extends AppCompatActivity {
     private void setQuestion() {
         int[] id = new int[PICTURE_NUM];
         EXIFinfo exifInfo = new EXIFinfo();
-        LandmarksClient landmarksClient = new LandmarksClient();
+        RemoteJava client = new RemoteJava();
         for (int i = 0; i < PICTURE_NUM; i++) { //사진 리소스 id 배열에 저장
             id[i] = R.drawable.coord0 + i;
         }
@@ -160,26 +154,21 @@ public class GameActivity extends AppCompatActivity {
             final GeoPoint geoPoint = exifInfo.getLocationGeopoint();
             final int s = id[i];
             //역지오코딩을 통해 지역 정보 뽑아오기
-            final Deferred<Pair<String, String>> d = landmarksClient.reverseGeoJava(geoPoint.getLatitude(), geoPoint.getLongitude());
-            d.invokeOnCompletion(new Function1<Throwable, Unit>() {
+            client.reverseGeocode(geoPoint.getLatitude(), geoPoint.getLongitude(), new Promise<Pair<String, String>>() {
                 @Override
-                public Unit invoke(Throwable throwable) {
-                    Pair<String, String> place = d.getCompleted();
-                    String name = place.getFirst() + " " + place.getSecond();
+                public void resolve(Pair<String, String> result) {
+                    String name = result.getFirst() + " " + result.getSecond();
                     PictureInfo pictureInfo = new PictureInfo();
                     pictureInfo.geoPoint = geoPoint;
                     pictureInfo.id = s;
                     pictureInfo.name = name;
                     questionPic.add(pictureInfo);
 
-
                     if (questionPic.size() == 1) {  //문제가 하나 완성 시 초기 구성 진행
-                        ui.post(afterInit);
+                        afterInit.run();
                     }
-                    return null;
                 }
             });
-
         }
     }
 
@@ -212,7 +201,7 @@ public class GameActivity extends AppCompatActivity {
             listenerOverlay = markerEvent();
             myMapView.getOverlays().add(listenerOverlay);
 
-            startFlag=true;
+            startFlag = true;
             timeThreadhandler();
             setAnswerMarker(questionPic.get(problem));  //정답 마커 설정
 
@@ -226,7 +215,7 @@ public class GameActivity extends AppCompatActivity {
 
         final long deadlineMs = new Date().getTime() + stageTimeLimitMs;
         //final Handler ui = new Handler();
-        if( ui != null){
+        if (ui != null) {
             ui.post(new Runnable() {
                 @Override
                 public void run() {
@@ -235,7 +224,7 @@ public class GameActivity extends AppCompatActivity {
 
                     timeScore = (int) timeLeft;
 
-                    if (timeLeft > 0 && stopTimer ==Running) {
+                    if (timeLeft > 0 && stopTimer == Running) {
                         ui.postDelayed(this, 35); // about 30fps
                         return;
                     } else if (stopTimer == Stop) {
@@ -293,7 +282,6 @@ public class GameActivity extends AppCompatActivity {
         });
     }
 
-
     //사용자가 찍은 마커가 위치에서 시작하여 정답마커까지 이동하는 애니메이션
     private void animateMarker(final MapView map, final Marker marker, final GeoPoint finalPosition, final GeoPointInterpolator GeoPointInterpolator) {
         final GeoPoint startPosition = marker.getPosition();
@@ -301,7 +289,7 @@ public class GameActivity extends AppCompatActivity {
         final long start = SystemClock.uptimeMillis();
         final Interpolator interpolator = new AccelerateDecelerateInterpolator();
         final float durationInMs = 1000;
-
+        map.getController().zoomTo(myMapView.getLogZoom(),1700L);          //인자의 속도에 맞춰서 줌 아웃
 
         drawCircleOverlay = new DrawCircleOverlay(marker.getPosition(), finalPosition, map);
         myMapView.getOverlays().add(drawCircleOverlay);
@@ -319,6 +307,8 @@ public class GameActivity extends AppCompatActivity {
                 v = interpolator.getInterpolation(t);
 
                 marker.setPosition(GeoPointInterpolator.interpolate(v, startPosition, finalPosition)); //보간법 이용, 시작 위치에서 끝 위치까지 가는 구 모양의 경로 도출
+
+                //map.getController().zoomOut(2000L);          //인자의 속도에 맞춰서 줌 아웃
                 map.invalidate();
                 // Repeat till progress is complete.
                 if (t < 1) {
@@ -328,7 +318,6 @@ public class GameActivity extends AppCompatActivity {
                     marker.remove(myMapView);
                     answerMarker.showInfoWindow();
                     myMapView.getOverlays().add(answerMarker);
-
 
                     gotonextTextView.setVisibility(View.VISIBLE);
                     calcScore();
@@ -379,7 +368,7 @@ public class GameActivity extends AppCompatActivity {
     //기존 화면 오버레이들을 지우고 정답 마커 다시 설정, 타이머 재시작
     @Override
     public boolean dispatchTouchEvent(MotionEvent ev) { //문제를 맞춘 후 다시 맵 로드
-        if(startFlag){
+        if (startFlag) {
             gotonextTextView.setVisibility(View.GONE);
             if (currentState == Answered && animateHandler == null) {
 
@@ -434,7 +423,6 @@ public class GameActivity extends AppCompatActivity {
             public boolean onMarkerClick(Marker marker, MapView mapView) {  //생성된 마커를 클릭하여 화면에 등록
                 currentState = Answered;
                 stopTimer = Stop;
-
                 //유저가 선택한 위치의 마커에서 정답 마커까지 이동하는 애니메이션 동작을 하는 마커 생성
                 Marker tmpMarker = new Marker(myMapView);
                 //tmpMarker.setIcon(BLUE_FLAG_DRAWABLE);
@@ -446,6 +434,7 @@ public class GameActivity extends AppCompatActivity {
                 answerMarker.setSnippet(distance + "Km");    //거리를 마커의 Infowindow에 추가
                 animateMarker(myMapView, tmpMarker, answerMarker.getPosition(), new GeoPointInterpolator.Spherical()); //마커 이동 애니메이션
 
+                marker.remove(myMapView);
                 myMapView.invalidate();
 
                 return true;
@@ -461,7 +450,7 @@ public class GameActivity extends AppCompatActivity {
         listItems.add("종료");
         final CharSequence[] items = listItems.toArray(new String[listItems.size()]);
 
-        stopTimer=Stop;
+        stopTimer = Stop;
         ui = null;
 
         AlertDialog.Builder builder = new AlertDialog.Builder(GameActivity.this);
@@ -496,6 +485,7 @@ public class GameActivity extends AppCompatActivity {
         answerMarker.setSnippet(distance + "Km");
         animateMarker(myMapView, tmpMarker, answerMarker.getPosition(), new GeoPointInterpolator.Spherical());
         gotonextTextView.setVisibility(View.VISIBLE);
+        currentMarker.remove(myMapView);
         calcScore();
     }
 
@@ -521,6 +511,7 @@ public class GameActivity extends AppCompatActivity {
         answerMarker.setTitle(pi.name);
         answerMarker.setPosition(pi.geoPoint);
 
+        myMapView.getController().setZoom(myMapView.getLogZoom());
         questionImageView.setImageResource(pi.id);
 
     }
