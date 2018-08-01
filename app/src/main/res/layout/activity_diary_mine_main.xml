@@ -4,8 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".diary.Diary_main"
-    android:id="@+id/diary_main_Root">
+    tools:context=".diary.Diary_Mine_main"
+    android:id="@+id/diary_mine_main_Root">
 
 
     <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -15,7 +15,7 @@
         android:layout_height="match_parent">
         <!-- 다이어리 메인 화면. 여행정보 목록 조회 -->
         <RelativeLayout
-            android:id="@+id/diary_main_Toolbar"
+            android:id="@+id/diary_mine_main_Toolbar"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
@@ -23,7 +23,7 @@
             app:layout_constraintTop_toTopOf="parent">
 
             <ImageButton
-                android:id="@+id/diary_main_Back"
+                android:id="@+id/diary_mine_main_Back"
                 android:layout_width="50dp"
                 android:layout_height="50dp"
                 android:layout_alignParentLeft="true"
@@ -32,48 +32,16 @@
                 android:scaleType="fitCenter"
                 android:src="@drawable/arrow_left" />
 
-            <RadioGroup
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentRight="true"
-                android:layout_centerVertical="true"
-                android:layout_marginRight="10dp"
-                android:orientation="horizontal">
-
-                <RadioButton
-                    android:id="@+id/diary_main_RadioLeft"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:checked="true"
-                    android:onClick="diary_onRadioClick"
-                    android:text="My" />
-
-                <RadioButton
-                    android:id="@+id/diary_main_RadioRight"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:onClick="diary_onRadioClick"
-                    android:text="Others" />
-            </RadioGroup>
         </RelativeLayout>
 
         <kr.ac.kw.coms.globealbum.album.GroupDiaryView
-            android:id="@+id/diary_main_ImageList"
+            android:id="@+id/diary_mine_main_ImageList"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:visibility="visible"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/diary_main_Toolbar" />
-
-                <kr.ac.kw.coms.globealbum.album.GroupDiaryView
-            android:id="@+id/diary_main_Otherlist"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:visibility="gone"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/diary_main_Toolbar" />
+            app:layout_constraintTop_toBottomOf="@id/diary_mine_main_Toolbar" />
 
         <ImageButton
             android:layout_width="70dp"
@@ -88,7 +56,7 @@
     </android.support.constraint.ConstraintLayout>
 
     <kr.ac.kw.coms.globealbum.album.GroupDiaryView
-        android:id="@+id/diary_main_JourneyList"
+        android:id="@+id/diary_mine_main_JourneyList"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:visibility="visible"

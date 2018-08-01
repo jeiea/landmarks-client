@@ -3,7 +3,6 @@ package kr.ac.kw.coms.globealbum.diary;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
-import android.content.res.Resources;
 import android.support.annotation.Nullable;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -13,7 +12,6 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.RadioButton;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -21,27 +19,25 @@ import java.util.Collections;
 import java.util.Comparator;
 
 import kr.ac.kw.coms.globealbum.album.GalleryDetail;
-import kr.ac.kw.coms.globealbum.diary.Diary_mapNPictures;
 import kr.ac.kw.coms.globealbum.R;
 import kr.ac.kw.coms.globealbum.album.GroupDiaryView;
 import kr.ac.kw.coms.globealbum.album.PictureGroup;
 import kr.ac.kw.coms.globealbum.album.ResourcePicture;
 import kr.ac.kw.coms.globealbum.provider.PictureProvider;
 
-public class Diary_main extends AppCompatActivity {
+public class Diary_Mine_main extends AppCompatActivity {
 
     GroupDiaryView diaryImageView = null;
     GroupDiaryView diaryJourneyView = null;
-    GroupDiaryView diaryOtherView = null;
 
     ActionBarDrawerToggle drawerToggle;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_diary_main);
+        setContentView(R.layout.activity_diary_mine_main);
 
-        DrawerLayout drawerLayout = findViewById(R.id.diary_main_Root);
+        DrawerLayout drawerLayout = findViewById(R.id.diary_mine_main_Root);
         prepareViewSample();
 
         drawerToggle = new ActionBarDrawerToggle(this, drawerLayout, R.string.open, R.string.close) {
@@ -79,26 +75,10 @@ public class Diary_main extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    public void diary_onRadioClick(View view) {
-        if (((RadioButton) findViewById(R.id.diary_main_RadioLeft)).isChecked()) {
-            if (findViewById(R.id.diary_main_ImageList).getVisibility() == View.VISIBLE || findViewById(R.id.diary_main_JourneyList).getVisibility() == View.VISIBLE)
-                return;
-            findViewById(R.id.diary_main_ImageList).setVisibility(View.VISIBLE);
-            findViewById(R.id.diary_main_Otherlist).setVisibility(View.GONE);
-        } else {
-            if (findViewById(R.id.diary_main_Otherlist).getVisibility() == View.VISIBLE) return;
-            findViewById(R.id.diary_main_ImageList).setVisibility(View.GONE);
-            findViewById(R.id.diary_main_JourneyList).setVisibility(View.GONE);
-            findViewById(R.id.diary_main_Otherlist).setVisibility(View.VISIBLE);
-        }
-    }
 
     public void prepareViewSample() {
-        diaryImageView = findViewById(R.id.diary_main_ImageList);
-        diaryJourneyView = findViewById(R.id.diary_main_JourneyList);
-        diaryOtherView = findViewById(R.id.diary_main_Otherlist);
-        diaryOtherView.setNameTextSize(50);
-        diaryOtherView.setNameBackgroundColor(0xffffffff);
+        diaryImageView = findViewById(R.id.diary_mine_main_ImageList);
+        diaryJourneyView = findViewById(R.id.diary_mine_main_JourneyList);
 
         ArrayList<PictureGroup> elementList = new ArrayList<>();
         ArrayList<PictureProvider.Picture> elementRow = new ArrayList<>();
@@ -144,14 +124,14 @@ public class Diary_main extends AppCompatActivity {
         elementRow.add(new ResourcePicture(c, R.drawable.sample0, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(Diary_main.this, "0", Toast.LENGTH_SHORT).show();
+                Toast.makeText(Diary_Mine_main.this, "0", Toast.LENGTH_SHORT).show();
                 startActivity(new Intent(getBaseContext(), Diary_mapNPictures.class).putExtra("whose", "mine"));
             }
         }));
         elementRow.add(new ResourcePicture(c, R.drawable.sample1, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(Diary_main.this, "1", Toast.LENGTH_SHORT).show();
+                Toast.makeText(Diary_Mine_main.this, "1", Toast.LENGTH_SHORT).show();
                 startActivity(new Intent(getBaseContext(), Diary_mapNPictures.class).putExtra("whose", "mine"));
             }
         }));
@@ -159,19 +139,6 @@ public class Diary_main extends AppCompatActivity {
         elementList.add(new PictureGroup("group1", elementRow));
         elementList.add(new PictureGroup("group2", elementRow));
         diaryJourneyView.setGroups(elementList);
-
-
-        elementList.clear();
-        elementRow.clear();
-        elementRow.add(new ResourcePicture(c, R.drawable.sample7, new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(Diary_main.this, "Other", Toast.LENGTH_SHORT).show();
-                startActivity(new Intent(getBaseContext(), Diary_mapNPictures.class).putExtra("whose", "other"));
-            }
-        }));
-        elementList.add(new PictureGroup("Other", elementRow));
-        diaryOtherView.setGroups(elementList);
     }
 
     public void diary_onBackClick(View view) {
@@ -179,13 +146,13 @@ public class Diary_main extends AppCompatActivity {
     }
 
     public void diary_openDrawer(View view) {
-        ((DrawerLayout) findViewById(R.id.diary_main_Root)).openDrawer(Gravity.RIGHT);
+        ((DrawerLayout) findViewById(R.id.diary_mine_main_Root)).openDrawer(Gravity.RIGHT);
     }
 
     @Override
     public void onBackPressed() {
-        if (((DrawerLayout) findViewById(R.id.diary_main_Root)).isDrawerOpen(Gravity.RIGHT))
-            ((DrawerLayout) findViewById(R.id.diary_main_Root)).closeDrawer(Gravity.RIGHT);
+        if (((DrawerLayout) findViewById(R.id.diary_mine_main_Root)).isDrawerOpen(Gravity.RIGHT))
+            ((DrawerLayout) findViewById(R.id.diary_mine_main_Root)).closeDrawer(Gravity.RIGHT);
         else
             super.onBackPressed();
     }
