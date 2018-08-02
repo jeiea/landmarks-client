@@ -9,8 +9,11 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.IOException;
 
+import kotlin.Unit;
 import kr.ac.kw.coms.globealbum.R;
 
 public class Login extends AppCompatActivity{
@@ -20,7 +23,7 @@ public class Login extends AppCompatActivity{
     String stEmail;
     String stPassword;
     Button btnAccount;
-    LandmarkClientJava LmC = new LandmarkClientJava();
+    RemoteJava client = new RemoteJava();
 
     @Override
     protected void onCreate(Bundle savedInstenceState){
@@ -29,62 +32,41 @@ public class Login extends AppCompatActivity{
 
         Intent intent = new Intent(this.getIntent());
 
-        etEmail = (EditText)findViewById(R.id.et_email);
-        etPassword = (EditText)findViewById(R.id.et_password);
+        etEmail = findViewById(R.id.et_email);
+        etPassword = findViewById(R.id.et_password);
 
-        stPassword = etPassword.getText().toString();
-        stEmail = etEmail.getText().toString();
-
-        btnAccount = (Button)findViewById(R.id.btnAccount);
-
-        btnAccount.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view){
-                LoginTask task = new LoginTask();
-
-                task.execute(stEmail, stPassword);
-            }
-        });
     }
 
     public void onLogin(View view) {
+        String ident = etEmail.getText().toString();
+        String pass = etPassword.getText().toString();
 
+        client.login(ident, pass, new ToastPromise<Unit>("Login success"));
     }
+
 
     public void onRegister(View view) {
-        EditText email =  findViewById(R.id.et_email);
+        String ident = etEmail.getText().toString();
+        String pass = etPassword.getText().toString();
 
-        new RegisterTask().execute(email.getText().toString());
+        client.register(ident, pass, ident, ident, new ToastPromise<Unit>("Register success"));
     }
 
-    class LoginTask extends AsyncTask<String, Void, String> {
-        @Override
-        protected String doInBackground(String... strings){
-            String BaseUrl = "https://coms-globe.herokuapp.com";
+    class ToastPromise<T> extends UIPromise<T> {
+        String successMessage;
 
-            LmC.login(BaseUrl, strings[0], strings[1]);
-
-            return null;
-        }
-    }
-
-    class RegisterTask extends AsyncTask<String, Void, String> {
-        String receiveMsg;
-        @Override
-        protected String doInBackground(String... strings) {
-            String BaseUrl = "https://coms-globe.herokuapp.com";
-
-            try {
-                String receiveMsg = LmC.register(BaseUrl, strings[0], null);
-            } catch (IOException e) {}
-
-            return receiveMsg;
+        ToastPromise(String onSuccessMessage) {
+            successMessage = onSuccessMessage;
         }
 
         @Override
-        protected void onPostExecute(String s) {
-            Toast.makeText(Login.this, s.substring(0, 30), Toast.LENGTH_SHORT).show();
-            super.onPostExecute(s);
+        public void success(T result) {
+            Toast.makeText(Login.this, successMessage, Toast.LENGTH_SHORT).show();
+        }
+
+        @Override
+        public void failure(@NotNull Throwable cause) {
+            Toast.makeText(Login.this, cause.toString(), Toast.LENGTH_SHORT).show();
         }
     }
 }

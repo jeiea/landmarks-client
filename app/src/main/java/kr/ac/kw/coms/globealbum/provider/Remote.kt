@@ -1,6 +1,5 @@
 package kr.ac.kw.coms.globealbum.provider
 
-import android.util.Log
 import com.beust.klaxon.JsonBase
 import com.beust.klaxon.JsonObject
 import com.beust.klaxon.Parser
@@ -19,7 +18,6 @@ import kr.ac.kw.coms.globealbum.common.MultiPartContent
 import kr.ac.kw.coms.globealbum.common.copyToSuspend
 import java.io.File
 import java.util.*
-import kotlin.coroutines.experimental.coroutineContext
 import kotlin.math.max
 
 fun HttpRequestBuilder.userAgent() {
@@ -68,12 +66,27 @@ open class UIPromise<T> : Promise<T>() {
 
 class RemoteJava {
 
-  val client = Remote()
+  private val client = Remote()
 
   fun reverseGeocode(latitude: Double, longitude: Double, prom: Promise<Pair<String?, String?>?>) {
     prom.resolve { client.reverseGeocode(latitude, longitude) }
   }
 
+  fun checkAlive(prom: Promise<Boolean>) {
+    prom.resolve { client.checkAlive() }
+  }
+
+  fun register(ident: String, pass: String, email: String, nick: String, prom: Promise<Unit>) {
+    prom.resolve { client.register(ident, pass, email, nick) }
+  }
+
+  fun login(ident: String, pass: String, prom: Promise<Unit>) {
+    prom.resolve { client.login(ident, pass) }
+  }
+
+  fun uploadPic(file: File, latitude: Float? = null, longitude: Float? = null, addr: String? = null, prom: Promise<Unit>) {
+    prom.resolve { client.uploadPic(file, latitude, longitude, addr) }
+  }
 }
 
 class Remote(val http: HttpClient, val basePath: String) {
