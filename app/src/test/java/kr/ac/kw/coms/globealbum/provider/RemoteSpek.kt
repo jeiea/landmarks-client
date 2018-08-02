@@ -23,8 +23,6 @@ import java.net.Proxy
 import java.net.ProxySelector
 import java.net.URI
 import java.util.*
-import kotlin.streams.asSequence
-
 
 @RunWith(JUnitPlatform::class)
 class RemoteSpek : Spek({
@@ -95,8 +93,9 @@ fun getSystemProxy(): InetSocketAddress? {
 
 fun getRandomString(length: Long): String {
   val source = "abcdefghijklmnopqrstuvwxyz0123456789"
-  return Random().ints(length, 0, source.length)
-    .asSequence()
-    .map(source::get)
+  return Random()
+    .ints(length, 0, source.length)
+    .mapToObj(source::get)
+    .toArray()
     .joinToString("")
 }

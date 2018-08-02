@@ -12,6 +12,7 @@ import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
@@ -20,11 +21,11 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.DrawableImageViewTarget;
 
+import org.jetbrains.annotations.NotNull;
 import org.osmdroid.config.Configuration;
 import org.osmdroid.events.MapEventsReceiver;
 import org.osmdroid.util.GeoPoint;
@@ -33,6 +34,8 @@ import org.osmdroid.views.overlay.MapEventsOverlay;
 import org.osmdroid.views.overlay.Marker;
 import org.osmdroid.views.overlay.Polyline;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -43,8 +46,8 @@ import kr.ac.kw.coms.globealbum.common.PictureDialogFragment;
 import kr.ac.kw.coms.globealbum.map.DrawCircleOverlay;
 import kr.ac.kw.coms.globealbum.map.MyMapView;
 import kr.ac.kw.coms.globealbum.provider.EXIFinfo;
-import kr.ac.kw.coms.globealbum.provider.Promise;
 import kr.ac.kw.coms.globealbum.provider.RemoteJava;
+import kr.ac.kw.coms.globealbum.provider.UIPromise;
 
 import static kr.ac.kw.coms.globealbum.game.GameActivity.GameState.Answered;
 import static kr.ac.kw.coms.globealbum.game.GameActivity.GameState.Solving;
@@ -154,9 +157,17 @@ public class GameActivity extends AppCompatActivity {
             final GeoPoint geoPoint = exifInfo.getLocationGeopoint();
             final int s = id[i];
             //역지오코딩을 통해 지역 정보 뽑아오기
-            client.reverseGeocode(geoPoint.getLatitude(), geoPoint.getLongitude(), new Promise<Pair<String, String>>() {
+            client.reverseGeocode(geoPoint.getLatitude(), geoPoint.getLongitude(), new UIPromise<Pair<String, String>>() {
                 @Override
-                public void resolve(Pair<String, String> result) {
+                public void failure(@NotNull Throwable cause) {
+                    StringWriter sw = new StringWriter();
+                    PrintWriter pw = new PrintWriter(sw);
+                    cause.printStackTrace(pw);
+                    Log.e("failfail", cause.toString() + sw.toString());
+                }
+
+                @Override
+                public void success(Pair<String, String> result) {
                     String name = result.getFirst() + " " + result.getSecond();
                     PictureInfo pictureInfo = new PictureInfo();
                     pictureInfo.geoPoint = geoPoint;
@@ -165,48 +176,44 @@ public class GameActivity extends AppCompatActivity {
                     questionPic.add(pictureInfo);
 
                     if (questionPic.size() == 1) {  //문제가 하나 완성 시 초기 구성 진행
-                        afterInit.run();
+                        displayQuiz();
                     }
                 }
             });
         }
     }
 
-    Runnable afterInit = new Runnable() {   //문제가 하나 완성된 후 맵뷰 기본 구성 및 게임 액티비티 진행
-        @Override
-        public void run() {
-            setContentView(R.layout.activity_game);
-            progressBar = findViewById(R.id.progressbar);
-            stageTextView = findViewById(R.id.textview_stage);
-            scoreTextView = findViewById(R.id.textview_score);
-            menuButton = findViewById(R.id.game_button_menu);
-            menuButton.setOnClickListener(new MenuButtonClickListener());
-            gotonextTextView = findViewById(R.id.gotonext_textview);
+    private void displayQuiz() {
+        setContentView(R.layout.activity_game);
+        progressBar = findViewById(R.id.progressbar);
+        stageTextView = findViewById(R.id.textview_stage);
+        scoreTextView = findViewById(R.id.textview_score);
+        menuButton = findViewById(R.id.game_button_menu);
+        menuButton.setOnClickListener(new MenuButtonClickListener());
+        gotonextTextView = findViewById(R.id.gotonext_textview);
 
-            RED_FLAG_DRAWABLE = getResources().getDrawable(R.drawable.red_flag);
-            BLUE_FLAG_DRAWABLE = getResources().getDrawable(R.drawable.blue_flag);
+        RED_FLAG_DRAWABLE = getResources().getDrawable(R.drawable.red_flag);
+        BLUE_FLAG_DRAWABLE = getResources().getDrawable(R.drawable.blue_flag);
 
-            stageTextView.setText("STAGE " + stage);
+        stageTextView.setText("STAGE " + stage);
 
-            //퀴즈에 나올 사진들을 연결
-            questionImageView = findViewById(R.id.picture);
-            questionImageView.setOnClickListener(new PictureClickListener());
+        //퀴즈에 나올 사진들을 연결
+        questionImageView = findViewById(R.id.picture);
+        questionImageView.setOnClickListener(new PictureClickListener());
 
-            //osmdroid 초기 구성
-            context = getApplicationContext();
-            Configuration.getInstance().load(context, PreferenceManager.getDefaultSharedPreferences(context));
-            myMapView = findViewById(R.id.map);
+        //osmdroid 초기 구성
+        context = getApplicationContext();
+        Configuration.getInstance().load(context, PreferenceManager.getDefaultSharedPreferences(context));
+        myMapView = findViewById(R.id.map);
 
-            //마커 이벤트 등록
-            listenerOverlay = markerEvent();
-            myMapView.getOverlays().add(listenerOverlay);
+        //마커 이벤트 등록
+        listenerOverlay = markerEvent();
+        myMapView.getOverlays().add(listenerOverlay);
 
-            startFlag = true;
-            timeThreadhandler();
-            setAnswerMarker(questionPic.get(problem));  //정답 마커 설정
-
-        }
-    };
+        startFlag = true;
+        timeThreadhandler();
+        setAnswerMarker(questionPic.get(problem));  //정답 마커 설정
+    }
 
     //제한 시간 측정
     private void timeThreadhandler() {
@@ -289,7 +296,7 @@ public class GameActivity extends AppCompatActivity {
         final long start = SystemClock.uptimeMillis();
         final Interpolator interpolator = new AccelerateDecelerateInterpolator();
         final float durationInMs = 1000;
-        map.getController().zoomTo(myMapView.getLogZoom(),1700L);          //인자의 속도에 맞춰서 줌 아웃
+        map.getController().zoomTo(myMapView.getLogZoom(), 1700L);          //인자의 속도에 맞춰서 줌 아웃
 
         drawCircleOverlay = new DrawCircleOverlay(marker.getPosition(), finalPosition, map);
         myMapView.getOverlays().add(drawCircleOverlay);

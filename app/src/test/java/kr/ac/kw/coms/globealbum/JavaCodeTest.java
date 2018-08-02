@@ -1,5 +1,7 @@
 package kr.ac.kw.coms.globealbum;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -17,13 +19,17 @@ public class JavaCodeTest {
         RemoteJava remote = new RemoteJava();
         Promise<Pair<String, String>> prom = new Promise<Pair<String, String>>() {
             @Override
-            public void resolve(Pair<String, String> result) {
-                super.resolve(result);
+            public void success(Pair<String, String> result) {
+                lock.countDown();
+            }
+
+            @Override
+            public void failure(@NotNull Throwable cause) {
                 lock.countDown();
             }
         };
         remote.reverseGeocode(37.54567, 126.9944, prom);
-        lock.await(100, TimeUnit.SECONDS);
+        lock.await(10, TimeUnit.SECONDS);
         assertEquals(Objects.requireNonNull(prom.getAns()).getFirst(), "대한민국");
         assertEquals(prom.getAns().getSecond(), "서울특별시");
     }

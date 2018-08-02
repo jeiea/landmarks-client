@@ -1,17 +1,19 @@
 package kr.ac.kw.coms.globealbum.provider
 
+import android.util.Log
 import com.beust.klaxon.JsonBase
 import com.beust.klaxon.JsonObject
 import com.beust.klaxon.Parser
 import com.beust.klaxon.internal.firstNotNullResult
 import com.beust.klaxon.json
 import io.ktor.client.HttpClient
-import io.ktor.client.engine.apache.Apache
+import io.ktor.client.engine.android.Android
 import io.ktor.client.features.cookies.AcceptAllCookiesStorage
 import io.ktor.client.features.cookies.HttpCookies
 import io.ktor.client.request.*
 import io.ktor.http.*
 import kotlinx.coroutines.experimental.*
+import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.io.jvm.javaio.toOutputStream
 import kr.ac.kw.coms.globealbum.common.MultiPartContent
 import kr.ac.kw.coms.globealbum.common.copyToSuspend
@@ -32,37 +34,51 @@ fun HttpRequestBuilder.json(json: JsonBase) {
 val herokuUri = "https://landmarks-coms.herokuapp.com"
 
 open class Promise<T> {
-  var err: Throwable? = null
   var ans: T? = null
-  open fun resolve(result: T) { ans = result }
-  open fun failure(cause: Throwable) { err = cause }
+  var err: Throwable? = null
+
+  open fun success(result: T) {
+    ans = result
+  }
+
+  open fun failure(cause: Throwable) {
+    err = cause
+  }
+
+  open fun resolve(result: T) = success(result)
+  open fun resolve(cause: Throwable) = failure(cause)
+  open fun resolve(block: suspend CoroutineScope.() -> T) {
+    resolve(runBlocking(block = block))
+  }
 }
 
-class RemoteJava() {
+open class UIPromise<T> : Promise<T>() {
+  override fun resolve(block: suspend CoroutineScope.() -> T) {
+    runBlocking {
+      launch(UI) {
+        try {
+          resolve(async(CommonPool, block = block).await())
+        } catch (e: Throwable) {
+          resolve(e)
+        }
+      }
+    }
+  }
+}
+
+class RemoteJava {
 
   val client = Remote()
 
   fun reverseGeocode(latitude: Double, longitude: Double, prom: Promise<Pair<String?, String?>?>) {
-    resolve(prom) { client.reverseGeocode(latitude, longitude) }
-  }
-
-  private fun<T> resolve(prom: Promise<T>, s: suspend CoroutineScope.() -> T) {
-    runBlocking {
-      launch(coroutineContext) {
-        try {
-          prom.resolve(async(CommonPool, block = s).await())
-        } catch (e: Throwable) {
-          prom.failure(e)
-        }
-      }
-    }
+    prom.resolve { client.reverseGeocode(latitude, longitude) }
   }
 
 }
 
 class Remote(val http: HttpClient, val basePath: String) {
 
-  constructor() : this(HttpClient(Apache.create()) {
+  constructor() : this(HttpClient(Android.create()) {
     install(HttpCookies) {
       storage = AcceptAllCookiesStorage()
     }
