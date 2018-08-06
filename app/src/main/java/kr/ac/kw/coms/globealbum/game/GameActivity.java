@@ -247,7 +247,6 @@ public class GameActivity extends AppCompatActivity {
                         currentMarker = new Marker(myMapView);
                         currentState = Answered;
 
-                        answerMarker.showInfoWindow();
                         myMapView.getOverlays().add(answerMarker);
                         gotonextTextView.setVisibility(View.VISIBLE);
 
@@ -323,7 +322,6 @@ public class GameActivity extends AppCompatActivity {
                     animateHandler.postDelayed(this, 1000 / 60);
                 } else {   //정답 마커 위치로 이동되면 정답 마커 추가
                     marker.remove(myMapView);
-                    answerMarker.showInfoWindow();
                     myMapView.getOverlays().add(answerMarker);
 
                     gotonextTextView.setVisibility(View.VISIBLE);
@@ -438,7 +436,6 @@ public class GameActivity extends AppCompatActivity {
                 myMapView.getOverlays().add(tmpMarker);
 
                 int distance = calcDistance(geoPoint, answerMarker.getPosition());
-                answerMarker.setSnippet(distance + "Km");    //거리를 마커의 Infowindow에 추가
                 animateMarker(myMapView, tmpMarker, answerMarker.getPosition(), new GeoPointInterpolator.Spherical()); //마커 이동 애니메이션
 
                 marker.remove(myMapView);
@@ -489,7 +486,6 @@ public class GameActivity extends AppCompatActivity {
         myMapView.getOverlays().add(tmpMarker);
 
         int distance = calcDistance(currentMarker.getPosition(), answerMarker.getPosition());
-        answerMarker.setSnippet(distance + "Km");
         animateMarker(myMapView, tmpMarker, answerMarker.getPosition(), new GeoPointInterpolator.Spherical());
         gotonextTextView.setVisibility(View.VISIBLE);
         currentMarker.remove(myMapView);
@@ -515,7 +511,6 @@ public class GameActivity extends AppCompatActivity {
         answerMarker = new Marker(myMapView);
         answerMarker.setIcon(RED_FLAG_DRAWABLE);
         answerMarker.setAnchor(0.25f, 1.0f);
-        answerMarker.setTitle(pi.name);
         answerMarker.setPosition(pi.geoPoint);
 
         myMapView.getController().setZoom(myMapView.getLogZoom());
