@@ -12,6 +12,7 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.TabHost;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -21,6 +22,7 @@ import java.util.Comparator;
 import kr.ac.kw.coms.globealbum.album.GalleryDetail;
 import kr.ac.kw.coms.globealbum.R;
 import kr.ac.kw.coms.globealbum.album.GroupDiaryView;
+import kr.ac.kw.coms.globealbum.album.PictureArray;
 import kr.ac.kw.coms.globealbum.album.PictureGroup;
 import kr.ac.kw.coms.globealbum.album.ResourcePicture;
 import kr.ac.kw.coms.globealbum.provider.PictureProvider;
@@ -30,69 +32,49 @@ public class Diary_Mine_main extends AppCompatActivity {
     GroupDiaryView diaryImageView = null;
     GroupDiaryView diaryJourneyView = null;
 
-    ActionBarDrawerToggle drawerToggle;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_diary_mine_main);
 
-        DrawerLayout drawerLayout = findViewById(R.id.diary_mine_main_Root);
+
+        TabHost tabHost = (TabHost)findViewById(R.id.diary_mine_main_TabHost);
+        tabHost.setup();
         prepareViewSample();
 
-        drawerToggle = new ActionBarDrawerToggle(this, drawerLayout, R.string.open, R.string.close) {
+        TabHost.TabSpec ts1 = tabHost.newTabSpec("Tab_ImageList");
+        ts1.setIndicator("내 이미지");
+        ts1.setContent(R.id.diary_mine_main_ImageList);
+
+
+
+        TabHost.TabSpec ts2 = tabHost.newTabSpec("Tab_JourneyList");
+        ts2.setIndicator("내 여행지");
+        ts2.setContent(R.id.diary_mine_main_JourneyList);
+
+
+        tabHost.addTab(ts1);
+        tabHost.addTab(ts2);
+
+        tabHost.setOnTabChangedListener(new TabHost.OnTabChangeListener() {
             @Override
-            public void onDrawerOpened(View drawerView) {
-                super.onDrawerOpened(drawerView);
-                Log.i("DRAWER", "Open");
+            public void onTabChanged(String tabId) {
+                Log.d("TAB", tabId);
             }
-
-            @Override
-            public void onDrawerClosed(View drawerView) {
-                super.onDrawerClosed(drawerView);
-                Log.i("DRAWER", "Close");
-            }
-        };
-        drawerLayout.addDrawerListener(drawerToggle);
+        });
     }
-
-    @Override
-    protected void onPostCreate(@Nullable Bundle savedInstanceState) {
-        super.onPostCreate(savedInstanceState);
-        drawerToggle.syncState();
-    }
-
-    @Override
-    public void onConfigurationChanged(Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-        drawerToggle.onConfigurationChanged(newConfig);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (drawerToggle.onOptionsItemSelected(item))
-            return true;
-        return super.onOptionsItemSelected(item);
-    }
-
 
     public void prepareViewSample() {
         diaryImageView = findViewById(R.id.diary_mine_main_ImageList);
         diaryJourneyView = findViewById(R.id.diary_mine_main_JourneyList);
 
         ArrayList<PictureGroup> elementList = new ArrayList<>();
-        ArrayList<PictureProvider.Picture> elementRow = new ArrayList<>();
+        PictureArray elementRow = new PictureArray();
         Context c = getBaseContext();
         elementRow.add(new ResourcePicture(c, R.drawable.sample0, null));
         elementRow.add(new ResourcePicture(c, R.drawable.sample1, null));
         elementRow.add(new ResourcePicture(c, R.drawable.sample2, null));
-
-        Collections.sort(elementRow, new Comparator<PictureProvider.Picture>() {
-            @Override
-            public int compare(PictureProvider.Picture o1, PictureProvider.Picture o2) {
-                return o1.getTime().compareTo(o2.getTime());
-            }
-        });
+        elementRow.sort();
 
         final ArrayList<String> urls = new ArrayList<>();
 
@@ -102,8 +84,7 @@ public class Diary_Mine_main extends AppCompatActivity {
 
         for (int i = 0; i < elementRow.size(); i++) {
             final int idx = i;
-            ResourcePicture resourcePicture = (ResourcePicture) elementRow.get(i);
-            resourcePicture.seteEventListener(new View.OnClickListener() {
+            elementRow.setOnClickListener(i, new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     Intent intent = new Intent(getBaseContext(), GalleryDetail.class);
@@ -112,7 +93,6 @@ public class Diary_Mine_main extends AppCompatActivity {
                     startActivity(intent);
                 }
             });
-            elementRow.set(i, resourcePicture);
         }
 
         elementList.add(new PictureGroup("My Photos", elementRow));
@@ -143,17 +123,5 @@ public class Diary_Mine_main extends AppCompatActivity {
 
     public void diary_onBackClick(View view) {
         finish();
-    }
-
-    public void diary_openDrawer(View view) {
-        ((DrawerLayout) findViewById(R.id.diary_mine_main_Root)).openDrawer(Gravity.RIGHT);
-    }
-
-    @Override
-    public void onBackPressed() {
-        if (((DrawerLayout) findViewById(R.id.diary_mine_main_Root)).isDrawerOpen(Gravity.RIGHT))
-            ((DrawerLayout) findViewById(R.id.diary_mine_main_Root)).closeDrawer(Gravity.RIGHT);
-        else
-            super.onBackPressed();
     }
 }

@@ -36,6 +36,7 @@ import java.util.Comparator;
 import kr.ac.kw.coms.globealbum.R;
 import kr.ac.kw.coms.globealbum.album.GalleryDetail;
 import kr.ac.kw.coms.globealbum.album.GroupDiaryView;
+import kr.ac.kw.coms.globealbum.album.PictureArray;
 import kr.ac.kw.coms.globealbum.album.PictureGroup;
 import kr.ac.kw.coms.globealbum.album.ResourcePicture;
 import kr.ac.kw.coms.globealbum.map.DrawCircleOverlay;
@@ -76,19 +77,13 @@ public class Diary_mapNPictures extends AppCompatActivity {
         final ArrayList<String> urls = new ArrayList<String>();
 
         ArrayList<PictureGroup> elementList = new ArrayList<>();
-        ArrayList<PictureProvider.Picture> elementRow = new ArrayList<>();
+        PictureArray elementRow = new PictureArray();
         final   Context c = getBaseContext();
         for (int i = 0; i < PicturesArray.size(); i++) {
             final int idx = i;
             elementRow.add(idx, new ResourcePicture(c, PicturesArray.get(idx), null));
         }
-
-        Collections.sort(elementRow, new Comparator<PictureProvider.Picture>() {
-            @Override
-            public int compare(PictureProvider.Picture o1, PictureProvider.Picture o2) {
-                return o1.getTime().compareTo(o2.getTime());
-            }
-        });
+        elementRow.sort();
 
         for (PictureProvider.Picture i: elementRow)
         {
@@ -98,16 +93,15 @@ public class Diary_mapNPictures extends AppCompatActivity {
         for (int i = 0; i<elementRow.size(); i++)
         {
             final int idx = i;
-            ResourcePicture resourcePicture = (ResourcePicture) elementRow.get(i);
-            resourcePicture.seteEventListener(new View.OnClickListener() {
+            elementRow.setOnClickListener(i, new View.OnClickListener() {
                 @Override
-                public void onClick(View view) {
+                public void onClick(View v) {
                     Intent intent = new Intent(getBaseContext(), GalleryDetail.class);
                     intent.putExtra("urls", urls);
                     intent.putExtra("index", idx);
                     startActivity(intent);
-                }});
-            elementRow.set(i, resourcePicture);
+                }
+            });
         }
 
         elementList.add(new PictureGroup("", elementRow));

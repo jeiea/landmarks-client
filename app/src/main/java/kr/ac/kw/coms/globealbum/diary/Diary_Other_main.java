@@ -3,33 +3,58 @@ package kr.ac.kw.coms.globealbum.diary;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 
 import kr.ac.kw.coms.globealbum.R;
+import kr.ac.kw.coms.globealbum.album.PictureArray;
 import kr.ac.kw.coms.globealbum.album.GroupDiaryView;
 import kr.ac.kw.coms.globealbum.album.PictureGroup;
 import kr.ac.kw.coms.globealbum.album.ResourcePicture;
-import kr.ac.kw.coms.globealbum.provider.PictureProvider;
 
 public class Diary_Other_main extends AppCompatActivity {
 
     GroupDiaryView diaryView = null;
 
     public void prepareData() {
-        ArrayList<PictureProvider.Picture> ResourceList1 = new ArrayList<>();
+
+        PictureArray ResourceList1 = new PictureArray();
         ResourceList1.add(new ResourcePicture(getBaseContext(), R.drawable.coord0, null));
         ResourceList1.add(new ResourcePicture(getBaseContext(), R.drawable.coord1, null));
         ResourceList1.add(new ResourcePicture(getBaseContext(), R.drawable.coord2, null));
+        ResourceList1.sort();
 
+        for (int i = 0;i < ResourceList1.size(); i++)
+        {
+            final int idx = i;
+            ResourceList1.setOnClickListener(i, new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Toast.makeText(Diary_Other_main.this, "" + idx, Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
         PictureGroup PictureRow = new PictureGroup("Other's group 1", ResourceList1);
         ArrayList<PictureGroup> PictureList = new ArrayList<>();
         PictureList.add(PictureRow);
 
-        ArrayList<PictureProvider.Picture> ResourceList2 = new ArrayList<>();
+        PictureArray ResourceList2 = new PictureArray();
         ResourceList2.add(new ResourcePicture(getBaseContext(), R.drawable.coord1, null));
         ResourceList2.add(new ResourcePicture(getBaseContext(), R.drawable.coord2, null));
         ResourceList2.add(new ResourcePicture(getBaseContext(), R.drawable.coord3, null));
+        ResourceList2.sort();
+
+        for (int i = 0;i < ResourceList2.size(); i++)
+        {
+            final int idx = i;
+            ResourceList2.setOnClickListener(i, new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Toast.makeText(Diary_Other_main.this, "" + idx, Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
         PictureRow = new PictureGroup("Other's group 2", ResourceList2);
         PictureList.add(PictureRow);
 

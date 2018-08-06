@@ -67,10 +67,18 @@ fun resPicGetter(context: Context): (Int) -> ResourcePicture = { i ->
   ResourcePicture(context, i, null)
 }
 
-class UriPicture(val uri: android.net.Uri, val context: Context) : PictureProvider.Picture {
+class UriPicture(val uri: android.net.Uri, val context: Context, var clickListener: View.OnClickListener?) : PictureProvider.Picture {
 
   override fun getDrawable(): RequestBuilder<Drawable> {
     return Glide.with(context).load(uri)
+  }
+
+  override fun getOnClickListener(): View.OnClickListener? {
+    return clickListener
+  }
+
+  override fun setOnClickListener(onClickListener: View.OnClickListener?) {
+    clickListener = onClickListener
   }
 
   override fun getTitle(): String = uri.lastPathSegment
@@ -93,10 +101,18 @@ class UriPicture(val uri: android.net.Uri, val context: Context) : PictureProvid
 
 }
 
-class LocalPicture(val path: String, val context: Context) : PictureProvider.Picture {
+class LocalPicture(val path: String, val context: Context, var clickListener: View.OnClickListener?) : PictureProvider.Picture {
 
   override fun getDrawable(): RequestBuilder<Drawable> {
     return Glide.with(context).load(File(path))
+  }
+
+  override fun getOnClickListener(): View.OnClickListener? {
+    return clickListener
+  }
+
+  override fun setOnClickListener(onClickListener: View.OnClickListener?) {
+    clickListener = onClickListener
   }
 
   override fun getTitle(): String =
@@ -126,11 +142,12 @@ class ResourcePicture(val context: Context, @DrawableRes val id: Int, var clickL
     return Glide.with(context).load(id)
   }
 
-  fun getEventListener(): View.OnClickListener? = clickListener
+  override fun getOnClickListener(): View.OnClickListener? {
+    return clickListener
+  }
 
-  fun seteEventListener(clickListener: View.OnClickListener?)
-  {
-    this.clickListener = clickListener
+  override fun setOnClickListener(onClickListener: View.OnClickListener?) {
+    clickListener = onClickListener
   }
 
   fun getid(): Int = id;

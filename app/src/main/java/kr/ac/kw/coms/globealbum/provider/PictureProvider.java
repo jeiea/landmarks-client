@@ -5,6 +5,7 @@ import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.support.v7.widget.RecyclerView;
 import android.util.Pair;
+import android.view.View;
 
 import com.bumptech.glide.RequestBuilder;
 
@@ -20,6 +21,10 @@ public abstract class PictureProvider {
     public interface Picture {
         // 비트맵
         RequestBuilder<Drawable> getDrawable();
+
+        // 클릭 리스너
+        View.OnClickListener getOnClickListener();
+        void setOnClickListener(View.OnClickListener onClickListener);
 
         // 제목
         String getTitle();

@@ -1,64 +1,69 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v4.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/diary_mine_main_Root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".diary.Diary_Mine_main"
-    android:id="@+id/diary_mine_main_Root">
+    tools:context=".diary.Diary_Mine_main">
 
-
-    <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        xmlns:tools="http://schemas.android.com/tools"
+    <RelativeLayout
+        android:id="@+id/diary_mine_main_Toolbar"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
-        <!-- 다이어리 메인 화면. 여행정보 목록 조회 -->
-        <RelativeLayout
-            android:id="@+id/diary_mine_main_Toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
-
-            <ImageButton
-                android:id="@+id/diary_mine_main_Back"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:layout_alignParentLeft="true"
-                android:layout_centerVertical="true"
-                android:onClick="diary_onBackClick"
-                android:scaleType="fitCenter"
-                android:src="@drawable/arrow_left" />
-
-        </RelativeLayout>
-
-        <kr.ac.kw.coms.globealbum.album.GroupDiaryView
-            android:id="@+id/diary_mine_main_ImageList"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:visibility="visible"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/diary_mine_main_Toolbar" />
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
         <ImageButton
-            android:layout_width="70dp"
-            android:layout_height="70dp"
-            app:layout_constraintRight_toRightOf="parent"
-            android:src="@drawable/arrow_left"
-            android:scaleType="fitXY"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            android:onClick="diary_openDrawer"/>
+            android:id="@+id/diary_mine_main_Back"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            android:onClick="diary_onBackClick"
+            android:scaleType="fitCenter"
+            android:src="@drawable/arrow_left" />
 
-    </android.support.constraint.ConstraintLayout>
-
-    <kr.ac.kw.coms.globealbum.album.GroupDiaryView
-        android:id="@+id/diary_mine_main_JourneyList"
+    </RelativeLayout>
+    <TabHost
+        android:id="@+id/diary_mine_main_TabHost"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:visibility="visible"
-        android:layout_gravity="right"/>
-</android.support.v4.widget.DrawerLayout>
+        android:layout_height="0dp"
+        app:layout_constraintTop_toBottomOf="@id/diary_mine_main_Toolbar"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+            <TabWidget
+                android:id="@android:id/tabs"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintLeft_toLeftOf="parent">
+
+            </TabWidget>
+            <FrameLayout
+                android:id="@android:id/tabcontent"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+                <kr.ac.kw.coms.globealbum.album.GroupDiaryView
+                    android:id="@+id/diary_mine_main_ImageList"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"/>
+                <kr.ac.kw.coms.globealbum.album.GroupDiaryView
+                    android:id="@+id/diary_mine_main_JourneyList"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"/>
+            </FrameLayout>
+        </LinearLayout>
+
+    </TabHost>
+
+
+
+
+</android.support.constraint.ConstraintLayout>
