@@ -19,6 +19,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.PopupWindow;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.File;
 import java.nio.file.FileSystem;
@@ -82,15 +83,34 @@ public class GalleryDetail extends AppCompatActivity {
                 break;
             case R.id.gallerydetail_btn_detail:
                 //팝업 표시
-                PopupWindow popup = new PopupWindow(view);
-                LayoutInflater inflater = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                View v = inflater.inflate(R.layout.layout_gallerymenu, null);
-                popup.setContentView(v);
-                popup.setTouchable(true);
-                popup.setFocusable(true);
-                popup.setOutsideTouchable(true);
-                popup.showAsDropDown(view);
+                findViewById(R.id.gallerydetail_detailMenu_Root).setVisibility(View.VISIBLE);
+                break;
+            case R.id.gallerydetail_detailMenu_OuterUpper:
+                //팝업 닫기
+                findViewById(R.id.gallerydetail_detailMenu_Root).setVisibility(View.GONE);
+                break;
+            case R.id.gallerydetail_detailMenu_OuterLower:
+                findViewById(R.id.gallerydetail_detailMenu_Root).setVisibility(View.GONE);
+                break;
+            case R.id.gallerydetail_detailMenu_btn_Delete:
+                //삭제 버튼
+                Toast.makeText(this, "DELETE", Toast.LENGTH_SHORT).show();
+                findViewById(R.id.gallerydetail_detailMenu_Root).setVisibility(View.GONE);
+                break;
+            case R.id.gallerydetail_detailMenu_btn_Select:
+                //선택 버튼
+                Toast.makeText(this, "SELECT", Toast.LENGTH_SHORT).show();
+                findViewById(R.id.gallerydetail_detailMenu_Root).setVisibility(View.GONE);
                 break;
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+
+        if (findViewById(R.id.gallerydetail_detailMenu_Root).getVisibility() == View.VISIBLE)
+            findViewById(R.id.gallerydetail_detailMenu_Root).setVisibility(View.GONE);
+        else
+            super.onBackPressed();
     }
 }

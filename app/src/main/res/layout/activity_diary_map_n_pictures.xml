@@ -52,7 +52,8 @@
                 app:layout_constraintRight_toRightOf="parent"
                 android:src="@drawable/heartgrey"
                 android:background="#00000000"
-                android:scaleType="centerCrop"/>
+                android:scaleType="centerCrop"
+                android:onClick="diary_onLikeClick"/>
         </android.support.constraint.ConstraintLayout>
         <FrameLayout
             android:id="@+id/diary_mapNpics_Map_Outer"
