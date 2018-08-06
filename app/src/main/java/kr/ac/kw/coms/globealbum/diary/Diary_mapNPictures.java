@@ -3,6 +3,7 @@ package kr.ac.kw.coms.globealbum.diary;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.support.annotation.NonNull;
@@ -11,6 +12,7 @@ import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.view.ViewTreeObserver;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -46,7 +48,6 @@ public class Diary_mapNPictures extends AppCompatActivity {
 
     MyMapView mapView = null;   //맵뷰 인스턴스
     MapEventsOverlay mapviewClickEventOverlay; //맵 이벤트를 등록하는 오버레이
-    final int PICTURE_NUM=4;
     final ArrayList<Integer> PicturesArray = new ArrayList<>();
 
     GroupDiaryView picView = null;
@@ -66,15 +67,8 @@ public class Diary_mapNPictures extends AppCompatActivity {
         }
     }
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_diary_map_n_pictures);
-
-        mapView = findViewById(R.id.diary_mapNpics_Map);
-        picView = findViewById(R.id.diary_mapNpics_Pics);
-        picView.setPadding(20);
-
+    public void prepareData()
+    {
         PicturesArray.add(R.drawable.coord0);
         PicturesArray.add(R.drawable.coord1);
         PicturesArray.add(R.drawable.coord2);
@@ -118,6 +112,18 @@ public class Diary_mapNPictures extends AppCompatActivity {
 
         elementList.add(new PictureGroup("", elementRow));
         picView.setGroups(elementList);
+    }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_diary_map_n_pictures);
+
+        mapView = findViewById(R.id.diary_mapNpics_Map);
+        picView = findViewById(R.id.diary_mapNpics_Pics);
+        picView.setPadding(20);
+
+        prepareData();
         picView.setOrientation(1);
 
         //TODO: show info text
@@ -126,8 +132,6 @@ public class Diary_mapNPictures extends AppCompatActivity {
             findViewById(R.id.diary_mapNpics_EditStart).setVisibility(View.GONE);
         }
 
-
-
         //마커 이벤트 등록
         mapviewClickEventOverlay = mapviewClickEventDisplay();
         mapView.getOverlays().add(mapviewClickEventOverlay);
@@ -135,9 +139,7 @@ public class Diary_mapNPictures extends AppCompatActivity {
         //맵뷰에 마커들 등록
         markerFolderOverlay = new MyMarker(mapView);
         setMarkerToMapview();
-
     }
-
 
     MyMarker markerFolderOverlay;  //마커들을 가지고 있는 오버레이
 

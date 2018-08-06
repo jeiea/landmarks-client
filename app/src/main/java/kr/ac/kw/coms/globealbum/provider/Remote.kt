@@ -6,18 +6,18 @@ import com.beust.klaxon.Parser
 import com.beust.klaxon.internal.firstNotNullResult
 import com.beust.klaxon.json
 import io.ktor.client.HttpClient
-import io.ktor.client.engine.apache.Apache
+import io.ktor.client.engine.android.Android
 import io.ktor.client.features.cookies.AcceptAllCookiesStorage
 import io.ktor.client.features.cookies.HttpCookies
 import io.ktor.client.request.*
 import io.ktor.http.*
 import kotlinx.coroutines.experimental.*
+import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.io.jvm.javaio.toOutputStream
 import kr.ac.kw.coms.globealbum.common.MultiPartContent
 import kr.ac.kw.coms.globealbum.common.copyToSuspend
 import java.io.File
 import java.util.*
-import kotlin.coroutines.experimental.coroutineContext
 import kotlin.math.max
 
 fun HttpRequestBuilder.userAgent() {
@@ -32,37 +32,66 @@ fun HttpRequestBuilder.json(json: JsonBase) {
 val herokuUri = "https://landmarks-coms.herokuapp.com"
 
 open class Promise<T> {
-  var err: Throwable? = null
   var ans: T? = null
-  open fun resolve(result: T) { ans = result }
-  open fun failure(cause: Throwable) { err = cause }
-}
+  var err: Throwable? = null
 
-class RemoteJava() {
-
-  val client = Remote()
-
-  fun reverseGeocode(latitude: Double, longitude: Double, prom: Promise<Pair<String?, String?>?>) {
-    resolve(prom) { client.reverseGeocode(latitude, longitude) }
+  open fun success(result: T) {
+    ans = result
   }
 
-  private fun<T> resolve(prom: Promise<T>, s: suspend CoroutineScope.() -> T) {
+  open fun failure(cause: Throwable) {
+    err = cause
+  }
+
+  open fun resolve(result: T) = success(result)
+  open fun resolve(cause: Throwable) = failure(cause)
+  open fun resolve(block: suspend CoroutineScope.() -> T) {
+    resolve(runBlocking(block = block))
+  }
+}
+
+open class UIPromise<T> : Promise<T>() {
+  override fun resolve(block: suspend CoroutineScope.() -> T) {
     runBlocking {
-      launch(coroutineContext) {
+      launch(UI) {
         try {
-          prom.resolve(async(CommonPool, block = s).await())
+          resolve(async(CommonPool, block = block).await())
         } catch (e: Throwable) {
-          prom.failure(e)
+          resolve(e)
         }
       }
     }
   }
+}
 
+class RemoteJava {
+
+  private val client = Remote()
+
+  fun reverseGeocode(latitude: Double, longitude: Double, prom: Promise<Pair<String?, String?>?>) {
+    prom.resolve { client.reverseGeocode(latitude, longitude) }
+  }
+
+  fun checkAlive(prom: Promise<Boolean>) {
+    prom.resolve { client.checkAlive() }
+  }
+
+  fun register(ident: String, pass: String, email: String, nick: String, prom: Promise<Unit>) {
+    prom.resolve { client.register(ident, pass, email, nick) }
+  }
+
+  fun login(ident: String, pass: String, prom: Promise<Unit>) {
+    prom.resolve { client.login(ident, pass) }
+  }
+
+  fun uploadPic(file: File, latitude: Float? = null, longitude: Float? = null, addr: String? = null, prom: Promise<Unit>) {
+    prom.resolve { client.uploadPic(file, latitude, longitude, addr) }
+  }
 }
 
 class Remote(val http: HttpClient, val basePath: String) {
 
-  constructor() : this(HttpClient(Apache.create()) {
+  constructor() : this(HttpClient(Android.create()) {
     install(HttpCookies) {
       storage = AcceptAllCookiesStorage()
     }

@@ -39,9 +39,15 @@
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Open Diary"
+            android:text="Open Diary_Mine"
             android:onClick="startOnClick"
             android:id="@+id/btn_start_diary"/>
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Open Diary_Other"
+            android:onClick="startOnClick"
+            android:id="@+id/btn_start_diaryOther"/>
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

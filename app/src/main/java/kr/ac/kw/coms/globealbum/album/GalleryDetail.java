@@ -1,17 +1,23 @@
 package kr.ac.kw.coms.globealbum.album;
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.PopupWindow;
 import android.widget.TextView;
 
 import java.io.File;
@@ -75,6 +81,15 @@ public class GalleryDetail extends AppCompatActivity {
                 finish();
                 break;
             case R.id.gallerydetail_btn_detail:
+                //팝업 표시
+                PopupWindow popup = new PopupWindow(view);
+                LayoutInflater inflater = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                View v = inflater.inflate(R.layout.layout_gallerymenu, null);
+                popup.setContentView(v);
+                popup.setTouchable(true);
+                popup.setFocusable(true);
+                popup.setOutsideTouchable(true);
+                popup.showAsDropDown(view);
                 break;
         }
     }
