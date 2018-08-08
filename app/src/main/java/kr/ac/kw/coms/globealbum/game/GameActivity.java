@@ -19,8 +19,10 @@ import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.Interpolator;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.DrawableImageViewTarget;
@@ -66,6 +68,13 @@ public class GameActivity extends AppCompatActivity {
     TextView scoreTextView = null;
 
 
+    Button goToNextStageButton,exitGameButton;
+    TextView landNameAnswerTextView,landDistanceAnswerTextView,landScoreTextView;
+    ImageView pictureAnswerImageView;
+
+    LinearLayout answerLinearLayout;
+
+
     Drawable RED_FLAG_DRAWABLE;
     Drawable BLUE_FLAG_DRAWABLE;
     final int PICTURE_NUM = 4;
@@ -75,6 +84,8 @@ public class GameActivity extends AppCompatActivity {
     int distanceScore = 0;
     int stage = 1;
     boolean startFlag;
+    int distance =0;
+
     /**
      * 제한시간 타이머가 돌아가는 중인지.
      */
@@ -192,6 +203,19 @@ public class GameActivity extends AppCompatActivity {
         menuButton.setOnClickListener(new MenuButtonClickListener());
         gotonextTextView = findViewById(R.id.gotonext_textview);
 
+        //정답 확인 부분 뷰 연결
+        pictureAnswerImageView = findViewById(R.id.picture_answer);
+        exitGameButton = findViewById(R.id.button_exit);
+        goToNextStageButton = findViewById(R.id.button_next);
+        landDistanceAnswerTextView = findViewById(R.id.textview_land_distance_answer);
+        landNameAnswerTextView = findViewById(R.id.textview_land_name_answer);
+        landScoreTextView = findViewById(R.id.textview_land_score_answer);
+        answerLinearLayout = findViewById(R.id.layout_answer);
+
+        goToNextStageButton.setOnClickListener(new GameNextQuizListener());
+        exitGameButton.setOnClickListener(new GameFinishListener());
+
+
         RED_FLAG_DRAWABLE = getResources().getDrawable(R.drawable.red_flag);
         BLUE_FLAG_DRAWABLE = getResources().getDrawable(R.drawable.blue_flag);
 
@@ -246,11 +270,11 @@ public class GameActivity extends AppCompatActivity {
                         //화면에 마커 생성 없이 타임아웃 발생시 정답 확인
                         currentMarker = new Marker(myMapView);
                         currentState = Answered;
+                        stopTimer = Stop;
 
                         myMapView.getOverlays().add(answerMarker);
-                        gotonextTextView.setVisibility(View.VISIBLE);
 
-
+                        setAnswerLayout();
                     }
                     myMapView.invalidate();
                 }
@@ -323,16 +347,38 @@ public class GameActivity extends AppCompatActivity {
                 } else {   //정답 마커 위치로 이동되면 정답 마커 추가
                     marker.remove(myMapView);
                     myMapView.getOverlays().add(answerMarker);
-
-                    gotonextTextView.setVisibility(View.VISIBLE);
-                    calcScore();
                     addPolyline(currentMarker.getPosition(), answerMarker.getPosition());    //마커 사이를 직선으로 연결
+
+                    calcScore();
+                    setAnswerLayout();
+
+
                     animateHandler = null;
-                    myMapView.setClickable(true);
+
+                    //myMapView.setClickable(true);
                     map.invalidate();
                 }
             }
         });
+    }
+
+
+
+    //정답 확인 레이아웃 값 설정하고 띄우기
+    private void setAnswerLayout() {
+
+        questionImageView.setImageResource(android.R.color.transparent);
+        questionImageView.setVisibility(View.GONE);
+        questionImageView.setClickable(false);
+
+        gotonextTextView.setVisibility(View.VISIBLE);
+        answerLinearLayout.setVisibility(View.VISIBLE);
+        answerLinearLayout.setClickable(true);
+        landNameAnswerTextView.setText(questionPic.get(problem).name);
+        landDistanceAnswerTextView.setText(distance+"KM");
+        landScoreTextView.setText(score+"");
+        pictureAnswerImageView.setImageResource(questionPic.get(problem).id);
+
     }
 
     //사용자가 정한 마커와 정답 마커 사이를 잇는 직선 생성
@@ -374,18 +420,27 @@ public class GameActivity extends AppCompatActivity {
     @Override
     public boolean dispatchTouchEvent(MotionEvent ev) { //문제를 맞춘 후 다시 맵 로드
         if (startFlag) {
-            gotonextTextView.setVisibility(View.GONE);
+
             if (currentState == Answered && animateHandler == null) {
 
                 currentMarker.remove(myMapView);
                 currentMarker = null;
 
-                answerMarker.closeInfoWindow();
                 myMapView.getOverlays().remove(answerMarker);
                 myMapView.getOverlays().remove(polyline);
                 myMapView.getOverlays().remove(drawCircleOverlay);
 
                 myMapView.invalidate();
+
+
+                questionImageView.setVisibility(View.VISIBLE);
+                questionImageView.setImageResource(android.R.color.transparent);
+                questionImageView.setClickable(true);
+                gotonextTextView.setVisibility(View.GONE);
+                answerLinearLayout.setVisibility(View.GONE);
+                answerLinearLayout.setClickable(false);
+
+
 
                 problem++;
                 switch (problem) {
@@ -435,7 +490,7 @@ public class GameActivity extends AppCompatActivity {
                 tmpMarker.setAnchor(0.25f, 1.0f);
                 myMapView.getOverlays().add(tmpMarker);
 
-                int distance = calcDistance(geoPoint, answerMarker.getPosition());
+                distance = calcDistance(geoPoint, answerMarker.getPosition());
                 animateMarker(myMapView, tmpMarker, answerMarker.getPosition(), new GeoPointInterpolator.Spherical()); //마커 이동 애니메이션
 
                 marker.remove(myMapView);
@@ -485,11 +540,10 @@ public class GameActivity extends AppCompatActivity {
         tmpMarker.setAnchor(0.25f, 1.0f);
         myMapView.getOverlays().add(tmpMarker);
 
-        int distance = calcDistance(currentMarker.getPosition(), answerMarker.getPosition());
+        distance = calcDistance(currentMarker.getPosition(), answerMarker.getPosition());
         animateMarker(myMapView, tmpMarker, answerMarker.getPosition(), new GeoPointInterpolator.Spherical());
-        gotonextTextView.setVisibility(View.VISIBLE);
+
         currentMarker.remove(myMapView);
-        calcScore();
     }
 
     //점수 계산
@@ -514,8 +568,8 @@ public class GameActivity extends AppCompatActivity {
         answerMarker.setPosition(pi.geoPoint);
 
         myMapView.getController().setZoom(myMapView.getLogZoom());
-        questionImageView.setImageResource(pi.id);
-
+        questionImageView.setImageResource(questionPic.get(problem).id);
+        questionImageView.invalidate();
     }
 
     //메뉴 버튼 클릭 시 다이얼로그 표시
@@ -542,6 +596,27 @@ public class GameActivity extends AppCompatActivity {
         }
     }
 
+
+
+    //한 스테이지가 끝난 후 다음 단계로 넘어갈 수 있는 이벤트
+    class GameNextQuizListener implements  View.OnClickListener{
+        @Override
+        public void onClick(View v) {
+            myMapView.performClick();
+        }
+    }
+
+
+    //한 스테이지가 끝난 후 게임을 종료할 수 있는 이벤트
+    class GameFinishListener implements  View.OnClickListener{
+        @Override
+        public void onClick(View v) {
+            GameActivity.this.finish();
+        }
+
+    }
+
+
     //문제 사진 클릭 시 크게 띄워주는 이벤트 등록
     class PictureClickListener implements View.OnClickListener {
         @Override
@@ -566,5 +641,3 @@ public class GameActivity extends AppCompatActivity {
             myMapView.onPause(); //osmdroid configuration refresh
     }
 }
-
-
