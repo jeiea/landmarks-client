@@ -51,8 +51,6 @@ import kr.ac.kw.coms.globealbum.provider.EXIFinfo;
 import kr.ac.kw.coms.globealbum.provider.RemoteJava;
 import kr.ac.kw.coms.globealbum.provider.UIPromise;
 
-import static kr.ac.kw.coms.globealbum.game.GameActivity.GameState.Answered;
-import static kr.ac.kw.coms.globealbum.game.GameActivity.GameState.Solving;
 import static kr.ac.kw.coms.globealbum.game.GameActivity.TimerState.Running;
 import static kr.ac.kw.coms.globealbum.game.GameActivity.TimerState.Stop;
 
@@ -64,7 +62,6 @@ public class GameActivity extends AppCompatActivity {
     ProgressBar progressBar = null;
     TextView stageTextView = null;
     Button menuButton = null;
-    TextView gotonextTextView = null;
     TextView scoreTextView = null;
 
 
@@ -83,7 +80,6 @@ public class GameActivity extends AppCompatActivity {
     int timeScore = 0;
     int distanceScore = 0;
     int stage = 1;
-    boolean startFlag;
     int distance =0;
 
     /**
@@ -107,17 +103,12 @@ public class GameActivity extends AppCompatActivity {
 
     List<PictureInfo> questionPic = new ArrayList<>();
 
-    enum GameState {
-        Solving,
-        Answered,
-    }
 
     enum TimerState {
         Stop,
         Running
     }
 
-    GameState currentState = Solving;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -131,7 +122,6 @@ public class GameActivity extends AppCompatActivity {
         Glide.with(GameActivity.this).load(R.drawable.owl).into(gifImage);
         ui = new Handler();
 
-        startFlag = false;
         //게임 시작 전 문제 세팅
         AsyncTask.execute(new Runnable() {
             @Override
@@ -201,7 +191,6 @@ public class GameActivity extends AppCompatActivity {
         scoreTextView = findViewById(R.id.textview_score);
         menuButton = findViewById(R.id.game_button_menu);
         menuButton.setOnClickListener(new MenuButtonClickListener());
-        gotonextTextView = findViewById(R.id.gotonext_textview);
 
         //정답 확인 부분 뷰 연결
         pictureAnswerImageView = findViewById(R.id.picture_answer);
@@ -234,7 +223,6 @@ public class GameActivity extends AppCompatActivity {
         listenerOverlay = markerEvent();
         myMapView.getOverlays().add(listenerOverlay);
 
-        startFlag = true;
         timeThreadhandler();
         setAnswerMarker(questionPic.get(problem));  //정답 마커 설정
     }
@@ -269,7 +257,6 @@ public class GameActivity extends AppCompatActivity {
                     } else {
                         //화면에 마커 생성 없이 타임아웃 발생시 정답 확인
                         currentMarker = new Marker(myMapView);
-                        currentState = Answered;
                         stopTimer = Stop;
 
                         myMapView.getOverlays().add(answerMarker);
@@ -367,11 +354,9 @@ public class GameActivity extends AppCompatActivity {
     //정답 확인 레이아웃 값 설정하고 띄우기
     private void setAnswerLayout() {
 
-        questionImageView.setImageResource(android.R.color.transparent);
         questionImageView.setVisibility(View.GONE);
         questionImageView.setClickable(false);
 
-        gotonextTextView.setVisibility(View.VISIBLE);
         answerLinearLayout.setVisibility(View.VISIBLE);
         answerLinearLayout.setClickable(true);
         landNameAnswerTextView.setText(questionPic.get(problem).name);
@@ -414,63 +399,6 @@ public class GameActivity extends AppCompatActivity {
         return (int) distance;
     }
 
-
-    //문제 정답을 확인한 후 화면의 아무 부분이나 클릭 시 실행
-    //기존 화면 오버레이들을 지우고 정답 마커 다시 설정, 타이머 재시작
-    @Override
-    public boolean dispatchTouchEvent(MotionEvent ev) { //문제를 맞춘 후 다시 맵 로드
-        if (startFlag) {
-
-            if (currentState == Answered && animateHandler == null) {
-
-                currentMarker.remove(myMapView);
-                currentMarker = null;
-
-                myMapView.getOverlays().remove(answerMarker);
-                myMapView.getOverlays().remove(polyline);
-                myMapView.getOverlays().remove(drawCircleOverlay);
-
-                myMapView.invalidate();
-
-
-                questionImageView.setVisibility(View.VISIBLE);
-                questionImageView.setImageResource(android.R.color.transparent);
-                questionImageView.setClickable(true);
-                gotonextTextView.setVisibility(View.GONE);
-                answerLinearLayout.setVisibility(View.GONE);
-                answerLinearLayout.setClickable(false);
-
-
-
-                problem++;
-                switch (problem) {
-                    case 1:
-                        setAnswerMarker(questionPic.get(problem));
-                        break;
-                    case 2:
-                        stage++;
-                        stageTextView.setText("STAGE " + stage);
-                        score = 0;
-                        scoreTextView.setText("SCORE " + score);
-                        setAnswerMarker(questionPic.get(problem));
-                        break;
-                    case 3:
-                        setAnswerMarker(questionPic.get(problem));
-                        break;
-                    case 4:
-                        showDialogAfterGame();
-                        break;
-                }
-                currentState = Solving;
-                stopTimer = Running;
-                timeThreadhandler();
-
-                return true;
-            }
-        }
-        return super.dispatchTouchEvent(ev);
-    }
-
     //사용자 마커 생성
     private Marker addUserMarker(final GeoPoint geoPoint) {
         //마커 생성 및 설정
@@ -481,7 +409,6 @@ public class GameActivity extends AppCompatActivity {
         marker.setOnMarkerClickListener(new Marker.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(Marker marker, MapView mapView) {  //생성된 마커를 클릭하여 화면에 등록
-                currentState = Answered;
                 stopTimer = Stop;
                 //유저가 선택한 위치의 마커에서 정답 마커까지 이동하는 애니메이션 동작을 하는 마커 생성
                 Marker tmpMarker = new Marker(myMapView);
@@ -531,7 +458,6 @@ public class GameActivity extends AppCompatActivity {
 
     //화면을 한번 클릭해 임시 마커 생성 후 타임아웃 발생시 정답 확인 과정
     private void timeOutAddUserMarker() {
-        currentState = Answered;
         stopTimer = Stop;
 
         Marker tmpMarker = new Marker(myMapView);
@@ -568,7 +494,7 @@ public class GameActivity extends AppCompatActivity {
         answerMarker.setPosition(pi.geoPoint);
 
         myMapView.getController().setZoom(myMapView.getLogZoom());
-        questionImageView.setImageResource(questionPic.get(problem).id);
+        questionImageView.setImageResource(pi.id);
         questionImageView.invalidate();
     }
 
@@ -602,7 +528,46 @@ public class GameActivity extends AppCompatActivity {
     class GameNextQuizListener implements  View.OnClickListener{
         @Override
         public void onClick(View v) {
-            myMapView.performClick();
+
+            currentMarker.remove(myMapView);
+            currentMarker = null;
+
+            myMapView.getOverlays().remove(answerMarker);
+            myMapView.getOverlays().remove(polyline);
+            myMapView.getOverlays().remove(drawCircleOverlay);
+
+            myMapView.invalidate();
+
+
+            questionImageView.setVisibility(View.VISIBLE);
+            questionImageView.setClickable(true);
+            answerLinearLayout.setVisibility(View.GONE);
+            answerLinearLayout.setClickable(false);
+
+
+
+            problem++;
+            switch (problem) {
+                case 1:
+                    setAnswerMarker(questionPic.get(problem));
+                    break;
+                case 2:
+                    stage++;
+                    stageTextView.setText("STAGE " + stage);
+                    score = 0;
+                    scoreTextView.setText("SCORE " + score);
+                    setAnswerMarker(questionPic.get(problem));
+                    break;
+                case 3:
+                    setAnswerMarker(questionPic.get(problem));
+                    break;
+                case 4:
+                    showDialogAfterGame();
+                    break;
+            }
+            stopTimer = Running;
+            timeThreadhandler();
+
         }
     }
 
@@ -611,7 +576,7 @@ public class GameActivity extends AppCompatActivity {
     class GameFinishListener implements  View.OnClickListener{
         @Override
         public void onClick(View v) {
-            GameActivity.this.finish();
+            finish();
         }
 
     }
