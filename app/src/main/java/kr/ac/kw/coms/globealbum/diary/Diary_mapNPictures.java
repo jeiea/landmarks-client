@@ -237,12 +237,16 @@ public class Diary_mapNPictures extends AppCompatActivity {
         ((TextView) findViewById(R.id.diary_mapNpics_ReadTitle)).setText(newInfo.Title);
         ((TextView) findViewById(R.id.diary_mapNpics_ReadBody)).setText(newInfo.Body);
         findViewById(R.id.diary_mapNpics_Write).setVisibility(View.GONE);
+        findViewById(R.id.diary_mapNpics_EditTitle).setVisibility(View.GONE);
+        findViewById(R.id.diary_mapNpics_ReadTitle).setVisibility(View.VISIBLE);
         findViewById(R.id.diary_mapNpics_Read).setVisibility(View.VISIBLE);
         findViewById(R.id.diary_mapNpics_EditStart).setVisibility(View.VISIBLE);
     }
 
     public void diary_onCancelClick(View view) {
+        findViewById(R.id.diary_mapNpics_EditTitle).setVisibility(View.GONE);
         findViewById(R.id.diary_mapNpics_Write).setVisibility(View.GONE);
+        findViewById(R.id.diary_mapNpics_ReadTitle).setVisibility(View.VISIBLE);
         findViewById(R.id.diary_mapNpics_Read).setVisibility(View.VISIBLE);
         findViewById(R.id.diary_mapNpics_EditStart).setVisibility(View.VISIBLE);
     }
@@ -251,9 +255,11 @@ public class Diary_mapNPictures extends AppCompatActivity {
         ((EditText) findViewById(R.id.diary_mapNpics_EditTitle)).setText(((TextView) findViewById(R.id.diary_mapNpics_ReadTitle)).getText());
         ((EditText) findViewById(R.id.diary_mapNpics_EditBody)).setText(((TextView) findViewById(R.id.diary_mapNpics_ReadBody)).getText());
 
+        findViewById(R.id.diary_mapNpics_EditTitle).setVisibility(View.VISIBLE);
         findViewById(R.id.diary_mapNpics_Write).setVisibility(View.VISIBLE);
+        findViewById(R.id.diary_mapNpics_ReadTitle).setVisibility(View.GONE);
         findViewById(R.id.diary_mapNpics_Read).setVisibility(View.GONE);
-        findViewById(R.id.diary_mapNpics_EditStart).setVisibility(View.GONE);
+        findViewById(R.id.diary_mapNpics_EditStart).setVisibility(View.INVISIBLE);
     }
 
     public void diary_onLikeClick(View view) {

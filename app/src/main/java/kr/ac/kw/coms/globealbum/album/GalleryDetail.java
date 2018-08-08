@@ -85,13 +85,6 @@ public class GalleryDetail extends AppCompatActivity {
                 //팝업 표시
                 findViewById(R.id.gallerydetail_detailMenu_Root).setVisibility(View.VISIBLE);
                 break;
-            case R.id.gallerydetail_detailMenu_OuterUpper:
-                //팝업 닫기
-                findViewById(R.id.gallerydetail_detailMenu_Root).setVisibility(View.GONE);
-                break;
-            case R.id.gallerydetail_detailMenu_OuterLower:
-                findViewById(R.id.gallerydetail_detailMenu_Root).setVisibility(View.GONE);
-                break;
             case R.id.gallerydetail_detailMenu_btn_Delete:
                 //삭제 버튼
                 Toast.makeText(this, "DELETE", Toast.LENGTH_SHORT).show();
@@ -103,6 +96,11 @@ public class GalleryDetail extends AppCompatActivity {
                 findViewById(R.id.gallerydetail_detailMenu_Root).setVisibility(View.GONE);
                 break;
         }
+    }
+
+    public void gallerydetail_CloseMenu(View view)
+    {
+        findViewById(R.id.gallerydetail_detailMenu_Root).setVisibility(View.GONE);
     }
 
     @Override
