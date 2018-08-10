@@ -83,31 +83,24 @@ public class GalleryDetail extends AppCompatActivity {
                 break;
             case R.id.gallerydetail_btn_detail:
                 //팝업 표시
-                findViewById(R.id.gallerydetail_detailMenu_Root).setVisibility(View.VISIBLE);
+                findViewById(R.id.gallerydetail_menu).setVisibility(View.VISIBLE);
                 break;
             case R.id.gallerydetail_detailMenu_btn_Delete:
-                //삭제 버튼
-                Toast.makeText(this, "DELETE", Toast.LENGTH_SHORT).show();
-                findViewById(R.id.gallerydetail_detailMenu_Root).setVisibility(View.GONE);
-                break;
-            case R.id.gallerydetail_detailMenu_btn_Select:
-                //선택 버튼
-                Toast.makeText(this, "SELECT", Toast.LENGTH_SHORT).show();
-                findViewById(R.id.gallerydetail_detailMenu_Root).setVisibility(View.GONE);
+                Toast.makeText(this, "asdf", Toast.LENGTH_SHORT).show();
                 break;
         }
     }
 
     public void gallerydetail_CloseMenu(View view)
     {
-        findViewById(R.id.gallerydetail_detailMenu_Root).setVisibility(View.GONE);
+        findViewById(R.id.gallerydetail_menu).setVisibility(View.GONE);
     }
 
     @Override
     public void onBackPressed() {
 
-        if (findViewById(R.id.gallerydetail_detailMenu_Root).getVisibility() == View.VISIBLE)
-            findViewById(R.id.gallerydetail_detailMenu_Root).setVisibility(View.GONE);
+        if (findViewById(R.id.gallerydetail_menu).getVisibility() == View.VISIBLE)
+            findViewById(R.id.gallerydetail_menu).setVisibility(View.GONE);
         else
             super.onBackPressed();
     }
