@@ -12,11 +12,14 @@ import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.Interpolator;
+import android.widget.Adapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -50,6 +53,7 @@ import kr.ac.kw.coms.globealbum.map.MyMapView;
 import kr.ac.kw.coms.globealbum.provider.EXIFinfo;
 import kr.ac.kw.coms.globealbum.provider.RemoteJava;
 import kr.ac.kw.coms.globealbum.provider.UIPromise;
+
 
 import static kr.ac.kw.coms.globealbum.game.GameActivity.TimerState.Running;
 import static kr.ac.kw.coms.globealbum.game.GameActivity.TimerState.Stop;
@@ -101,7 +105,7 @@ public class GameActivity extends AppCompatActivity {
 
     DrawCircleOverlay drawCircleOverlay;
 
-    List<PictureInfo> questionPic = new ArrayList<>();
+    ArrayList<GamePictureInfo> questionPic = new ArrayList<>();
 
 
     enum TimerState {
@@ -131,11 +135,7 @@ public class GameActivity extends AppCompatActivity {
         });
     }
 
-    class PictureInfo {  //사진에 필요한 정보를 가지고 있는 클래스
-        int id;
-        GeoPoint geoPoint;
-        String name;
-    }
+
 
     //문제 세팅
     private void setQuestion() {
@@ -170,7 +170,7 @@ public class GameActivity extends AppCompatActivity {
                 @Override
                 public void success(Pair<String, String> result) {
                     String name = result.getFirst() + " " + result.getSecond();
-                    PictureInfo pictureInfo = new PictureInfo();
+                    GamePictureInfo pictureInfo = new GamePictureInfo();
                     pictureInfo.geoPoint = geoPoint;
                     pictureInfo.id = s;
                     pictureInfo.name = name;
@@ -362,7 +362,7 @@ public class GameActivity extends AppCompatActivity {
         landNameAnswerTextView.setText(questionPic.get(problem).name);
         landDistanceAnswerTextView.setText(distance+"KM");
         landScoreTextView.setText(score+"");
-        pictureAnswerImageView.setImageResource(questionPic.get(problem).id);
+        Glide.with(context).load(questionPic.get(problem).id).into(pictureAnswerImageView);
 
     }
 
@@ -487,14 +487,15 @@ public class GameActivity extends AppCompatActivity {
     }
 
     //정답 마커 생성
-    private void setAnswerMarker(PictureInfo pi) {
+    private void setAnswerMarker(GamePictureInfo pi) {
         answerMarker = new Marker(myMapView);
         answerMarker.setIcon(RED_FLAG_DRAWABLE);
         answerMarker.setAnchor(0.25f, 1.0f);
         answerMarker.setPosition(pi.geoPoint);
 
         myMapView.getController().setZoom(myMapView.getLogZoom());
-        questionImageView.setImageResource(pi.id);
+
+        Glide.with(context).load(pi.id).into(questionImageView);
         questionImageView.invalidate();
     }
 
@@ -524,6 +525,10 @@ public class GameActivity extends AppCompatActivity {
 
 
 
+    RecyclerView recyclerView;
+    AfterGameAdapter adapter;
+
+
     //한 스테이지가 끝난 후 다음 단계로 넘어갈 수 있는 이벤트
     class GameNextQuizListener implements  View.OnClickListener{
         @Override
@@ -549,7 +554,9 @@ public class GameActivity extends AppCompatActivity {
             problem++;
             switch (problem) {
                 case 1:
-                    setAnswerMarker(questionPic.get(problem));
+                    setRecyclerView();
+
+                    //setAnswerMarker(questionPic.get(problem));
                     break;
                 case 2:
                     stage++;
@@ -569,6 +576,17 @@ public class GameActivity extends AppCompatActivity {
             timeThreadhandler();
 
         }
+    }
+
+    private void setRecyclerView() {    //게임이 완료된 후 사진들을 모아서 보여주는 리사이클뷰 적용
+        setContentView(R.layout.layout_recycler_view);
+        recyclerView = findViewById(R.id.after_game_recyclerview);
+
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+        layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+        recyclerView.setLayoutManager(layoutManager);
+        adapter = new AfterGameAdapter(this, questionPic);
+        recyclerView.setAdapter(adapter);
     }
 
 
