@@ -11,6 +11,11 @@
         android:weightSum="5"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toTopOf="parent">
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="finish"
+            android:id="@+id/after_game_quit_button"/>
 
         <ImageView
             android:id="@+id/after_game_place_imageview"

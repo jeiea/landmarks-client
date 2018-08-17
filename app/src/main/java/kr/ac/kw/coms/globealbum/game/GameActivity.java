@@ -1,5 +1,6 @@
 package kr.ac.kw.coms.globealbum.game;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -60,8 +61,10 @@ import static kr.ac.kw.coms.globealbum.game.GameActivity.TimerState.Stop;
 
 
 public class GameActivity extends AppCompatActivity {
+    public static Activity GActivity;
     Context context = null;
     MyMapView myMapView = null;
+
     ImageView questionImageView = null;
     ProgressBar progressBar = null;
     TextView stageTextView = null;
@@ -117,6 +120,8 @@ public class GameActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        GActivity = this;
 
         //로팅화면 적용
         setContentView(R.layout.layout_game_loading_animation);
@@ -601,7 +606,7 @@ public class GameActivity extends AppCompatActivity {
 
 
     //문제 사진 클릭 시 크게 띄워주는 이벤트 등록
-    class PictureClickListener implements View.OnClickListener {
+    public class PictureClickListener implements View.OnClickListener {
         @Override
         public void onClick(View view) {    //이미지뷰를 다이얼로그로 화면에 표시
             ImageView imgv = (ImageView) view;
