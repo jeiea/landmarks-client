@@ -69,6 +69,15 @@ fun resPicGetter(context: Context): (Int) -> ResourcePicture = { i ->
 
 class UriPicture(val uri: android.net.Uri, val context: Context, var clickListener: View.OnClickListener?) : PictureProvider.Picture {
 
+  var longClickListener: View.OnLongClickListener? = null
+  override fun getOnLongClickListener(): View.OnLongClickListener {
+    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+  }
+
+  override fun setOnLongClickListener(onLongClickListener: View.OnLongClickListener) {
+    longClickListener = onLongClickListener
+  }
+
   override fun getDrawable(): RequestBuilder<Drawable> {
     return Glide.with(context).load(uri)
   }
@@ -102,6 +111,15 @@ class UriPicture(val uri: android.net.Uri, val context: Context, var clickListen
 }
 
 class LocalPicture(val path: String, val context: Context, var clickListener: View.OnClickListener?) : PictureProvider.Picture {
+
+  var longClickListener: View.OnLongClickListener? = null
+  override fun getOnLongClickListener(): View.OnLongClickListener? {
+    return longClickListener
+  }
+
+  override fun setOnLongClickListener(onLongClickListener: View.OnLongClickListener) {
+    longClickListener = onLongClickListener
+  }
 
   override fun getDrawable(): RequestBuilder<Drawable> {
     return Glide.with(context).load(File(path))
@@ -137,6 +155,15 @@ class LocalPicture(val path: String, val context: Context, var clickListener: Vi
 }
 
 class ResourcePicture(val context: Context, @DrawableRes val id: Int, var clickListener: View.OnClickListener?) : PictureProvider.Picture {
+  var longClickListener: View.OnLongClickListener? = null
+
+  override fun getOnLongClickListener(): View.OnLongClickListener? {
+    return longClickListener
+  }
+
+  override fun setOnLongClickListener(onLongClickListener: View.OnLongClickListener) {
+    longClickListener = onLongClickListener
+  }
 
   override fun getDrawable(): RequestBuilder<Drawable>? {
     return Glide.with(context).load(id)
@@ -291,6 +318,7 @@ internal class GroupedPicAdapter : RecyclerView.Adapter<GroupedPicAdapter.Elemen
         val pic = viewData[position] as ResourcePicture
         pic.drawable?.into(holder.imageView)
         holder.imageView.setOnClickListener(pic.clickListener)
+        holder.imageView.setOnLongClickListener(pic.longClickListener)
         holder.imageView.scaleType = ImageView.ScaleType.FIT_XY
         holder.imageView.setPadding(padding / 2, 0, padding / 2, 0)
       }

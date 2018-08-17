@@ -26,6 +26,12 @@ public class PictureArray extends ArrayList<Picture> {
         set(index, picture);
     }
 
+    public void setOnLongClickListener(int index, View.OnLongClickListener onLongClickListener) throws IndexOutOfBoundsException {
+        Picture picture = get(index);
+        picture.setOnLongClickListener(onLongClickListener);
+        set(index, picture);
+    }
+
     public void sort() {
         Collections.sort(this, new Comparator<Picture>() {
             @Override

@@ -11,6 +11,7 @@ import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Pair;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.EditText;
@@ -52,6 +53,9 @@ public class Diary_mapNPictures extends AppCompatActivity {
     MapEventsOverlay mapviewClickEventOverlay; //맵 이벤트를 등록하는 오버레이
     final ArrayList<Integer> PicturesArray = new ArrayList<>();
     boolean isLiked = false;
+    final boolean EDIT_MODE = true;
+    final boolean READ_MODE = false;
+    boolean isEDIT_MODE = false;
 
     GroupDiaryView picView = null;
 
@@ -67,6 +71,27 @@ public class Diary_mapNPictures extends AppCompatActivity {
         public InfoText(String title, String body) {
             Title = title;
             Body = body;
+        }
+    }
+
+    class ArgumentedOnClickListener implements View.OnClickListener {
+        Object Arg = null;
+
+        public ArgumentedOnClickListener(Object arg) {
+            Arg = arg;
+        }
+
+        @Override
+        public void onClick(View v) {
+            if (isEDIT_MODE == READ_MODE) {
+                //열람 모드
+                Intent intent = new Intent(getBaseContext(), GalleryDetail.class);
+                intent.putExtra("urls", ((Pair<ArrayList<String>, Integer>) Arg).first);
+                intent.putExtra("index", ((Pair<ArrayList<String>, Integer>) Arg).second);
+                startActivity(intent);
+            } else {
+                //수정 모드
+            }
         }
     }
 
@@ -92,16 +117,10 @@ public class Diary_mapNPictures extends AppCompatActivity {
 
         for (int i = 0; i < elementRow.size(); i++) {
             final int idx = i;
-            elementRow.setOnClickListener(i, new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Intent intent = new Intent(getBaseContext(), GalleryDetail.class);
-                    intent.putExtra("urls", urls);
-                    intent.putExtra("index", idx);
-                    startActivity(intent);
-                }
-            });
+            elementRow.setOnClickListener(i, new ArgumentedOnClickListener(new Pair<ArrayList<String>, Integer>(urls, idx)));
         }
+
+        elementRow.add(new ResourcePicture(c, R.drawable.newpicture, null));
 
         elementList.add(new PictureGroup("", elementRow));
         picView.setGroups(elementList);
@@ -120,8 +139,12 @@ public class Diary_mapNPictures extends AppCompatActivity {
         picView.setOrientation(1);
 
         //TODO: show info text
-        if (getIntent().getStringExtra("whose").equals("other")) {
-            findViewById(R.id.diary_mapNpics_EditStart).setVisibility(View.GONE);
+        try {
+            if (getIntent().getStringExtra("whose").equals("other")) {
+                findViewById(R.id.diary_mapNpics_EditStart).setVisibility(View.GONE);
+            }
+        } catch (NullPointerException e) {
+            //Ignore
         }
 
         //마커 이벤트 등록
@@ -131,6 +154,15 @@ public class Diary_mapNPictures extends AppCompatActivity {
         //맵뷰에 마커들 등록
         markerFolderOverlay = new MyMarker(mapView);
         setMarkerToMapview();
+
+        //명령 받기
+        try {
+            if (getIntent().getStringExtra("order").equals("edit")) {
+                diary_onEditClick(null);
+            }
+        } catch (NullPointerException e) {
+            //Ignore
+        }
     }
 
     MyMarker markerFolderOverlay;  //마커들을 가지고 있는 오버레이
@@ -241,6 +273,7 @@ public class Diary_mapNPictures extends AppCompatActivity {
         findViewById(R.id.diary_mapNpics_ReadTitle).setVisibility(View.VISIBLE);
         findViewById(R.id.diary_mapNpics_Read).setVisibility(View.VISIBLE);
         findViewById(R.id.diary_mapNpics_EditStart).setVisibility(View.VISIBLE);
+        isEDIT_MODE = READ_MODE;
     }
 
     public void diary_onCancelClick(View view) {
@@ -249,6 +282,7 @@ public class Diary_mapNPictures extends AppCompatActivity {
         findViewById(R.id.diary_mapNpics_ReadTitle).setVisibility(View.VISIBLE);
         findViewById(R.id.diary_mapNpics_Read).setVisibility(View.VISIBLE);
         findViewById(R.id.diary_mapNpics_EditStart).setVisibility(View.VISIBLE);
+        isEDIT_MODE = READ_MODE;
     }
 
     public void diary_onEditClick(View view) {
@@ -260,6 +294,7 @@ public class Diary_mapNPictures extends AppCompatActivity {
         findViewById(R.id.diary_mapNpics_ReadTitle).setVisibility(View.GONE);
         findViewById(R.id.diary_mapNpics_Read).setVisibility(View.GONE);
         findViewById(R.id.diary_mapNpics_EditStart).setVisibility(View.INVISIBLE);
+        isEDIT_MODE = EDIT_MODE;
     }
 
     public void diary_onLikeClick(View view) {
