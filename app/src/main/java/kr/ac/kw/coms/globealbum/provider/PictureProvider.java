@@ -26,6 +26,9 @@ public abstract class PictureProvider {
         View.OnClickListener getOnClickListener();
         void setOnClickListener(View.OnClickListener onClickListener);
 
+        View.OnLongClickListener getOnLongClickListener();
+        void setOnLongClickListener(View.OnLongClickListener longClickListener);
+
         // 제목
         String getTitle();
         void setTitle(String title);
