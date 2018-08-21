@@ -27,7 +27,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.resource.bitmap.CenterInside;
 import com.bumptech.glide.request.target.DrawableImageViewTarget;
 
 import org.jetbrains.annotations.NotNull;
@@ -55,7 +54,6 @@ import kr.ac.kw.coms.globealbum.provider.EXIFinfo;
 import kr.ac.kw.coms.globealbum.provider.RemoteJava;
 import kr.ac.kw.coms.globealbum.provider.UIPromise;
 
-
 import static kr.ac.kw.coms.globealbum.game.GameActivity.TimerState.Running;
 import static kr.ac.kw.coms.globealbum.game.GameActivity.TimerState.Stop;
 
@@ -76,12 +74,10 @@ public class GameActivity extends AppCompatActivity {
     TextView scoreTextView = null;
 
 
-    Button goToNextStageButton,exitGameButton;
-    TextView landNameAnswerTextView,landDistanceAnswerTextView,landScoreTextView;
+    Button goToNextStageButton, exitGameButton;
+    TextView landNameAnswerTextView, landDistanceAnswerTextView, landScoreTextView;
     ImageView pictureAnswerImageView;
     LinearLayout answerLinearLayout;
-
-
 
 
     Drawable RED_FLAG_DRAWABLE;
@@ -92,7 +88,7 @@ public class GameActivity extends AppCompatActivity {
     int timeScore = 0;
     int distanceScore = 0;
     int stage = 1;
-    int distance =0;
+    int distance = 0;
 
     /**
      * 제한시간 타이머가 돌아가는 중인지.
@@ -120,7 +116,8 @@ public class GameActivity extends AppCompatActivity {
         Stop,
         Running
     }
-    enum GameType{
+
+    enum GameType {
         A,
         B
     }
@@ -148,7 +145,6 @@ public class GameActivity extends AppCompatActivity {
             }
         });
     }
-
 
 
     //문제 세팅
@@ -180,6 +176,7 @@ public class GameActivity extends AppCompatActivity {
                     cause.printStackTrace(pw);
                     Log.e("failfail", cause.toString() + sw.toString());
                 }
+
                 @Override
                 public void success(Pair<String, String> result) {
                     String name = result.getFirst() + " " + result.getSecond();
@@ -330,7 +327,7 @@ public class GameActivity extends AppCompatActivity {
         final long start = SystemClock.uptimeMillis();
         final Interpolator interpolator = new AccelerateDecelerateInterpolator();
         final float durationInMs = 1000;
-        map.getController().zoomTo(myMapView.getLogZoom(), 1700L);          //인자의 속도에 맞춰서 줌 아웃
+        map.getController().zoomTo(myMapView.getMinZoomLevel(), 1700L);          //인자의 속도에 맞춰서 줌 아웃
 
         drawCircleOverlay = new DrawCircleOverlay(marker.getPosition(), finalPosition, map);
         myMapView.getOverlays().add(drawCircleOverlay);
@@ -374,15 +371,13 @@ public class GameActivity extends AppCompatActivity {
     }
 
 
-
     //정답 확인 레이아웃 값 설정하고 띄우기
     private void setAnswerLayout() {
 
-        if(gameType ==GameType.A){
+        if (gameType == GameType.A) {
             questionTypeAImageView.setVisibility(View.GONE);
             questionTypeAImageView.setClickable(false);
-        }
-        else if(gameType == GameType.B){
+        } else if (gameType == GameType.B) {
             questionTypeBLayout.setVisibility(View.GONE);
             questionTypeBLayout.setClickable(false);
         }
@@ -391,8 +386,8 @@ public class GameActivity extends AppCompatActivity {
         answerLinearLayout.setVisibility(View.VISIBLE);
         answerLinearLayout.setClickable(true);
         landNameAnswerTextView.setText(questionPic.get(problem).name);
-        landDistanceAnswerTextView.setText(distance+"KM");
-        landScoreTextView.setText(score+"");
+        landDistanceAnswerTextView.setText(distance + "KM");
+        landScoreTextView.setText(score + "");
         Glide.with(context).load(questionPic.get(problem).id).into(pictureAnswerImageView);
 
     }
@@ -518,32 +513,32 @@ public class GameActivity extends AppCompatActivity {
     }
 
     //사진을 보여주고 지명을 찾는 문제 형식
-   private void setPictureQuestion(GamePictureInfo pi){
+    private void setPictureQuestion(GamePictureInfo pi) {
         gameType = GameType.A;
-       //레이아웃 설정
-       questionTypeAImageView.setVisibility(View.VISIBLE);
-       questionTypeAImageView.setClickable(true);
-       questionTypeBLayout.setClickable(false);
-       questionTypeBLayout.setVisibility(View.GONE);
+        //레이아웃 설정
+        questionTypeAImageView.setVisibility(View.VISIBLE);
+        questionTypeAImageView.setClickable(true);
+        questionTypeBLayout.setClickable(false);
+        questionTypeBLayout.setVisibility(View.GONE);
 
-       //마커 이벤트 등록
-       myMapView.setClickable(true);
-       myMapView.getOverlays().add(listenerOverlay);
+        //마커 이벤트 등록
+        myMapView.setClickable(true);
+        myMapView.getOverlays().add(listenerOverlay);
 
 
-       answerMarker = new Marker(myMapView);
+        answerMarker = new Marker(myMapView);
         answerMarker.setIcon(RED_FLAG_DRAWABLE);
         answerMarker.setAnchor(0.25f, 1.0f);
         answerMarker.setPosition(pi.geoPoint);
 
-        myMapView.getController().setZoom(myMapView.getLogZoom());
+        myMapView.getController().setZoom(myMapView.getMinZoomLevel());
 
         Glide.with(context).load(pi.id).into(questionTypeAImageView);
         questionTypeAImageView.invalidate();
     }
 
     //지명을 보여주고 사진을 찾는 문제 형식
-    private void setPlaceNameQuestion(GamePictureInfo pi){
+    private void setPlaceNameQuestion(GamePictureInfo pi) {
         gameType = GameType.B;
         //레이아웃 설정
         questionTypeBLayout.setVisibility(View.VISIBLE);
@@ -572,7 +567,6 @@ public class GameActivity extends AppCompatActivity {
     }
 
 
-
     //메뉴 버튼 클릭 시 다이얼로그 표시
     class MenuButtonClickListener implements View.OnClickListener {
         @Override
@@ -598,25 +592,23 @@ public class GameActivity extends AppCompatActivity {
     }
 
 
-
     RecyclerView recyclerView;
     AfterGameAdapter adapter;
 
 
     //한 스테이지가 끝난 후 다음 단계로 넘어갈 수 있는 이벤트
-    class GameNextQuizListener implements  View.OnClickListener{
+    class GameNextQuizListener implements View.OnClickListener {
         @Override
         public void onClick(View v) {
 
-            if(gameType == GameType.A){
+            if (gameType == GameType.A) {
                 currentMarker.remove(myMapView);
                 currentMarker = null;
 
                 myMapView.getOverlays().remove(answerMarker);
                 myMapView.getOverlays().remove(polyline);
                 myMapView.getOverlays().remove(drawCircleOverlay);
-            }
-            else if (gameType == GameType.B){
+            } else if (gameType == GameType.B) {
                 InfoWindow.closeAllInfoWindowsOn(myMapView);
                 myMapView.getOverlays().remove(answerMarker);
             }
@@ -665,7 +657,7 @@ public class GameActivity extends AppCompatActivity {
 
 
     //한 스테이지가 끝난 후 게임을 종료할 수 있는 이벤트
-    class GameFinishListener implements  View.OnClickListener{
+    class GameFinishListener implements View.OnClickListener {
         @Override
         public void onClick(View v) {
             finish();
@@ -692,19 +684,17 @@ public class GameActivity extends AppCompatActivity {
         @Override
         public void onClick(View view) {    //이미지뷰의 테두리를 진하게 설정
 
-            if( !imageViewClicked){ //처음 이미지뷰 클릭 시 테두리 생성
+            if (!imageViewClicked) { //처음 이미지뷰 클릭 시 테두리 생성
                 view.setBackgroundResource(R.drawable.boundary);
-                imageViewClicked=true;
-                clickedImageView= view;
-            }
-            else if(clickedImageView == view){  //테두리가 있는 이미지뷰를 정답으로 고르면 정답 확인 과정으로
+                imageViewClicked = true;
+                clickedImageView = view;
+            } else if (clickedImageView == view) {  //테두리가 있는 이미지뷰를 정답으로 고르면 정답 확인 과정으로
                 Toast.makeText(context, "touch", Toast.LENGTH_SHORT).show();
                 clickedImageView.setBackgroundResource(R.drawable.no_boundary);
-                imageViewClicked=false;
-                clickedImageView=null;
+                imageViewClicked = false;
+                clickedImageView = null;
                 setAnswerLayout();
-            }
-            else{   //테두리가 있는 이미지뷰 말고 다른 이미지뷰 선택 시
+            } else {   //테두리가 있는 이미지뷰 말고 다른 이미지뷰 선택 시
                 clickedImageView.setBackgroundResource(R.drawable.no_boundary);
                 view.setBackgroundResource(R.drawable.boundary);
                 clickedImageView = view;
