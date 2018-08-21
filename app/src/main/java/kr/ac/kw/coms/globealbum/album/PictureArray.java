@@ -40,4 +40,17 @@ public class PictureArray extends ArrayList<Picture> {
             }
         });
     }
+
+    public int swap(int left, int right) {
+        try {
+            Picture swap = get(left);
+            set(left, get(right));
+            set(right, swap);
+        }
+        catch (Exception e)
+        {
+            return -1;
+        }
+        return 0;
+    }
 }

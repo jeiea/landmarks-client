@@ -4,6 +4,7 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.support.annotation.NonNull;
@@ -11,8 +12,13 @@ import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.RecyclerView;
+import android.text.Layout;
+import android.util.AttributeSet;
 import android.util.Pair;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.ViewParent;
 import android.view.ViewTreeObserver;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -47,6 +53,8 @@ import kr.ac.kw.coms.globealbum.map.MyMarker;
 import kr.ac.kw.coms.globealbum.provider.EXIFinfo;
 import kr.ac.kw.coms.globealbum.provider.PictureProvider;
 
+import static android.support.constraint.ConstraintLayout.LayoutParams.PARENT_ID;
+
 public class Diary_mapNPictures extends AppCompatActivity {
 
     MyMapView mapView = null;   //맵뷰 인스턴스
@@ -75,9 +83,11 @@ public class Diary_mapNPictures extends AppCompatActivity {
     }
 
     class ArgumentedOnClickListener implements View.OnClickListener {
-        Object Arg = null;
+        Pair<ArrayList<String>, Integer> Arg = null;
+        //first: 선택한 파일의 경로
+        //second: 선택한 파일의 순서상 번호
 
-        public ArgumentedOnClickListener(Object arg) {
+        public ArgumentedOnClickListener(Pair<ArrayList<String>, Integer> arg) {
             Arg = arg;
         }
 
@@ -86,11 +96,12 @@ public class Diary_mapNPictures extends AppCompatActivity {
             if (isEDIT_MODE == READ_MODE) {
                 //열람 모드
                 Intent intent = new Intent(getBaseContext(), GalleryDetail.class);
-                intent.putExtra("urls", ((Pair<ArrayList<String>, Integer>) Arg).first);
-                intent.putExtra("index", ((Pair<ArrayList<String>, Integer>) Arg).second);
+                intent.putExtra("urls", Arg.first);
+                intent.putExtra("index", Arg.second);
                 startActivity(intent);
             } else {
                 //수정 모드
+                //TODO: 사진 목록 중 하나를 선택한 상태. 위치 이동이나 제거 등의 옵션 제공
             }
         }
     }
@@ -119,8 +130,6 @@ public class Diary_mapNPictures extends AppCompatActivity {
             final int idx = i;
             elementRow.setOnClickListener(i, new ArgumentedOnClickListener(new Pair<ArrayList<String>, Integer>(urls, idx)));
         }
-
-        elementRow.add(new ResourcePicture(c, R.drawable.newpicture, null));
 
         elementList.add(new PictureGroup("", elementRow));
         picView.setGroups(elementList);
@@ -308,5 +317,4 @@ public class Diary_mapNPictures extends AppCompatActivity {
         }
 
     }
-
 }

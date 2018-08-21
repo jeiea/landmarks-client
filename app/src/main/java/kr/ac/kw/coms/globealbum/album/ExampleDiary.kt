@@ -1,6 +1,7 @@
 package kr.ac.kw.coms.globealbum.album
 
 import android.content.Context
+import android.graphics.*
 import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.support.annotation.DrawableRes
@@ -27,6 +28,7 @@ import org.jetbrains.anko.matchParent
 import org.jetbrains.anko.wrapContent
 import java.io.File
 import java.util.*
+import kotlin.collections.ArrayList
 
 /**
  * GroupDiaryView 사용 예제 액티비티
@@ -260,6 +262,9 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
     set(value: Long) {
       picAdapter.nameBackgroundColor = value
     }
+
+  fun getImageView(index: Int) : View? =
+    picAdapter.Views[index].view
 }
 
 /***
@@ -283,6 +288,8 @@ internal class GroupedPicAdapter : RecyclerView.Adapter<GroupedPicAdapter.Elemen
   var padding: Int = 0
   var nameTextSize: Int = 20
   var nameBackgroundColor: Long = 0xFFFFFFFF
+
+  var Views: ArrayList<ElementViewHolder> = ArrayList<ElementViewHolder>()
 
   override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
     when (viewType) {
@@ -323,6 +330,7 @@ internal class GroupedPicAdapter : RecyclerView.Adapter<GroupedPicAdapter.Elemen
         holder.imageView.setPadding(padding / 2, 0, padding / 2, 0)
       }
     }
+    Views.add(position, holder)
   }
 
   override fun getItemCount() = viewData.size
