@@ -61,7 +61,7 @@ public class AfterGameAdapter extends RecyclerView.Adapter<AfterGameAdapter.View
                 }
             });
             imageViewPicture = itemView.findViewById(R.id.after_game_place_imageview);
-            imageViewPicture.setOnClickListener( gameActivity.new PictureClickListener());      //사진 클릭 시 사진 확대
+            imageViewPicture.setOnClickListener( gameActivity.new PictureClickListenerTypeA());      //사진 클릭 시 사진 확대
             textViewPlace = itemView.findViewById(R.id.after_game_show_place_name);
         }
     }

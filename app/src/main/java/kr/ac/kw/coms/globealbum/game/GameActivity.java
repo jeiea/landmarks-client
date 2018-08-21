@@ -16,11 +16,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.Interpolator;
-import android.widget.Adapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -29,6 +27,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.bitmap.CenterInside;
 import com.bumptech.glide.request.target.DrawableImageViewTarget;
 
 import org.jetbrains.annotations.NotNull;
@@ -39,6 +38,7 @@ import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.MapEventsOverlay;
 import org.osmdroid.views.overlay.Marker;
 import org.osmdroid.views.overlay.Polyline;
+import org.osmdroid.views.overlay.infowindow.InfoWindow;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -65,7 +65,11 @@ public class GameActivity extends AppCompatActivity {
     Context context = null;
     MyMapView myMapView = null;
 
-    ImageView questionImageView = null;
+    ImageView questionTypeAImageView = null;
+    LinearLayout questionTypeBLayout = null;
+    ImageView[] questionTypeBImageView = new ImageView[4];
+    GameType gameType = null;
+
     ProgressBar progressBar = null;
     TextView stageTextView = null;
     Button menuButton = null;
@@ -75,8 +79,9 @@ public class GameActivity extends AppCompatActivity {
     Button goToNextStageButton,exitGameButton;
     TextView landNameAnswerTextView,landDistanceAnswerTextView,landScoreTextView;
     ImageView pictureAnswerImageView;
-
     LinearLayout answerLinearLayout;
+
+
 
 
     Drawable RED_FLAG_DRAWABLE;
@@ -114,6 +119,10 @@ public class GameActivity extends AppCompatActivity {
     enum TimerState {
         Stop,
         Running
+    }
+    enum GameType{
+        A,
+        B
     }
 
 
@@ -171,7 +180,6 @@ public class GameActivity extends AppCompatActivity {
                     cause.printStackTrace(pw);
                     Log.e("failfail", cause.toString() + sw.toString());
                 }
-
                 @Override
                 public void success(Pair<String, String> result) {
                     String name = result.getFirst() + " " + result.getSecond();
@@ -199,6 +207,7 @@ public class GameActivity extends AppCompatActivity {
 
         //정답 확인 부분 뷰 연결
         pictureAnswerImageView = findViewById(R.id.picture_answer);
+
         exitGameButton = findViewById(R.id.button_exit);
         goToNextStageButton = findViewById(R.id.button_next);
         landDistanceAnswerTextView = findViewById(R.id.textview_land_distance_answer);
@@ -216,8 +225,18 @@ public class GameActivity extends AppCompatActivity {
         stageTextView.setText("STAGE " + stage);
 
         //퀴즈에 나올 사진들을 연결
-        questionImageView = findViewById(R.id.picture);
-        questionImageView.setOnClickListener(new PictureClickListener());
+        questionTypeAImageView = findViewById(R.id.picture);
+        questionTypeAImageView.setOnClickListener(new PictureClickListenerTypeA());      //이미지뷰 클릭 시 화면 확대해서 보여줌
+        questionTypeBLayout = findViewById(R.id.pictures);
+        questionTypeBImageView[0] = findViewById(R.id.picture1);
+        questionTypeBImageView[1] = findViewById(R.id.picture2);
+        questionTypeBImageView[2] = findViewById(R.id.picture3);
+        questionTypeBImageView[3] = findViewById(R.id.picture4);
+        questionTypeBImageView[0].setOnClickListener(new PictureClickListenerTypeB());
+        questionTypeBImageView[1].setOnClickListener(new PictureClickListenerTypeB());
+        questionTypeBImageView[2].setOnClickListener(new PictureClickListenerTypeB());
+        questionTypeBImageView[3].setOnClickListener(new PictureClickListenerTypeB());
+
 
         //osmdroid 초기 구성
         context = getApplicationContext();
@@ -226,10 +245,10 @@ public class GameActivity extends AppCompatActivity {
 
         //마커 이벤트 등록
         listenerOverlay = markerEvent();
-        myMapView.getOverlays().add(listenerOverlay);
 
-        timeThreadhandler();
-        setAnswerMarker(questionPic.get(problem));  //정답 마커 설정
+        //timeThreadhandler();
+        //setPictureQuestion(questionPic.get(problem));  //사진을 보여주고 지명을 찾는 문제 형식
+        setPlaceNameQuestion(questionPic.get(problem)); //지명을 보여주고 사진을 찾는 문제 형식
     }
 
     //제한 시간 측정
@@ -359,8 +378,15 @@ public class GameActivity extends AppCompatActivity {
     //정답 확인 레이아웃 값 설정하고 띄우기
     private void setAnswerLayout() {
 
-        questionImageView.setVisibility(View.GONE);
-        questionImageView.setClickable(false);
+        if(gameType ==GameType.A){
+            questionTypeAImageView.setVisibility(View.GONE);
+            questionTypeAImageView.setClickable(false);
+        }
+        else if(gameType == GameType.B){
+            questionTypeBLayout.setVisibility(View.GONE);
+            questionTypeBLayout.setClickable(false);
+        }
+
 
         answerLinearLayout.setVisibility(View.VISIBLE);
         answerLinearLayout.setClickable(true);
@@ -491,18 +517,61 @@ public class GameActivity extends AppCompatActivity {
         scoreTextView.setText("SCORE " + score);
     }
 
-    //정답 마커 생성
-    private void setAnswerMarker(GamePictureInfo pi) {
-        answerMarker = new Marker(myMapView);
+    //사진을 보여주고 지명을 찾는 문제 형식
+   private void setPictureQuestion(GamePictureInfo pi){
+        gameType = GameType.A;
+       //레이아웃 설정
+       questionTypeAImageView.setVisibility(View.VISIBLE);
+       questionTypeAImageView.setClickable(true);
+       questionTypeBLayout.setClickable(false);
+       questionTypeBLayout.setVisibility(View.GONE);
+
+       //마커 이벤트 등록
+       myMapView.setClickable(true);
+       myMapView.getOverlays().add(listenerOverlay);
+
+
+       answerMarker = new Marker(myMapView);
         answerMarker.setIcon(RED_FLAG_DRAWABLE);
         answerMarker.setAnchor(0.25f, 1.0f);
         answerMarker.setPosition(pi.geoPoint);
 
         myMapView.getController().setZoom(myMapView.getLogZoom());
 
-        Glide.with(context).load(pi.id).into(questionImageView);
-        questionImageView.invalidate();
+        Glide.with(context).load(pi.id).into(questionTypeAImageView);
+        questionTypeAImageView.invalidate();
     }
+
+    //지명을 보여주고 사진을 찾는 문제 형식
+    private void setPlaceNameQuestion(GamePictureInfo pi){
+        gameType = GameType.B;
+        //레이아웃 설정
+        questionTypeBLayout.setVisibility(View.VISIBLE);
+        questionTypeBLayout.setClickable(true);
+        questionTypeAImageView.setClickable(false);
+        questionTypeAImageView.setVisibility(View.GONE);
+
+        //마커 이벤트 제거
+        myMapView.getOverlays().remove(listenerOverlay);
+
+        //마커에 지명 설정하고 맵뷰에 표시
+        answerMarker = new Marker(myMapView);
+        answerMarker.setIcon(RED_FLAG_DRAWABLE);
+        answerMarker.setAnchor(0.25f, 1.0f);
+        answerMarker.setPosition(pi.geoPoint);
+        answerMarker.setTitle(pi.name);
+        answerMarker.showInfoWindow();
+        answerMarker.setPosition(pi.geoPoint);
+        myMapView.getOverlays().add(answerMarker);
+        myMapView.setClickable(false);
+
+        questionTypeBImageView[0].setScaleType(ImageView.ScaleType.CENTER_INSIDE);
+        Glide.with(context).load(pi.id).into(questionTypeBImageView[0]);
+
+        questionTypeBImageView[0].invalidate();
+    }
+
+
 
     //메뉴 버튼 클릭 시 다이얼로그 표시
     class MenuButtonClickListener implements View.OnClickListener {
@@ -539,46 +608,46 @@ public class GameActivity extends AppCompatActivity {
         @Override
         public void onClick(View v) {
 
-            currentMarker.remove(myMapView);
-            currentMarker = null;
+            if(gameType == GameType.A){
+                currentMarker.remove(myMapView);
+                currentMarker = null;
 
-            myMapView.getOverlays().remove(answerMarker);
-            myMapView.getOverlays().remove(polyline);
-            myMapView.getOverlays().remove(drawCircleOverlay);
+                myMapView.getOverlays().remove(answerMarker);
+                myMapView.getOverlays().remove(polyline);
+                myMapView.getOverlays().remove(drawCircleOverlay);
+            }
+            else if (gameType == GameType.B){
+                InfoWindow.closeAllInfoWindowsOn(myMapView);
+                myMapView.getOverlays().remove(answerMarker);
+            }
 
             myMapView.invalidate();
 
-
-            questionImageView.setVisibility(View.VISIBLE);
-            questionImageView.setClickable(true);
             answerLinearLayout.setVisibility(View.GONE);
             answerLinearLayout.setClickable(false);
-
-
 
             problem++;
             switch (problem) {
                 case 1:
-                    setRecyclerView();
-
-                    //setAnswerMarker(questionPic.get(problem));
+                    setPictureQuestion(questionPic.get(problem));
                     break;
                 case 2:
                     stage++;
                     stageTextView.setText("STAGE " + stage);
                     score = 0;
                     scoreTextView.setText("SCORE " + score);
-                    setAnswerMarker(questionPic.get(problem));
+                    setPictureQuestion(questionPic.get(problem));
                     break;
                 case 3:
-                    setAnswerMarker(questionPic.get(problem));
+                    setPlaceNameQuestion(questionPic.get(problem));
                     break;
                 case 4:
-                    showDialogAfterGame();
+                    setRecyclerView();
+                    //showDialogAfterGame();
                     break;
             }
             stopTimer = Running;
-            timeThreadhandler();
+            //timeThreadhandler();
 
         }
     }
@@ -606,12 +675,42 @@ public class GameActivity extends AppCompatActivity {
 
 
     //문제 사진 클릭 시 크게 띄워주는 이벤트 등록
-    public class PictureClickListener implements View.OnClickListener {
+    public class PictureClickListenerTypeA implements View.OnClickListener {
         @Override
         public void onClick(View view) {    //이미지뷰를 다이얼로그로 화면에 표시
             ImageView imgv = (ImageView) view;
             PictureDialogFragment pdf = PictureDialogFragment.Companion.newInstance(imgv.getDrawable());
             pdf.show(getSupportFragmentManager(), "wow");
+        }
+    }
+
+    boolean imageViewClicked = false;
+    View clickedImageView = null;
+
+    //문제 사진 클릭 시 테두리를 주는 이벤트 등록
+    public class PictureClickListenerTypeB implements View.OnClickListener {
+        @Override
+        public void onClick(View view) {    //이미지뷰의 테두리를 진하게 설정
+
+            if( !imageViewClicked){ //처음 이미지뷰 클릭 시 테두리 생성
+                view.setBackgroundResource(R.drawable.boundary);
+                imageViewClicked=true;
+                clickedImageView= view;
+            }
+            else if(clickedImageView == view){  //테두리가 있는 이미지뷰를 정답으로 고르면 정답 확인 과정으로
+                Toast.makeText(context, "touch", Toast.LENGTH_SHORT).show();
+                clickedImageView.setBackgroundResource(R.drawable.no_boundary);
+                imageViewClicked=false;
+                clickedImageView=null;
+                setAnswerLayout();
+            }
+            else{   //테두리가 있는 이미지뷰 말고 다른 이미지뷰 선택 시
+                clickedImageView.setBackgroundResource(R.drawable.no_boundary);
+                view.setBackgroundResource(R.drawable.boundary);
+                clickedImageView = view;
+                imageViewClicked = true;
+            }
+
         }
     }
 
