@@ -1,6 +1,7 @@
 package kr.ac.kw.coms.globealbum.map;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -16,6 +17,7 @@ import org.osmdroid.views.overlay.Marker;
 import org.osmdroid.views.overlay.Overlay;
 import org.osmdroid.views.overlay.OverlayManager;
 import org.osmdroid.views.overlay.Polygon;
+import org.osmdroid.views.overlay.Polyline;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -132,8 +134,10 @@ public class MyMarker extends FolderOverlay{
     //마커와 마커 사이를 이어주는 직선을 만든다.
     //직선을 넣을 곳의 앞 뒤 마커를 인자와 인덱스를 전달
     private void drawPolygon(Overlay frontOverlay,Overlay backOverlay,int index){
-        Polygon polygon = new Polygon();
-        polygon.setFillColor(android.graphics.Color.argb(75, 255,0,0));
+        Polyline polygon = new Polyline();
+        polygon.setColor(Color.WHITE);
+        polygon.setWidth(5.0f);
+        //polygon.setFillColor(android.graphics.Color.argb(75, 255,0,0));
         ArrayList<GeoPoint> geoPoints = new ArrayList<GeoPoint>();
 
         geoPoints.add(((Marker)frontOverlay).getPosition());
