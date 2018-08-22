@@ -90,7 +90,6 @@ public class GameActivity extends AppCompatActivity {
     int problem = 0;
     int score = 0;
     int timeScore = 0;
-    int distanceScore = 0;
     int stage = 1;
     int distance =0;
 
@@ -280,7 +279,7 @@ public class GameActivity extends AppCompatActivity {
                         timeOutAddUserMarker();
                     } else {
                         //화면에 마커 생성 없이 타임아웃 발생시 정답 확인
-                        currentMarker = new Marker(myMapView);
+                        //currentMarker = new Marker(myMapView);
                         stopTimer = Stop;
 
                         myMapView.getOverlays().add(answerMarker);
@@ -360,7 +359,6 @@ public class GameActivity extends AppCompatActivity {
                     myMapView.getOverlays().add(answerMarker);
                     addPolyline(currentMarker.getPosition(), answerMarker.getPosition());    //마커 사이를 직선으로 연결
 
-                    calcScore();
                     setAnswerLayout();
 
 
@@ -387,12 +385,13 @@ public class GameActivity extends AppCompatActivity {
             questionTypeBLayout.setClickable(false);
         }
 
+        int curScore = calcScore();
 
         answerLinearLayout.setVisibility(View.VISIBLE);
         answerLinearLayout.setClickable(true);
         landNameAnswerTextView.setText(questionPic.get(problem).name);
         landDistanceAnswerTextView.setText(distance+"KM");
-        landScoreTextView.setText(score+"");
+        landScoreTextView.setText(score+"" +curScore);
         Glide.with(context).load(questionPic.get(problem).id).into(pictureAnswerImageView);
 
     }
@@ -504,17 +503,34 @@ public class GameActivity extends AppCompatActivity {
     }
 
     //점수 계산
-    private void calcScore() {
-        final int CRITERIA = 500;
+    private int calcScore() {
+        int curScore = 0;
+        if(gameType == GameType.A) {
+            if(currentMarker == null) { //마커를 화면에 찍지 않고 정답을 확인하는 경우
+                Toast.makeText(this, "0", Toast.LENGTH_SHORT).show();
+            }else{
+                Toast.makeText(this, distance+"", Toast.LENGTH_SHORT).show();
+                final int CRITERIA = 500;
+                if (distance >= 5000) {
+                    curScore = 0;
+                } else {
+                    curScore = CRITERIA - curScore/ 10;
+                }
 
-        if (distanceScore >= 5000) {
-            distanceScore = 0;
-        } else {
-            distanceScore = CRITERIA - distanceScore / 10;
+            }
+        }else if (gameType == GameType.B){
+            curScore = 300;
+            //맞추면 점수
+            //틀리면 0점
         }
+        curScore += timeScore /1000;
+        score += curScore;
 
-        score += distanceScore + timeScore / 1000;
         scoreTextView.setText("SCORE " + score);
+
+        distance=0;
+
+        return curScore;
     }
 
     //사진을 보여주고 지명을 찾는 문제 형식
@@ -609,9 +625,10 @@ public class GameActivity extends AppCompatActivity {
         public void onClick(View v) {
 
             if(gameType == GameType.A){
-                currentMarker.remove(myMapView);
-                currentMarker = null;
-
+                if( currentMarker != null){
+                    currentMarker.remove(myMapView);
+                    currentMarker = null;
+                }
                 myMapView.getOverlays().remove(answerMarker);
                 myMapView.getOverlays().remove(polyline);
                 myMapView.getOverlays().remove(drawCircleOverlay);
