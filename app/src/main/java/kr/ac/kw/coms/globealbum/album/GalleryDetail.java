@@ -43,14 +43,14 @@ public class GalleryDetail extends AppCompatActivity {
         {
             public void onSwipeRight() {
                 index = (index - 1 + mDataset.length) % mDataset.length;
-                UriPicture pic  = new UriPicture(Uri.parse(mDataset[index]), getBaseContext(), null);
+                UriPicture pic  = new UriPicture(Uri.parse(mDataset[index]), getBaseContext());
                 pic.getDrawable().into((ImageView)findViewById(R.id.gallerydetail_Image));
                 ((TextView)findViewById(R.id.gallerydetail_imagename)).setText(pic.getTitle());
             }
 
             public void onSwipeLeft() {
                 index = (index + 1) % mDataset.length;
-                UriPicture pic  = new UriPicture(Uri.parse(mDataset[index]), getBaseContext(), null);
+                UriPicture pic  = new UriPicture(Uri.parse(mDataset[index]), getBaseContext());
                 pic.getDrawable().into((ImageView)findViewById(R.id.gallerydetail_Image));
                 ((TextView)findViewById(R.id.gallerydetail_imagename)).setText(pic.getTitle());
             }
@@ -65,7 +65,7 @@ public class GalleryDetail extends AppCompatActivity {
         mDataset = intent.getStringArrayExtra("Dataset");
         if (mDataset == null)
             mDataset = intent.getStringArrayListExtra("urls").toArray(new String[0]);
-        UriPicture pic  = new UriPicture(Uri.parse(mDataset[index]), this, null);
+        UriPicture pic  = new UriPicture(Uri.parse(mDataset[index]), this);
         pic.getDrawable().into((ImageView)findViewById(R.id.gallerydetail_Image));
         Log.i("URL", mDataset[index]);
         ((TextView)findViewById(R.id.gallerydetail_imagename)).setText(pic.getTitle());

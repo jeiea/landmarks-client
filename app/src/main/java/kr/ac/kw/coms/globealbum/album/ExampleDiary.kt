@@ -1,7 +1,6 @@
 package kr.ac.kw.coms.globealbum.album
 
 import android.content.Context
-import android.graphics.*
 import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.support.annotation.DrawableRes
@@ -22,13 +21,12 @@ import com.google.android.flexbox.FlexboxLayoutManager
 import kotlinx.android.synthetic.main.activity_navigator.*
 import kr.ac.kw.coms.globealbum.R
 import kr.ac.kw.coms.globealbum.provider.EXIFinfo
-import kr.ac.kw.coms.globealbum.provider.PictureProvider
+import kr.ac.kw.coms.globealbum.provider.IPicture
 import org.jetbrains.anko.backgroundColor
 import org.jetbrains.anko.matchParent
 import org.jetbrains.anko.wrapContent
 import java.io.File
 import java.util.*
-import kotlin.collections.ArrayList
 
 /**
  * GroupDiaryView 사용 예제 액티비티
@@ -63,143 +61,64 @@ class ExampleDiary : AppCompatActivity() {
   }
 }
 
-data class PictureGroup(val name: String, val pics: ArrayList<PictureProvider.Picture>)
+data class PictureGroup(val name: String, val pics: ArrayList<IPicture>)
 
-fun resPicGetter(context: Context): (Int) -> ResourcePicture = { i ->
-  ResourcePicture(context, i, null)
+fun resPicGetter(context: Context): (Int) -> ResourcePicture = @DrawableRes { i ->
+  ResourcePicture(context, i)
 }
 
-class UriPicture(val uri: android.net.Uri, val context: Context, var clickListener: View.OnClickListener?) : PictureProvider.Picture {
+class UriPicture(val uri: android.net.Uri, val context: Context) : IPicture {
 
-  var longClickListener: View.OnLongClickListener? = null
-  override fun getOnLongClickListener(): View.OnLongClickListener {
-    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-  }
+  override val drawable: RequestBuilder<Drawable>
+    get() = Glide.with(context).load(uri)
 
-  override fun setOnLongClickListener(onLongClickListener: View.OnLongClickListener) {
-    longClickListener = onLongClickListener
-  }
+  override var title: String
+    get() = uri.lastPathSegment
+    set(value) = throw NotImplementedError()
 
-  override fun getDrawable(): RequestBuilder<Drawable> {
-    return Glide.with(context).load(uri)
-  }
+  override val time: Date
+    get() = throw NotImplementedError()
 
-  override fun getOnClickListener(): View.OnClickListener? {
-    return clickListener
-  }
+  override val coords: Pair<Double, Double>
+    get() = throw NotImplementedError()
 
-  override fun setOnClickListener(onClickListener: View.OnClickListener?) {
-    clickListener = onClickListener
-  }
-
-  override fun getTitle(): String = uri.lastPathSegment
-
-  override fun setTitle(title: String?) {
-    throw Exception("invalid")
-  }
-
-  override fun getTime(): Date {
-    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-  }
-
-  override fun getCoords(): Pair<Double, Double> {
-    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-  }
-
-  override fun delete() {
-    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-  }
-
+  override fun delete() = throw NotImplementedError()
 }
 
-class LocalPicture(val path: String, val context: Context, var clickListener: View.OnClickListener?) : PictureProvider.Picture {
+class LocalPicture(val path: String, val context: Context) : IPicture {
 
-  var longClickListener: View.OnLongClickListener? = null
-  override fun getOnLongClickListener(): View.OnLongClickListener? {
-    return longClickListener
-  }
+  override val drawable: RequestBuilder<Drawable>
+    get() = Glide.with(context).load(File(path))
 
-  override fun setOnLongClickListener(onLongClickListener: View.OnLongClickListener) {
-    longClickListener = onLongClickListener
-  }
+  override var title: String
+    get() = File(path).nameWithoutExtension
+    set(value) {}
 
-  override fun getDrawable(): RequestBuilder<Drawable> {
-    return Glide.with(context).load(File(path))
-  }
+  override val time: Date
+    get() = Date(EXIFinfo(path).timeTaken);
 
-  override fun getOnClickListener(): View.OnClickListener? {
-    return clickListener
-  }
+  override val coords: Pair<Double, Double>
+    get() = TODO("not implemented")
 
-  override fun setOnClickListener(onClickListener: View.OnClickListener?) {
-    clickListener = onClickListener
-  }
-
-  override fun getTitle(): String =
-    File(path).nameWithoutExtension
-
-  override fun setTitle(title: String?) {
-    throw Exception("invalid")
-  }
-
-  override fun getTime(): Date {
-    return Date(EXIFinfo(path).timeTaken);
-  }
-
-  override fun getCoords(): Pair<Double, Double> {
-    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-  }
-
-  override fun delete() {
-    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-  }
-
+  override fun delete() = throw NotImplementedError()
 }
 
-class ResourcePicture(val context: Context, @DrawableRes val id: Int, var clickListener: View.OnClickListener?) : PictureProvider.Picture {
-  var longClickListener: View.OnLongClickListener? = null
+class ResourcePicture(val context: Context, @DrawableRes val id: Int) : IPicture {
 
-  override fun getOnLongClickListener(): View.OnLongClickListener? {
-    return longClickListener
-  }
+  override val drawable: RequestBuilder<Drawable>
+    get() = Glide.with(context).load(id)
 
-  override fun setOnLongClickListener(onLongClickListener: View.OnLongClickListener) {
-    longClickListener = onLongClickListener
-  }
+  override var title: String
+    get() = "resource:$id"
+    set(value) {}
 
-  override fun getDrawable(): RequestBuilder<Drawable>? {
-    return Glide.with(context).load(id)
-  }
+  override val time: Date
+    get() = Date(1000000L + 1000 * (100 - id))
 
-  override fun getOnClickListener(): View.OnClickListener? {
-    return clickListener
-  }
+  override val coords: Pair<Double, Double>
+    get() = throw NotImplementedError()
 
-  override fun setOnClickListener(onClickListener: View.OnClickListener?) {
-    clickListener = onClickListener
-  }
-
-  fun getid(): Int = id;
-
-  override fun getTitle(): String {
-    TODO("not implemented")
-  }
-
-  override fun setTitle(title: String?) {
-    TODO("not implemented")
-  }
-
-  override fun getTime(): Date {
-    return Date(1000000L + 1000 * (100 - id))
-  }
-
-  override fun getCoords(): Pair<Double, Double> {
-    TODO("not implemented")
-  }
-
-  override fun delete() {
-    TODO("not implemented")
-  }
+  override fun delete() = throw NotImplementedError()
 }
 
 /**
@@ -213,18 +132,21 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
   /**
    * 사진과 구분자 뷰 제공 어댑터
    */
-  internal val picAdapter = GroupedPicAdapter()
+  val picAdapter = GroupedPicAdapter()
 
-  val ORIENTATION_HORIZONTAL: Int = 1
-  val ORIENTATION_VERTICAL: Int = 0
+  var direction: Int
+    get() = layoutManager.layoutDirection
+    set(@setparam:FlexDirection value) {
+      layoutManager = FlexboxLayoutManager(context).apply {
+        flexWrap = FlexWrap.WRAP
+        flexDirection = value
+        alignItems = AlignItems.STRETCH
+      }
+    }
 
   init {
     adapter = picAdapter
-    layoutManager = FlexboxLayoutManager(context).apply {
-      flexWrap = FlexWrap.WRAP
-      flexDirection = FlexDirection.ROW
-      alignItems = AlignItems.STRETCH
-    }
+    direction = FlexDirection.ROW
   }
 
   var groups: List<PictureGroup>
@@ -233,38 +155,6 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
       picAdapter.data = value
     }
 
-  var orientation: Int
-    get() = layoutManager.layoutDirection
-    set(value: Int) {
-      var ori = if (value == ORIENTATION_HORIZONTAL) {
-        FlexDirection.COLUMN
-      } else {
-        FlexDirection.ROW
-      }
-      layoutManager = FlexboxLayoutManager(context).apply {
-        flexWrap = FlexWrap.WRAP
-        flexDirection = ori
-        alignItems = AlignItems.STRETCH
-      }
-    }
-
-  var padding: Int = 0
-    set(value: Int) {
-      picAdapter.padding = value
-    }
-
-  var nameTextSize: Int = 20
-    set(value: Int) {
-      picAdapter.nameTextSize = value
-    }
-
-  var nameBackgroundColor: Long = 0xffffff88
-    set(value: Long) {
-      picAdapter.nameBackgroundColor = value
-    }
-
-  fun getImageView(index: Int) : View? =
-    picAdapter.Views[index].view
 }
 
 /***
@@ -272,7 +162,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
  * RecyclerView가 FlexboxLayoutManager의 제어를 받아 이 어댑터에 필요한 뷰를 요청하게 됨.
  */
 
-internal class GroupedPicAdapter : RecyclerView.Adapter<GroupedPicAdapter.ElementViewHolder>() {
+class GroupedPicAdapter : RecyclerView.Adapter<GroupedPicAdapter.ElementViewHolder>() {
 
   // 이걸 설정하면 notifyDataSetChanged를 따로 호출할 필요 없다!
   var viewData = arrayListOf<Any>()
@@ -289,24 +179,10 @@ internal class GroupedPicAdapter : RecyclerView.Adapter<GroupedPicAdapter.Elemen
   var nameTextSize: Int = 20
   var nameBackgroundColor: Long = 0xFFFFFFFF
 
-  var Views: ArrayList<ElementViewHolder> = ArrayList<ElementViewHolder>()
-
   override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
     when (viewType) {
-      0 -> SeparatorHolder(TextView(parent.context).apply {
-        layoutParams = FlexboxLayoutManager.LayoutParams(matchParent, wrapContent)
-        backgroundColor = nameBackgroundColor.toInt()
-        textSize = nameTextSize.toFloat()
-      })
-      else -> PictureHolder(ImageView(parent.context).apply {
-        val metrics = parent.resources.displayMetrics
-        val mw = metrics.widthPixels / 3
-        val mh = metrics.heightPixels / 4
-        scaleType = ImageView.ScaleType.CENTER_CROP
-        layoutParams = FlexboxLayoutManager.LayoutParams(mw, mh).apply {
-          flexGrow = 1f
-        }
-      })
+      0 -> createSeparator(parent)
+      else -> createPicture(parent)
     }
 
   override fun getItemViewType(position: Int): Int {
@@ -314,28 +190,49 @@ internal class GroupedPicAdapter : RecyclerView.Adapter<GroupedPicAdapter.Elemen
   }
 
   override fun onBindViewHolder(holder: ElementViewHolder, position: Int) {
+    holder.boundItem = viewData[position]
     when (holder) {
       is SeparatorHolder -> {
-        holder.textView.text = viewData[position] as String
+        holder.textView.text = holder.boundItem as String
         if (viewData[0].equals("")) {
           holder.textView.visibility = TextView.GONE
         }
       }
       is PictureHolder -> {
-        val pic = viewData[position] as ResourcePicture
-        pic.drawable?.into(holder.imageView)
-        holder.imageView.setOnClickListener(pic.clickListener)
-        holder.imageView.setOnLongClickListener(pic.longClickListener)
+        val pic = holder.boundItem as ResourcePicture
+        pic.drawable.into(holder.imageView)
         holder.imageView.scaleType = ImageView.ScaleType.FIT_XY
         holder.imageView.setPadding(padding / 2, 0, padding / 2, 0)
       }
     }
-    Views.add(position, holder)
   }
 
   override fun getItemCount() = viewData.size
 
-  open class ElementViewHolder(val view: View) : RecyclerView.ViewHolder(view)
+  private fun createSeparator(parent: View): SeparatorHolder {
+    return SeparatorHolder(TextView(parent.context).apply {
+      layoutParams = FlexboxLayoutManager.LayoutParams(matchParent, wrapContent)
+      backgroundColor = nameBackgroundColor.toInt()
+      textSize = nameTextSize.toFloat()
+    })
+  }
+
+  private fun createPicture(parent: View): PictureHolder {
+    return PictureHolder(ImageView(parent.context).apply {
+      val metrics = parent.resources.displayMetrics
+      val mw = metrics.widthPixels / 3
+      val mh = metrics.heightPixels / 4
+      scaleType = ImageView.ScaleType.CENTER_CROP
+      layoutParams = FlexboxLayoutManager.LayoutParams(mw, mh).apply {
+        flexGrow = 1f
+      }
+    })
+  }
+
+  open class ElementViewHolder(val view: View) : RecyclerView.ViewHolder(view) {
+    var boundItem: Any? = null
+  }
+
   class SeparatorHolder(val textView: TextView) : ElementViewHolder(textView)
   class PictureHolder(val imageView: ImageView) : ElementViewHolder(imageView)
 }

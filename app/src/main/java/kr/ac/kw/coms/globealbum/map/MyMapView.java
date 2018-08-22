@@ -4,7 +4,6 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.widget.Toast;
 
-import org.osmdroid.api.IMapController;
 import org.osmdroid.events.MapListener;
 import org.osmdroid.events.ScrollEvent;
 import org.osmdroid.events.ZoomEvent;
@@ -14,37 +13,45 @@ import org.osmdroid.views.overlay.MapEventsOverlay;
 import org.osmdroid.views.overlay.Marker;
 
 import java.util.ArrayList;
-import java.util.List;
 
-public class MyMapView extends org.osmdroid.views.MapView{
-    public Context context=null;
-    IMapController mapController = null;
+public class MyMapView extends org.osmdroid.views.MapView {
+    public Context context = null;
 
     ArrayList<MarkerTouchListener> markerListeners = new ArrayList<>(); //마커클릭 시 필요한 리스너를 모아둔다
     MyMarker markerLineFolderOverlay = null;  //마커 모아서 관리
 
-     // Constructor used by XML layout resource (uses default tile source).
+    // Constructor used by XML layout resource (uses default tile source).
     public MyMapView(final Context context, final AttributeSet attrs) {
         super(context, null, null, attrs);
-        this.context=context;
+        this.context = context;
         this.post(new Runnable() {
-                         @Override
-                         public void run() {
-                             mapConfiguration();
+                      @Override
+                      public void run() {
+                          mapConfiguration();
 
-                         }
-                     }
+                      }
+                  }
         );
     }
+
     public MyMapView(final Context context) {
         super(context, null, null, null);
     }
 
+    @Override
+    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+        super.onSizeChanged(w, h, oldw, oldh);
+
+        double logZoom = getLogZoom(w, h);
+        setMinZoomLevel(logZoom);   //최소 줌 조절
+        setMaxZoomLevel(5.0);   //최대 줌 조절
+        getController().setZoom(logZoom);
+    }
 
     //맵 초기 설정
     private void mapConfiguration() {
 
-        setTileSource(TileSourceFactory.BASE_OVERLAY_NL );    //맵 렌더링 설정
+        setTileSource(TileSourceFactory.BASE_OVERLAY_NL);    //맵 렌더링 설정
         setBuiltInZoomControls(false);
         setMultiTouchControls(true);
         setScrollableAreaLimitLatitude(TileSystem.MaxLatitude, TileSystem.MinLatitude + 30, 0);
@@ -53,22 +60,14 @@ public class MyMapView extends org.osmdroid.views.MapView{
         setHorizontalMapRepetitionEnabled(false);
         setVerticalMapRepetitionEnabled(false);
 
-        double logZoom = getLogZoom();
-
-        setMinZoomLevel(logZoom);   //최소 줌 조절
-        setMaxZoomLevel(5.0);   //최대 줌 조절
-
-        mapController = getController();
-        mapController.setZoom(logZoom);
-
         invalidate();
     }
 
     //맵뷰를 화면에 맞추기 위해 필요한 사전 작업
-    public double getLogZoom(){
+    public double getLogZoom(int width, int height) {
         double mapRatio = 1; // 타일은 정사각형.
-        double dimenRatio = getWidth() / (double) getHeight(); // 화면비율
-        int longAxis = dimenRatio < mapRatio ? getHeight() : getWidth(); // 긴 축을 구함
+        double dimenRatio = width / (double) height; // 화면비율
+        int longAxis = dimenRatio < mapRatio ? height : width; // 긴 축을 구함
         double zoom = longAxis / 256.0;     //타일 하나의 픽셀수인 256으로 나눔
 
         return Math.log(zoom) / Math.log(2);
@@ -76,14 +75,15 @@ public class MyMapView extends org.osmdroid.views.MapView{
 
 
     //마커, 경로를 가지고 있는 markerLineFolderOverlay 객체를 반환
-    public MyMarker getRoute(){
+    public MyMarker getRoute() {
         return markerLineFolderOverlay;
     }
 
-    public void deleteRoute(MyMarker folderOverlay){
+    public void deleteRoute(MyMarker folderOverlay) {
 
     }
-    public void deleteRoute(int index){
+
+    public void deleteRoute(int index) {
 
     }
 
@@ -98,13 +98,13 @@ public class MyMapView extends org.osmdroid.views.MapView{
 
     //발생 이벤트를 전달
     public void dispatchMarkerTouch(MyMarker route, Marker marker) {
-        for (MarkerTouchListener listener: markerListeners) {
+        for (MarkerTouchListener listener : markerListeners) {
             listener.OnMarkerTouch(marker);
         }
     }
 
     //현재 화면에 있는 마커의 개수 변경시 알려주는 리시버
-    public void addShowCurrentMarkerChangeReceiver(){
+    public void addShowCurrentMarkerChangeReceiver() {
         MapListener mapListener = new MapListener() {
             @Override
             public boolean onScroll(ScrollEvent event) {
@@ -131,7 +131,7 @@ public class MyMapView extends org.osmdroid.views.MapView{
         addMapListener(mapListener);
     }
 
-    public void deleteMapEventReceiver(MapEventsOverlay mapEventsOverlay){
+    public void deleteMapEventReceiver(MapEventsOverlay mapEventsOverlay) {
         Toast.makeText(context, "dd", Toast.LENGTH_SHORT).show();
         getOverlays().remove(mapEventsOverlay);
     }

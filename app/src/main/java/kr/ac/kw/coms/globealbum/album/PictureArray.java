@@ -6,36 +6,34 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
-import kr.ac.kw.coms.globealbum.provider.PictureProvider.Picture;
+import kr.ac.kw.coms.globealbum.provider.IPicture;
 
-public class PictureArray extends ArrayList<Picture> {
+public class PictureArray extends ArrayList<IPicture> {
 
-    public void addAndSort(Picture picture) {
+    public void addAndSort(IPicture picture) {
         add(picture);
         sort();
     }
 
-    public void addAndSort(int index, Picture picture) {
+    public void addAndSort(int index, IPicture picture) {
         add(index, picture);
         sort();
     }
 
     public void setOnClickListener(int index, View.OnClickListener onClickListener) throws IndexOutOfBoundsException {
-        Picture picture = get(index);
-        picture.setOnClickListener(onClickListener);
+        IPicture picture = get(index);
         set(index, picture);
     }
 
     public void setOnLongClickListener(int index, View.OnLongClickListener onLongClickListener) throws IndexOutOfBoundsException {
-        Picture picture = get(index);
-        picture.setOnLongClickListener(onLongClickListener);
+        IPicture picture = get(index);
         set(index, picture);
     }
 
     public void sort() {
-        Collections.sort(this, new Comparator<Picture>() {
+        Collections.sort(this, new Comparator<IPicture>() {
             @Override
-            public int compare(Picture o1, Picture o2) {
+            public int compare(IPicture o1, IPicture o2) {
                 return o1.getTime().compareTo(o2.getTime());
             }
         });
@@ -43,7 +41,7 @@ public class PictureArray extends ArrayList<Picture> {
 
     public int swap(int left, int right) {
         try {
-            Picture swap = get(left);
+            IPicture swap = get(left);
             set(left, get(right));
             set(right, swap);
         }

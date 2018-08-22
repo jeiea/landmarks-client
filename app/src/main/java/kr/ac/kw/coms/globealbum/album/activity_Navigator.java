@@ -2,14 +2,10 @@ package kr.ac.kw.coms.globealbum.album;
 /* 작성자: 이상훈 */
 
 import android.content.Context;
-import android.content.res.Resources;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Point;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
@@ -28,17 +24,13 @@ import android.widget.TextView;
 import com.google.android.flexbox.AlignItems;
 import com.google.android.flexbox.FlexDirection;
 import com.google.android.flexbox.FlexWrap;
-import com.google.android.flexbox.FlexboxLayout;
 import com.google.android.flexbox.FlexboxLayoutManager;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
 
 import kr.ac.kw.coms.globealbum.R;
-import kr.ac.kw.coms.globealbum.provider.PictureProvider;
+import kr.ac.kw.coms.globealbum.provider.IPicture;
 
 public class activity_Navigator extends AppCompatActivity {
     float density;
@@ -132,19 +124,19 @@ public class activity_Navigator extends AppCompatActivity {
     {
         data = new ArrayList<>();
         Context c = getBaseContext();
-        ArrayList<PictureProvider.Picture> group1 = new ArrayList<>();
-        group1.add(new ResourcePicture(c, R.drawable.sample0, null));
-        group1.add(new ResourcePicture(c, R.drawable.sample1, null));
-        group1.add(new ResourcePicture(c, R.drawable.sample2, null));
-        group1.add(new ResourcePicture(c, R.drawable.sample3, null));
-        group1.add(new ResourcePicture(c, R.drawable.sample4, null));
+        ArrayList<IPicture> group1 = new ArrayList<>();
+        group1.add(new ResourcePicture(c, R.drawable.sample0));
+        group1.add(new ResourcePicture(c, R.drawable.sample1));
+        group1.add(new ResourcePicture(c, R.drawable.sample2));
+        group1.add(new ResourcePicture(c, R.drawable.sample3));
+        group1.add(new ResourcePicture(c, R.drawable.sample4));
         data.add(new PictureGroup("group 1", group1));
-        ArrayList<PictureProvider.Picture> group2 = new ArrayList<>();
-        group1.add(new ResourcePicture(c, R.drawable.sample5, null));
-        group1.add(new ResourcePicture(c, R.drawable.sample6, null));
-        group1.add(new ResourcePicture(c, R.drawable.sample7, null));
-        group1.add(new ResourcePicture(c, R.drawable.sample8, null));
-        group1.add(new ResourcePicture(c, R.drawable.sample9, null));
+        ArrayList<IPicture> group2 = new ArrayList<>();
+        group1.add(new ResourcePicture(c, R.drawable.sample5));
+        group1.add(new ResourcePicture(c, R.drawable.sample6));
+        group1.add(new ResourcePicture(c, R.drawable.sample7));
+        group1.add(new ResourcePicture(c, R.drawable.sample8));
+        group1.add(new ResourcePicture(c, R.drawable.sample9));
         data.add(new PictureGroup("group 2", group2));
     }
 
@@ -213,7 +205,7 @@ public class activity_Navigator extends AppCompatActivity {
             }
             else if (holder instanceof PictureHolder)
             {
-                PictureProvider.Picture pic = (PictureProvider.Picture)viewData.get(position);
+                IPicture pic = (IPicture)viewData.get(position);
                 pic.getDrawable().into(((PictureHolder) holder).imageView);
             }
         }

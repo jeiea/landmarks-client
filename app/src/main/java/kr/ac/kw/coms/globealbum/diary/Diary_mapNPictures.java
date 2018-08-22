@@ -3,26 +3,16 @@ package kr.ac.kw.coms.globealbum.diary;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.Configuration;
-import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
-import android.support.v7.widget.RecyclerView;
-import android.text.Layout;
-import android.util.AttributeSet;
 import android.util.Pair;
 import android.view.View;
-import android.view.ViewGroup;
-import android.view.ViewParent;
-import android.view.ViewTreeObserver;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -30,6 +20,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.transition.Transition;
+import com.google.android.flexbox.FlexDirection;
 
 import org.osmdroid.events.MapEventsReceiver;
 import org.osmdroid.util.GeoPoint;
@@ -38,8 +29,6 @@ import org.osmdroid.views.overlay.MapEventsOverlay;
 import org.osmdroid.views.overlay.Marker;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 
 import kr.ac.kw.coms.globealbum.R;
 import kr.ac.kw.coms.globealbum.album.GalleryDetail;
@@ -47,13 +36,10 @@ import kr.ac.kw.coms.globealbum.album.GroupDiaryView;
 import kr.ac.kw.coms.globealbum.album.PictureArray;
 import kr.ac.kw.coms.globealbum.album.PictureGroup;
 import kr.ac.kw.coms.globealbum.album.ResourcePicture;
-import kr.ac.kw.coms.globealbum.map.DrawCircleOverlay;
 import kr.ac.kw.coms.globealbum.map.MyMapView;
 import kr.ac.kw.coms.globealbum.map.MyMarker;
 import kr.ac.kw.coms.globealbum.provider.EXIFinfo;
-import kr.ac.kw.coms.globealbum.provider.PictureProvider;
-
-import static android.support.constraint.ConstraintLayout.LayoutParams.PARENT_ID;
+import kr.ac.kw.coms.globealbum.provider.IPicture;
 
 public class Diary_mapNPictures extends AppCompatActivity {
 
@@ -118,12 +104,12 @@ public class Diary_mapNPictures extends AppCompatActivity {
         final Context c = getBaseContext();
         for (int i = 0; i < PicturesArray.size(); i++) {
             final int idx = i;
-            elementRow.add(idx, new ResourcePicture(c, PicturesArray.get(idx), null));
+            elementRow.add(idx, new ResourcePicture(c, PicturesArray.get(idx)));
         }
         elementRow.sort();
 
-        for (PictureProvider.Picture i : elementRow) {
-            urls.add(resourceToUri(this, ((ResourcePicture) i).getid()).toString());
+        for (IPicture i : elementRow) {
+            urls.add(resourceToUri(this, ((ResourcePicture) i).getId()).toString());
         }
 
         for (int i = 0; i < elementRow.size(); i++) {
@@ -142,10 +128,10 @@ public class Diary_mapNPictures extends AppCompatActivity {
 
         mapView = findViewById(R.id.diary_mapNpics_Map);
         picView = findViewById(R.id.diary_mapNpics_Pics);
-        picView.setPadding(20);
+        picView.getPicAdapter().setPadding(20);
 
         prepareData();
-        picView.setOrientation(1);
+        picView.setDirection(FlexDirection.COLUMN);
 
         //TODO: show info text
         try {
