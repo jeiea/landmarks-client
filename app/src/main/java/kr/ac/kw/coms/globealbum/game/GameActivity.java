@@ -82,8 +82,6 @@ public class GameActivity extends AppCompatActivity {
     LinearLayout answerLinearLayout;
 
 
-
-
     Drawable RED_FLAG_DRAWABLE;
     Drawable BLUE_FLAG_DRAWABLE;
     final int PICTURE_NUM = 4;
@@ -99,10 +97,7 @@ public class GameActivity extends AppCompatActivity {
      */
     TimerState stopTimer = Running;
     private Handler animateHandler = null;
-
-
     private Handler ui;
-
 
     final int TIME_LIMIT_MS = 14000;
     MapEventsOverlay listenerOverlay;
@@ -148,8 +143,6 @@ public class GameActivity extends AppCompatActivity {
             }
         });
     }
-
-
 
     //문제 세팅
     private void setQuestion() {
@@ -247,7 +240,6 @@ public class GameActivity extends AppCompatActivity {
         listenerOverlay = markerEvent();
 
         //timeThreadhandler();
-        //setPictureQuestion(questionPic.get(problem));  //사진을 보여주고 지명을 찾는 문제 형식
         setPlaceNameQuestion(questionPic.get(problem)); //지명을 보여주고 사진을 찾는 문제 형식
     }
 
@@ -276,15 +268,20 @@ public class GameActivity extends AppCompatActivity {
 
                     // 화면을 한번 터치해 마커를 생성하고 난 후
                     // 타임아웃 발생시 그 마커를 위치로 정답 확인
-                    if (currentMarker != null) {
-                        timeOutAddUserMarker();
-                    } else {
-                        //화면에 마커 생성 없이 타임아웃 발생시 정답 확인
-                        currentMarker = new Marker(myMapView);
+                    if( gameType == GameType.A){
+                        if (currentMarker != null) {
+                            timeOutAddUserMarker();
+                        } else {
+                            //화면에 마커 생성 없이 타임아웃 발생시 정답 확인
+                            currentMarker = new Marker(myMapView);
+                            stopTimer = Stop;
+                            myMapView.getOverlays().add(answerMarker);
+
+                            setAnswerLayout();
+                        }
+                    }
+                    else if(gameType == GameType.B){
                         stopTimer = Stop;
-
-                        myMapView.getOverlays().add(answerMarker);
-
                         setAnswerLayout();
                     }
                     myMapView.invalidate();
@@ -304,7 +301,6 @@ public class GameActivity extends AppCompatActivity {
                 if (currentMarker != null) {
                     if (animateHandler == null) {
                         currentMarker.setPosition(p);
-
                     }
                 } else {
                     Marker marker = addUserMarker(p);
@@ -373,8 +369,6 @@ public class GameActivity extends AppCompatActivity {
         });
     }
 
-
-
     //정답 확인 레이아웃 값 설정하고 띄우기
     private void setAnswerLayout() {
 
@@ -386,7 +380,6 @@ public class GameActivity extends AppCompatActivity {
             questionTypeBLayout.setVisibility(View.GONE);
             questionTypeBLayout.setClickable(false);
         }
-
 
         answerLinearLayout.setVisibility(View.VISIBLE);
         answerLinearLayout.setClickable(true);
@@ -532,14 +525,14 @@ public class GameActivity extends AppCompatActivity {
 
 
        answerMarker = new Marker(myMapView);
-        answerMarker.setIcon(RED_FLAG_DRAWABLE);
-        answerMarker.setAnchor(0.25f, 1.0f);
-        answerMarker.setPosition(pi.geoPoint);
+       answerMarker.setIcon(RED_FLAG_DRAWABLE);
+       answerMarker.setAnchor(0.25f, 1.0f);
+       answerMarker.setPosition(pi.geoPoint);
 
-        myMapView.getController().setZoom(myMapView.getLogZoom());
+       myMapView.getController().setZoom(myMapView.getLogZoom());
 
-        Glide.with(context).load(pi.id).into(questionTypeAImageView);
-        questionTypeAImageView.invalidate();
+       Glide.with(context).load(pi.id).into(questionTypeAImageView);
+       questionTypeAImageView.invalidate();
     }
 
     //지명을 보여주고 사진을 찾는 문제 형식
@@ -598,11 +591,6 @@ public class GameActivity extends AppCompatActivity {
     }
 
 
-
-    RecyclerView recyclerView;
-    AfterGameAdapter adapter;
-
-
     //한 스테이지가 끝난 후 다음 단계로 넘어갈 수 있는 이벤트
     class GameNextQuizListener implements  View.OnClickListener{
         @Override
@@ -652,6 +640,11 @@ public class GameActivity extends AppCompatActivity {
         }
     }
 
+
+    RecyclerView recyclerView;
+    AfterGameAdapter adapter;
+
+
     private void setRecyclerView() {    //게임이 완료된 후 사진들을 모아서 보여주는 리사이클뷰 적용
         setContentView(R.layout.layout_recycler_view);
         recyclerView = findViewById(R.id.after_game_recyclerview);
@@ -673,7 +666,6 @@ public class GameActivity extends AppCompatActivity {
 
     }
 
-
     //문제 사진 클릭 시 크게 띄워주는 이벤트 등록
     public class PictureClickListenerTypeA implements View.OnClickListener {
         @Override
@@ -683,6 +675,7 @@ public class GameActivity extends AppCompatActivity {
             pdf.show(getSupportFragmentManager(), "wow");
         }
     }
+
 
     boolean imageViewClicked = false;
     View clickedImageView = null;
