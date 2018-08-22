@@ -1,7 +1,10 @@
 package kr.ac.kw.coms.globealbum.game;
 
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.support.annotation.NonNull;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,6 +14,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import java.util.ArrayList;
+import java.util.List;
 
 import kr.ac.kw.coms.globealbum.R;
 

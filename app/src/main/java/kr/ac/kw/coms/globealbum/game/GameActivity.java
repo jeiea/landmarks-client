@@ -75,10 +75,12 @@ public class GameActivity extends AppCompatActivity {
     TextView scoreTextView = null;
 
 
-    Button goToNextStageButton, exitGameButton;
-    TextView landNameAnswerTextView, landDistanceAnswerTextView, landScoreTextView;
+    Button goToNextStageButton,exitGameButton;
+    TextView landNameAnswerTextView,landDistanceAnswerTextView,landScoreTextView;
     ImageView pictureAnswerImageView;
     LinearLayout answerLinearLayout;
+
+
 
 
     Drawable RED_FLAG_DRAWABLE;
@@ -87,9 +89,8 @@ public class GameActivity extends AppCompatActivity {
     int problem = 0;
     int score = 0;
     int timeScore = 0;
-    int distanceScore = 0;
     int stage = 1;
-    int distance = 0;
+    int distance =0;
 
     /**
      * 제한시간 타이머가 돌아가는 중인지.
@@ -117,8 +118,7 @@ public class GameActivity extends AppCompatActivity {
         Stop,
         Running
     }
-
-    enum GameType {
+    enum GameType{
         A,
         B
     }
@@ -146,6 +146,7 @@ public class GameActivity extends AppCompatActivity {
             }
         });
     }
+
 
 
     //문제 세팅
@@ -177,7 +178,6 @@ public class GameActivity extends AppCompatActivity {
                     cause.printStackTrace(pw);
                     Log.e("failfail", cause.toString() + sw.toString());
                 }
-
                 @Override
                 public void success(Pair<String, String> result) {
                     String name = result.getFirst() + " " + result.getSecond();
@@ -278,7 +278,7 @@ public class GameActivity extends AppCompatActivity {
                         timeOutAddUserMarker();
                     } else {
                         //화면에 마커 생성 없이 타임아웃 발생시 정답 확인
-                        currentMarker = new Marker(myMapView);
+                        //currentMarker = new Marker(myMapView);
                         stopTimer = Stop;
 
                         myMapView.getOverlays().add(answerMarker);
@@ -358,7 +358,6 @@ public class GameActivity extends AppCompatActivity {
                     myMapView.getOverlays().add(answerMarker);
                     addPolyline(currentMarker.getPosition(), answerMarker.getPosition());    //마커 사이를 직선으로 연결
 
-                    calcScore();
                     setAnswerLayout();
 
 
@@ -371,29 +370,41 @@ public class GameActivity extends AppCompatActivity {
         });
     }
 
-
-    //정답 확인 레이아웃 값 설정하고 띄우기
+    /**
+     * 정답 확인 레이아웃 값 설정하고 띄우기
+     */
     private void setAnswerLayout() {
 
-        if (gameType == GameType.A) {
+        if(gameType ==GameType.A){
             questionTypeAImageView.setVisibility(View.GONE);
             questionTypeAImageView.setClickable(false);
-        } else if (gameType == GameType.B) {
+        }
+        else if(gameType == GameType.B){
             questionTypeBLayout.setVisibility(View.GONE);
             questionTypeBLayout.setClickable(false);
         }
 
+        int curScore = calcScore();
 
         answerLinearLayout.setVisibility(View.VISIBLE);
         answerLinearLayout.setClickable(true);
         landNameAnswerTextView.setText(questionPic.get(problem).name);
-        landDistanceAnswerTextView.setText(distance + "KM");
-        landScoreTextView.setText(score + "");
+        if(gameType == GameType.A && currentMarker != null){
+            landDistanceAnswerTextView.setText(distance+"KM");
+        }else {
+            landDistanceAnswerTextView.setVisibility(View.INVISIBLE);
+        }
+        landScoreTextView.setText("score " +curScore);
         Glide.with(context).load(questionPic.get(problem).id).into(pictureAnswerImageView);
 
     }
 
-    //사용자가 정한 마커와 정답 마커 사이를 잇는 직선 생성
+    /**
+     * 사용자가 정한 마커와 정답 마커 사이를 잇는 직선 생성
+     * @param startPosition
+     * @param destPosition
+     */
+    //
     private void addPolyline(GeoPoint startPosition, GeoPoint destPosition) {
         List<GeoPoint> geoPoints = new ArrayList<>();
         geoPoints.add(startPosition);
@@ -500,46 +511,55 @@ public class GameActivity extends AppCompatActivity {
     }
 
     //점수 계산
-    private void calcScore() {
-        final int CRITERIA = 500;
-
-        if (distanceScore >= 5000) {
-            distanceScore = 0;
-        } else {
-            distanceScore = CRITERIA - distanceScore / 10;
+    private int calcScore() {
+        int curScore = 0;
+        if(gameType == GameType.A) {
+            if(currentMarker == null) { //마커를 화면에 찍지 않고 정답을 확인하는 경우
+                Toast.makeText(this, "0", Toast.LENGTH_SHORT).show();
+            }else{
+                Toast.makeText(this, distance+"", Toast.LENGTH_SHORT).show();
+                final int CRITERIA = 500;
+                curScore = CRITERIA - distance/ 10;
+            }
+        }else if (gameType == GameType.B){
+            curScore = 300;
+            //맞추면 점수
+            //틀리면 0점
         }
+        curScore += timeScore /1000;
+        score += curScore;
 
-        score += distanceScore + timeScore / 1000;
         scoreTextView.setText("SCORE " + score);
+
+        return curScore;
     }
 
     //사진을 보여주고 지명을 찾는 문제 형식
-    private void setPictureQuestion(GamePictureInfo pi) {
+   private void setPictureQuestion(GamePictureInfo pi){
         gameType = GameType.A;
-        //레이아웃 설정
-        questionTypeAImageView.setVisibility(View.VISIBLE);
-        questionTypeAImageView.setClickable(true);
-        questionTypeBLayout.setClickable(false);
-        questionTypeBLayout.setVisibility(View.GONE);
+       //레이아웃 설정
+       questionTypeAImageView.setVisibility(View.VISIBLE);
+       questionTypeAImageView.setClickable(true);
+       questionTypeBLayout.setClickable(false);
+       questionTypeBLayout.setVisibility(View.GONE);
 
-        //마커 이벤트 등록
-        myMapView.setClickable(true);
-        myMapView.getOverlays().add(listenerOverlay);
+       //마커 이벤트 등록
+       myMapView.getOverlays().add(listenerOverlay);
 
 
-        answerMarker = new Marker(myMapView);
+       answerMarker = new Marker(myMapView);
         answerMarker.setIcon(RED_FLAG_DRAWABLE);
         answerMarker.setAnchor(0.25f, 1.0f);
         answerMarker.setPosition(pi.geoPoint);
 
-        myMapView.getController().setZoom(myMapView.getMinZoomLevel());
+       myMapView.getController().setZoom(myMapView.getMinZoomLevel());
 
         Glide.with(context).load(pi.id).into(questionTypeAImageView);
         questionTypeAImageView.invalidate();
     }
 
     //지명을 보여주고 사진을 찾는 문제 형식
-    private void setPlaceNameQuestion(GamePictureInfo pi) {
+    private void setPlaceNameQuestion(GamePictureInfo pi){
         gameType = GameType.B;
         //레이아웃 설정
         questionTypeBLayout.setVisibility(View.VISIBLE);
@@ -568,6 +588,7 @@ public class GameActivity extends AppCompatActivity {
     }
 
 
+
     //메뉴 버튼 클릭 시 다이얼로그 표시
     class MenuButtonClickListener implements View.OnClickListener {
         @Override
@@ -593,23 +614,26 @@ public class GameActivity extends AppCompatActivity {
     }
 
 
+
     RecyclerView recyclerView;
     AfterGameAdapter adapter;
 
 
     //한 스테이지가 끝난 후 다음 단계로 넘어갈 수 있는 이벤트
-    class GameNextQuizListener implements View.OnClickListener {
+    class GameNextQuizListener implements  View.OnClickListener{
         @Override
         public void onClick(View v) {
 
-            if (gameType == GameType.A) {
-                currentMarker.remove(myMapView);
-                currentMarker = null;
-
+            if(gameType == GameType.A){
+                if( currentMarker != null){
+                    currentMarker.remove(myMapView);
+                    currentMarker = null;
+                }
                 myMapView.getOverlays().remove(answerMarker);
                 myMapView.getOverlays().remove(polyline);
                 myMapView.getOverlays().remove(drawCircleOverlay);
-            } else if (gameType == GameType.B) {
+            }
+            else if (gameType == GameType.B){
                 InfoWindow.closeAllInfoWindowsOn(myMapView);
                 myMapView.getOverlays().remove(answerMarker);
             }
@@ -625,10 +649,12 @@ public class GameActivity extends AppCompatActivity {
                     setPictureQuestion(questionPic.get(problem));
                     break;
                 case 2:
+                    /*
                     stage++;
                     stageTextView.setText("STAGE " + stage);
                     score = 0;
                     scoreTextView.setText("SCORE " + score);
+                    */
                     setPictureQuestion(questionPic.get(problem));
                     break;
                 case 3:
@@ -658,7 +684,7 @@ public class GameActivity extends AppCompatActivity {
 
 
     //한 스테이지가 끝난 후 게임을 종료할 수 있는 이벤트
-    class GameFinishListener implements View.OnClickListener {
+    class GameFinishListener implements  View.OnClickListener{
         @Override
         public void onClick(View v) {
             finish();
