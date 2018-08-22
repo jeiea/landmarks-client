@@ -137,6 +137,7 @@ public class GameActivity extends AppCompatActivity {
         DrawableImageViewTarget gifImage = new DrawableImageViewTarget(loadigImageView);
         Glide.with(GameActivity.this).load(R.drawable.owl).into(gifImage);
         ui = new Handler();
+        redRect = getResources().getDrawable(R.drawable.boundary, null);
 
         //게임 시작 전 문제 세팅
         AsyncTask.execute(new Runnable() {
