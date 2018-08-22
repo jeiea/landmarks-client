@@ -330,7 +330,7 @@ public class GameActivity extends AppCompatActivity {
         final long start = SystemClock.uptimeMillis();
         final Interpolator interpolator = new AccelerateDecelerateInterpolator();
         final float durationInMs = 1000;
-        map.getController().zoomTo(myMapView.getLogZoom(), 1700L);          //인자의 속도에 맞춰서 줌 아웃
+        map.getController().zoomTo(myMapView.getMinZoomLevel(), 1700L);          //인자의 속도에 맞춰서 줌 아웃
 
         drawCircleOverlay = new DrawCircleOverlay(marker.getPosition(), finalPosition, map);
         myMapView.getOverlays().add(drawCircleOverlay);
@@ -536,7 +536,7 @@ public class GameActivity extends AppCompatActivity {
         answerMarker.setAnchor(0.25f, 1.0f);
         answerMarker.setPosition(pi.geoPoint);
 
-        myMapView.getController().setZoom(myMapView.getLogZoom());
+       myMapView.getController().setZoom(myMapView.getMinZoomLevel());
 
         Glide.with(context).load(pi.id).into(questionTypeAImageView);
         questionTypeAImageView.invalidate();
