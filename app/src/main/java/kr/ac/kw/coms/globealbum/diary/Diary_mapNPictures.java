@@ -169,6 +169,7 @@ public class Diary_mapNPictures extends AppCompatActivity {
                         .into(new SimpleTarget<Drawable>() {
                             @Override
                             public void onResourceReady(@NonNull Drawable resource, @Nullable Transition<? super Drawable> transition) {
+
                                 Marker marker = addPicMarker(geoPoint, resource);
                                 markerFolderOverlay.addMarkerLine(marker);
                             }
