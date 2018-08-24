@@ -99,15 +99,14 @@ public class Diary_mapNPictures extends AppCompatActivity {
         PicturesArray.add(R.drawable.coord1);
         PicturesArray.add(R.drawable.coord2);
         PicturesArray.add(R.drawable.coord3);
-        /*
-        ArrayList<PictureGroup> elementList = new ArrayList<PictureGroup>();
-        PictureArray elementRow = new PictureArray();
+
+        ArrayList<PictureGroup> elementList = new ArrayList<>();
+        ArrayList<IPicture> pics = new ArrayList<>();
         for (int i = 0; i < PicturesArray.size(); i++) {
-            elementRow.add(i, new ResourcePicture(getBaseContext(), PicturesArray.get(i)));
+            pics.add(i, new ResourcePicture(this, PicturesArray.get(i)));
         }
-        elementList.add(new PictureGroup("", elementRow));
+        elementList.add(new PictureGroup("", pics));
         picView.setGroups(elementList);
-        */
     }
 
     @Override
