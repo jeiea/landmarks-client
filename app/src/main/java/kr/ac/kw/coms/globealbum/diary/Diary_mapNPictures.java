@@ -142,9 +142,11 @@ public class Diary_mapNPictures extends AppCompatActivity {
             //Ignore
         }
 
-        //마커 이벤트 등록
+        //맵뷰 클릭 시 이벤트 등록
         mapviewClickEventOverlay = mapviewClickEventDisplay();
         mapView.getOverlays().add(mapviewClickEventOverlay);
+
+
 
         //맵뷰에 마커들 등록
         markerFolderOverlay = new MyMarker(mapView);
@@ -180,6 +182,7 @@ public class Diary_mapNPictures extends AppCompatActivity {
                             public void onResourceReady(@NonNull Drawable resource, @Nullable Transition<? super Drawable> transition) {
 
                                 Marker marker = addPicMarker(geoPoint, resource);
+                                marker.setOnMarkerClickListener(markerClickEvent());
                                 markerFolderOverlay.addMarkerLine(marker);
                             }
                         });
@@ -219,7 +222,12 @@ public class Diary_mapNPictures extends AppCompatActivity {
         return marker;
     }
 
-    //경로를 보여주는 다이어리 화면에서 맵뷰를 클릭하였을 때 발생하는 이벤트
+    //
+
+    /**
+     * 경로를 보여주는 다이어리 화면에서 맵뷰를 클릭할 시의 리스너
+     * @return 리스너 반환
+     */
     private MapEventsOverlay mapviewClickEventDisplay() {
         return new MapEventsOverlay(new MapEventsReceiver() {
             @Override
@@ -235,7 +243,12 @@ public class Diary_mapNPictures extends AppCompatActivity {
         });
     }
 
-    //경로를 수정하는 다이어리 화면에서 맵뷰를 클릭하였을 때 발생하는 이벤트
+    //
+
+    /**
+     * 경로를 수정하는 다이어리 화면에서 맵뷰를 클릭하였을 때 발생하는 이벤트
+     * @return 리스너 반환
+     */
     private MapEventsOverlay mapviewClickEventEdit() {
         return new MapEventsOverlay(new MapEventsReceiver() {
             @Override
@@ -249,6 +262,20 @@ public class Diary_mapNPictures extends AppCompatActivity {
                 return false;
             }
         });
+    }
+
+    /**
+     * 마커를 클릭했을 시에 동작하는 리스너
+     * @return 리스너 반환
+     */
+    private Marker.OnMarkerClickListener markerClickEvent(){
+        return new Marker.OnMarkerClickListener() {
+            @Override
+            public boolean onMarkerClick(Marker marker, MapView mapView) {
+                Toast.makeText(Diary_mapNPictures.this, "Marker Click", Toast.LENGTH_SHORT).show();
+                return false;
+            }
+        };
     }
 
 

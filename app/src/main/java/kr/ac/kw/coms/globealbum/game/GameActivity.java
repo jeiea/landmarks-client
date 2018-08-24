@@ -59,31 +59,31 @@ import static kr.ac.kw.coms.globealbum.game.GameActivity.TimerState.Running;
 import static kr.ac.kw.coms.globealbum.game.GameActivity.TimerState.Stop;
 
 
-public class GameActivity extends AppCompatActivity {
-    public static Activity GActivity;
-    Context context = null;
-    MyMapView myMapView = null;
+    public class GameActivity extends AppCompatActivity {
+        public static Activity GActivity;
+        Context context = null;
+        MyMapView myMapView = null;
 
-    ImageView questionTypeAImageView = null;
-    LinearLayout questionTypeBLayout = null;
-    ImageView[] questionTypeBImageView = new ImageView[4];
-    GameType gameType = null;
+        ImageView questionTypeAImageView = null;
+        LinearLayout questionTypeBLayout = null;
+        ImageView[] questionTypeBImageView = new ImageView[4];
+        GameType gameType = null;
 
-    ProgressBar progressBar = null;
-    TextView stageTextView = null;
-    Button menuButton = null;
-    TextView scoreTextView = null;
-
-
-    Button goToNextStageButton,exitGameButton;
-    TextView landNameAnswerTextView,landDistanceAnswerTextView,landScoreTextView;
-    ImageView pictureAnswerImageView;
-    LinearLayout answerLinearLayout;
+        ProgressBar progressBar = null;
+        TextView stageTextView = null;
+        Button menuButton = null;
+        TextView scoreTextView = null;
 
 
+        Button goToNextStageButton,exitGameButton;
+        TextView landNameAnswerTextView,landDistanceAnswerTextView,landScoreTextView;
+        ImageView pictureAnswerImageView;
+        LinearLayout answerLinearLayout;
 
 
-    Drawable RED_FLAG_DRAWABLE;
+
+
+        Drawable RED_FLAG_DRAWABLE;
     Drawable BLUE_FLAG_DRAWABLE;
     final int PICTURE_NUM = 4;
     int problem = 0;
@@ -92,9 +92,6 @@ public class GameActivity extends AppCompatActivity {
     int stage = 1;
     int distance =0;
 
-    /**
-     * 제한시간 타이머가 돌아가는 중인지.
-     */
     TimerState stopTimer = Running;
     private Handler animateHandler = null;
 
@@ -148,9 +145,9 @@ public class GameActivity extends AppCompatActivity {
         });
     }
 
-
-
-    //문제 세팅
+    /**
+     * 문제 세팅
+     */
     private void setQuestion() {
         int[] id = new int[PICTURE_NUM];
         EXIFinfo exifInfo = new EXIFinfo();
@@ -196,6 +193,10 @@ public class GameActivity extends AppCompatActivity {
         }
     }
 
+
+    /**
+     *  전체적인 게임 틀을 구성
+     */
     private void displayQuiz() {
         setContentView(R.layout.activity_game);
         progressBar = findViewById(R.id.progressbar);
@@ -245,12 +246,14 @@ public class GameActivity extends AppCompatActivity {
         //마커 이벤트 등록
         listenerOverlay = markerEvent();
 
-        //timeThreadhandler();
+        timeThreadhandler();
         //setPictureQuestion(questionPic.get(problem));  //사진을 보여주고 지명을 찾는 문제 형식
         setPlaceNameQuestion(questionPic.get(problem)); //지명을 보여주고 사진을 찾는 문제 형식
     }
 
-    //제한 시간 측정
+    /**
+     *  제한 시간 측정
+     */
     private void timeThreadhandler() {
         int stageTimeLimitMs = TIME_LIMIT_MS - problem * 1000;
         progressBar.setMax(stageTimeLimitMs);
@@ -293,8 +296,11 @@ public class GameActivity extends AppCompatActivity {
 
     }
 
-    //맵뷰를 클릭하였을 때 발생하는 이벤트
-    //마커를 화면에 띄우고, 또 한번 클릭할 경우 정답 확인으로 넘어간다.
+    /**
+     * 맵뷰를 클릭하였을 때 발생하는 이벤트
+     * 마커를 화면에 띄우고, 또 한번 클릭할 경우 정답 확인으로 넘어간다.
+     * @return 마커를 클릭했을 시의 이벤트
+     */
     private MapEventsOverlay markerEvent() {
         return new MapEventsOverlay(new MapEventsReceiver() {
             @Override
@@ -322,7 +328,13 @@ public class GameActivity extends AppCompatActivity {
         });
     }
 
-    //사용자가 찍은 마커가 위치에서 시작하여 정답마커까지 이동하는 애니메이션
+    /**
+     * 사용자가 찍은 마커가 위치에서 시작하여 정답마커까지 이동하는 애니메이션
+     * @param map mapview
+     * @param marker 사용자가자 찍은 마커
+     * @param finalPosition 정답 마커의 좌표
+     * @param GeoPointInterpolator 마커 이동 방식
+     */
     private void animateMarker(final MapView map, final Marker marker, final GeoPoint finalPosition, final GeoPointInterpolator GeoPointInterpolator) {
         final GeoPoint startPosition = marker.getPosition();
         animateHandler = new Handler();
@@ -391,6 +403,7 @@ public class GameActivity extends AppCompatActivity {
         answerLinearLayout.setClickable(true);
         landNameAnswerTextView.setText(questionPic.get(problem).name);
         if(gameType == GameType.A && currentMarker != null){
+            landDistanceAnswerTextView.setVisibility(View.VISIBLE);
             landDistanceAnswerTextView.setText(distance+"KM");
         }else {
             landDistanceAnswerTextView.setVisibility(View.INVISIBLE);
@@ -402,8 +415,8 @@ public class GameActivity extends AppCompatActivity {
 
     /**
      * 사용자가 정한 마커와 정답 마커 사이를 잇는 직선 생성
-     * @param startPosition
-     * @param destPosition
+     * @param startPosition 사용자 마커의 좌표
+     * @param destPosition 정답 마커의 좌표
      */
     //
     private void addPolyline(GeoPoint startPosition, GeoPoint destPosition) {
@@ -417,8 +430,12 @@ public class GameActivity extends AppCompatActivity {
         myMapView.getOverlays().add(polyline);
     }
 
-
-    //두 좌표 사이의 거리를 구해서 리턴
+    /**
+     * 두 좌표 사이의 거리를 구해서 리턴
+     * @param geoPoint1 좌표1
+     * @param geoPoint2 좌표2
+     * @return 좌표 사이의 거리를 구해 정수형 Km로 반환
+     */
     private int calcDistance(GeoPoint geoPoint1, GeoPoint geoPoint2) {
         //http://www.mapanet.eu/en/resources/Script-Distance.htm
         //http://www.codecodex.com/wiki/Calculate_distance_between_two_points_on_a_globe
@@ -438,9 +455,12 @@ public class GameActivity extends AppCompatActivity {
         return (int) distance;
     }
 
-    //사용자 마커 생성
+    /**
+     * 사용자 마커 생성
+     * @param geoPoint 사용자가 맵뷰를 클릭한 지점의 좌표
+     * @return 마커 생성 후 마커 반환
+     */
     private Marker addUserMarker(final GeoPoint geoPoint) {
-        //마커 생성 및 설정
         Marker marker = new Marker(myMapView);
         //marker.setIcon(BLUE_FLAG_DRAWABLE);
         marker.setPosition(geoPoint);
@@ -468,7 +488,10 @@ public class GameActivity extends AppCompatActivity {
         return marker;
     }
 
-    //게임이 끝난 후 다이얼로그 표시
+    /**
+     * 게임이 끝난 후 다이얼로그 표시
+     * 미사용
+     */
     void showDialogAfterGame() {
         final List<String> listItems = new ArrayList<>();
         listItems.add("다시하기");
@@ -495,7 +518,9 @@ public class GameActivity extends AppCompatActivity {
         builder.show();
     }
 
-    //화면을 한번 클릭해 임시 마커 생성 후 타임아웃 발생시 정답 확인 과정
+    /**
+     * 화면을 한번 클릭해 임시 마커 생성 후 타임아웃 발생시 정답 확인
+     */
     private void timeOutAddUserMarker() {
         stopTimer = Stop;
 
@@ -511,21 +536,28 @@ public class GameActivity extends AppCompatActivity {
         currentMarker.remove(myMapView);
     }
 
-    //점수 계산
+
+    /**
+     * 점수를 계산
+     * @return 점수를 계산하여 리턴
+     */
     private int calcScore() {
         int curScore = 0;
         if(gameType == GameType.A) {
             if(currentMarker == null) { //마커를 화면에 찍지 않고 정답을 확인하는 경우
                 Toast.makeText(this, "0", Toast.LENGTH_SHORT).show();
             }else{
-                Toast.makeText(this, distance+"", Toast.LENGTH_SHORT).show();
                 final int CRITERIA = 500;
                 curScore = CRITERIA - distance/ 10;
             }
         }else if (gameType == GameType.B){
-            curScore = 300;
-            //맞추면 점수
-            //틀리면 0점
+            if(stopTimer == Stop){
+                curScore =0;
+            }
+            else{
+                curScore = 500;
+
+            }
         }
         curScore += timeScore /1000;
         score += curScore;
@@ -535,7 +567,10 @@ public class GameActivity extends AppCompatActivity {
         return curScore;
     }
 
-    //사진을 보여주고 지명을 찾는 문제 형식
+    /**
+     * 사진을 보여주고 지명을 찾는 문제 형식
+     * @param pi 사진 정보를 가지고 있는 클래스
+     */
    private void setPictureQuestion(GamePictureInfo pi){
         gameType = GameType.A;
        //레이아웃 설정
@@ -559,10 +594,14 @@ public class GameActivity extends AppCompatActivity {
         questionTypeAImageView.invalidate();
     }
 
-    //지명을 보여주고 사진을 찾는 문제 형식
+
+    /**
+     * 지명을 보여주고 사진을 찾는 문제 형식
+     * @param pi 사진 정보를 가지고 있는 클래스
+     */
     private void setPlaceNameQuestion(GamePictureInfo pi){
         gameType = GameType.B;
-        //레이아웃 설정p
+        //레이아웃 설정
         questionTypeBLayout.setVisibility(View.VISIBLE);
         questionTypeBLayout.setClickable(true);
         questionTypeAImageView.setClickable(false);
@@ -589,8 +628,10 @@ public class GameActivity extends AppCompatActivity {
     }
 
 
-
-    //메뉴 버튼 클릭 시 다이얼로그 표시
+    /**
+     * 메뉴 버튼 클릭 시 다이얼로그 표시하는 리스너
+     * 아직까지 사용 X
+     */
     class MenuButtonClickListener implements View.OnClickListener {
         @Override
         public void onClick(View view) {
@@ -614,13 +655,9 @@ public class GameActivity extends AppCompatActivity {
         }
     }
 
-
-
-    RecyclerView recyclerView;
-    AfterGameAdapter adapter;
-
-
-    //한 스테이지가 끝난 후 다음 단계로 넘어갈 수 있는 이벤트
+    /**
+     *  한 스테이지가 끝난 후 다음 단계로 넘어가는 리스너
+     */
     class GameNextQuizListener implements  View.OnClickListener{
         @Override
         public void onClick(View v) {
@@ -667,12 +704,19 @@ public class GameActivity extends AppCompatActivity {
                     break;
             }
             stopTimer = Running;
-            //timeThreadhandler();
+            timeThreadhandler();
 
         }
     }
 
-    private void setRecyclerView() {    //게임이 완료된 후 사진들을 모아서 보여주는 리사이클뷰 적용
+
+    RecyclerView recyclerView;
+    AfterGameAdapter adapter;
+
+    /**
+     * 게임이 완료된 후 사진들을 모아서 보여주는 리사이클뷰 적용
+     */
+    private void setRecyclerView() {
         setContentView(R.layout.layout_recycler_view);
         recyclerView = findViewById(R.id.after_game_recyclerview);
 
@@ -684,7 +728,9 @@ public class GameActivity extends AppCompatActivity {
     }
 
 
-    //한 스테이지가 끝난 후 게임을 종료할 수 있는 이벤트
+    /**
+     * 한 게임이 끝난 후 게임을 종료하는 리스너
+     */
     class GameFinishListener implements  View.OnClickListener{
         @Override
         public void onClick(View v) {
@@ -693,8 +739,9 @@ public class GameActivity extends AppCompatActivity {
 
     }
 
-
-    //문제 사진 클릭 시 크게 띄워주는 이벤트 등록
+    /**
+     * 문제 사진 클릭 시 다이얼로그로 크게 띄워주는 리스너
+     */
     public class PictureClickListenerTypeA implements View.OnClickListener {
         @Override
         public void onClick(View view) {    //이미지뷰를 다이얼로그로 화면에 표시
@@ -708,6 +755,17 @@ public class GameActivity extends AppCompatActivity {
     Drawable redRect;
 
     /**
+     *  예비 선택을 지우고 테두리 없는 상태로 바꿈
+     */
+    private void clearLastSelectIfExists() {
+        if (lastSelect == null) {
+            return;
+        }
+        lastSelect.getOverlay().clear();
+        lastSelect.setOnClickListener(new PictureClickListenerTypeB1());
+    }
+
+    /**
      *  답안 이미지를 예비 선택하는 리스너
      */
     public class PictureClickListenerTypeB1 implements View.OnClickListener {
@@ -719,14 +777,6 @@ public class GameActivity extends AppCompatActivity {
             view.setOnClickListener(new PictureClickListenerTypeB2());
             lastSelect = view;
         }
-
-        private void clearLastSelectIfExists() {
-            if (lastSelect == null) {
-                return;
-            }
-            lastSelect.getOverlay().clear();
-            lastSelect.setOnClickListener(new PictureClickListenerTypeB1());
-        }
     }
 
     /**
@@ -735,7 +785,8 @@ public class GameActivity extends AppCompatActivity {
     public class PictureClickListenerTypeB2 implements View.OnClickListener {
         @Override
         public void onClick(View v) {
-            Toast.makeText(context, "touch", Toast.LENGTH_SHORT).show();
+            stopTimer = Stop;
+            clearLastSelectIfExists();
             setAnswerLayout();
         }
     }
