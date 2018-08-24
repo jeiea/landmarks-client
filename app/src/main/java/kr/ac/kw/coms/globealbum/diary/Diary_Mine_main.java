@@ -78,21 +78,23 @@ public class Diary_Mine_main extends AppCompatActivity {
             urls.add(Diary_mapNPictures.resourceToUri(this, ((ResourcePicture) i).getId()).toString());
         }
 
-        for (int i = 0; i < elementRow.size(); i++) {
-            final int idx = i;
-            elementRow.setOnClickListener(i, new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Intent intent = new Intent(getBaseContext(), GalleryDetail.class);
-                    intent.putExtra("urls", urls);
-                    intent.putExtra("index", idx);
-                    startActivity(intent);
-                }
-            });
-        }
 
         elementList.add(new PictureGroup("My Photos", elementRow));
         diaryImageView.setGroups(elementList);
+        diaryImageView.addOnItemTouchListener(new RecyclerItemClickListener(diaryImageView) {
+            @Override
+            public void onItemClick(@NotNull View view, int position) {
+                super.onItemClick(view, position);
+                Object o = diaryImageView.getPicAdapter().getViewData().get(position);
+                if (o instanceof ResourcePicture) {
+                    Toast.makeText(Diary_Mine_main.this, ((ResourcePicture) o).getTitle(), Toast.LENGTH_SHORT).show();
+                    Intent intent = new Intent(getBaseContext(), GalleryDetail.class);
+                    intent.putExtra("urls", urls);
+                    intent.putExtra("index", position-1);
+                    startActivity(intent);
+                }
+            }
+        }.getItemTouchListener());
 
 
         elementList.clear();
@@ -136,7 +138,7 @@ public class Diary_Mine_main extends AppCompatActivity {
                 super.onItemClick(view, position);
                 Object o = diaryJourneyView.getPicAdapter().getViewData().get(position);
                 if (o instanceof ResourcePicture) {
-                    ResourcePicture rp = (ResourcePicture)o;
+                    ResourcePicture rp = (ResourcePicture) o;
                     Toast.makeText(Diary_Mine_main.this, String.valueOf(rp.getTitle()), Toast.LENGTH_SHORT).show();
                     startActivity(new Intent(getBaseContext(), Diary_mapNPictures.class).putExtra("whose", "mine"));
                 }
