@@ -3,6 +3,7 @@ package kr.ac.kw.coms.globealbum.diary;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
@@ -146,7 +147,7 @@ public class Diary_mapNPictures extends AppCompatActivity {
         mapviewClickEventOverlay = mapviewClickEventDisplay();
         mapView.getOverlays().add(mapviewClickEventOverlay);
 
-
+        oval = getResources().getDrawable(R.drawable.oval_border, null);
 
         //맵뷰에 마커들 등록
         markerFolderOverlay = new MyMarker(mapView);
@@ -180,9 +181,7 @@ public class Diary_mapNPictures extends AppCompatActivity {
                         .into(new SimpleTarget<Drawable>() {
                             @Override
                             public void onResourceReady(@NonNull Drawable resource, @Nullable Transition<? super Drawable> transition) {
-
                                 Marker marker = addPicMarker(geoPoint, resource);
-                                marker.setOnMarkerClickListener(markerClickEvent());
                                 markerFolderOverlay.addMarkerLine(marker);
                             }
                         });
@@ -196,6 +195,44 @@ public class Diary_mapNPictures extends AppCompatActivity {
         mapView.getOverlays().add(markerFolderOverlay);
         mapView.invalidate();
     }
+
+    View lastSelect;
+    Drawable oval;
+    /**
+     *  예비 선택을 지우고 테두리 없는 상태로 바꿈
+     */
+    private void clearLastSelectIfExists() {
+        if (lastSelect == null) {
+            return;
+        }
+        lastSelect.getOverlay().clear();
+        lastSelect.setOnClickListener(new PictureClickListenerTypeB1());
+    }
+
+    /**
+     *  답안 이미지를 예비 선택하는 리스너
+     */
+    public class PictureClickListenerTypeB1 implements View.OnClickListener {
+        @Override
+        public void onClick(View view) {
+            clearLastSelectIfExists();
+            oval.setBounds(new Rect(0, 0, view.getWidth(), view.getHeight()));
+            view.getOverlay().add(oval);
+            //view.setOnClickListener(new PictureClickListenerTypeB2());
+            lastSelect = view;
+        }
+    }
+
+    /**
+     * 예비 선택한 답안을 확정하는 리스너
+     */
+    public class PictureClickListenerTypeB2 implements View.OnClickListener {
+        @Override
+        public void onClick(View v) {
+            clearLastSelectIfExists();
+        }
+    }
+
 
 
     public static Uri resourceToUri(Context context, int resID) {
@@ -213,12 +250,7 @@ public class Diary_mapNPictures extends AppCompatActivity {
         marker.setIcon(drawable);
         marker.setPosition(geoPoint);
         marker.setAnchor(0.25f, 1.0f);
-        marker.setOnMarkerClickListener(new Marker.OnMarkerClickListener() {
-            @Override
-            public boolean onMarkerClick(Marker marker, MapView mapView) {  //마커 클릭 시 행동
-                return true;
-            }
-        });
+        marker.setOnMarkerClickListener(markerClickEvent());    //마커 클릭 시 행동
         return marker;
     }
 

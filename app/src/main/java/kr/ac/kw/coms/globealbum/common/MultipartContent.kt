@@ -39,7 +39,7 @@ class MultiPartContent(val parts: List<Part>) : OutgoingContent.WriteChannelCont
   }
 
   override val contentType = ContentType.MultiPart.FormData
-    .withParameter("boundary", boundary)
+    .withParameter("rectangle_border", boundary)
     .withCharset(Charsets.UTF_8)
 
   class Builder {

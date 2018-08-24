@@ -134,7 +134,7 @@ import static kr.ac.kw.coms.globealbum.game.GameActivity.TimerState.Stop;
         DrawableImageViewTarget gifImage = new DrawableImageViewTarget(loadigImageView);
         Glide.with(GameActivity.this).load(R.drawable.owl).into(gifImage);
         ui = new Handler();
-        redRect = getResources().getDrawable(R.drawable.boundary, null);
+        redRect = getResources().getDrawable(R.drawable.rectangle_border, null);
 
         //게임 시작 전 문제 세팅
         AsyncTask.execute(new Runnable() {
