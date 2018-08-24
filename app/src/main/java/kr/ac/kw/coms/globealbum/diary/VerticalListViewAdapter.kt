@@ -41,7 +41,7 @@ internal class VerticalListViewAdapter : RecyclerView.Adapter<VerticalListViewAd
 
   override fun onBindViewHolder(holder: LayoutHolder, position: Int) {
     val pic: ResourcePicture = viewData[position]
-    pic.drawable?.into(holder.layout.imageView)
+    pic.drawable.into(holder.layout.imageView)
   }
 
   var viewData = arrayListOf<ResourcePicture>()

@@ -13,7 +13,7 @@
         android:layout_height="match_parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        android:visibility="gone">
+        android:visibility="visible">
 
         <android.support.constraint.ConstraintLayout
             android:id="@+id/diary_mapNpics_MapFrame"
@@ -209,6 +209,7 @@
         android:id="@+id/diary_mapNpics_SelectPics"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:visibility="gone"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toTopOf="parent">
         <TextView
