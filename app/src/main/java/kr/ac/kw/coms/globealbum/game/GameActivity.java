@@ -561,7 +561,7 @@ public class GameActivity extends AppCompatActivity {
     //지명을 보여주고 사진을 찾는 문제 형식
     private void setPlaceNameQuestion(GamePictureInfo pi){
         gameType = GameType.B;
-        //레이아웃 설정
+        //레이아웃 설정p
         questionTypeBLayout.setVisibility(View.VISIBLE);
         questionTypeBLayout.setClickable(true);
         questionTypeAImageView.setClickable(false);
