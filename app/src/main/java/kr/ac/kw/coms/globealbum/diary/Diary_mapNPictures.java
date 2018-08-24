@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.util.Pair;
 import android.view.View;
 import android.widget.EditText;
@@ -98,28 +99,15 @@ public class Diary_mapNPictures extends AppCompatActivity {
         PicturesArray.add(R.drawable.coord1);
         PicturesArray.add(R.drawable.coord2);
         PicturesArray.add(R.drawable.coord3);
-        final ArrayList<String> urls = new ArrayList<String>();
-
-        ArrayList<PictureGroup> elementList = new ArrayList<>();
+        /*
+        ArrayList<PictureGroup> elementList = new ArrayList<PictureGroup>();
         PictureArray elementRow = new PictureArray();
-        final Context c = getBaseContext();
         for (int i = 0; i < PicturesArray.size(); i++) {
-            final int idx = i;
-            elementRow.add(idx, new ResourcePicture(c, PicturesArray.get(idx)));
+            elementRow.add(i, new ResourcePicture(getBaseContext(), PicturesArray.get(i)));
         }
-        elementRow.sort();
-
-        for (IPicture i : elementRow) {
-            urls.add(resourceToUri(this, ((ResourcePicture) i).getId()).toString());
-        }
-
-        for (int i = 0; i < elementRow.size(); i++) {
-            final int idx = i;
-            elementRow.setOnClickListener(i, new ArgumentedOnClickListener(new Pair<ArrayList<String>, Integer>(urls, idx)));
-        }
-
         elementList.add(new PictureGroup("", elementRow));
         picView.setGroups(elementList);
+        */
     }
 
     @Override
