@@ -161,15 +161,16 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
  * RecyclerView를 제어하는 클래스. 상훈이만 알 필요 있음.
  * RecyclerView가 FlexboxLayoutManager의 제어를 받아 이 어댑터에 필요한 뷰를 요청하게 됨.
  */
-
 class GroupedPicAdapter : RecyclerView.Adapter<GroupedPicAdapter.ElementViewHolder>() {
 
-  // 이걸 설정하면 notifyDataSetChanged를 따로 호출할 필요 없다!
   var viewData = arrayListOf<Any>()
+  /**
+   * 이걸 설정하면 notifyDataSetChanged를 따로 호출할 필요 없다!
+   */
   var data: List<PictureGroup> = listOf()
     set(value) {
       for (g: PictureGroup in value) {
-        viewData.add(g.name)
+        viewData.add(g)
         g.pics.sortBy { it.time }
         viewData.addAll(g.pics)
       }
@@ -179,24 +180,28 @@ class GroupedPicAdapter : RecyclerView.Adapter<GroupedPicAdapter.ElementViewHold
   var nameTextSize: Int = 20
   var nameBackgroundColor: Long = 0xFFFFFFFF
 
+  override fun getItemViewType(position: Int): Int {
+    val data = viewData[position]
+    return when {
+      data is IPicture -> ViewType.Picture
+      data is PictureGroup && data.name.isEmpty() -> ViewType.Null
+      else -> ViewType.Separator
+    }.id
+  }
+
   override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
     when (viewType) {
-      0 -> createSeparator(parent)
-      else -> createPicture(parent)
+      ViewType.Separator.id -> createSeparator(parent)
+      ViewType.Picture.id -> createPicture(parent)
+      else -> NullHolder(View(parent.context))
     }
-
-  override fun getItemViewType(position: Int): Int {
-    return if (viewData[position] is String) 0 else 1
-  }
 
   override fun onBindViewHolder(holder: ElementViewHolder, position: Int) {
     holder.boundItem = viewData[position]
     when (holder) {
       is SeparatorHolder -> {
-        holder.textView.text = holder.boundItem as String
-        if (viewData[0].equals("")) {
-          holder.textView.visibility = TextView.GONE
-        }
+        val group = holder.boundItem as PictureGroup
+        holder.textView.text = group.name
       }
       is PictureHolder -> {
         val pic = holder.boundItem as ResourcePicture
@@ -233,6 +238,20 @@ class GroupedPicAdapter : RecyclerView.Adapter<GroupedPicAdapter.ElementViewHold
     var boundItem: Any? = null
   }
 
+  enum class ViewType(val id: Int) {
+    Separator(0),
+    Picture(1),
+    Null(2)
+  }
+
   class SeparatorHolder(val textView: TextView) : ElementViewHolder(textView)
   class PictureHolder(val imageView: ImageView) : ElementViewHolder(imageView)
+  /**
+   * [https://github.com/google/flexbox-layout/issues/452]
+   *
+   * onBindViewHolder에서 visibility를 바꾸면 크래시가 날 수 있다.
+   *
+   * 뷰의 크기를 바꿔도 잘 적용되지 않기에 따로 뷰타입을 정의함.
+   */
+  class NullHolder(view: View) : ElementViewHolder(view)
 }

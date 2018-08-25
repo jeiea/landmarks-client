@@ -3,14 +3,13 @@ package kr.ac.kw.coms.globealbum.diary;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.Rect;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.util.Pair;
 import android.view.View;
 import android.widget.EditText;
@@ -18,10 +17,6 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.RequestOptions;
-import com.bumptech.glide.request.target.SimpleTarget;
-import com.bumptech.glide.request.transition.Transition;
 import com.google.android.flexbox.FlexDirection;
 
 import org.osmdroid.events.MapEventsReceiver;
@@ -35,9 +30,9 @@ import java.util.ArrayList;
 import kr.ac.kw.coms.globealbum.R;
 import kr.ac.kw.coms.globealbum.album.GalleryDetail;
 import kr.ac.kw.coms.globealbum.album.GroupDiaryView;
-import kr.ac.kw.coms.globealbum.album.PictureArray;
 import kr.ac.kw.coms.globealbum.album.PictureGroup;
 import kr.ac.kw.coms.globealbum.album.ResourcePicture;
+import kr.ac.kw.coms.globealbum.common.CircularImageKt;
 import kr.ac.kw.coms.globealbum.map.MyMapView;
 import kr.ac.kw.coms.globealbum.map.MyMarker;
 import kr.ac.kw.coms.globealbum.provider.EXIFinfo;
@@ -161,19 +156,10 @@ public class Diary_mapNPictures extends AppCompatActivity {
             final GeoPoint geoPoint = exifInfo.getLocationGeopoint();
 
             try {    //화면에 사진을 원형 아이콘으로 표시
-
-                Glide.with(this)
-                        .load(resourceToUri(this, PicturesArray.get(i)))
-                        .apply(RequestOptions.circleCropTransform().override(100, 100))
-                        .into(new SimpleTarget<Drawable>() {
-                            @Override
-                            public void onResourceReady(@NonNull Drawable resource, @Nullable Transition<? super Drawable> transition) {
-
-                                Marker marker = addPicMarker(geoPoint, resource);
-                                markerFolderOverlay.addMarkerLine(marker);
-                            }
-                        });
-
+                Drawable drawable = getResources().getDrawable(PicturesArray.get(i));
+                Bitmap bm = CircularImageKt.getCircularBitmap(drawable, 150);
+                Marker marker = addPicMarker(geoPoint, new BitmapDrawable(getResources(), bm));
+                markerFolderOverlay.addMarkerLine(marker);
             } catch (Throwable e) {
                 e.printStackTrace();
             }
@@ -186,8 +172,9 @@ public class Diary_mapNPictures extends AppCompatActivity {
 
     View lastSelect;
     Drawable oval;
+
     /**
-     *  예비 선택을 지우고 테두리 없는 상태로 바꿈
+     * 예비 선택을 지우고 테두리 없는 상태로 바꿈
      */
     private void clearLastSelectIfExists() {
         if (lastSelect == null) {
@@ -198,7 +185,7 @@ public class Diary_mapNPictures extends AppCompatActivity {
     }
 
     /**
-     *  답안 이미지를 예비 선택하는 리스너
+     * 답안 이미지를 예비 선택하는 리스너
      */
     public class PictureClickListenerTypeB1 implements View.OnClickListener {
         @Override
@@ -220,7 +207,6 @@ public class Diary_mapNPictures extends AppCompatActivity {
             clearLastSelectIfExists();
         }
     }
-
 
 
     public static Uri resourceToUri(Context context, int resID) {
@@ -246,6 +232,7 @@ public class Diary_mapNPictures extends AppCompatActivity {
 
     /**
      * 경로를 보여주는 다이어리 화면에서 맵뷰를 클릭할 시의 리스너
+     *
      * @return 리스너 반환
      */
     private MapEventsOverlay mapviewClickEventDisplay() {
@@ -267,6 +254,7 @@ public class Diary_mapNPictures extends AppCompatActivity {
 
     /**
      * 경로를 수정하는 다이어리 화면에서 맵뷰를 클릭하였을 때 발생하는 이벤트
+     *
      * @return 리스너 반환
      */
     private MapEventsOverlay mapviewClickEventEdit() {
@@ -286,9 +274,10 @@ public class Diary_mapNPictures extends AppCompatActivity {
 
     /**
      * 마커를 클릭했을 시에 동작하는 리스너
+     *
      * @return 리스너 반환
      */
-    private Marker.OnMarkerClickListener markerClickEvent(){
+    private Marker.OnMarkerClickListener markerClickEvent() {
         return new Marker.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(Marker marker, MapView mapView) {
