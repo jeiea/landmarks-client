@@ -1,0 +1,74 @@
+buildscript {
+    ext.kotlin_version = ext.properties.kotlin_version ?: '1.2.61'
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath 'com.github.jengelman.gradle.plugins:shadow:2.0.4'
+    }
+}
+
+apply plugin: 'idea'
+apply plugin: 'kotlin'
+
+jar {
+    baseName = 'landmarks-clientkt'
+    version = '0.1'
+}
+
+repositories {
+    jcenter()
+    maven { url 'https://jitpack.io' }
+    maven { url 'https://kotlin.bintray.com/ktor' }
+    maven { url 'https://kotlin.bintray.com/kotlinx'}
+}
+
+dependencies {
+    // Kotlin standard library
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation "io.ktor:ktor-client-core:$ktor_version"
+    implementation "io.ktor:ktor-client-android:$ktor_version"
+    implementation "io.ktor:ktor-client-json-jvm:$ktor_version"
+
+    // JSON
+    implementation 'com.beust:klaxon:3.0.1'
+
+    // JUnit 5 test framework
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher:1.2.0'
+    testCompileOnly 'org.junit.platform:junit-platform-runner:1.2.0'
+
+    // Spek, the kotlin test framework, with kotlin version replacement.
+    testCompileOnly "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
+    testCompileOnly('org.jetbrains.spek:spek-api:1.1.5') {
+        exclude group: 'org.jetbrains.kotlin'
+    }
+    testRuntimeOnly('org.jetbrains.spek:spek-junit-platform-engine:1.1.5') {
+        exclude group: 'org.junit.platform'
+        exclude group: 'org.jetbrains.kotlin'
+    }
+
+    // Assertion framework
+    testImplementation 'org.amshove.kluent:kluent:1.38'
+
+    // Proxy test
+    testImplementation "io.ktor:ktor-client-apache:$ktor_version"
+}
+
+test {
+    useJUnitPlatform {
+        includeEngines 'spek2'
+    }
+}
+
+kotlin {
+    experimental {
+        coroutines 'enable'
+    }
+}
+compileKotlin {
+    kotlinOptions.jvmTarget = '1.8'
+}
+compileTestKotlin {
+    kotlinOptions.jvmTarget = '1.8'
+}
