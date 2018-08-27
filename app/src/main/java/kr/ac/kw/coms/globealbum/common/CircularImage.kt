@@ -7,10 +7,10 @@ import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
 import kotlin.math.min
 
-
-fun getCircularBitmap(drawable: Drawable, side: Int): Bitmap {
-  return drawable.toBitmap().toCircularBitmap(side)!!
+fun getCircularBitmap(drawable: Drawable, side: Int,mode: Int): Bitmap {
+  return drawable.toBitmap().toCircularBitmap(side,mode)!!
 }
+
 
 fun Drawable.toBitmap(): Bitmap {
   val config = Bitmap.Config.ARGB_8888
@@ -29,7 +29,7 @@ fun Drawable.toBitmap(): Bitmap {
   return bitmap
 }
 
-fun Bitmap.toCircularBitmap(side: Int): Bitmap? {
+fun Bitmap.toCircularBitmap(side: Int, mode: Int): Bitmap? {
   if (isRecycled) {
     return null
   }
@@ -46,12 +46,15 @@ fun Bitmap.toCircularBitmap(side: Int): Bitmap? {
   val canvas = Canvas(canvasBitmap)
   val r: Float = side / 2f
   canvas.drawCircle(r, r, r, paint)
-  paint.colorFilter
-  paint.shader = null
-  paint.style = Paint.Style.STROKE
-  paint.color = Color.WHITE
-  paint.strokeWidth = r * 0.1f
-  canvas.drawCircle(r, r, r, paint)
+
+  if (mode == 1){
+    paint.colorFilter
+    paint.shader = null
+    paint.style = Paint.Style.STROKE
+    paint.color = Color.RED;
+    paint.strokeWidth = r * 0.1f
+    canvas.drawCircle(r, r, r, paint)
+  }
 
   return canvasBitmap
 }
