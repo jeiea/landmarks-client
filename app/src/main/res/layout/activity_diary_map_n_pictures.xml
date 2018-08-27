@@ -28,7 +28,8 @@
                 android:id="@+id/diary_mapNpics_TitleBox"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
-                android:paddingHorizontal="10dp"
+                android:paddingStart="5dp"
+                android:paddingEnd="5dp"
                 app:layout_constraintHeight_percent="0.15"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintTop_toTopOf="parent">
@@ -119,11 +120,13 @@
 
         <kr.ac.kw.coms.globealbum.album.GroupDiaryView
             android:id="@+id/diary_mapNpics_Pics"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_marginHorizontal="20dp"
+            android:layout_width="0dp"
+            android:layout_height="70dp"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp"
             app:layout_constraintHeight_percent="0.15"
             app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toBottomOf="@id/diary_mapNpics_MapFrame">
 
         </kr.ac.kw.coms.globealbum.album.GroupDiaryView>
@@ -133,7 +136,8 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:visibility="gone"
-            android:layout_marginHorizontal="20dp"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp"
             android:layout_marginBottom="20dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintHeight_percent="0.35"
@@ -183,12 +187,63 @@
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:hint="내용"
-                android:layout_marginHorizontal="20dp"
-                android:layout_marginVertical="20dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginEnd="10dp"
+                android:layout_marginStart="10dp"
+                android:layout_marginBottom="10dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
         </android.support.constraint.ConstraintLayout>
     </android.support.constraint.ConstraintLayout>
 
+    <android.support.constraint.ConstraintLayout
+        android:id="@+id/diary_mapNpics_PictureEdit"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/diary_mapNpics_PictureEdit_Title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:text="사진 목록 편집"
+            app:layout_constraintBottom_toBottomOf="@id/diary_mapNpics_PictureEdit_Save"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintWidth_percent="0.8" />
+
+        <Button
+            android:id="@+id/diary_mapNpics_PictureEdit_Save"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="완료"
+            app:layout_constraintBottom_toTopOf="@id/diary_mapNpics_PictureEdit_List"
+            app:layout_constraintLeft_toRightOf="@id/diary_mapNpics_PictureEdit_Title"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintWidth_percent="0.2" />
+
+        <ListView
+            android:id="@+id/diary_mapNpics_PictureEdit_List"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:divider="#AAAAAA"
+            android:dividerHeight="1.5dp"
+            app:layout_constraintBottom_toTopOf="@id/diary_mapNpics_PictureEdit_Add"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/diary_mapNpics_PictureEdit_Save"/>
+
+        <Button
+            android:id="@+id/diary_mapNpics_PictureEdit_Add"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="추가..."
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/diary_mapNpics_PictureEdit_List" />
+    </android.support.constraint.ConstraintLayout>
 </android.support.constraint.ConstraintLayout>

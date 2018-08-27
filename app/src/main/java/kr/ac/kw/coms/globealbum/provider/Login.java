@@ -1,7 +1,6 @@
 package kr.ac.kw.coms.globealbum.provider;
 
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -11,12 +10,11 @@ import android.widget.Toast;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.io.IOException;
-
 import kotlin.Unit;
 import kr.ac.kw.coms.globealbum.R;
+import kr.ac.kw.coms.landmarks.client.RemoteJava;
 
-public class Login extends AppCompatActivity{
+public class Login extends AppCompatActivity {
     String TAG = "Login";
     EditText etEmail;
     EditText etPassword;
@@ -26,7 +24,7 @@ public class Login extends AppCompatActivity{
     RemoteJava client = new RemoteJava();
 
     @Override
-    protected void onCreate(Bundle savedInstenceState){
+    protected void onCreate(Bundle savedInstenceState) {
         super.onCreate(savedInstenceState);
         setContentView(R.layout.layout_login);
 

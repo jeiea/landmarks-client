@@ -52,45 +52,43 @@ import kr.ac.kw.coms.globealbum.common.PictureDialogFragment;
 import kr.ac.kw.coms.globealbum.map.DrawCircleOverlay;
 import kr.ac.kw.coms.globealbum.map.MyMapView;
 import kr.ac.kw.coms.globealbum.provider.EXIFinfo;
-import kr.ac.kw.coms.globealbum.provider.RemoteJava;
 import kr.ac.kw.coms.globealbum.provider.UIPromise;
+import kr.ac.kw.coms.landmarks.client.RemoteJava;
 
 import static kr.ac.kw.coms.globealbum.game.GameActivity.TimerState.Running;
 import static kr.ac.kw.coms.globealbum.game.GameActivity.TimerState.Stop;
 
 
-    public class GameActivity extends AppCompatActivity {
-        public static Activity GActivity;
-        Context context = null;
-        MyMapView myMapView = null;
+public class GameActivity extends AppCompatActivity {
+    public static Activity GActivity;
+    Context context = null;
+    MyMapView myMapView = null;
 
-        ImageView questionTypeAImageView = null;
-        LinearLayout questionTypeBLayout = null;
-        ImageView[] questionTypeBImageView = new ImageView[4];
-        GameType gameType = null;
+    ImageView questionTypeAImageView = null;
+    LinearLayout questionTypeBLayout = null;
+    ImageView[] questionTypeBImageView = new ImageView[4];
+    GameType gameType = null;
 
-        ProgressBar progressBar = null;
-        TextView stageTextView = null;
-        Button menuButton = null;
-        TextView scoreTextView = null;
-
-
-        Button goToNextStageButton,exitGameButton;
-        TextView landNameAnswerTextView,landDistanceAnswerTextView,landScoreTextView;
-        ImageView pictureAnswerImageView;
-        LinearLayout answerLinearLayout;
+    ProgressBar progressBar = null;
+    TextView stageTextView = null;
+    Button menuButton = null;
+    TextView scoreTextView = null;
 
 
+    Button goToNextStageButton, exitGameButton;
+    TextView landNameAnswerTextView, landDistanceAnswerTextView, landScoreTextView;
+    ImageView pictureAnswerImageView;
+    LinearLayout answerLinearLayout;
 
 
-        Drawable RED_FLAG_DRAWABLE;
+    Drawable RED_FLAG_DRAWABLE;
     Drawable BLUE_FLAG_DRAWABLE;
     final int PICTURE_NUM = 4;
     int problem = 0;
     int score = 0;
     int timeScore = 0;
     int stage = 1;
-    int distance =0;
+    int distance = 0;
 
     TimerState stopTimer = Running;
     private Handler animateHandler = null;
@@ -115,7 +113,8 @@ import static kr.ac.kw.coms.globealbum.game.GameActivity.TimerState.Stop;
         Stop,
         Running
     }
-    enum GameType{
+
+    enum GameType {
         A,
         B
     }
@@ -176,6 +175,7 @@ import static kr.ac.kw.coms.globealbum.game.GameActivity.TimerState.Stop;
                     cause.printStackTrace(pw);
                     Log.e("failfail", cause.toString() + sw.toString());
                 }
+
                 @Override
                 public void success(Pair<String, String> result) {
                     String name = result.getFirst() + " " + result.getSecond();
@@ -195,7 +195,7 @@ import static kr.ac.kw.coms.globealbum.game.GameActivity.TimerState.Stop;
 
 
     /**
-     *  전체적인 게임 틀을 구성
+     * 전체적인 게임 틀을 구성
      */
     private void displayQuiz() {
         setContentView(R.layout.activity_game);
@@ -252,7 +252,7 @@ import static kr.ac.kw.coms.globealbum.game.GameActivity.TimerState.Stop;
     }
 
     /**
-     *  제한 시간 측정
+     * 제한 시간 측정
      */
     private void timeThreadhandler() {
         int stageTimeLimitMs = TIME_LIMIT_MS - problem * 1000;
@@ -299,6 +299,7 @@ import static kr.ac.kw.coms.globealbum.game.GameActivity.TimerState.Stop;
     /**
      * 맵뷰를 클릭하였을 때 발생하는 이벤트
      * 마커를 화면에 띄우고, 또 한번 클릭할 경우 정답 확인으로 넘어간다.
+     *
      * @return 마커를 클릭했을 시의 이벤트
      */
     private MapEventsOverlay markerEvent() {
@@ -330,9 +331,10 @@ import static kr.ac.kw.coms.globealbum.game.GameActivity.TimerState.Stop;
 
     /**
      * 사용자가 찍은 마커가 위치에서 시작하여 정답마커까지 이동하는 애니메이션
-     * @param map mapview
-     * @param marker 사용자가자 찍은 마커
-     * @param finalPosition 정답 마커의 좌표
+     *
+     * @param map                  mapview
+     * @param marker               사용자가자 찍은 마커
+     * @param finalPosition        정답 마커의 좌표
      * @param GeoPointInterpolator 마커 이동 방식
      */
     private void animateMarker(final MapView map, final Marker marker, final GeoPoint finalPosition, final GeoPointInterpolator GeoPointInterpolator) {
@@ -388,11 +390,10 @@ import static kr.ac.kw.coms.globealbum.game.GameActivity.TimerState.Stop;
      */
     private void setAnswerLayout() {
 
-        if(gameType ==GameType.A){
+        if (gameType == GameType.A) {
             questionTypeAImageView.setVisibility(View.GONE);
             questionTypeAImageView.setClickable(false);
-        }
-        else if(gameType == GameType.B){
+        } else if (gameType == GameType.B) {
             questionTypeBLayout.setVisibility(View.GONE);
             questionTypeBLayout.setClickable(false);
         }
@@ -402,21 +403,22 @@ import static kr.ac.kw.coms.globealbum.game.GameActivity.TimerState.Stop;
         answerLinearLayout.setVisibility(View.VISIBLE);
         answerLinearLayout.setClickable(true);
         landNameAnswerTextView.setText(questionPic.get(problem).name);
-        if(gameType == GameType.A && currentMarker != null){
+        if (gameType == GameType.A && currentMarker != null) {
             landDistanceAnswerTextView.setVisibility(View.VISIBLE);
-            landDistanceAnswerTextView.setText(distance+"KM");
-        }else {
+            landDistanceAnswerTextView.setText(distance + "KM");
+        } else {
             landDistanceAnswerTextView.setVisibility(View.INVISIBLE);
         }
-        landScoreTextView.setText("score " +curScore);
+        landScoreTextView.setText("score " + curScore);
         Glide.with(context).load(questionPic.get(problem).id).into(pictureAnswerImageView);
 
     }
 
     /**
      * 사용자가 정한 마커와 정답 마커 사이를 잇는 직선 생성
+     *
      * @param startPosition 사용자 마커의 좌표
-     * @param destPosition 정답 마커의 좌표
+     * @param destPosition  정답 마커의 좌표
      */
     //
     private void addPolyline(GeoPoint startPosition, GeoPoint destPosition) {
@@ -432,6 +434,7 @@ import static kr.ac.kw.coms.globealbum.game.GameActivity.TimerState.Stop;
 
     /**
      * 두 좌표 사이의 거리를 구해서 리턴
+     *
      * @param geoPoint1 좌표1
      * @param geoPoint2 좌표2
      * @return 좌표 사이의 거리를 구해 정수형 Km로 반환
@@ -457,6 +460,7 @@ import static kr.ac.kw.coms.globealbum.game.GameActivity.TimerState.Stop;
 
     /**
      * 사용자 마커 생성
+     *
      * @param geoPoint 사용자가 맵뷰를 클릭한 지점의 좌표
      * @return 마커 생성 후 마커 반환
      */
@@ -539,27 +543,27 @@ import static kr.ac.kw.coms.globealbum.game.GameActivity.TimerState.Stop;
 
     /**
      * 점수를 계산
+     *
      * @return 점수를 계산하여 리턴
      */
     private int calcScore() {
         int curScore = 0;
-        if(gameType == GameType.A) {
-            if(currentMarker == null) { //마커를 화면에 찍지 않고 정답을 확인하는 경우
+        if (gameType == GameType.A) {
+            if (currentMarker == null) { //마커를 화면에 찍지 않고 정답을 확인하는 경우
                 Toast.makeText(this, "0", Toast.LENGTH_SHORT).show();
-            }else{
+            } else {
                 final int CRITERIA = 500;
-                curScore = CRITERIA - distance/ 10;
+                curScore = CRITERIA - distance / 10;
             }
-        }else if (gameType == GameType.B){
-            if(stopTimer == Stop){
-                curScore =0;
-            }
-            else{
+        } else if (gameType == GameType.B) {
+            if (stopTimer == Stop) {
+                curScore = 0;
+            } else {
                 curScore = 500;
 
             }
         }
-        curScore += timeScore /1000;
+        curScore += timeScore / 1000;
         score += curScore;
 
         scoreTextView.setText("SCORE " + score);
@@ -569,26 +573,27 @@ import static kr.ac.kw.coms.globealbum.game.GameActivity.TimerState.Stop;
 
     /**
      * 사진을 보여주고 지명을 찾는 문제 형식
+     *
      * @param pi 사진 정보를 가지고 있는 클래스
      */
-   private void setPictureQuestion(GamePictureInfo pi){
+    private void setPictureQuestion(GamePictureInfo pi) {
         gameType = GameType.A;
-       //레이아웃 설정
-       questionTypeAImageView.setVisibility(View.VISIBLE);
-       questionTypeAImageView.setClickable(true);
-       questionTypeBLayout.setClickable(false);
-       questionTypeBLayout.setVisibility(View.GONE);
+        //레이아웃 설정
+        questionTypeAImageView.setVisibility(View.VISIBLE);
+        questionTypeAImageView.setClickable(true);
+        questionTypeBLayout.setClickable(false);
+        questionTypeBLayout.setVisibility(View.GONE);
 
-       //마커 이벤트 등록
-       myMapView.getOverlays().add(listenerOverlay);
+        //마커 이벤트 등록
+        myMapView.getOverlays().add(listenerOverlay);
 
 
-       answerMarker = new Marker(myMapView);
+        answerMarker = new Marker(myMapView);
         answerMarker.setIcon(RED_FLAG_DRAWABLE);
         answerMarker.setAnchor(0.25f, 1.0f);
         answerMarker.setPosition(pi.geoPoint);
 
-       myMapView.getController().setZoom(myMapView.getMinZoomLevel());
+        myMapView.getController().setZoom(myMapView.getMinZoomLevel());
 
         Glide.with(context).load(pi.id).into(questionTypeAImageView);
         questionTypeAImageView.invalidate();
@@ -597,9 +602,10 @@ import static kr.ac.kw.coms.globealbum.game.GameActivity.TimerState.Stop;
 
     /**
      * 지명을 보여주고 사진을 찾는 문제 형식
+     *
      * @param pi 사진 정보를 가지고 있는 클래스
      */
-    private void setPlaceNameQuestion(GamePictureInfo pi){
+    private void setPlaceNameQuestion(GamePictureInfo pi) {
         gameType = GameType.B;
         //레이아웃 설정
         questionTypeBLayout.setVisibility(View.VISIBLE);
@@ -656,22 +662,21 @@ import static kr.ac.kw.coms.globealbum.game.GameActivity.TimerState.Stop;
     }
 
     /**
-     *  한 스테이지가 끝난 후 다음 단계로 넘어가는 리스너
+     * 한 스테이지가 끝난 후 다음 단계로 넘어가는 리스너
      */
-    class GameNextQuizListener implements  View.OnClickListener{
+    class GameNextQuizListener implements View.OnClickListener {
         @Override
         public void onClick(View v) {
 
-            if(gameType == GameType.A){
-                if( currentMarker != null){
+            if (gameType == GameType.A) {
+                if (currentMarker != null) {
                     currentMarker.remove(myMapView);
                     currentMarker = null;
                 }
                 myMapView.getOverlays().remove(answerMarker);
                 myMapView.getOverlays().remove(polyline);
                 myMapView.getOverlays().remove(drawCircleOverlay);
-            }
-            else if (gameType == GameType.B){
+            } else if (gameType == GameType.B) {
                 InfoWindow.closeAllInfoWindowsOn(myMapView);
                 myMapView.getOverlays().remove(answerMarker);
             }
@@ -731,7 +736,7 @@ import static kr.ac.kw.coms.globealbum.game.GameActivity.TimerState.Stop;
     /**
      * 한 게임이 끝난 후 게임을 종료하는 리스너
      */
-    class GameFinishListener implements  View.OnClickListener{
+    class GameFinishListener implements View.OnClickListener {
         @Override
         public void onClick(View v) {
             finish();
@@ -755,7 +760,7 @@ import static kr.ac.kw.coms.globealbum.game.GameActivity.TimerState.Stop;
     Drawable redRect;
 
     /**
-     *  예비 선택을 지우고 테두리 없는 상태로 바꿈
+     * 예비 선택을 지우고 테두리 없는 상태로 바꿈
      */
     private void clearLastSelectIfExists() {
         if (lastSelect == null) {
@@ -766,7 +771,7 @@ import static kr.ac.kw.coms.globealbum.game.GameActivity.TimerState.Stop;
     }
 
     /**
-     *  답안 이미지를 예비 선택하는 리스너
+     * 답안 이미지를 예비 선택하는 리스너
      */
     public class PictureClickListenerTypeB1 implements View.OnClickListener {
         @Override

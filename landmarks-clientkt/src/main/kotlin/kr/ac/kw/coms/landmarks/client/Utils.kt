@@ -1,4 +1,4 @@
-package kr.ac.kw.coms.globealbum.common
+package kr.ac.kw.coms.landmarks.client
 
 import io.ktor.http.*
 import io.ktor.http.content.OutgoingContent
@@ -6,7 +6,6 @@ import io.ktor.network.util.ioCoroutineDispatcher
 import io.ktor.util.flattenEntries
 import kotlinx.coroutines.experimental.CoroutineDispatcher
 import kotlinx.coroutines.experimental.io.ByteWriteChannel
-import kotlinx.coroutines.experimental.io.writeFully
 import kotlinx.coroutines.experimental.io.writeStringUtf8
 import kotlinx.coroutines.experimental.withContext
 import kotlinx.coroutines.experimental.yield
@@ -39,7 +38,7 @@ class MultiPartContent(val parts: List<Part>) : OutgoingContent.WriteChannelCont
   }
 
   override val contentType = ContentType.MultiPart.FormData
-    .withParameter("rectangle_border", boundary)
+    .withParameter("boundary", boundary)
     .withCharset(Charsets.UTF_8)
 
   class Builder {
@@ -59,7 +58,7 @@ class MultiPartContent(val parts: List<Part>) : OutgoingContent.WriteChannelCont
     }
 
     fun add(name: String, data: ByteArray, contentType: ContentType? = ContentType.Application.OctetStream, filename: String? = null) {
-      add(name, filename, contentType) { writeFully(data) }
+      add(name, filename, contentType) { writeFully(data, 0, data.size) }
     }
 
     internal fun build(): MultiPartContent = MultiPartContent(parts.toList())

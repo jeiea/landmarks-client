@@ -4,20 +4,31 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.ContactsContract;
+import android.support.v4.widget.ListViewAutoScrollHelper;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.util.Pair;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.BaseAdapter;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.ListAdapter;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.flexbox.FlexDirection;
 
+import org.jetbrains.annotations.NotNull;
 import org.osmdroid.events.MapEventsReceiver;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
@@ -26,6 +37,7 @@ import org.osmdroid.views.overlay.Marker;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.zip.Inflater;
 
 import kr.ac.kw.coms.globealbum.R;
 import kr.ac.kw.coms.globealbum.album.GalleryDetail;
@@ -56,6 +68,7 @@ public class Diary_mapNPictures extends AppCompatActivity {
 
 
     class InfoText {
+        //글의 제목, 내용
         public String Title;
         public String Body;
 
@@ -144,6 +157,7 @@ public class Diary_mapNPictures extends AppCompatActivity {
         } catch (NullPointerException e) {
             //Ignore
         }
+        preparePictureEdit(PicturesArray);
     }
 
 
@@ -332,5 +346,53 @@ public class Diary_mapNPictures extends AppCompatActivity {
             isLiked = true;
         }
 
+    }
+
+    public class ListviewAdapter extends BaseAdapter
+    {
+        private LayoutInflater inflater;
+        private ArrayList<Integer> data;
+        private int layout;
+        public ListviewAdapter(@NotNull Context context, int layout, ArrayList<Integer> data)
+        {
+            this.inflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            this.data=data;
+            this.layout=layout;
+        }
+
+        @Override
+        public int getCount() {
+            return data.size();
+        }
+
+        @Override
+        public Object getItem(int position) {
+            return data.get(position);
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return position;
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            if (convertView == null)
+            {
+                convertView = inflater.inflate(layout, parent, false);
+            }
+            int item = data.get(position);
+            ImageView icon = (ImageView)convertView.findViewById(R.id.verticalList_Image);
+            icon.setImageResource(item);
+            //TODO: convertView의 TextView값 지정
+            return convertView;
+        }
+    }
+
+    public void preparePictureEdit(ArrayList<Integer> PictureList)
+    {
+        //사진 순서 편집 창의 내용 준비
+        ListView EditList = findViewById(R.id.diary_mapNpics_PictureEdit_List);
+        ListviewAdapter adapter = new ListviewAdapter(getBaseContext(), R.id.verticalList_Root, PictureList);
     }
 }
