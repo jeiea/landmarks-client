@@ -31,6 +31,7 @@ import java.util.List;
 
 import kr.ac.kw.coms.globealbum.R;
 import kr.ac.kw.coms.globealbum.provider.IPicture;
+import kr.ac.kw.coms.globealbum.provider.ResourcePicture;
 
 public class activity_Navigator extends AppCompatActivity {
     float density;

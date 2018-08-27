@@ -6,7 +6,6 @@ import io.ktor.client.engine.config
 import io.ktor.client.features.cookies.AcceptAllCookiesStorage
 import io.ktor.client.features.cookies.HttpCookies
 import kotlinx.coroutines.experimental.runBlocking
-import org.amshove.kluent.`should be equal to`
 import org.apache.http.HttpHost
 import org.apache.http.conn.ssl.TrustSelfSignedStrategy
 import org.apache.http.ssl.SSLContextBuilder
@@ -54,7 +53,7 @@ class RemoteSpek : Spek({
 
     blit("uploads picture") {
       for (i in 0..3) {
-        client.uploadPic(File("../coord$i.jpg"), i.toFloat(), i.toFloat(), "address$i")
+        client.uploadPicture(File("../coord$i.jpg"), i.toFloat(), i.toFloat(), "address$i")
       }
     }
 

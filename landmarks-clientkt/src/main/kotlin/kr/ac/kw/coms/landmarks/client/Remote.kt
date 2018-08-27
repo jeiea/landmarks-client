@@ -114,7 +114,7 @@ class Remote(base: HttpClient, val basePath: String = herokuUri) {
     }
   }
 
-  suspend fun uploadPic(file: File, latitude: Float? = null, longitude: Float? = null, addr: String? = null) {
+  suspend fun uploadPicture(file: File, latitude: Float? = null, longitude: Float? = null, addr: String? = null) {
     val content = MultiPartContent.build {
         latitude?.also { add("lat", it.toString()) }
         longitude?.also { add("lon", it.toString()) }

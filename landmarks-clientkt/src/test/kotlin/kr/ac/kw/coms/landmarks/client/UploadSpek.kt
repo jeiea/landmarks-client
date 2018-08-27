@@ -15,7 +15,7 @@ class UploadSpek : Spek({
     blit("resets server and uploads sample problems") {
 //      client.resetAllDatabase()
       for (i in 0..3) {
-        client.uploadPic(File("../coord$i.jpg"), i.toFloat(), i.toFloat(), "address$i")
+        client.uploadPicture(File("../coord$i.jpg"), i.toFloat(), i.toFloat(), "address$i")
       }
     }
   }

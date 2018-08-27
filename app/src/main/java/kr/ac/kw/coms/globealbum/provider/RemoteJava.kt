@@ -1,5 +1,8 @@
-package kr.ac.kw.coms.landmarks.client
+package kr.ac.kw.coms.globealbum.provider
 
+import kr.ac.kw.coms.landmarks.client.PictureRep
+import kr.ac.kw.coms.landmarks.client.Promise
+import kr.ac.kw.coms.landmarks.client.Remote
 import java.io.File
 
 class RemoteJava {
@@ -22,7 +25,12 @@ class RemoteJava {
     prom.resolve { client.login(ident, pass) }
   }
 
-  fun uploadPic(file: File, latitude: Float? = null, longitude: Float? = null, addr: String? = null, prom: Promise<Unit>) {
-    prom.resolve { client.uploadPic(file, latitude, longitude, addr) }
+  fun uploadPicture(file: File, latitude: Float? = null, longitude: Float? = null, addr: String? = null, prom: Promise<Unit>) {
+    prom.resolve { client.uploadPicture(file, latitude, longitude, addr) }
+  }
+
+  fun getRandomProblem(prom: Promise<PictureRep>) {
+    TODO()
+//    prom.resolve { }
   }
 }
