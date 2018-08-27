@@ -10,6 +10,7 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.util.Pair;
 import android.view.View;
 import android.widget.EditText;
@@ -159,6 +160,7 @@ public class Diary_mapNPictures extends AppCompatActivity {
                 Drawable drawable = getResources().getDrawable(PicturesArray.get(i));
                 Bitmap bm = CircularImageKt.getCircularBitmap(drawable, 150);
                 Marker marker = addPicMarker(geoPoint, new BitmapDrawable(getResources(), bm));
+                mapView.getOverlays().add(marker);
                 markerFolderOverlay.addMarkerLine(marker);
             } catch (Throwable e) {
                 e.printStackTrace();
@@ -216,15 +218,20 @@ public class Diary_mapNPictures extends AppCompatActivity {
                 context.getResources().getResourceEntryName(resID));
     }
 
-
-    //관광지 사진을 이미지로 가진 마커 생성
+    /**
+     * 관광지 사진을 이미지로 가진 마커 생성
+     *
+     * @param geoPoint 관광지의 좌표
+     * @param drawable 관광지 사진
+     * @return 관광지 이미지로 생성된 마커 반환
+     */
     private Marker addPicMarker(final GeoPoint geoPoint, Drawable drawable) {
         //마커 생성 및 설정
         Marker marker = new Marker(mapView);
         marker.setIcon(drawable);
         marker.setPosition(geoPoint);
         marker.setAnchor(0.25f, 1.0f);
-        marker.setOnMarkerClickListener(markerClickEvent());    //마커 클릭 시 행동
+        marker.setOnMarkerClickListener(markerClickEvent());
         return marker;
     }
 
@@ -282,7 +289,7 @@ public class Diary_mapNPictures extends AppCompatActivity {
             @Override
             public boolean onMarkerClick(Marker marker, MapView mapView) {
                 Toast.makeText(Diary_mapNPictures.this, "Marker Click", Toast.LENGTH_SHORT).show();
-                return false;
+                return true;
             }
         };
     }
