@@ -27,7 +27,6 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.DrawableImageViewTarget;
 
 import org.jetbrains.annotations.NotNull;
@@ -48,6 +47,7 @@ import java.util.List;
 
 import kotlin.Pair;
 import kr.ac.kw.coms.globealbum.R;
+import kr.ac.kw.coms.globealbum.common.GlideApp;
 import kr.ac.kw.coms.globealbum.common.PictureDialogFragment;
 import kr.ac.kw.coms.globealbum.map.DrawCircleOverlay;
 import kr.ac.kw.coms.globealbum.map.MyMapView;
@@ -131,7 +131,7 @@ public class GameActivity extends AppCompatActivity {
         ImageView loadigImageView = findViewById(R.id.gif_loading);
         loadigImageView.setClickable(false);
         DrawableImageViewTarget gifImage = new DrawableImageViewTarget(loadigImageView);
-        Glide.with(GameActivity.this).load(R.drawable.owl).into(gifImage);
+        GlideApp.with(GameActivity.this).load(R.drawable.owl).into(gifImage);
         ui = new Handler();
         redRect = getResources().getDrawable(R.drawable.rectangle_border, null);
 
@@ -410,7 +410,7 @@ public class GameActivity extends AppCompatActivity {
             landDistanceAnswerTextView.setVisibility(View.INVISIBLE);
         }
         landScoreTextView.setText("score " + curScore);
-        Glide.with(context).load(questionPic.get(problem).id).into(pictureAnswerImageView);
+        GlideApp.with(context).load(questionPic.get(problem).id).into(pictureAnswerImageView);
 
     }
 
@@ -595,7 +595,7 @@ public class GameActivity extends AppCompatActivity {
 
         myMapView.getController().setZoom(myMapView.getMinZoomLevel());
 
-        Glide.with(context).load(pi.id).into(questionTypeAImageView);
+        GlideApp.with(context).load(pi.id).into(questionTypeAImageView);
         questionTypeAImageView.invalidate();
     }
 
@@ -628,7 +628,7 @@ public class GameActivity extends AppCompatActivity {
         myMapView.setClickable(false);
 
         questionTypeBImageView[0].setScaleType(ImageView.ScaleType.CENTER_INSIDE);
-        Glide.with(context).load(pi.id).into(questionTypeBImageView[0]);
+        GlideApp.with(context).load(pi.id).into(questionTypeBImageView[0]);
 
         questionTypeBImageView[0].invalidate();
     }

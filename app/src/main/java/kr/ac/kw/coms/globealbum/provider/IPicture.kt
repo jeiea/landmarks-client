@@ -4,8 +4,8 @@ import android.content.Context
 import android.graphics.drawable.Drawable
 import android.support.annotation.DrawableRes
 import android.util.Pair
-import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestBuilder
+import kr.ac.kw.coms.globealbum.common.GlideApp
 import java.io.File
 import java.util.*
 
@@ -45,7 +45,7 @@ interface IPicture {
 class UriPicture(val uri: android.net.Uri, val context: Context) : IPicture {
 
   override val drawable: RequestBuilder<Drawable>
-    get() = Glide.with(context).load(uri)
+    get() = GlideApp.with(context).load(uri)
 
   override var title: String
     get() = uri.lastPathSegment
@@ -63,7 +63,7 @@ class UriPicture(val uri: android.net.Uri, val context: Context) : IPicture {
 class LocalPicture(val path: String, val context: Context) : IPicture {
 
   override val drawable: RequestBuilder<Drawable>
-    get() = Glide.with(context).load(File(path))
+    get() = GlideApp.with(context).load(File(path))
 
   override var title: String
     get() = File(path).nameWithoutExtension
@@ -81,7 +81,7 @@ class LocalPicture(val path: String, val context: Context) : IPicture {
 class ResourcePicture(val context: Context, @DrawableRes val id: Int) : IPicture {
 
   override val drawable: RequestBuilder<Drawable>
-    get() = Glide.with(context).load(id)
+    get() = GlideApp.with(context).load(id)
 
   override var title: String
     get() = "resource:$id"
