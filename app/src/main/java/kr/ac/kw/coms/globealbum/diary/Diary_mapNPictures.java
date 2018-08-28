@@ -4,6 +4,7 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -34,6 +35,8 @@ import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.MapEventsOverlay;
 import org.osmdroid.views.overlay.Marker;
+import org.osmdroid.views.overlay.Overlay;
+import org.osmdroid.views.overlay.Polyline;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -64,6 +67,7 @@ public class Diary_mapNPictures extends AppCompatActivity {
     MyMapView myMapView = null;   //맵뷰 인스턴스
     MapEventsOverlay mapviewClickEventOverlay; //맵 이벤트를 등록하는 오버레이
     List<Marker> markerList = new ArrayList<>();
+    List<Polyline> polylineList = new ArrayList<>();
     int selectedMarkerIndex=-1;
 
 
@@ -178,6 +182,12 @@ public class Diary_mapNPictures extends AppCompatActivity {
                 Marker marker = addPicMarker(geoPoint, new BitmapDrawable(getResources(), bm));
                 markerList.add(marker);
                 myMapView.getOverlays().add(marker);
+
+                int markerListSize = markerList.size();
+                if( markerListSize> 0){
+                    drawPolyline(markerList.get(markerListSize-2).getPosition(),markerList.get(markerListSize-1).getPosition());
+                }
+
             } catch (Throwable e) {
                 e.printStackTrace();
             }
@@ -208,6 +218,28 @@ public class Diary_mapNPictures extends AppCompatActivity {
         marker.setOnMarkerClickListener(markerClickEvent());
         return marker;
     }
+
+    /**
+     * 마커와 마커 사이의 직선을 그림
+     *
+     * @param geoPoint1 polyline의 시작 좌표
+     * @param geoPoint2 polyline의 끝 좌표
+     */
+    private void drawPolyline(GeoPoint geoPoint1, GeoPoint geoPoint2){
+        List<GeoPoint> geoPoints = new ArrayList<>();
+        geoPoints.add(geoPoint1);
+        geoPoints.add(geoPoint2);
+
+        Polyline line = new Polyline();
+        line.setPoints(geoPoints);
+
+        polylineList.add(line);
+        myMapView.getOverlays().add(line);
+    }
+
+
+
+
 
     /**
      * 경로를 보여주는 다이어리 화면에서 맵뷰를 클릭할 시의 리스너
@@ -272,13 +304,13 @@ public class Diary_mapNPictures extends AppCompatActivity {
                             bm = CircularImageKt.getCircularBitmap(drawable, 150,0);
                             markerList.get(selectedMarkerIndex).setIcon(new BitmapDrawable(getResources(), bm));
                             markerList.get(selectedMarkerIndex).setAnchor(0.25f, 1.0f);
+                            Toast.makeText(Diary_mapNPictures.this, i+" marker is unselected", Toast.LENGTH_SHORT).show();
                         }
 
                         if( i != selectedMarkerIndex){
-
-                            Toast.makeText(Diary_mapNPictures.this, "dd", Toast.LENGTH_SHORT).show();
                             drawable = getResources().getDrawable(PicturesArray.get(i));
                             bm = CircularImageKt.getCircularBitmap(drawable, 150,1);
+                            Toast.makeText(Diary_mapNPictures.this, i+" marker is selected", Toast.LENGTH_SHORT).show();
                             marker.setIcon(new BitmapDrawable(getResources(), bm));
                             marker.setAnchor(0.25f, 1.0f);
                             selectedMarkerIndex = i;

@@ -135,7 +135,7 @@ public class MyMarker extends FolderOverlay{
     //직선을 넣을 곳의 앞 뒤 마커를 인자와 인덱스를 전달
     private void drawPolygon(Overlay frontOverlay,Overlay backOverlay,int index){
         Polyline polygon = new Polyline();
-        polygon.setColor(Color.WHITE);
+        polygon.setColor(Color.BLACK);
         polygon.setWidth(5.0f);
         //polygon.setFillColor(android.graphics.Color.argb(75, 255,0,0));
         ArrayList<GeoPoint> geoPoints = new ArrayList<GeoPoint>();
@@ -146,6 +146,13 @@ public class MyMarker extends FolderOverlay{
         polygon.setPoints(geoPoints);
         super.mOverlayManager.add(index,polygon);
     }
+
+
+
+
+
+
+
     //마커 클릭 시 팝업 메뉴를 띄운다
     private void showPopupMenu(final GeoPoint geoPoint,int flag) {
         MenuInflater inflater = new MenuInflater(context);
