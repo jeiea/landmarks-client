@@ -42,6 +42,24 @@ interface IPicture {
   fun delete()
 }
 
+class RemotePicture(val id: Int) : IPicture {
+  override val drawable: RequestBuilder<Drawable>
+    get() {
+      TODO()
+    }
+  override var title: String
+    get() = TODO("not implemented") //To change initializer of created properties use File | Settings | File Templates.
+    set(value) {}
+  override val time: Date
+    get() = TODO("not implemented") //To change initializer of created properties use File | Settings | File Templates.
+  override val coords: Pair<Double, Double>
+    get() = TODO("not implemented") //To change initializer of created properties use File | Settings | File Templates.
+
+  override fun delete() {
+    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+  }
+}
+
 class UriPicture(val uri: android.net.Uri, val context: Context) : IPicture {
 
   override val drawable: RequestBuilder<Drawable>

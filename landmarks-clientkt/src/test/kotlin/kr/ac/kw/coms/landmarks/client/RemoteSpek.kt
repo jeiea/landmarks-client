@@ -6,6 +6,7 @@ import io.ktor.client.engine.config
 import io.ktor.client.features.cookies.AcceptAllCookiesStorage
 import io.ktor.client.features.cookies.HttpCookies
 import kotlinx.coroutines.experimental.runBlocking
+import org.amshove.kluent.`should be true`
 import org.apache.http.HttpHost
 import org.apache.http.conn.ssl.TrustSelfSignedStrategy
 import org.apache.http.ssl.SSLContextBuilder
@@ -35,7 +36,7 @@ class RemoteSpek : Spek({
 //    }
 
     blit("checks server health") {
-      client.checkAlive()
+      client.checkAlive().`should be true`()
     }
 
     blit("reset all DB") {
@@ -53,7 +54,7 @@ class RemoteSpek : Spek({
 
     blit("uploads picture") {
       for (i in 0..3) {
-        client.uploadPicture(File("../coord$i.jpg"), i.toFloat(), i.toFloat(), "address$i")
+        client.uploadPicture(File("../data/coord$i.jpg"), i.toFloat(), i.toFloat(), "address$i")
       }
     }
 

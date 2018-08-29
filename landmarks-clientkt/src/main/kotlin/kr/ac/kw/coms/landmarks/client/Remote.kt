@@ -1,20 +1,21 @@
 package kr.ac.kw.coms.landmarks.client
 
-import com.beust.klaxon.*
+import com.beust.klaxon.JsonObject
+import com.beust.klaxon.Parser
 import com.beust.klaxon.internal.firstNotNullResult
 import io.ktor.client.HttpClient
+import io.ktor.client.call.receive
 import io.ktor.client.engine.android.Android
 import io.ktor.client.features.cookies.AcceptAllCookiesStorage
 import io.ktor.client.features.cookies.HttpCookies
 import io.ktor.client.features.json.JsonFeature
 import io.ktor.client.request.*
+import io.ktor.client.response.HttpResponse
 import io.ktor.http.*
 import kotlinx.coroutines.experimental.channels.Channel
 import kotlinx.coroutines.experimental.channels.sendBlocking
 import kotlinx.coroutines.experimental.delay
-import kotlinx.coroutines.experimental.io.ByteChannel
 import kotlinx.coroutines.experimental.io.jvm.javaio.toOutputStream
-import kotlinx.coroutines.experimental.io.readUTF8Line
 import java.io.File
 import java.util.*
 import kotlin.math.max
@@ -28,6 +29,27 @@ class Remote(base: HttpClient, val basePath: String = herokuUri) {
     const val herokuUri = "https://landmarks-coms.herokuapp.com"
     private const val chromeAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.59 Safari/537.36"
   }
+
+  suspend inline fun <reified T> request(method: HttpMethod, url: String, builder: HttpRequestBuilder.() -> Unit = {}): T {
+    val response: HttpResponse = http.request {
+      this.method = method
+      url(url)
+      builder()
+    }
+    if (response.status.isSuccess()) {
+      return response.call.receive()
+    }
+    throw response.call.receive<ServerFault>()
+  }
+
+  suspend inline fun <reified T> get(url: String, builder: HttpRequestBuilder.() -> Unit = {}): T =
+    request(HttpMethod.Get, url, builder)
+
+  suspend inline fun <reified T> post(url: String, builder: HttpRequestBuilder.() -> Unit = {}): T =
+    request(HttpMethod.Post, url, builder)
+
+  suspend inline fun <reified T> put(url: String, builder: HttpRequestBuilder.() -> Unit = {}): T =
+    request(HttpMethod.Put, url, builder)
 
   init {
     nominatimReqLimit.sendBlocking(0)
@@ -61,7 +83,7 @@ class Remote(base: HttpClient, val basePath: String = herokuUri) {
   suspend fun reverseGeocode(latitude: Double, longitude: Double): Pair<String?, String?>? {
     suspendForNominatimReqPerSecLimit()
 
-    val json: String = http.get("https://nominatim.openstreetmap.org/reverse") {
+    val json: String = get("https://nominatim.openstreetmap.org/reverse") {
       parameter("format", "json")
       parameter("lat", latitude.toString())
       parameter("lon", longitude.toString())
@@ -73,42 +95,35 @@ class Remote(base: HttpClient, val basePath: String = herokuUri) {
     return addr.string("country") to detail
   }
 
-  private fun throwIfFailure(resp: String) {
-    if (!resp.contains("success")) {
-      throw RuntimeException(resp)
-    }
-  }
-
   suspend fun checkAlive(): Boolean {
-    val resp: String = http.get("$basePath/")
-    return resp.contains("Hello")
+    try {
+      get<Unit>("$basePath/")
+      return true
+    } catch (e: Throwable) {
+      return false
+    }
   }
 
   suspend fun resetAllDatabase() {
-    val resp: String = http.request {
-      method = HttpMethod.Put
-      url("$basePath/maintenance/reset")
-    }
-    throwIfFailure(resp)
+    put<Unit>("$basePath/maintenance/reset")
   }
 
   suspend fun register(ident: String, pass: String, email: String, nick: String) {
     val regFields = LoginRep(
       login = ident,
-      password =  pass,
+      password = pass,
       email = email,
       nick = nick
     )
-    val resp: String = http.post("$basePath/auth/register") {
+    post<Unit>("$basePath/auth/register") {
       userAgent()
       json(regFields)
     }
-    throwIfFailure(resp)
   }
 
   suspend fun login(ident: String, pass: String) {
     val par = LoginRep(login = ident, password = pass)
-    val profile: LoginRep = http.post("$basePath/auth/login") {
+    val profile: LoginRep = post("$basePath/auth/login") {
       userAgent()
       json(par)
     }
@@ -116,25 +131,21 @@ class Remote(base: HttpClient, val basePath: String = herokuUri) {
 
   suspend fun uploadPicture(file: File, latitude: Float? = null, longitude: Float? = null, addr: String? = null) {
     val content = MultiPartContent.build {
-        latitude?.also { add("lat", it.toString()) }
-        longitude?.also { add("lon", it.toString()) }
-        addr?.also { add("address", it) }
-        add("pic0", filename = file.name) {
-          file.inputStream().copyToSuspend(toOutputStream())
-        }
+      latitude?.also { add("lat", it.toString()) }
+      longitude?.also { add("lon", it.toString()) }
+      addr?.also { add("address", it) }
+      add("pic0", filename = file.name) {
+        file.inputStream().copyToSuspend(toOutputStream())
       }
-    val resp: String = http.request {
-      method = HttpMethod.Put
-      url.takeFrom("$basePath/picture")
+    }
+    put<Unit>("$basePath/picture") {
       body = content
     }
-    throwIfFailure(resp)
   }
 
-
   suspend fun getRandomProblem(): PictureRep {
-    val pic: PictureRep = http.get("$basePath/problem/random")
-    pic.file = http.get("$basePath/picture/${pic.id}")
+    val pic: PictureRep = get("$basePath/problem/random")
+    pic.file = get("$basePath/picture/${pic.id}")
     return pic
   }
 

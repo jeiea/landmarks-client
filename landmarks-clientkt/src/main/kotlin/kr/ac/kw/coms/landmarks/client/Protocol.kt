@@ -2,8 +2,12 @@ package kr.ac.kw.coms.landmarks.client
 
 import com.beust.klaxon.Json
 
-data class ErrorJson(val error: String)
-data class SuccessJson(val msg: String)
+data class ServerFault(
+  val error: String,
+  val stacktrace: String? = null
+) : Throwable(error)
+
+data class ServerOK(val msg: String)
 
 data class LoginRep(
   val id: Int? = null,
