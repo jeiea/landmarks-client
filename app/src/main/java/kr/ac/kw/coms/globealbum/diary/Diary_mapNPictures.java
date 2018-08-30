@@ -13,6 +13,7 @@ import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.support.v4.widget.ListViewAutoScrollHelper;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.util.Pair;
 import android.view.LayoutInflater;
@@ -45,16 +46,17 @@ import java.util.zip.Inflater;
 import kr.ac.kw.coms.globealbum.R;
 import kr.ac.kw.coms.globealbum.album.GalleryDetail;
 import kr.ac.kw.coms.globealbum.album.GroupDiaryView;
+import kr.ac.kw.coms.globealbum.album.PictureArray;
 import kr.ac.kw.coms.globealbum.album.PictureGroup;
 import kr.ac.kw.coms.globealbum.provider.ResourcePicture;
 import kr.ac.kw.coms.globealbum.common.CircularImageKt;
+import kr.ac.kw.coms.globealbum.common.RecyclerItemClickListener;
 import kr.ac.kw.coms.globealbum.map.MyMapView;
 import kr.ac.kw.coms.globealbum.map.MyMarker;
 import kr.ac.kw.coms.globealbum.provider.EXIFinfo;
 import kr.ac.kw.coms.globealbum.provider.IPicture;
 
 public class Diary_mapNPictures extends AppCompatActivity {
-
 
     final ArrayList<Integer> PicturesArray = new ArrayList<>();
     boolean isLiked = false;
@@ -68,7 +70,7 @@ public class Diary_mapNPictures extends AppCompatActivity {
     MapEventsOverlay mapviewClickEventOverlay; //맵 이벤트를 등록하는 오버레이
     List<Marker> markerList = new ArrayList<>();
     List<Polyline> polylineList = new ArrayList<>();
-    int selectedMarkerIndex=-1;
+    int selectedMarkerIndex = -1;
 
 
     class InfoText {
@@ -87,26 +89,28 @@ public class Diary_mapNPictures extends AppCompatActivity {
         }
     }
 
-    class ArgumentedOnClickListener implements View.OnClickListener {
-        Pair<ArrayList<String>, Integer> Arg = null;
+    class ArgumentedOnClickListener extends RecyclerItemClickListener {
+        ArrayList<String> Arg = null;
         //first: 선택한 파일의 경로
         //second: 선택한 파일의 순서상 번호
 
-        public ArgumentedOnClickListener(Pair<ArrayList<String>, Integer> arg) {
+        public ArgumentedOnClickListener(RecyclerView recyclerView, ArrayList<String> arg) {
+            super(recyclerView);
             Arg = arg;
         }
 
         @Override
-        public void onClick(View v) {
+        public void onItemClick(@NotNull View view, int position) {
             if (isEDIT_MODE == READ_MODE) {
                 //열람 모드
                 Intent intent = new Intent(getBaseContext(), GalleryDetail.class);
-                intent.putExtra("urls", Arg.first);
-                intent.putExtra("index", Arg.second);
+                intent.putExtra("urls", Arg);
+                intent.putExtra("index", position);
                 startActivity(intent);
             } else {
                 //수정 모드
-                //TODO: 사진 목록 중 하나를 선택한 상태. 위치 이동이나 제거 등의 옵션 제공
+                findViewById(R.id.diary_mapNpics_View).setVisibility(View.GONE);
+                findViewById(R.id.diary_mapNpics_PictureEdit).setVisibility(View.VISIBLE);
             }
         }
     }
@@ -119,11 +123,14 @@ public class Diary_mapNPictures extends AppCompatActivity {
 
         ArrayList<PictureGroup> elementList = new ArrayList<>();
         ArrayList<IPicture> pics = new ArrayList<>();
+        ArrayList<String> urls = new ArrayList<>();
         for (int i = 0; i < PicturesArray.size(); i++) {
             pics.add(i, new ResourcePicture(this, PicturesArray.get(i)));
+            urls.add(resourceToUri(getBaseContext(), PicturesArray.get(i)).toString());
         }
         elementList.add(new PictureGroup("", pics));
         picView.setGroups(elementList);
+        picView.addOnItemTouchListener(new ArgumentedOnClickListener(picView, urls).getItemTouchListener());
     }
 
     @Override
@@ -167,7 +174,6 @@ public class Diary_mapNPictures extends AppCompatActivity {
 
     /**
      * 다이어리 액티비티 실행시 가져오는 사진들의 정보를 가지고 마커를 맵뷰에 띄워줌
-     *
      */
     private void setMarkerToMapview() {
         //GPS 정보 뽑아오기
@@ -184,8 +190,8 @@ public class Diary_mapNPictures extends AppCompatActivity {
                 myMapView.getOverlays().add(marker);
 
                 int markerListSize = markerList.size();
-                if( markerListSize> 0){
-                    drawPolyline(markerList.get(markerListSize-2).getPosition(),markerList.get(markerListSize-1).getPosition());
+                if (markerListSize > 0) {
+                    drawPolyline(markerList.get(markerListSize - 2).getPosition(), markerList.get(markerListSize - 1).getPosition());
                 }
 
             } catch (Throwable e) {
@@ -225,7 +231,7 @@ public class Diary_mapNPictures extends AppCompatActivity {
      * @param geoPoint1 polyline의 시작 좌표
      * @param geoPoint2 polyline의 끝 좌표
      */
-    private void drawPolyline(GeoPoint geoPoint1, GeoPoint geoPoint2){
+    private void drawPolyline(GeoPoint geoPoint1, GeoPoint geoPoint2) {
         List<GeoPoint> geoPoints = new ArrayList<>();
         geoPoints.add(geoPoint1);
         geoPoints.add(geoPoint2);
@@ -236,9 +242,6 @@ public class Diary_mapNPictures extends AppCompatActivity {
         polylineList.add(line);
         myMapView.getOverlays().add(line);
     }
-
-
-
 
 
     /**
@@ -296,27 +299,26 @@ public class Diary_mapNPictures extends AppCompatActivity {
 
                 Drawable drawable;
                 Bitmap bm;
-                for(int i = 0 ; i < markerList.size(); i++){
-                    if(markerList.get(i) == marker){
+                for (int i = 0; i < markerList.size(); i++) {
+                    if (markerList.get(i) == marker) {
 
-                        if(selectedMarkerIndex != -1){
+                        if (selectedMarkerIndex != -1) {
                             drawable = getResources().getDrawable(PicturesArray.get(selectedMarkerIndex));
                             bm = CircularImageKt.getCircularBitmap(drawable, 150);
                             markerList.get(selectedMarkerIndex).setIcon(new BitmapDrawable(getResources(), bm));
                             markerList.get(selectedMarkerIndex).setAnchor(0.25f, 1.0f);
-                            Toast.makeText(Diary_mapNPictures.this, i+" marker is unselected", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(Diary_mapNPictures.this, i + " marker is unselected", Toast.LENGTH_SHORT).show();
                         }
 
-                        if( i != selectedMarkerIndex){
+                        if (i != selectedMarkerIndex) {
                             drawable = getResources().getDrawable(PicturesArray.get(i));
                             bm = CircularImageKt.getCircularBitmap(drawable, 150);
-                            Toast.makeText(Diary_mapNPictures.this, i+" marker is selected", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(Diary_mapNPictures.this, i + " marker is selected", Toast.LENGTH_SHORT).show();
                             marker.setIcon(new BitmapDrawable(getResources(), bm));
                             marker.setAnchor(0.25f, 1.0f);
                             selectedMarkerIndex = i;
-                        }
-                        else{
-                            selectedMarkerIndex=-1;
+                        } else {
+                            selectedMarkerIndex = -1;
                         }
                         mapView.invalidate();
                         break;
@@ -380,16 +382,15 @@ public class Diary_mapNPictures extends AppCompatActivity {
 
     }
 
-    public class ListviewAdapter extends BaseAdapter
-    {
+    public class ListviewAdapter extends BaseAdapter {
         private LayoutInflater inflater;
         private ArrayList<Integer> data;
         private int layout;
-        public ListviewAdapter(@NotNull Context context, int layout, ArrayList<Integer> data)
-        {
-            this.inflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            this.data=data;
-            this.layout=layout;
+
+        public ListviewAdapter(@NotNull Context context, int layout, ArrayList<Integer> data) {
+            this.inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            this.data = data;
+            this.layout = layout;
         }
 
         @Override
@@ -409,22 +410,21 @@ public class Diary_mapNPictures extends AppCompatActivity {
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
-            if (convertView == null)
-            {
+            if (convertView == null) {
                 convertView = inflater.inflate(layout, parent, false);
             }
             int item = data.get(position);
-            ImageView icon = (ImageView)convertView.findViewById(R.id.verticalList_Image);
+            ImageView icon = (ImageView) convertView.findViewById(R.id.verticalList_Image);
             icon.setImageResource(item);
             //TODO: convertView의 TextView값 지정
             return convertView;
         }
     }
 
-    public void preparePictureEdit(ArrayList<Integer> PictureList)
-    {
+    public void preparePictureEdit(ArrayList<Integer> PictureList) {
         //사진 순서 편집 창의 내용 준비
         ListView EditList = findViewById(R.id.diary_mapNpics_PictureEdit_List);
         ListviewAdapter adapter = new ListviewAdapter(getBaseContext(), R.id.verticalList_Root, PictureList);
+        EditList.setAdapter(adapter);
     }
 }
