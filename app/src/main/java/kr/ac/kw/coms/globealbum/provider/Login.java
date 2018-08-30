@@ -12,7 +12,6 @@ import org.jetbrains.annotations.NotNull;
 
 import kotlin.Unit;
 import kr.ac.kw.coms.globealbum.R;
-import kr.ac.kw.coms.landmarks.client.RemoteJava;
 
 public class Login extends AppCompatActivity {
     String TAG = "Login";

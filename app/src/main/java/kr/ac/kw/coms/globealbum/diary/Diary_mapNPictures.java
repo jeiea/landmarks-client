@@ -46,7 +46,7 @@ import kr.ac.kw.coms.globealbum.R;
 import kr.ac.kw.coms.globealbum.album.GalleryDetail;
 import kr.ac.kw.coms.globealbum.album.GroupDiaryView;
 import kr.ac.kw.coms.globealbum.album.PictureGroup;
-import kr.ac.kw.coms.globealbum.album.ResourcePicture;
+import kr.ac.kw.coms.globealbum.provider.ResourcePicture;
 import kr.ac.kw.coms.globealbum.common.CircularImageKt;
 import kr.ac.kw.coms.globealbum.map.MyMapView;
 import kr.ac.kw.coms.globealbum.map.MyMarker;
@@ -309,7 +309,7 @@ public class Diary_mapNPictures extends AppCompatActivity {
 
                         if( i != selectedMarkerIndex){
                             drawable = getResources().getDrawable(PicturesArray.get(i));
-                            bm = CircularImageKt.getCircularBorderBitmap(drawable, 150);
+                            bm = CircularImageKt.getCircularBitmap(drawable, 150);
                             Toast.makeText(Diary_mapNPictures.this, i+" marker is selected", Toast.LENGTH_SHORT).show();
                             marker.setIcon(new BitmapDrawable(getResources(), bm));
                             marker.setAnchor(0.25f, 1.0f);
