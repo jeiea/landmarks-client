@@ -178,7 +178,7 @@ public class Diary_mapNPictures extends AppCompatActivity {
 
             try {    //화면에 사진을 원형 아이콘으로 표시
                 Drawable drawable = getResources().getDrawable(PicturesArray.get(i));
-                Bitmap bm = CircularImageKt.getCircularBitmap(drawable, 150,0);
+                Bitmap bm = CircularImageKt.getCircularBitmap(drawable, 150);
                 Marker marker = addPicMarker(geoPoint, new BitmapDrawable(getResources(), bm));
                 markerList.add(marker);
                 myMapView.getOverlays().add(marker);
@@ -301,7 +301,7 @@ public class Diary_mapNPictures extends AppCompatActivity {
 
                         if(selectedMarkerIndex != -1){
                             drawable = getResources().getDrawable(PicturesArray.get(selectedMarkerIndex));
-                            bm = CircularImageKt.getCircularBitmap(drawable, 150,0);
+                            bm = CircularImageKt.getCircularBitmap(drawable, 150);
                             markerList.get(selectedMarkerIndex).setIcon(new BitmapDrawable(getResources(), bm));
                             markerList.get(selectedMarkerIndex).setAnchor(0.25f, 1.0f);
                             Toast.makeText(Diary_mapNPictures.this, i+" marker is unselected", Toast.LENGTH_SHORT).show();
@@ -309,7 +309,7 @@ public class Diary_mapNPictures extends AppCompatActivity {
 
                         if( i != selectedMarkerIndex){
                             drawable = getResources().getDrawable(PicturesArray.get(i));
-                            bm = CircularImageKt.getCircularBitmap(drawable, 150,1);
+                            bm = CircularImageKt.getCircularBorderBitmap(drawable, 150);
                             Toast.makeText(Diary_mapNPictures.this, i+" marker is selected", Toast.LENGTH_SHORT).show();
                             marker.setIcon(new BitmapDrawable(getResources(), bm));
                             marker.setAnchor(0.25f, 1.0f);

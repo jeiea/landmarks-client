@@ -58,6 +58,13 @@ import kr.ac.kw.coms.landmarks.client.RemoteJava;
 import static kr.ac.kw.coms.globealbum.game.GameActivity.TimerState.Running;
 import static kr.ac.kw.coms.globealbum.game.GameActivity.TimerState.Stop;
 
+/**
+ *  마지막 지명 문제에서 마커 생성이됨(해결)
+ *  TODO : 정답 확인 때 나오는 거리 선분 점선 애니메이션(엑셀 복사한 셀 효과)
+ *  TODO : 깃발 애니메이션 마커 생성시에 애니메이션
+ *  TODO : 지도 정중앙으로 움직이면서 줌레벨도 줄이기
+ *  TODO : 지명 문제에서 답 한번 클릭 후  시간 초과나 두번 클릭 시 정답 확인
+ */
 
 public class GameActivity extends AppCompatActivity {
     public static Activity GActivity;
@@ -98,7 +105,7 @@ public class GameActivity extends AppCompatActivity {
 
 
     final int TIME_LIMIT_MS = 14000;
-    MapEventsOverlay listenerOverlay;
+    MapEventsOverlay markerClickListenerOverlay;
 
     Marker currentMarker;   //사용자가 찍은 마커
     Marker answerMarker;    //정답 마커
@@ -244,8 +251,8 @@ public class GameActivity extends AppCompatActivity {
         myMapView = findViewById(R.id.map);
 
         //마커 이벤트 등록
-        listenerOverlay = markerEvent();
-
+        markerClickListenerOverlay = markerEvent();
+        myMapView.getOverlays().add(markerClickListenerOverlay);
         timeThreadhandler();
         //setPictureQuestion(questionPic.get(problem));  //사진을 보여주고 지명을 찾는 문제 형식
         setPlaceNameQuestion(questionPic.get(problem)); //지명을 보여주고 사진을 찾는 문제 형식
@@ -275,20 +282,28 @@ public class GameActivity extends AppCompatActivity {
                     } else if (stopTimer == Stop) {
                         return;
                     }
+                    stopTimer = Stop;
+
 
                     // 화면을 한번 터치해 마커를 생성하고 난 후
                     // 타임아웃 발생시 그 마커를 위치로 정답 확인
-                    if (currentMarker != null) {
-                        timeOutAddUserMarker();
-                    } else {
-                        //화면에 마커 생성 없이 타임아웃 발생시 정답 확인
-                        //currentMarker = new Marker(myMapView);
-                        stopTimer = Stop;
+                    if( gameType == GameType.A){
+                        if (currentMarker != null) {
+                            timeOutAddUserMarker();
+                        } else {
+                            //화면에 마커 생성 없이 타임아웃 발생시 정답 확인
+                            //currentMarker = new Marker(myMapView);
 
-                        myMapView.getOverlays().add(answerMarker);
+                            myMapView.getOverlays().add(answerMarker);
 
-                        setAnswerLayout();
+                        }
+                    }   //지명 문제에서 한번 테두리가 있는 후 정답 확인과 테두리 없을 시 정답확인 구현하기
+                    else if (gameType == GameType.B){
+
                     }
+
+                    setAnswerLayout();
+
                     myMapView.invalidate();
                 }
             });
@@ -307,18 +322,25 @@ public class GameActivity extends AppCompatActivity {
             @Override
             public boolean singleTapConfirmedHelper(GeoPoint p) {   //화면 한번 터치시
 
-                if (currentMarker != null) {
-                    if (animateHandler == null) {
-                        currentMarker.setPosition(p);
+                if( gameType == GameType.A  && stopTimer== Running){
+                    if (currentMarker != null) {
+                        if (animateHandler == null) {
+                            currentMarker.setPosition(p);
+                            //                      showMarker(myMapView,currentMarker.getPosition(), new GeoPointInterpolator.Spherical());
+                            Toast.makeText(context, "1", Toast.LENGTH_SHORT).show();
+                        }
+                    } else {
+                        Marker marker = addUserMarker(p);
+                        currentMarker = marker;
+//                    showMarker(myMapView,currentMarker.getPosition(), new GeoPointInterpolator.Spherical());
+                        myMapView.getOverlays().add(currentMarker);
 
+
+                        Toast.makeText(context, "2", Toast.LENGTH_SHORT).show();
                     }
-                } else {
-                    Marker marker = addUserMarker(p);
-                    currentMarker = marker;
-                    myMapView.getOverlays().add(marker);
-                }
 
-                myMapView.invalidate();
+                    myMapView.invalidate();
+                }
                 return true;
             }
 
@@ -328,6 +350,47 @@ public class GameActivity extends AppCompatActivity {
             }
         });
     }
+
+
+    private void showMarker(final MapView map, final GeoPoint finalPosition, final GeoPointInterpolator GeoPointInterpolator) {
+
+        final GeoPoint startPosition = new GeoPoint(finalPosition.getLatitude() + 10, finalPosition.getLongitude() + 10);
+        final Marker tmpMarker = new Marker(map);
+        tmpMarker.setPosition(startPosition);
+        map.getOverlays().add(tmpMarker);
+        final Handler showMarkerHandler= new Handler();
+        final long start = SystemClock.uptimeMillis();
+        final Interpolator interpolator = new AccelerateDecelerateInterpolator();
+        final float durationInMs = 1000;
+
+        showMarkerHandler.post(new Runnable() {
+            long elapsed;
+            float t;
+            float v;
+
+            @Override
+            public void run() {
+                // Calculate progress using interpolator
+                elapsed = SystemClock.uptimeMillis() - start;
+                t = elapsed / durationInMs;
+                v = interpolator.getInterpolation(t);
+
+                tmpMarker.setPosition(GeoPointInterpolator.interpolate(v, startPosition, finalPosition)); //보간법 이용, 시작 위치에서 끝 위치까지 가는 구 모양의 경로 도출
+
+                map.invalidate();
+                // Repeat till progress is complete.
+                if (t < 1) {
+                    // 16ms 후 다시 시작
+                    showMarkerHandler.postDelayed(this, 1000 / 60);
+                } else {   //정답 마커 위치로 이동되면 정답 마커 추가
+                    tmpMarker.remove(myMapView);
+
+                    map.invalidate();
+                }
+            }
+        });
+    }
+
 
     /**
      * 사용자가 찍은 마커가 위치에서 시작하여 정답마커까지 이동하는 애니메이션
@@ -343,7 +406,10 @@ public class GameActivity extends AppCompatActivity {
         final long start = SystemClock.uptimeMillis();
         final Interpolator interpolator = new AccelerateDecelerateInterpolator();
         final float durationInMs = 1000;
-        map.getController().zoomTo(myMapView.getMinZoomLevel(), 1700L);          //인자의 속도에 맞춰서 줌 아웃
+
+        //map.getController().setCenter(finalPosition);
+        map.getController().zoomTo(myMapView.getMinZoomLevel(),1700L); //인자의 속도에 맞춰서 줌 아웃
+        //map.getController().zoomToSpan();
 
         drawCircleOverlay = new DrawCircleOverlay(marker.getPosition(), finalPosition, map);
         myMapView.getOverlays().add(drawCircleOverlay);
@@ -362,6 +428,7 @@ public class GameActivity extends AppCompatActivity {
 
                 marker.setPosition(GeoPointInterpolator.interpolate(v, startPosition, finalPosition)); //보간법 이용, 시작 위치에서 끝 위치까지 가는 구 모양의 경로 도출
 
+
                 //map.getController().zoomOut(2000L);          //인자의 속도에 맞춰서 줌 아웃
                 map.invalidate();
                 // Repeat till progress is complete.
@@ -369,6 +436,7 @@ public class GameActivity extends AppCompatActivity {
                     // 16ms 후 다시 시작
                     animateHandler.postDelayed(this, 1000 / 60);
                 } else {   //정답 마커 위치로 이동되면 정답 마커 추가
+
                     marker.remove(myMapView);
                     myMapView.getOverlays().add(answerMarker);
                     addPolyline(currentMarker.getPosition(), answerMarker.getPosition());    //마커 사이를 직선으로 연결
@@ -526,7 +594,6 @@ public class GameActivity extends AppCompatActivity {
      * 화면을 한번 클릭해 임시 마커 생성 후 타임아웃 발생시 정답 확인
      */
     private void timeOutAddUserMarker() {
-        stopTimer = Stop;
 
         Marker tmpMarker = new Marker(myMapView);
         //tmpMarker.setIcon(BLUE_FLAG_DRAWABLE);
@@ -550,20 +617,20 @@ public class GameActivity extends AppCompatActivity {
         int curScore = 0;
         if (gameType == GameType.A) {
             if (currentMarker == null) { //마커를 화면에 찍지 않고 정답을 확인하는 경우
-                Toast.makeText(this, "0", Toast.LENGTH_SHORT).show();
+                curScore = -100;
             } else {
-                final int CRITERIA = 500;
-                curScore = CRITERIA - distance / 10;
+                final int CRITERIA = 400;
+                curScore = CRITERIA - distance / 100;
             }
         } else if (gameType == GameType.B) {
-            if (stopTimer == Stop) {
-                curScore = 0;
+            if (lastSelect == null) {
+                curScore = -100;
             } else {
-                curScore = 500;
+                curScore = 400;
 
             }
         }
-        curScore += timeScore / 1000;
+        curScore += timeScore / 100;
         score += curScore;
 
         scoreTextView.setText("SCORE " + score);
@@ -584,8 +651,6 @@ public class GameActivity extends AppCompatActivity {
         questionTypeBLayout.setClickable(false);
         questionTypeBLayout.setVisibility(View.GONE);
 
-        //마커 이벤트 등록
-        myMapView.getOverlays().add(listenerOverlay);
 
 
         answerMarker = new Marker(myMapView);
@@ -612,9 +677,6 @@ public class GameActivity extends AppCompatActivity {
         questionTypeBLayout.setClickable(true);
         questionTypeAImageView.setClickable(false);
         questionTypeAImageView.setVisibility(View.GONE);
-
-        //마커 이벤트 제거
-        myMapView.getOverlays().remove(listenerOverlay);
 
         //마커에 지명 설정하고 맵뷰에 표시
         answerMarker = new Marker(myMapView);
@@ -793,6 +855,7 @@ public class GameActivity extends AppCompatActivity {
             stopTimer = Stop;
             clearLastSelectIfExists();
             setAnswerLayout();
+            lastSelect=null;
         }
     }
 
