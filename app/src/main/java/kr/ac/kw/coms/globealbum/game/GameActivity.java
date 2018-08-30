@@ -62,7 +62,7 @@ import static kr.ac.kw.coms.globealbum.game.GameActivity.TimerState.Stop;
  *  마지막 지명 문제에서 마커 생성이됨(해결)
  *  TODO : 정답 확인 때 나오는 거리 선분 점선 애니메이션(엑셀 복사한 셀 효과)
  *  TODO : 깃발 애니메이션 마커 생성시에 애니메이션
- *  TODO : 지도 정중앙으로 움직이면서 줌레벨도 줄이기
+ *  지도 정중앙으로 움직이면서 줌레벨도 줄이기(완료)
  *  TODO : 지명 문제에서 답 한번 클릭 후  시간 초과나 두번 클릭 시 정답 확인
  */
 
@@ -70,7 +70,6 @@ public class GameActivity extends AppCompatActivity {
     public static Activity GActivity;
     Context context = null;
     MyMapView myMapView = null;
-
     ImageView questionTypeAImageView = null;
     LinearLayout questionTypeBLayout = null;
     ImageView[] questionTypeBImageView = new ImageView[4];
@@ -408,7 +407,8 @@ public class GameActivity extends AppCompatActivity {
         final float durationInMs = 1000;
 
         //map.getController().setCenter(finalPosition);
-        map.getController().zoomTo(myMapView.getMinZoomLevel(),1700L); //인자의 속도에 맞춰서 줌 아웃
+        map.getController().animateTo(finalPosition,myMapView.getMinZoomLevel(),1000L);
+        //map.getController().zoomTo(); //인자의 속도에 맞춰서 줌 아웃
         //map.getController().zoomToSpan();
 
         drawCircleOverlay = new DrawCircleOverlay(marker.getPosition(), finalPosition, map);
@@ -464,6 +464,7 @@ public class GameActivity extends AppCompatActivity {
         } else if (gameType == GameType.B) {
             questionTypeBLayout.setVisibility(View.GONE);
             questionTypeBLayout.setClickable(false);
+            myMapView.getController().zoomTo(myMapView.getMinZoomLevel(), 1000L); //인자의 속도에 맞춰서 줌 아웃
         }
 
         int curScore = calcScore();
@@ -508,22 +509,7 @@ public class GameActivity extends AppCompatActivity {
      * @return 좌표 사이의 거리를 구해 정수형 Km로 반환
      */
     private int calcDistance(GeoPoint geoPoint1, GeoPoint geoPoint2) {
-        //http://www.mapanet.eu/en/resources/Script-Distance.htm
-        //http://www.codecodex.com/wiki/Calculate_distance_between_two_points_on_a_globe
-        //https://stackoverflow.com/questions/5936912/how-to-find-the-distance-between-two-geopoints
-        final double PI = 3.14159265358979323846;
-        double rad = PI / 180;
-        double latitude1 = geoPoint1.getLatitude() * rad;
-        double longitude1 = geoPoint1.getLongitude() * rad;
-        double latitude2 = geoPoint2.getLatitude() * rad;
-        double longitude2 = geoPoint2.getLongitude() * rad;
-
-        double radius = 6378.137;   //earch radius
-
-        double dlon = longitude2 - longitude1;
-        double distance = Math.acos(Math.sin(latitude1) * Math.sin(latitude2) + Math.cos(latitude1) * Math.cos(latitude2) * Math.cos(dlon)) * radius;
-
-        return (int) distance;
+        return (int) (geoPoint1.distanceToAsDouble(geoPoint2)/1000);
     }
 
     /**
@@ -549,7 +535,7 @@ public class GameActivity extends AppCompatActivity {
                 myMapView.getOverlays().add(tmpMarker);
 
                 distance = calcDistance(geoPoint, answerMarker.getPosition());
-                animateMarker(myMapView, tmpMarker, answerMarker.getPosition(), new GeoPointInterpolator.Spherical()); //마커 이동 애니메이션
+                animateMarker(myMapView, tmpMarker, answerMarker.getPosition(), new GeoPointInterpolator.Linear()); //마커 이동 애니메이션
 
                 marker.remove(myMapView);
                 myMapView.invalidate();
