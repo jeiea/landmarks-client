@@ -1,10 +1,7 @@
 package kr.ac.kw.coms.globealbum.game;
 
 import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
 import android.support.annotation.NonNull;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,45 +9,46 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-import com.bumptech.glide.Glide;
+
 import java.util.ArrayList;
-import java.util.List;
 
 import kr.ac.kw.coms.globealbum.R;
+import kr.ac.kw.coms.globealbum.common.GlideApp;
 
 
-public class AfterGameAdapter extends RecyclerView.Adapter<AfterGameAdapter.ViewHolder>{
+public class AfterGameAdapter extends RecyclerView.Adapter<AfterGameAdapter.ViewHolder> {
 
     Context context;
     ArrayList<GamePictureInfo> gamePictureInfos;
     GameActivity gameActivity;
 
-    public AfterGameAdapter(Context context,ArrayList<GamePictureInfo> gamePictureInfos) {
+    public AfterGameAdapter(Context context, ArrayList<GamePictureInfo> gamePictureInfos) {
         this.context = context;
-        this.gamePictureInfos=gamePictureInfos;
-        gameActivity =(GameActivity)GameActivity.GActivity;
+        this.gamePictureInfos = gamePictureInfos;
+        gameActivity = (GameActivity) GameActivity.GActivity;
 
     }
 
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(context).inflate(R.layout.layout_after_game_item,parent,false);
+        View view = LayoutInflater.from(context).inflate(R.layout.layout_after_game_item, parent, false);
         return new ViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-            GamePictureInfo gamePictureInfo = gamePictureInfos.get(position);
-            Glide.with(context).load(gamePictureInfo.id).into(holder.imageViewPicture);
-            holder.textViewPlace.setText(gamePictureInfo.name);
+        GamePictureInfo gamePictureInfo = gamePictureInfos.get(position);
+        GlideApp.with(context).load(gamePictureInfo.id).into(holder.imageViewPicture);
+        holder.textViewPlace.setText(gamePictureInfo.name);
     }
+
     @Override
     public int getItemCount() {
         return gamePictureInfos.size();
     }
 
-    class ViewHolder extends RecyclerView.ViewHolder{
+    class ViewHolder extends RecyclerView.ViewHolder {
         ImageView imageViewPicture;
         TextView textViewPlace;
         Button buttonQuit;
@@ -65,7 +63,7 @@ public class AfterGameAdapter extends RecyclerView.Adapter<AfterGameAdapter.View
                 }
             });
             imageViewPicture = itemView.findViewById(R.id.after_game_place_imageview);
-            imageViewPicture.setOnClickListener( gameActivity.new PictureClickListenerTypeA());      //사진 클릭 시 사진 확대
+            imageViewPicture.setOnClickListener(gameActivity.new PictureClickListenerTypeA());      //사진 클릭 시 사진 확대
             textViewPlace = itemView.findViewById(R.id.after_game_show_place_name);
         }
     }

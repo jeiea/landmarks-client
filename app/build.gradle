@@ -1,6 +1,7 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-kapt'
 
 android {
     buildToolsVersion "27.0.3"
@@ -32,20 +33,22 @@ android {
 }
 
 repositories {
-    maven { url 'https://dl.bintray.com/kotlin/ktor' }
+    maven { url 'https://kotlin.bintray.com/kotlinx'}
+    maven { url 'https://kotlin.bintray.com/ktor' }
     flatDir {
         dirs 'libs'
     }
 }
 
 dependencies {
-//    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    // client module
+    implementation project(":landmarks-clientkt")
 
     // kotlin client custom dependencies
-    implementation files('libs/ktor-client-bundle-0.9.4-SNAPSHOT-all.jar')
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:0.24.0'
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-io-jvm:0.1.0-alpha-1'
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:0.25.0'
+    implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
+//    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-io-jvm:0.1.0-alpha-1'
 
     // android UI libraries
     implementation "org.jetbrains.anko:anko:$anko_version"
@@ -71,11 +74,8 @@ dependencies {
 
     // glide library for imageview
     implementation 'com.github.bumptech.glide:glide:4.8.0'
-    annotationProcessor 'com.github.bumptech.glide:compiler:4.8.0'
-
-    // Kotlin client dependencies
-    implementation 'com.github.kittinunf.fuel:fuel-coroutines:1.14.0'
-    implementation 'com.github.kittinunf.fuel:fuel-gson:1.13.0' //for Gson support
+    kapt 'android.arch.lifecycle:compiler:1.1.1'
+    kapt 'com.github.bumptech.glide:compiler:4.8.0'
 
     // kotlin JSON
     implementation 'com.beust:klaxon:3.0.1'
@@ -91,7 +91,6 @@ dependencies {
     // For java junit4 compatible test discovery
     testCompileOnly 'org.junit.vintage:junit-vintage-engine:5.2.0'
     // Spek, the kotlin test framework, with kotlin version replacement.
-    testCompileOnly "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
     testCompileOnly('org.jetbrains.spek:spek-api:1.1.5') {
         exclude group: 'org.jetbrains.kotlin'
     }

@@ -4,6 +4,7 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -35,8 +36,11 @@ import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.MapEventsOverlay;
 import org.osmdroid.views.overlay.Marker;
+import org.osmdroid.views.overlay.Overlay;
+import org.osmdroid.views.overlay.Polyline;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.zip.Inflater;
 
 import kr.ac.kw.coms.globealbum.R;
@@ -44,7 +48,7 @@ import kr.ac.kw.coms.globealbum.album.GalleryDetail;
 import kr.ac.kw.coms.globealbum.album.GroupDiaryView;
 import kr.ac.kw.coms.globealbum.album.PictureArray;
 import kr.ac.kw.coms.globealbum.album.PictureGroup;
-import kr.ac.kw.coms.globealbum.album.ResourcePicture;
+import kr.ac.kw.coms.globealbum.provider.ResourcePicture;
 import kr.ac.kw.coms.globealbum.common.CircularImageKt;
 import kr.ac.kw.coms.globealbum.common.RecyclerItemClickListener;
 import kr.ac.kw.coms.globealbum.map.MyMapView;
@@ -54,15 +58,20 @@ import kr.ac.kw.coms.globealbum.provider.IPicture;
 
 public class Diary_mapNPictures extends AppCompatActivity {
 
-    MyMapView mapView = null;   //맵뷰 인스턴스
-    MapEventsOverlay mapviewClickEventOverlay; //맵 이벤트를 등록하는 오버레이
-    final ArrayList<Integer> PicturesArray = new ArrayList<Integer>();
+    final ArrayList<Integer> PicturesArray = new ArrayList<>();
     boolean isLiked = false;
     final boolean EDIT_MODE = true;
     final boolean READ_MODE = false;
     boolean isEDIT_MODE = false;
-
     GroupDiaryView picView = null;
+
+    //mapview에서 사용되는 멤버변수
+    MyMapView myMapView = null;   //맵뷰 인스턴스
+    MapEventsOverlay mapviewClickEventOverlay; //맵 이벤트를 등록하는 오버레이
+    List<Marker> markerList = new ArrayList<>();
+    List<Polyline> polylineList = new ArrayList<>();
+    int selectedMarkerIndex = -1;
+
 
     class InfoText {
         //글의 제목, 내용
@@ -129,7 +138,7 @@ public class Diary_mapNPictures extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_diary_map_n_pictures);
 
-        mapView = findViewById(R.id.diary_mapNpics_Map);
+        myMapView = findViewById(R.id.diary_mapNpics_Map);
         picView = findViewById(R.id.diary_mapNpics_Pics);
         picView.getPicAdapter().setPadding(20);
 
@@ -146,13 +155,9 @@ public class Diary_mapNPictures extends AppCompatActivity {
         }
 
         //맵뷰 클릭 시 이벤트 등록
-        mapviewClickEventOverlay = mapviewClickEventDisplay();
-        mapView.getOverlays().add(mapviewClickEventOverlay);
+        //mapviewClickEventOverlay = mapviewClickEventDisplay();
+        //myMapView.getOverlays().add(mapviewClickEventOverlay);
 
-        oval = getResources().getDrawable(R.drawable.oval_border, null);
-
-        //맵뷰에 마커들 등록
-        markerFolderOverlay = new MyMarker(mapView);
         setMarkerToMapview();
 
         //명령 받기
@@ -166,9 +171,10 @@ public class Diary_mapNPictures extends AppCompatActivity {
         preparePictureEdit(PicturesArray);
     }
 
-    MyMarker markerFolderOverlay;  //마커들을 가지고 있는 오버레이
 
-    //다이어리 액티비티 실행시 가져오는 사진들의 정보를 가지고 마커를 맵뷰에 띄워줌
+    /**
+     * 다이어리 액티비티 실행시 가져오는 사진들의 정보를 가지고 마커를 맵뷰에 띄워줌
+     */
     private void setMarkerToMapview() {
         //GPS 정보 뽑아오기
         EXIFinfo exifInfo = new EXIFinfo();
@@ -180,56 +186,20 @@ public class Diary_mapNPictures extends AppCompatActivity {
                 Drawable drawable = getResources().getDrawable(PicturesArray.get(i));
                 Bitmap bm = CircularImageKt.getCircularBitmap(drawable, 150);
                 Marker marker = addPicMarker(geoPoint, new BitmapDrawable(getResources(), bm));
-                mapView.getOverlays().add(marker);
-                markerFolderOverlay.addMarkerLine(marker);
+                markerList.add(marker);
+                myMapView.getOverlays().add(marker);
+
+                int markerListSize = markerList.size();
+                if (markerListSize > 0) {
+                    drawPolyline(markerList.get(markerListSize - 2).getPosition(), markerList.get(markerListSize - 1).getPosition());
+                }
+
             } catch (Throwable e) {
                 e.printStackTrace();
             }
-
         }
-
-        mapView.getOverlays().add(markerFolderOverlay);
-        mapView.invalidate();
+        myMapView.invalidate();
     }
-
-    View lastSelect;
-    Drawable oval;
-
-    /**
-     * 예비 선택을 지우고 테두리 없는 상태로 바꿈
-     */
-    private void clearLastSelectIfExists() {
-        if (lastSelect == null) {
-            return;
-        }
-        lastSelect.getOverlay().clear();
-        lastSelect.setOnClickListener(new PictureClickListenerTypeB1());
-    }
-
-    /**
-     * 답안 이미지를 예비 선택하는 리스너
-     */
-    public class PictureClickListenerTypeB1 implements View.OnClickListener {
-        @Override
-        public void onClick(View view) {
-            clearLastSelectIfExists();
-            oval.setBounds(new Rect(0, 0, view.getWidth(), view.getHeight()));
-            view.getOverlay().add(oval);
-            //view.setOnClickListener(new PictureClickListenerTypeB2());
-            lastSelect = view;
-        }
-    }
-
-    /**
-     * 예비 선택한 답안을 확정하는 리스너
-     */
-    public class PictureClickListenerTypeB2 implements View.OnClickListener {
-        @Override
-        public void onClick(View v) {
-            clearLastSelectIfExists();
-        }
-    }
-
 
     public static Uri resourceToUri(Context context, int resID) {
         return Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE + "://" +
@@ -247,7 +217,7 @@ public class Diary_mapNPictures extends AppCompatActivity {
      */
     private Marker addPicMarker(final GeoPoint geoPoint, Drawable drawable) {
         //마커 생성 및 설정
-        Marker marker = new Marker(mapView);
+        Marker marker = new Marker(myMapView);
         marker.setIcon(drawable);
         marker.setPosition(geoPoint);
         marker.setAnchor(0.25f, 1.0f);
@@ -255,7 +225,24 @@ public class Diary_mapNPictures extends AppCompatActivity {
         return marker;
     }
 
-    //
+    /**
+     * 마커와 마커 사이의 직선을 그림
+     *
+     * @param geoPoint1 polyline의 시작 좌표
+     * @param geoPoint2 polyline의 끝 좌표
+     */
+    private void drawPolyline(GeoPoint geoPoint1, GeoPoint geoPoint2) {
+        List<GeoPoint> geoPoints = new ArrayList<>();
+        geoPoints.add(geoPoint1);
+        geoPoints.add(geoPoint2);
+
+        Polyline line = new Polyline();
+        line.setPoints(geoPoints);
+
+        polylineList.add(line);
+        myMapView.getOverlays().add(line);
+    }
+
 
     /**
      * 경로를 보여주는 다이어리 화면에서 맵뷰를 클릭할 시의 리스너
@@ -299,8 +286,9 @@ public class Diary_mapNPictures extends AppCompatActivity {
         });
     }
 
+
     /**
-     * 마커를 클릭했을 시에 동작하는 리스너
+     * 마커를 클릭했을 시에 동작하는 리스너. 기존의 테두리가 있는 마커가 있으면 테두리 지우고 선택된 마커의 테두리를 흰색으로 변경
      *
      * @return 리스너 반환
      */
@@ -308,7 +296,34 @@ public class Diary_mapNPictures extends AppCompatActivity {
         return new Marker.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(Marker marker, MapView mapView) {
-                Toast.makeText(Diary_mapNPictures.this, "Marker Click", Toast.LENGTH_SHORT).show();
+
+                Drawable drawable;
+                Bitmap bm;
+                for (int i = 0; i < markerList.size(); i++) {
+                    if (markerList.get(i) == marker) {
+
+                        if (selectedMarkerIndex != -1) {
+                            drawable = getResources().getDrawable(PicturesArray.get(selectedMarkerIndex));
+                            bm = CircularImageKt.getCircularBitmap(drawable, 150);
+                            markerList.get(selectedMarkerIndex).setIcon(new BitmapDrawable(getResources(), bm));
+                            markerList.get(selectedMarkerIndex).setAnchor(0.25f, 1.0f);
+                            Toast.makeText(Diary_mapNPictures.this, i + " marker is unselected", Toast.LENGTH_SHORT).show();
+                        }
+
+                        if (i != selectedMarkerIndex) {
+                            drawable = getResources().getDrawable(PicturesArray.get(i));
+                            bm = CircularImageKt.getCircularBitmap(drawable, 150);
+                            Toast.makeText(Diary_mapNPictures.this, i + " marker is selected", Toast.LENGTH_SHORT).show();
+                            marker.setIcon(new BitmapDrawable(getResources(), bm));
+                            marker.setAnchor(0.25f, 1.0f);
+                            selectedMarkerIndex = i;
+                        } else {
+                            selectedMarkerIndex = -1;
+                        }
+                        mapView.invalidate();
+                        break;
+                    }
+                }
                 return true;
             }
         };

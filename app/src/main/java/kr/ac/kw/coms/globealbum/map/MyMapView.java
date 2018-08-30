@@ -9,6 +9,7 @@ import org.osmdroid.events.ScrollEvent;
 import org.osmdroid.events.ZoomEvent;
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
 import org.osmdroid.util.TileSystem;
+import org.osmdroid.util.TileSystemWebMercator;
 import org.osmdroid.views.overlay.MapEventsOverlay;
 import org.osmdroid.views.overlay.Marker;
 
@@ -54,8 +55,9 @@ public class MyMapView extends org.osmdroid.views.MapView {
         setTileSource(TileSourceFactory.BASE_OVERLAY_NL);    //맵 렌더링 설정
         setBuiltInZoomControls(false);
         setMultiTouchControls(true);
-        setScrollableAreaLimitLatitude(TileSystem.MaxLatitude, TileSystem.MinLatitude + 30, 0);
-        setScrollableAreaLimitLongitude(TileSystem.MinLongitude, TileSystem.MaxLongitude, 0);
+        TileSystem tileSystem = new TileSystemWebMercator();
+        setScrollableAreaLimitLatitude(tileSystem.getMaxLatitude(), tileSystem.getMinLatitude()+ 30, 0);
+        setScrollableAreaLimitLongitude(tileSystem.getMinLongitude(), tileSystem.getMaxLongitude(), 0);
         //맵 반복 방지
         setHorizontalMapRepetitionEnabled(false);
         setVerticalMapRepetitionEnabled(false);

@@ -10,11 +10,11 @@ import java.io.File
 fun getAllDrives(): ArrayList<File> {
   val ret = ArrayList<File>()
   // https://stackoverflow.com/q/39850004
-  Environment.getExternalStorageDirectory()?.also { sdcard ->
-    ret.add(sdcard)
+  Environment.getExternalStorageDirectory()?.also { builtin ->
+    ret.add(builtin)
   }
-  System.getenv("SECONDARY_STORAGE")?.also {
-    it.split(':').forEach {
+  System.getenv("SECONDARY_STORAGE")?.also { externals ->
+    externals.split(':').forEach {
       ret.add(File(it))
     }
   }
@@ -34,7 +34,7 @@ fun Context.mediaScan() {
     val filter = Regex(".*\\.(?:jpe?g|png|jfif)$")
 
     override fun onMediaScannerConnected() {
-      drives.forEach {
+      drives.forEach { drive ->
         val scanIfPicture: (File) -> Unit = {
           when {
             it.isHidden || it.isDirectory -> {
@@ -43,8 +43,8 @@ fun Context.mediaScan() {
               scannerConn.scanFile(it.absolutePath, null)
           }
         }
-        it.resolve(Environment.DIRECTORY_DCIM).walkTopDown().forEach(scanIfPicture)
-        it.resolve(Environment.DIRECTORY_PICTURES).walkTopDown().forEach(scanIfPicture)
+        drive.resolve(Environment.DIRECTORY_DCIM).walkTopDown().forEach(scanIfPicture)
+        drive.resolve(Environment.DIRECTORY_PICTURES).walkTopDown().forEach(scanIfPicture)
       }
     }
 

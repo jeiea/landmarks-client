@@ -1,31 +1,26 @@
 package kr.ac.kw.coms.globealbum.album
 
 import android.content.Context
-import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.support.annotation.DrawableRes
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.RecyclerView
 import android.util.AttributeSet
-import android.util.Pair
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
-import com.bumptech.glide.Glide
-import com.bumptech.glide.RequestBuilder
 import com.google.android.flexbox.AlignItems
 import com.google.android.flexbox.FlexDirection
 import com.google.android.flexbox.FlexWrap
 import com.google.android.flexbox.FlexboxLayoutManager
 import kotlinx.android.synthetic.main.activity_navigator.*
 import kr.ac.kw.coms.globealbum.R
-import kr.ac.kw.coms.globealbum.provider.EXIFinfo
 import kr.ac.kw.coms.globealbum.provider.IPicture
+import kr.ac.kw.coms.globealbum.provider.ResourcePicture
 import org.jetbrains.anko.backgroundColor
 import org.jetbrains.anko.matchParent
 import org.jetbrains.anko.wrapContent
-import java.io.File
 import java.util.*
 
 /**
@@ -65,60 +60,6 @@ data class PictureGroup(val name: String, val pics: ArrayList<IPicture>)
 
 fun resPicGetter(context: Context): (Int) -> ResourcePicture = @DrawableRes { i ->
   ResourcePicture(context, i)
-}
-
-class UriPicture(val uri: android.net.Uri, val context: Context) : IPicture {
-
-  override val drawable: RequestBuilder<Drawable>
-    get() = Glide.with(context).load(uri)
-
-  override var title: String
-    get() = uri.lastPathSegment
-    set(value) = throw NotImplementedError()
-
-  override val time: Date
-    get() = throw NotImplementedError()
-
-  override val coords: Pair<Double, Double>
-    get() = throw NotImplementedError()
-
-  override fun delete() = throw NotImplementedError()
-}
-
-class LocalPicture(val path: String, val context: Context) : IPicture {
-
-  override val drawable: RequestBuilder<Drawable>
-    get() = Glide.with(context).load(File(path))
-
-  override var title: String
-    get() = File(path).nameWithoutExtension
-    set(value) {}
-
-  override val time: Date
-    get() = Date(EXIFinfo(path).timeTaken);
-
-  override val coords: Pair<Double, Double>
-    get() = TODO("not implemented")
-
-  override fun delete() = throw NotImplementedError()
-}
-
-class ResourcePicture(val context: Context, @DrawableRes val id: Int) : IPicture {
-
-  override val drawable: RequestBuilder<Drawable>
-    get() = Glide.with(context).load(id)
-
-  override var title: String
-    get() = "resource:$id"
-    set(value) {}
-
-  override val time: Date
-    get() = Date(1000000L + 1000 * (100 - id))
-
-  override val coords: Pair<Double, Double>
-    get() = throw NotImplementedError()
-
-  override fun delete() = throw NotImplementedError()
 }
 
 /**
