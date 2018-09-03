@@ -20,6 +20,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -64,6 +65,7 @@ public class Diary_mapNPictures extends AppCompatActivity {
     final boolean READ_MODE = false;
     boolean isEDIT_MODE = false;
     GroupDiaryView picView = null;
+    ListviewAdapter adapter;
 
     //mapview에서 사용되는 멤버변수
     MyMapView myMapView = null;   //맵뷰 인스턴스
@@ -393,6 +395,13 @@ public class Diary_mapNPictures extends AppCompatActivity {
             this.layout = layout;
         }
 
+        public void swap(int left, int right)
+        {
+            int tmp = data.get(left);
+            data.set(left, data.get(right));
+            data.set(right, tmp);
+        }
+
         @Override
         public int getCount() {
             return data.size();
@@ -409,14 +418,39 @@ public class Diary_mapNPictures extends AppCompatActivity {
         }
 
         @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
+        public View getView(final int position, View convertView, ViewGroup parent) {
             if (convertView == null) {
                 convertView = inflater.inflate(layout, parent, false);
             }
             int item = data.get(position);
             ImageView icon = (ImageView) convertView.findViewById(R.id.verticalList_Image);
             icon.setImageResource(item);
-            //TODO: convertView의 TextView값 지정
+            TextView title = (TextView) convertView.findViewById(R.id.verticalList_Title);
+            title.setText(new ResourcePicture(getBaseContext(), item).getTitle());
+            ((Button)convertView.findViewById(R.id.verticalList_Up)).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    //위 버튼 클릭
+                    if (position > 0)
+                        swap(position - 1, position);
+                    adapter.notifyDataSetChanged();
+                }
+            });
+            ((Button)convertView.findViewById(R.id.verticalList_Down)).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    //아래 버튼 클릭
+                    if (position < getCount() - 1)
+                        swap(position, position + 1);
+                    adapter.notifyDataSetChanged();
+                }
+            });
+            ((Button)convertView.findViewById(R.id.verticalList_Delete)).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    //제거 버튼 클릭
+                }
+            });
             return convertView;
         }
     }
@@ -424,7 +458,7 @@ public class Diary_mapNPictures extends AppCompatActivity {
     public void preparePictureEdit(ArrayList<Integer> PictureList) {
         //사진 순서 편집 창의 내용 준비
         ListView EditList = findViewById(R.id.diary_mapNpics_PictureEdit_List);
-        ListviewAdapter adapter = new ListviewAdapter(getBaseContext(), R.id.verticalList_Root, PictureList);
+        adapter = new ListviewAdapter(getBaseContext(), R.layout.layout_map_n_pictures_verticallist, PictureList);
         EditList.setAdapter(adapter);
     }
 }
