@@ -2,7 +2,6 @@ package kr.ac.kw.coms.landmarks.client
 
 import com.beust.klaxon.JsonObject
 import com.beust.klaxon.Parser
-import com.beust.klaxon.internal.firstNotNullResult
 import io.ktor.client.HttpClient
 import io.ktor.client.call.receive
 import io.ktor.client.engine.android.Android
@@ -12,7 +11,7 @@ import io.ktor.client.features.json.JsonFeature
 import io.ktor.client.request.*
 import io.ktor.client.response.HttpResponse
 import io.ktor.http.*
-import kotlinx.coroutines.experimental.channels.Channel
+import kotlinx.coroutines.experimental.channels.ArrayChannel
 import kotlinx.coroutines.experimental.channels.sendBlocking
 import kotlinx.coroutines.experimental.delay
 import kotlinx.coroutines.experimental.io.jvm.javaio.toOutputStream
@@ -23,7 +22,7 @@ import kotlin.math.max
 class Remote(base: HttpClient, val basePath: String = herokuUri) {
 
   val http: HttpClient
-  val nominatimReqLimit = Channel<Long>(1)
+  val nominatimLastRequestMs = ArrayChannel<Long>(1)
 
   companion object {
     const val herokuUri = "https://landmarks-coms.herokuapp.com"
@@ -52,7 +51,7 @@ class Remote(base: HttpClient, val basePath: String = herokuUri) {
     request(HttpMethod.Put, url, builder)
 
   init {
-    nominatimReqLimit.sendBlocking(0)
+    nominatimLastRequestMs.sendBlocking(0)
     http = base.config {
       install(HttpCookies) {
         storage = AcceptAllCookiesStorage()
@@ -74,25 +73,32 @@ class Remote(base: HttpClient, val basePath: String = herokuUri) {
     body = json
   }
 
-  suspend fun suspendForNominatimReqPerSecLimit() {
-    val last: Long = nominatimReqLimit.receive()
-    nominatimReqLimit.offer(Date().time)
-    delay(max(0, last + 1000 - Date().time))
+  suspend fun <T> suspendForNominatimReqPerSecLimit(block: suspend () -> T): T {
+    val ret: T = block()
+    return ret
   }
 
-  suspend fun reverseGeocode(latitude: Double, longitude: Double): Pair<String?, String?>? {
-    suspendForNominatimReqPerSecLimit()
+  suspend fun reverseGeocode(latitude: Double, longitude: Double): ReverseGeocodeResult {
+    val last: Long = nominatimLastRequestMs.receive()
+    delay(max(0, last + 1000 - Date().time))
 
+    val ret: ReverseGeocodeResult = reverseGeocodeUnsafe(latitude, longitude)
+
+    val next: Long = Date().time + 1000
+    nominatimLastRequestMs.send(next)
+
+    return ret
+  }
+
+  suspend fun reverseGeocodeUnsafe(latitude: Double, longitude: Double): ReverseGeocodeResult {
     val json: String = get("https://nominatim.openstreetmap.org/reverse") {
       parameter("format", "json")
       parameter("lat", latitude.toString())
       parameter("lon", longitude.toString())
       userAgent(chromeAgent)
     }
-    val res = Parser().parse(StringBuilder(json)) as JsonObject
-    val addr = res.obj("address") ?: return null
-    val detail = listOf("city", "county", "town", "attraction").map(addr::string).firstNotNullResult { it }
-    return addr.string("country") to detail
+    val obj: JsonObject = Parser().parse(StringBuilder(json)) as JsonObject
+    return ReverseGeocodeResult(obj)
   }
 
   suspend fun checkAlive(): Boolean {
