@@ -54,6 +54,7 @@ import kr.ac.kw.coms.globealbum.map.MyMapView;
 import kr.ac.kw.coms.globealbum.provider.EXIFinfo;
 import kr.ac.kw.coms.globealbum.provider.RemoteJava;
 import kr.ac.kw.coms.globealbum.provider.UIPromise;
+import kr.ac.kw.coms.landmarks.client.ReverseGeocodeResult;
 
 import static kr.ac.kw.coms.globealbum.game.GameActivity.TimerState.Running;
 import static kr.ac.kw.coms.globealbum.game.GameActivity.TimerState.Stop;
@@ -173,7 +174,7 @@ public class GameActivity extends AppCompatActivity {
             final GeoPoint geoPoint = exifInfo.getLocationGeopoint();
             final int s = id[i];
             //역지오코딩을 통해 지역 정보 뽑아오기
-            client.reverseGeocode(geoPoint.getLatitude(), geoPoint.getLongitude(), new UIPromise<Pair<String, String>>() {
+            client.reverseGeocode(geoPoint.getLatitude(), geoPoint.getLongitude(), new UIPromise<ReverseGeocodeResult>() {
                 @Override
                 public void failure(@NotNull Throwable cause) {
                     StringWriter sw = new StringWriter();
@@ -183,8 +184,8 @@ public class GameActivity extends AppCompatActivity {
                 }
 
                 @Override
-                public void success(Pair<String, String> result) {
-                    String name = result.getFirst() + " " + result.getSecond();
+                public void success(ReverseGeocodeResult result) {
+                    String name = result.getCountry() + " " + result.getDetail();
                     GamePictureInfo pictureInfo = new GamePictureInfo();
                     pictureInfo.geoPoint = geoPoint;
                     pictureInfo.id = s;
