@@ -56,6 +56,9 @@ import kr.ac.kw.coms.globealbum.map.MyMarker;
 import kr.ac.kw.coms.globealbum.provider.EXIFinfo;
 import kr.ac.kw.coms.globealbum.provider.IPicture;
 
+/**
+ * TODO: 마커들이 화면에 다 들어오고 최대한 확대가 된 상태로 시작되게 해야함
+ */
 public class Diary_mapNPictures extends AppCompatActivity {
 
     final ArrayList<Integer> PicturesArray = new ArrayList<>();
@@ -312,7 +315,7 @@ public class Diary_mapNPictures extends AppCompatActivity {
 
                         if (i != selectedMarkerIndex) {
                             drawable = getResources().getDrawable(PicturesArray.get(i));
-                            bm = CircularImageKt.getCircularBitmap(drawable, 150);
+                            bm = CircularImageKt.getCircularBorderBitmap(drawable, 150);
                             Toast.makeText(Diary_mapNPictures.this, i + " marker is selected", Toast.LENGTH_SHORT).show();
                             marker.setIcon(new BitmapDrawable(getResources(), bm));
                             marker.setAnchor(0.25f, 1.0f);
