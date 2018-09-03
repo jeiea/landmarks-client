@@ -54,6 +54,7 @@ import kr.ac.kw.coms.globealbum.map.MyMapView;
 import kr.ac.kw.coms.globealbum.provider.EXIFinfo;
 import kr.ac.kw.coms.globealbum.provider.RemoteJava;
 import kr.ac.kw.coms.globealbum.provider.UIPromise;
+import kr.ac.kw.coms.landmarks.client.ReverseGeocodeResult;
 
 import static kr.ac.kw.coms.globealbum.game.GameActivity.TimerState.Running;
 import static kr.ac.kw.coms.globealbum.game.GameActivity.TimerState.Stop;
@@ -114,6 +115,8 @@ public class GameActivity extends AppCompatActivity {
 
     ArrayList<GamePictureInfo> questionPic = new ArrayList<>();
 
+    int answerImageviewIndex;
+
 
     enum TimerState {
         Stop,
@@ -173,7 +176,7 @@ public class GameActivity extends AppCompatActivity {
             final GeoPoint geoPoint = exifInfo.getLocationGeopoint();
             final int s = id[i];
             //역지오코딩을 통해 지역 정보 뽑아오기
-            client.reverseGeocode(geoPoint.getLatitude(), geoPoint.getLongitude(), new UIPromise<Pair<String, String>>() {
+            client.reverseGeocode(geoPoint.getLatitude(), geoPoint.getLongitude(), new UIPromise<ReverseGeocodeResult>() {
                 @Override
                 public void failure(@NotNull Throwable cause) {
                     StringWriter sw = new StringWriter();
@@ -183,8 +186,8 @@ public class GameActivity extends AppCompatActivity {
                 }
 
                 @Override
-                public void success(Pair<String, String> result) {
-                    String name = result.getFirst() + " " + result.getSecond();
+                public void success(ReverseGeocodeResult result) {
+                    String name = result.getCountry() + " " + result.getDetail();
                     GamePictureInfo pictureInfo = new GamePictureInfo();
                     pictureInfo.geoPoint = geoPoint;
                     pictureInfo.id = s;
@@ -675,10 +678,15 @@ public class GameActivity extends AppCompatActivity {
         myMapView.getOverlays().add(answerMarker);
         myMapView.setClickable(false);
 
-        questionTypeBImageView[0].setScaleType(ImageView.ScaleType.CENTER_INSIDE);
-        GlideApp.with(context).load(pi.id).into(questionTypeBImageView[0]);
 
-        questionTypeBImageView[0].invalidate();
+        answerImageviewIndex = problem;
+
+        for (int i = 0; i < 4; i++) {
+            questionTypeBImageView[i].setScaleType(ImageView.ScaleType.CENTER_INSIDE);
+            GlideApp.with(context).load(questionPic.get(i).id).into(questionTypeBImageView[i]);
+
+            questionTypeBImageView[i].invalidate();
+        }
     }
 
 
@@ -737,16 +745,18 @@ public class GameActivity extends AppCompatActivity {
             problem++;
             switch (problem) {
                 case 1:
-                    setPictureQuestion(questionPic.get(problem));
+                    setPlaceNameQuestion(questionPic.get(problem));
+                    //setPictureQuestion(questionPic.get(problem));
                     break;
                 case 2:
+                    setPlaceNameQuestion(questionPic.get(problem));
                     /*
                     stage++;
                     stageTextView.setText("STAGE " + stage);
                     score = 0;
                     scoreTextView.setText("SCORE " + score);
                     */
-                    setPictureQuestion(questionPic.get(problem));
+                    //setPictureQuestion(questionPic.get(problem));
                     break;
                 case 3:
                     setPlaceNameQuestion(questionPic.get(problem));
@@ -838,6 +848,13 @@ public class GameActivity extends AppCompatActivity {
     public class PictureClickListenerTypeB2 implements View.OnClickListener {
         @Override
         public void onClick(View v) {
+
+            for(int i = 0 ; i< 4; i++){
+                if(questionTypeBImageView[i] == v){
+                    Toast.makeText(context, "ddd", Toast.LENGTH_SHORT).show();
+                    break;
+                }
+            }
             stopTimer = Stop;
             clearLastSelectIfExists();
             setAnswerLayout();

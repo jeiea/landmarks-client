@@ -9,6 +9,7 @@ import java.util.concurrent.TimeUnit;
 import kotlin.Pair;
 import kr.ac.kw.coms.globealbum.provider.Promise;
 import kr.ac.kw.coms.globealbum.provider.RemoteJava;
+import kr.ac.kw.coms.landmarks.client.ReverseGeocodeResult;
 
 import static org.junit.Assert.assertEquals;
 
@@ -17,9 +18,9 @@ public class JavaCodeTest {
     public void clientTest() throws Exception {
         final CountDownLatch lock = new CountDownLatch(1);
         RemoteJava remote = new RemoteJava();
-        Promise<Pair<String, String>> prom = new Promise<Pair<String, String>>() {
+        Promise<ReverseGeocodeResult> prom = new Promise<ReverseGeocodeResult>() {
             @Override
-            public void success(Pair<String, String> result) {
+            public void success(ReverseGeocodeResult result) {
                 lock.countDown();
             }
 
@@ -30,7 +31,7 @@ public class JavaCodeTest {
         };
         remote.reverseGeocode(37.54567, 126.9944, prom);
         lock.await(10, TimeUnit.SECONDS);
-        assertEquals(Objects.requireNonNull(prom.getAns()).getFirst(), "대한민국");
-        assertEquals(prom.getAns().getSecond(), "서울특별시");
+        assertEquals(Objects.requireNonNull(prom.getAns()).getCountry(), "대한민국");
+        assertEquals(prom.getAns().getDetail(), "서울특별시");
     }
 }

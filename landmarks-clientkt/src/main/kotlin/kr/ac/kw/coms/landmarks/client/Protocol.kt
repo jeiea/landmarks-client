@@ -1,6 +1,9 @@
 package kr.ac.kw.coms.landmarks.client
 
 import com.beust.klaxon.Json
+import com.beust.klaxon.JsonObject
+import com.beust.klaxon.Parser
+import com.beust.klaxon.internal.firstNotNullResult
 
 data class ServerFault(
   val error: String,
@@ -26,6 +29,9 @@ data class PictureRep(
   var file: ByteArray? = null
 )
 
+/**
+ * https://wiki.openstreetmap.org/wiki/Nominatim
+ */
 class NominatimReverseGeocodeJsonV2 {
   @Json("place_id")
   var placeId: Int? = null
@@ -52,6 +58,11 @@ class NominatimReverseGeocodeJsonV2 {
 }
 
 class NominatimAddressJson {
+  // different by type
+  var attraction: String? = null
+  var parking: String? = null
+  //
+
   var city: String? = null
   @Json("city_district")
   var cityDistrict: String? = null
@@ -72,4 +83,16 @@ class NominatimAddressJson {
   var stateDistrict: String? = null
   var suburb: String? = null
   var village: String? = null
+}
+
+class ReverseGeocodeResult(val json: JsonObject) {
+  val addr: JsonObject?
+    get() = json.obj("address")
+  val country: String?
+    get() = addr?.string("country")
+  val detail: String?
+    get() = addr?.let { adr ->
+      val prio = listOf("city", "county", "town", "attraction")
+      prio.map(adr::string).firstNotNullResult { it }
+    }
 }

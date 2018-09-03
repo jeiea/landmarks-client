@@ -1,16 +1,23 @@
 package kr.ac.kw.coms.globealbum.provider
 
+import android.util.Log
 import kotlinx.coroutines.experimental.Job
 import kr.ac.kw.coms.landmarks.client.PictureRep
 import kr.ac.kw.coms.landmarks.client.Remote
+import kr.ac.kw.coms.landmarks.client.ReverseGeocodeResult
 import java.io.File
 
 class RemoteJava {
 
   private val client = Remote()
 
-  fun reverseGeocode(latitude: Double, longitude: Double, prom: Promise<Pair<String?, String?>?>): Job =
-    prom.resolve { client.reverseGeocode(latitude, longitude) }
+  fun reverseGeocode(latitude: Double, longitude: Double, prom: Promise<ReverseGeocodeResult>): Job =
+    prom.resolve {
+      Log.d("RemoteJava", "before $latitude, $longitude")
+      val s = client.reverseGeocode(latitude, longitude)
+      Log.d("RemoteJava", "after $latitude, $longitude")
+      s
+    }
 
   fun checkAlive(prom: Promise<Boolean>): Job =
     prom.resolve { client.checkAlive() }
