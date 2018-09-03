@@ -114,6 +114,8 @@ public class GameActivity extends AppCompatActivity {
 
     ArrayList<GamePictureInfo> questionPic = new ArrayList<>();
 
+    int answerImageviewIndex;
+
 
     enum TimerState {
         Stop,
@@ -675,10 +677,15 @@ public class GameActivity extends AppCompatActivity {
         myMapView.getOverlays().add(answerMarker);
         myMapView.setClickable(false);
 
-        questionTypeBImageView[0].setScaleType(ImageView.ScaleType.CENTER_INSIDE);
-        GlideApp.with(context).load(pi.id).into(questionTypeBImageView[0]);
 
-        questionTypeBImageView[0].invalidate();
+        answerImageviewIndex = problem;
+
+        for (int i = 0; i < 4; i++) {
+            questionTypeBImageView[i].setScaleType(ImageView.ScaleType.CENTER_INSIDE);
+            GlideApp.with(context).load(questionPic.get(i).id).into(questionTypeBImageView[i]);
+
+            questionTypeBImageView[i].invalidate();
+        }
     }
 
 
@@ -737,16 +744,18 @@ public class GameActivity extends AppCompatActivity {
             problem++;
             switch (problem) {
                 case 1:
-                    setPictureQuestion(questionPic.get(problem));
+                    setPlaceNameQuestion(questionPic.get(problem));
+                    //setPictureQuestion(questionPic.get(problem));
                     break;
                 case 2:
+                    setPlaceNameQuestion(questionPic.get(problem));
                     /*
                     stage++;
                     stageTextView.setText("STAGE " + stage);
                     score = 0;
                     scoreTextView.setText("SCORE " + score);
                     */
-                    setPictureQuestion(questionPic.get(problem));
+                    //setPictureQuestion(questionPic.get(problem));
                     break;
                 case 3:
                     setPlaceNameQuestion(questionPic.get(problem));
@@ -838,6 +847,13 @@ public class GameActivity extends AppCompatActivity {
     public class PictureClickListenerTypeB2 implements View.OnClickListener {
         @Override
         public void onClick(View v) {
+
+            for(int i = 0 ; i< 4; i++){
+                if(questionTypeBImageView[i] == v){
+                    Toast.makeText(context, "ddd", Toast.LENGTH_SHORT).show();
+                    break;
+                }
+            }
             stopTimer = Stop;
             clearLastSelectIfExists();
             setAnswerLayout();
