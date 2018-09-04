@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import kr.ac.kw.coms.globealbum.R;
+import kr.ac.kw.coms.globealbum.common.GlideApp;
 import kr.ac.kw.coms.globealbum.provider.IPicture;
 import kr.ac.kw.coms.globealbum.provider.ResourcePicture;
 
@@ -207,7 +208,8 @@ public class activity_Navigator extends AppCompatActivity {
             else if (holder instanceof PictureHolder)
             {
                 IPicture pic = (IPicture)viewData.get(position);
-                pic.getDrawable().into(((PictureHolder) holder).imageView);
+                ImageView iv = ((PictureHolder)holder).imageView;
+                GlideApp.with(iv).load(pic).into(iv);
             }
         }
 

@@ -9,8 +9,12 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+
 import kr.ac.kw.coms.globealbum.R;
-import kr.ac.kw.coms.globealbum.provider.UriPicture;
+import kr.ac.kw.coms.globealbum.common.GlideApp;
+import kr.ac.kw.coms.globealbum.provider.UrlPicture;
 
 public class GalleryDetail extends AppCompatActivity {
     int index;
@@ -27,18 +31,13 @@ public class GalleryDetail extends AppCompatActivity {
         {
             public void onSwipeRight() {
                 index = (index - 1 + mDataset.length) % mDataset.length;
-                UriPicture pic  = new UriPicture(Uri.parse(mDataset[index]), getBaseContext());
-                pic.getDrawable().into((ImageView)findViewById(R.id.gallerydetail_Image));
-                ((TextView)findViewById(R.id.gallerydetail_imagename)).setText(pic.getTitle());
+                reloadWithIndex();
             }
 
             public void onSwipeLeft() {
                 index = (index + 1) % mDataset.length;
-                UriPicture pic  = new UriPicture(Uri.parse(mDataset[index]), getBaseContext());
-                pic.getDrawable().into((ImageView)findViewById(R.id.gallerydetail_Image));
-                ((TextView)findViewById(R.id.gallerydetail_imagename)).setText(pic.getTitle());
+                reloadWithIndex();
             }
-
         };
 
         //이미지 데이터 불러오기
@@ -47,15 +46,31 @@ public class GalleryDetail extends AppCompatActivity {
         Intent intent = getIntent();
         index = intent.getIntExtra("index", 0);
         mDataset = intent.getStringArrayExtra("Dataset");
-        if (mDataset == null)
+        if (mDataset == null) {
             mDataset = intent.getStringArrayListExtra("urls").toArray(new String[0]);
-        UriPicture pic  = new UriPicture(Uri.parse(mDataset[index]), this);
-        pic.getDrawable().into((ImageView)findViewById(R.id.gallerydetail_Image));
+        }
+        reloadWithIndex();
         Log.i("URL", mDataset[index]);
-        ((TextView)findViewById(R.id.gallerydetail_imagename)).setText(pic.getTitle());
 
         //이미지 스와이프 시 이벤트 구현
         findViewById(R.id.gallerydetail_Image).setOnTouchListener(swipeTouchListener);
+    }
+
+    private UrlPicture getCurrentUrlPicture() {
+        try {
+            URL url = new URL(mDataset[index]);
+            return new UrlPicture(url);
+        }
+        catch (MalformedURLException ignored) {
+            throw new RuntimeException("Malformed " + mDataset[index]);
+        }
+    }
+
+    private void reloadWithIndex() {
+        UrlPicture pic = getCurrentUrlPicture();
+        ImageView iv = findViewById(R.id.gallerydetail_Image);
+        GlideApp.with(iv).load(pic).into(iv);
+        ((TextView)findViewById(R.id.gallerydetail_imagename)).setText(pic.getTitle());
     }
 
     public void gallerydetail_onClick(View view) {

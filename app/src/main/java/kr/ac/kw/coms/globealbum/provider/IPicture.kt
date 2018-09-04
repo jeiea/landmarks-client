@@ -1,115 +1,170 @@
 package kr.ac.kw.coms.globealbum.provider
 
 import android.content.Context
+import android.content.res.Resources
+import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.support.annotation.DrawableRes
 import android.util.Pair
-import com.bumptech.glide.RequestBuilder
-import kr.ac.kw.coms.globealbum.common.GlideApp
+import com.bumptech.glide.load.DataSource
+import kotlinx.coroutines.experimental.Job
+import kr.ac.kw.coms.landmarks.client.Remote
 import java.io.File
+import java.io.InputStream
+import java.net.URL
 import java.util.*
 
 /**
  * 보편적으로 사진을 다룰 때 쓸 클래스
  * @see kr.ac.kw.coms.globealbum.provider.ResourcePicture
  * @see kr.ac.kw.coms.globealbum.provider.LocalPicture
- * @see kr.ac.kw.coms.globealbum.provider.UriPicture
+ * @see kr.ac.kw.coms.globealbum.provider.UrlPicture
  */
-interface IPicture {
+abstract class IPicture {
   /**
    * 비트맵
    */
-  val drawable: RequestBuilder<Drawable>
+  open fun drawable(resources: Resources, promise: Promise<Drawable>): Job {
+    return promise.resolve {
+      BitmapDrawable(resources, stream())
+    }
+  }
+
+  /**
+   * 바이너리 데이터
+   */
+  open fun stream(promise: Promise<InputStream>): Job {
+    return promise.resolve {
+      stream()
+    }
+  }
+
+  /**
+   * 바이너리 데이터
+   */
+  abstract suspend fun stream(): InputStream
 
   /**
    * 제목
    */
-  var title: String
+  open var title: String? = null
 
   /**
    * 생성시각
    */
-  val time: Date
+  open var time: Date? = null
 
   /**
    * 위치
    */
-  val coords: Pair<Double, Double>
+  open var latlon: Pair<Double, Double>? = null
 
   /**
    * 사진 삭제
    */
-  fun delete()
+  abstract fun delete()
+
+  /**
+   * 변경 사항 저장
+   */
+  abstract fun save()
+
+  /**
+   * Glide에서 모델로 삼기위한 해시로 사용
+   */
+  abstract override fun toString(): String
+
+  /**
+   * Glide에서 캐시 방식을 결정하는데 도움
+   */
+  open val dataSource: DataSource = DataSource.LOCAL
 }
 
-class RemotePicture(val id: Int) : IPicture {
-  override val drawable: RequestBuilder<Drawable>
-    get() {
-      TODO()
-    }
-  override var title: String
-    get() = TODO("not implemented") //To change initializer of created properties use File | Settings | File Templates.
-    set(value) {}
-  override val time: Date
-    get() = TODO("not implemented") //To change initializer of created properties use File | Settings | File Templates.
-  override val coords: Pair<Double, Double>
-    get() = TODO("not implemented") //To change initializer of created properties use File | Settings | File Templates.
+class RemotePicture(val resources: Resources, val client: Remote, val id: Int) : IPicture() {
+  override fun toString(): String {
+    return "${client.basePath}/picture/$id"
+  }
+
+  override val dataSource = DataSource.REMOTE
+
+  override suspend fun stream(): InputStream {
+    return client.getPicture(id)
+  }
 
   override fun delete() {
-    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    TODO("not implemented")
+  }
+
+  override fun save() {
+    TODO("not implemented")
   }
 }
 
-class UriPicture(val uri: android.net.Uri, val context: Context) : IPicture {
+class UrlPicture(val url: URL) : IPicture() {
+  override fun toString(): String {
+    return url.toString()
+  }
 
-  override val drawable: RequestBuilder<Drawable>
-    get() = GlideApp.with(context).load(uri)
+  override val dataSource = DataSource.REMOTE
 
-  override var title: String
-    get() = uri.lastPathSegment
-    set(value) = throw NotImplementedError()
+  override suspend fun stream(): InputStream {
+    return url.openStream()
+  }
 
-  override val time: Date
-    get() = throw NotImplementedError()
+  override fun delete() {
+    throw NotImplementedError()
+  }
 
-  override val coords: Pair<Double, Double>
-    get() = throw NotImplementedError()
-
-  override fun delete() = throw NotImplementedError()
+  override fun save() {
+    throw NotImplementedError()
+  }
 }
 
-class LocalPicture(val path: String, val context: Context) : IPicture {
+class LocalPicture(val path: String, val context: Context) : IPicture() {
+  override fun toString() = path
 
-  override val drawable: RequestBuilder<Drawable>
-    get() = GlideApp.with(context).load(File(path))
+  override suspend fun stream(): InputStream {
+    return File(path).inputStream()
+  }
 
-  override var title: String
+  override fun delete() {
+    File(path).delete()
+  }
+
+  override fun save() {
+    TODO("not implemented")
+  }
+
+  override var title: String?
     get() = File(path).nameWithoutExtension
     set(value) {}
 
-  override val time: Date
+  override var time: Date?
     get() = Date(EXIFinfo(path).timeTaken);
-
-  override val coords: Pair<Double, Double>
-    get() = TODO("not implemented")
-
-  override fun delete() = throw NotImplementedError()
+    set(value) {}
 }
 
-class ResourcePicture(val context: Context, @DrawableRes val id: Int) : IPicture {
+class ResourcePicture(val context: Context, @DrawableRes val id: Int) : IPicture() {
 
-  override val drawable: RequestBuilder<Drawable>
-    get() = GlideApp.with(context).load(id)
+  override fun toString(): String = "resource:$id"
 
-  override var title: String
-    get() = "resource:$id"
-    set(value) {}
+  override var title: String?
+    get() = toString()
+    set(_) {}
 
-  override val time: Date
+  override var time: Date?
     get() = Date(1000000L + 1000 * (100 - id))
+    set(_) {}
 
-  override val coords: Pair<Double, Double>
-    get() = throw NotImplementedError()
+  override suspend fun stream(): InputStream {
+    throw NotImplementedError()
+  }
 
-  override fun delete() = throw NotImplementedError()
+  override fun delete() {
+    throw NotImplementedError()
+  }
+
+  override fun save() {
+    throw NotImplementedError()
+  }
 }

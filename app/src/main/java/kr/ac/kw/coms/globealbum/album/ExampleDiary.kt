@@ -16,10 +16,12 @@ import com.google.android.flexbox.FlexWrap
 import com.google.android.flexbox.FlexboxLayoutManager
 import kotlinx.android.synthetic.main.activity_navigator.*
 import kr.ac.kw.coms.globealbum.R
+import kr.ac.kw.coms.globealbum.common.GlideApp
 import kr.ac.kw.coms.globealbum.provider.IPicture
 import kr.ac.kw.coms.globealbum.provider.ResourcePicture
 import org.jetbrains.anko.backgroundColor
 import org.jetbrains.anko.matchParent
+import org.jetbrains.anko.padding
 import org.jetbrains.anko.wrapContent
 import java.util.*
 
@@ -144,10 +146,11 @@ class GroupedPicAdapter : RecyclerView.Adapter<GroupedPicAdapter.ElementViewHold
         holder.textView.text = group.name
       }
       is PictureHolder -> {
-        val pic = holder.boundItem as ResourcePicture
-        pic.drawable.into(holder.imageView)
-        holder.imageView.scaleType = ImageView.ScaleType.FIT_XY
-        holder.imageView.setPadding(padding / 2, 0, padding / 2, 0)
+        val pic: IPicture = holder.boundItem as IPicture
+        val iv: ImageView = holder.imageView
+        GlideApp.with(iv).load(pic).into(iv)
+        iv.scaleType = ImageView.ScaleType.FIT_XY
+        iv.setPadding(padding / 2, 0, padding / 2, 0)
       }
     }
   }

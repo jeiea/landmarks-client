@@ -16,6 +16,7 @@ import kotlinx.coroutines.experimental.channels.sendBlocking
 import kotlinx.coroutines.experimental.delay
 import kotlinx.coroutines.experimental.io.jvm.javaio.toOutputStream
 import java.io.File
+import java.io.InputStream
 import java.util.*
 import kotlin.math.max
 
@@ -153,6 +154,10 @@ class Remote(base: HttpClient, val basePath: String = herokuUri) {
     val pic: PictureRep = get("$basePath/problem/random")
     pic.file = get("$basePath/picture/${pic.id}")
     return pic
+  }
+
+  suspend fun getPicture(id: Int): InputStream {
+    return get("$basePath/picture/${id}")
   }
 
   suspend fun getMyPictures() {
