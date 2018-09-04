@@ -11,7 +11,7 @@
         android:id="@+id/diary_mapNpics_View"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:visibility="visible"
+        android:visibility="gone"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
@@ -201,7 +201,7 @@
         android:id="@+id/diary_mapNpics_PictureEdit"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:visibility="gone"
+        android:visibility="visible"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
@@ -227,12 +227,10 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintWidth_percent="0.2" />
 
-        <ListView
+        <android.support.v7.widget.RecyclerView
             android:id="@+id/diary_mapNpics_PictureEdit_List"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:divider="#AAAAAA"
-            android:dividerHeight="1.5dp"
             app:layout_constraintBottom_toTopOf="@id/diary_mapNpics_PictureEdit_Add"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintTop_toBottomOf="@id/diary_mapNpics_PictureEdit_Save"/>

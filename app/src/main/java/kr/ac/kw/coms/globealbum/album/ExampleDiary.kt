@@ -112,7 +112,6 @@ class GroupedPicAdapter : RecyclerView.Adapter<GroupedPicAdapter.ElementViewHold
     set(value) {
       for (g: PictureGroup in value) {
         viewData.add(g)
-        g.pics.sortBy { it.time }
         viewData.addAll(g.pics)
       }
       notifyDataSetChanged()

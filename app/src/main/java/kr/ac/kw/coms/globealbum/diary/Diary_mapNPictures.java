@@ -11,18 +11,25 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.ContactsContract;
+import android.provider.MediaStore;
+import android.support.annotation.NonNull;
+import android.support.constraint.ConstraintLayout;
 import android.support.v4.widget.ListViewAutoScrollHelper;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.Layout;
 import android.util.Log;
 import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -58,7 +65,7 @@ import kr.ac.kw.coms.globealbum.provider.IPicture;
 
 public class Diary_mapNPictures extends AppCompatActivity {
 
-    final ArrayList<Integer> PicturesArray = new ArrayList<>();
+    final ArrayList<Integer> PicturesArray = new ArrayList<>(); //서버로부터 가져오는 사진 저장소.
     boolean isLiked = false;
     final boolean EDIT_MODE = true;
     final boolean READ_MODE = false;
@@ -105,7 +112,7 @@ public class Diary_mapNPictures extends AppCompatActivity {
                 //열람 모드
                 Intent intent = new Intent(getBaseContext(), GalleryDetail.class);
                 intent.putExtra("urls", Arg);
-                intent.putExtra("index", position);
+                intent.putExtra("index", position - 1);
                 startActivity(intent);
             } else {
                 //수정 모드
@@ -116,17 +123,19 @@ public class Diary_mapNPictures extends AppCompatActivity {
     }
 
     public void prepareData() {
+        //서버로부터 데이터를 가져왔다고 가정
         PicturesArray.add(R.drawable.coord0);
         PicturesArray.add(R.drawable.coord1);
         PicturesArray.add(R.drawable.coord2);
         PicturesArray.add(R.drawable.coord3);
+        //데이터 가져오기 완료. 이하는 통신 구현 여부에 영향 없음.
 
         ArrayList<PictureGroup> elementList = new ArrayList<>();
         ArrayList<IPicture> pics = new ArrayList<>();
         ArrayList<String> urls = new ArrayList<>();
         for (int i = 0; i < PicturesArray.size(); i++) {
             pics.add(i, new ResourcePicture(this, PicturesArray.get(i)));
-            urls.add(resourceToUri(getBaseContext(), PicturesArray.get(i)).toString());
+            urls.add(resourceToUri(this, PicturesArray.get(i)).toString());
         }
         elementList.add(new PictureGroup("", pics));
         picView.setGroups(elementList);
@@ -382,49 +391,69 @@ public class Diary_mapNPictures extends AppCompatActivity {
 
     }
 
-    public class ListviewAdapter extends BaseAdapter {
-        private LayoutInflater inflater;
-        private ArrayList<Integer> data;
-        private int layout;
-
-        public ListviewAdapter(@NotNull Context context, int layout, ArrayList<Integer> data) {
-            this.inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            this.data = data;
-            this.layout = layout;
-        }
-
-        @Override
-        public int getCount() {
-            return data.size();
-        }
-
-        @Override
-        public Object getItem(int position) {
-            return data.get(position);
-        }
-
-        @Override
-        public long getItemId(int position) {
-            return position;
-        }
-
-        @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-            if (convertView == null) {
-                convertView = inflater.inflate(layout, parent, false);
-            }
-            int item = data.get(position);
-            ImageView icon = (ImageView) convertView.findViewById(R.id.verticalList_Image);
-            icon.setImageResource(item);
-            //TODO: convertView의 TextView값 지정
-            return convertView;
-        }
-    }
 
     public void preparePictureEdit(ArrayList<Integer> PictureList) {
         //사진 순서 편집 창의 내용 준비
-        ListView EditList = findViewById(R.id.diary_mapNpics_PictureEdit_List);
-        ListviewAdapter adapter = new ListviewAdapter(getBaseContext(), R.id.verticalList_Root, PictureList);
-        EditList.setAdapter(adapter);
+        //PictureList: 서버로부터 전송받은 사진의 목록
+
+        RecyclerView recyclerView = findViewById(R.id.diary_mapNpics_PictureEdit_List);
+        //사진이 표시되는 위치. 사진 + 위/아래 이동 + 제거 버튼의 집합으로 구성
+        int Layout = R.layout.layout_map_n_pictures_verticallist;
+        //사진이 표시되는 형태.
+
+        RecyclerView.Adapter adapter;
+        RecyclerView.LayoutManager layoutManager;
+        layoutManager = new LinearLayoutManager(this);
+        recyclerView.setLayoutManager(layoutManager);
+        adapter = new VerticalListAdapter(PictureList);
+        recyclerView.setAdapter(adapter);
+    }
+
+    public class VerticalListAdapter extends RecyclerView.Adapter<VerticalListAdapter.VerticalListViewHolder>
+    {
+        private ArrayList<Integer> Images;
+
+        @NonNull
+        @Override
+        public VerticalListViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            ConstraintLayout v = (ConstraintLayout)LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.layout_map_n_pictures_verticallist, parent, false);
+            VerticalListViewHolder vh = new VerticalListViewHolder(v);
+            vh.imageView = (ImageView)v.getViewById(R.id.verticalList_Image);
+            vh.TitleView = (TextView)v.getViewById(R.id.verticalList_Title);
+            vh.Btn_MoveUp = (Button)v.getViewById(R.id.verticalList_Up);
+            vh.Btn_MoveDown = (Button)v.getViewById(R.id.verticalList_Down);
+            vh.Btn_Delete = (Button)v.getViewById(R.id.verticalList_Delete);
+            return vh;
+        }
+
+        @Override
+        public void onBindViewHolder(@NonNull VerticalListViewHolder holder, int position) {
+            holder.imageView.setImageResource(Images.get(position));
+        }
+
+        @Override
+        public int getItemCount() {
+            return Images.size();
+        }
+
+        public class VerticalListViewHolder extends RecyclerView.ViewHolder
+        {
+            ConstraintLayout RowLayout;
+            public ImageView imageView;
+            public TextView TitleView;
+            public Button Btn_MoveUp;
+            public Button Btn_MoveDown;
+            public Button Btn_Delete;
+            public VerticalListViewHolder(ConstraintLayout itemView) {
+                super(itemView);
+                RowLayout = itemView;
+            }
+        }
+
+        public VerticalListAdapter(ArrayList<Integer> Images)
+        {
+            this.Images = Images;
+        }
     }
 }
