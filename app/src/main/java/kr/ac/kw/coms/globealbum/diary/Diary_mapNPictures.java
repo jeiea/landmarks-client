@@ -5,26 +5,24 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
-import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.inputmethodservice.Keyboard;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.ContactsContract;
-import android.support.v4.widget.ListViewAutoScrollHelper;
+import android.support.annotation.NonNull;
+import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
-import android.util.Pair;
+import android.text.Layout;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.ListAdapter;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -36,23 +34,19 @@ import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.MapEventsOverlay;
 import org.osmdroid.views.overlay.Marker;
-import org.osmdroid.views.overlay.Overlay;
 import org.osmdroid.views.overlay.Polyline;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.zip.Inflater;
 
 import kr.ac.kw.coms.globealbum.R;
 import kr.ac.kw.coms.globealbum.album.GalleryDetail;
 import kr.ac.kw.coms.globealbum.album.GroupDiaryView;
-import kr.ac.kw.coms.globealbum.album.PictureArray;
 import kr.ac.kw.coms.globealbum.album.PictureGroup;
 import kr.ac.kw.coms.globealbum.provider.ResourcePicture;
 import kr.ac.kw.coms.globealbum.common.CircularImageKt;
 import kr.ac.kw.coms.globealbum.common.RecyclerItemClickListener;
 import kr.ac.kw.coms.globealbum.map.MyMapView;
-import kr.ac.kw.coms.globealbum.map.MyMarker;
 import kr.ac.kw.coms.globealbum.provider.EXIFinfo;
 import kr.ac.kw.coms.globealbum.provider.IPicture;
 
@@ -382,81 +376,108 @@ public class Diary_mapNPictures extends AppCompatActivity {
 
     }
 
-    public class ListviewAdapter extends BaseAdapter {
-        private LayoutInflater inflater;
-        private ArrayList<Integer> data;
-        private int layout;
-
-        public ListviewAdapter(@NotNull Context context, int layout, ArrayList<Integer> data) {
-            this.inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            this.data = data;
-            this.layout = layout;
-        }
-
-        public void swap(int left, int right)
-        {
-            int tmp = data.get(left);
-            data.set(left, data.get(right));
-            data.set(right, tmp);
-        }
-
-        @Override
-        public int getCount() {
-            return data.size();
-        }
-
-        @Override
-        public Object getItem(int position) {
-            return data.get(position);
-        }
-
-        @Override
-        public long getItemId(int position) {
-            return position;
-        }
-
-        @Override
-        public View getView(final int position, View convertView, ViewGroup parent) {
-            if (convertView == null) {
-                convertView = inflater.inflate(layout, parent, false);
-            }
-            int item = data.get(position);
-            ImageView icon = (ImageView) convertView.findViewById(R.id.verticalList_Image);
-            icon.setImageResource(item);
-            TextView title = (TextView) convertView.findViewById(R.id.verticalList_Title);
-            title.setText(new ResourcePicture(getBaseContext(), item).getTitle());
-            ((Button)convertView.findViewById(R.id.verticalList_Up)).setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    //위 버튼 클릭
-                    if (position > 0)
-                        swap(position - 1, position);
-                    adapter.notifyDataSetChanged();
-                }
-            });
-            ((Button)convertView.findViewById(R.id.verticalList_Down)).setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    //아래 버튼 클릭
-                    if (position < getCount() - 1)
-                        swap(position, position + 1);
-                    adapter.notifyDataSetChanged();
-                }
-            });
-            ((Button)convertView.findViewById(R.id.verticalList_Delete)).setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    //제거 버튼 클릭
-                }
-            });
-            return convertView;
-        }
-    }
-
     public void preparePictureEdit(ArrayList<Integer> PictureList) {
         //사진 순서 편집 창의 내용 준비
-        ListView EditList = findViewById(R.id.diary_mapNpics_PictureEdit_List);
-        adapter = new ListviewAdapter(getBaseContext(), R.layout.layout_map_n_pictures_verticallist, PictureList);
-        EditList.setAdapter(adapter);
+        //PictureList: 서버로부터 전송받은 사진의 목록
+
+        RecyclerView recyclerView = findViewById(R.id.diary_mapNpics_PictureEdit_List);
+        //사진이 표시되는 위치. 사진 + 위/아래 이동 + 제거 버튼의 집합으로 구성
+        int Layout = R.layout.layout_map_n_pictures_verticallist;
+        //사진이 표시되는 형태.
+
+        RecyclerView.Adapter adapter;
+        RecyclerView.LayoutManager layoutManager;
+        layoutManager = new LinearLayoutManager(this);
+        recyclerView.setLayoutManager(layoutManager);
+        adapter = new VerticalListAdapter(PictureList);
+        recyclerView.setAdapter(adapter);
+    }
+
+    public class VerticalListAdapter extends RecyclerView.Adapter<VerticalListAdapter.VerticalListViewHolder>
+    {
+        private ArrayList<Integer> Images;
+
+        @NonNull
+        @Override
+        public VerticalListViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            ConstraintLayout v = (ConstraintLayout)LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.layout_map_n_pictures_verticallist, parent, false);
+            VerticalListViewHolder vh = new VerticalListViewHolder(v);
+            vh.imageView = (ImageView)v.getViewById(R.id.verticalList_Image);
+            vh.TitleView = (TextView)v.getViewById(R.id.verticalList_Title);
+            vh.Btn_MoveUp = (Button)v.getViewById(R.id.verticalList_Up);
+            vh.Btn_MoveDown = (Button)v.getViewById(R.id.verticalList_Down);
+            vh.Btn_Delete = (Button)v.getViewById(R.id.verticalList_Delete);
+            vh.Root = (ConstraintLayout)v.getViewById(R.id.verticalList_Root);
+            return vh;
+        }
+
+        private void swap(int left, int right)
+        {
+            int tmp = Images.get(left);
+            Images.set(left, Images.get(right));
+            Images.set(right, tmp);
+        }
+
+        @Override
+        public void onBindViewHolder(@NonNull VerticalListViewHolder holder, int position) {
+            if (position % 2 == 0)
+            {
+                holder.Root.setBackgroundColor(0xFFEEEEEE);
+            }
+            holder.imageView.setImageResource(Images.get(position));
+            holder.TitleView.setText(new ResourcePicture(getBaseContext(), Images.get(position)).getTitle());
+            final int index = position;
+            holder.Btn_MoveUp.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    //위 버튼 클릭
+                    if (index > 0)
+                        swap(index - 1, index);
+                    notifyDataSetChanged();
+                }
+            });
+            holder.Btn_MoveDown.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    //아래 버튼 클릭
+                    if (index < getItemCount() - 1)
+                        swap(index, index + 1);
+                    notifyDataSetChanged();
+                }
+            });
+            holder.Btn_Delete.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Images.remove(index);
+                    notifyDataSetChanged();
+                }
+            });
+        }
+
+        @Override
+        public int getItemCount() {
+            return Images.size();
+        }
+
+        public class VerticalListViewHolder extends RecyclerView.ViewHolder
+        {
+            ConstraintLayout RowLayout;
+            public ImageView imageView;
+            public TextView TitleView;
+            public Button Btn_MoveUp;
+            public Button Btn_MoveDown;
+            public Button Btn_Delete;
+            public ConstraintLayout Root;
+            public VerticalListViewHolder(ConstraintLayout itemView) {
+                super(itemView);
+                RowLayout = itemView;
+            }
+        }
+
+        public VerticalListAdapter(ArrayList<Integer> Images)
+        {
+            this.Images = Images;
+        }
     }
 }
