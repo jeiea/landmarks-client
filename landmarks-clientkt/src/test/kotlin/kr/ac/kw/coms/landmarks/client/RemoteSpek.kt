@@ -6,15 +6,14 @@ import io.ktor.client.engine.config
 import io.ktor.client.features.cookies.AcceptAllCookiesStorage
 import io.ktor.client.features.cookies.HttpCookies
 import kotlinx.coroutines.experimental.runBlocking
+import org.amshove.kluent.`should be equal to`
+import org.amshove.kluent.`should be greater than`
 import org.amshove.kluent.`should be true`
 import org.apache.http.HttpHost
 import org.apache.http.conn.ssl.TrustSelfSignedStrategy
 import org.apache.http.ssl.SSLContextBuilder
 import org.jetbrains.spek.api.Spek
-import org.jetbrains.spek.api.dsl.TestBody
-import org.jetbrains.spek.api.dsl.TestContainer
-import org.jetbrains.spek.api.dsl.describe
-import org.jetbrains.spek.api.dsl.it
+import org.jetbrains.spek.api.dsl.*
 import org.junit.platform.runner.JUnitPlatform
 import org.junit.runner.RunWith
 import java.io.File
@@ -29,11 +28,11 @@ class RemoteSpek : Spek({
   describe("landmarks client") {
     val client = Remote(getTestClient(), "http://localhost:8080")
 
-//    blit("does reverse geocoding") {
-//      val s = client.reverseGeocode(37.54567, 126.9944)
-//      s!!.first!! `should be equal to` "대한민국"
-//      s.second!! `should be equal to` "서울특별시"
-//    }
+    xblit("does reverse geocoding") {
+      val res: ReverseGeocodeResult = client.reverseGeocode(37.54567, 126.9944)
+      res.country!! `should be equal to` "대한민국"
+      res.detail!! `should be equal to` "서울특별시"
+    }
 
     blit("checks server health") {
       client.checkAlive().`should be true`()
@@ -44,12 +43,19 @@ class RemoteSpek : Spek({
     }
 
     val ident = getRandomString(8)
+    val pass = "pasowo"
+    val email = "$ident@b.c"
     blit("registers a user") {
-      client.register(ident, "pasowo", "$ident@b.c", ident)
+      client.register(ident, pass, email, ident)
     }
 
+    var profile: LoginRep? = null
     blit("does login") {
-      client.login(ident, "pasowo")
+      val p = client.login(ident, "pasowo")
+      p.login!! `should be equal to` ident
+      p.email!! `should be equal to` email
+      p.nick!! `should be equal to` ident
+      profile = p
     }
 
     blit("uploads picture") {
@@ -60,24 +66,31 @@ class RemoteSpek : Spek({
 
     blit("receives quiz") {
       val pic = client.getRandomProblem()
-      assert(pic.file!!.size != 0)
+      pic.file!!.size `should be greater than` 0
     }
 
     blit("query user's pictures") {
-      client.getMyPictures()
+      TODO()
     }
 
     blit("query user's collections") {
+      TODO()
     }
 
     blit("query a collection") {
-
+      TODO()
     }
   }
 })
 
 fun TestContainer.blit(description: String, body: suspend TestBody.() -> Unit) {
   it(description) {
+    runBlocking { body() }
+  }
+}
+
+fun TestContainer.xblit(description: String, body: suspend TestBody.() -> Unit) {
+  xit(description) {
     runBlocking { body() }
   }
 }

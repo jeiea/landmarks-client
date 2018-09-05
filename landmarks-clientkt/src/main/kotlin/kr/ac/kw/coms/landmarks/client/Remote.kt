@@ -15,8 +15,8 @@ import kotlinx.coroutines.experimental.channels.ArrayChannel
 import kotlinx.coroutines.experimental.channels.sendBlocking
 import kotlinx.coroutines.experimental.delay
 import kotlinx.coroutines.experimental.io.jvm.javaio.toOutputStream
+import kotlinx.io.InputStream
 import java.io.File
-import java.io.InputStream
 import java.util.*
 import kotlin.math.max
 
@@ -29,6 +29,8 @@ class Remote(base: HttpClient, val basePath: String = herokuUri) {
     const val herokuUri = "https://landmarks-coms.herokuapp.com"
     private const val chromeAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.59 Safari/537.36"
   }
+
+  var profile: LoginRep? = null
 
   suspend inline fun <reified T> request(method: HttpMethod, url: String, builder: HttpRequestBuilder.() -> Unit = {}): T {
     val response: HttpResponse = http.request {
@@ -128,12 +130,12 @@ class Remote(base: HttpClient, val basePath: String = herokuUri) {
     }
   }
 
-  suspend fun login(ident: String, pass: String) {
-    val par = LoginRep(login = ident, password = pass)
-    val profile: LoginRep = post("$basePath/auth/login") {
+  suspend fun login(ident: String, pass: String): LoginRep {
+    profile = post("$basePath/auth/login") {
       userAgent()
-      json(par)
+      json(LoginRep(login = ident, password = pass))
     }
+    return profile!!
   }
 
   suspend fun uploadPicture(file: File, latitude: Float? = null, longitude: Float? = null, addr: String? = null) {
@@ -160,15 +162,14 @@ class Remote(base: HttpClient, val basePath: String = herokuUri) {
     return get("$basePath/picture/${id}")
   }
 
-  suspend fun getMyPictures() {
-    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+  suspend fun getPictureInfos(userId: Int) {
   }
 
-  suspend fun getOtherPictures(userId: Int) {
+  suspend fun getMyPictureInfos() {
+    return getPictureInfos(profile!!.id!!)
   }
 
   suspend fun getMyCollections() {
-
   }
 
 }
