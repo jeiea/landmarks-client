@@ -64,7 +64,7 @@ import static kr.ac.kw.coms.globealbum.game.GameActivity.TimerState.Stop;
  *  TODO : 정답 확인 때 나오는 거리 선분 점선 애니메이션(엑셀 복사한 셀 효과)
  *  TODO : 깃발 애니메이션 마커 생성시에 애니메이션
  *  지도 정중앙으로 움직이면서 줌레벨도 줄이기(완료)
- *  TODO : 지명 문제에서 답 한번 클릭 후  시간 초과나 두번 클릭 시 정답 확인
+ *  지명 문제에서 답 한번 클릭 후  시간 초과나 두번 클릭 시 정답 확인 (완료)
  */
 
 public class GameActivity extends AppCompatActivity {
@@ -96,6 +96,7 @@ public class GameActivity extends AppCompatActivity {
     int timeScore = 0;
     int stage = 1;
     int distance = 0;
+    boolean rightAnswerTypeB = false;
 
     TimerState stopTimer = Running;
     private Handler animateHandler = null;
@@ -611,15 +612,16 @@ public class GameActivity extends AppCompatActivity {
                 final int CRITERIA = 400;
                 curScore = CRITERIA - distance / 100;
             }
+            curScore += timeScore / 100;
+
         } else if (gameType == GameType.B) {
-            if (lastSelect == null) {
+            if (rightAnswerTypeB == false) {
                 curScore = -100;
             } else {
                 curScore = 400;
-
+                curScore += timeScore / 100;
             }
         }
-        curScore += timeScore / 100;
         score += curScore;
 
         scoreTextView.setText("SCORE " + score);
@@ -839,6 +841,12 @@ public class GameActivity extends AppCompatActivity {
             view.getOverlay().add(redRect);
             view.setOnClickListener(new PictureClickListenerTypeB2());
             lastSelect = view;
+            if(questionTypeBImageView[problem] == view){
+                rightAnswerTypeB = true;
+            }
+            else{
+                rightAnswerTypeB=false;
+            }
         }
     }
 
@@ -848,12 +856,8 @@ public class GameActivity extends AppCompatActivity {
     public class PictureClickListenerTypeB2 implements View.OnClickListener {
         @Override
         public void onClick(View v) {
-
-            for(int i = 0 ; i< 4; i++){
-                if(questionTypeBImageView[i] == v){
-                    Toast.makeText(context, "ddd", Toast.LENGTH_SHORT).show();
-                    break;
-                }
+            if(questionTypeBImageView[problem] == v){
+                rightAnswerTypeB = true;
             }
             stopTimer = Stop;
             clearLastSelectIfExists();
