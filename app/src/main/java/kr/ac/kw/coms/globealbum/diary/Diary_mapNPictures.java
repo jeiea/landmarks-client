@@ -2,30 +2,18 @@ package kr.ac.kw.coms.globealbum.diary;
 
 import android.content.ContentResolver;
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.flexbox.FlexDirection;
 
-import org.jetbrains.annotations.NotNull;
 import org.osmdroid.events.MapEventsReceiver;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
@@ -37,12 +25,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import kr.ac.kw.coms.globealbum.R;
-import kr.ac.kw.coms.globealbum.album.GalleryDetail;
 import kr.ac.kw.coms.globealbum.album.GroupDiaryView;
 import kr.ac.kw.coms.globealbum.album.PictureGroup;
 import kr.ac.kw.coms.globealbum.provider.ResourcePicture;
 import kr.ac.kw.coms.globealbum.common.CircularImageKt;
-import kr.ac.kw.coms.globealbum.common.RecyclerItemClickListener;
 import kr.ac.kw.coms.globealbum.map.MyMapView;
 import kr.ac.kw.coms.globealbum.provider.EXIFinfo;
 import kr.ac.kw.coms.globealbum.provider.IPicture;
@@ -53,8 +39,8 @@ import kr.ac.kw.coms.globealbum.provider.IPicture;
 public class Diary_mapNPictures extends AppCompatActivity {
 
     final ArrayList<Integer> PicturesArray = new ArrayList<>();
-    boolean isLiked = false;
     GroupDiaryView picView = null;
+    Diary_Parcel DiaryData; //사용중인 데이터
 
     //mapview에서 사용되는 멤버변수
     MyMapView myMapView = null;   //맵뷰 인스턴스
@@ -63,7 +49,24 @@ public class Diary_mapNPictures extends AppCompatActivity {
     List<Polyline> polylineList = new ArrayList<>();
     int selectedMarkerIndex = -1;
 
-    public void prepareData() {
+    public void ReceiveData()
+    {
+        //서버로부터 데이터 전송받기
+        PicturesArray.add(R.drawable.coord0);
+        PicturesArray.add(R.drawable.coord1);
+        PicturesArray.add(R.drawable.coord2);
+        PicturesArray.add(R.drawable.coord3);
+
+        DiaryData = new Diary_Parcel();
+        DiaryData.Title = "title";
+        DiaryData.Text = "text";
+        for (int i=0;i<PicturesArray.size();i++)
+        {;
+        }
+    }
+
+    public void PrepareData() {
+        //받은 데이터를 화면에 표시
         ArrayList<PictureGroup> elementList = new ArrayList<>();
         ArrayList<IPicture> pics = new ArrayList<>();
         ArrayList<String> urls = new ArrayList<>();
@@ -79,12 +82,10 @@ public class Diary_mapNPictures extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_diary_map_n_pictures);
-        context = getBaseContext();
 
         myMapView = findViewById(R.id.diary_mapNpics_Map);
         picView = findViewById(R.id.diary_mapNpics_Pics);
         picView.getPicAdapter().setPadding(20);
-        prepareData();
         picView.setDirection(FlexDirection.COLUMN);
 
         //TODO: show info text
@@ -100,6 +101,8 @@ public class Diary_mapNPictures extends AppCompatActivity {
         //mapviewClickEventOverlay = mapviewClickEventDisplay();
         //myMapView.getOverlays().add(mapviewClickEventOverlay);
 
+        ReceiveData();
+        PrepareData();
         setMarkerToMapview();
     }
 
@@ -262,26 +265,10 @@ public class Diary_mapNPictures extends AppCompatActivity {
     }
 
     public void diary_onEditClick(View view) {
-        ((EditText) findViewById(R.id.diary_mapNpics_EditTitle)).setText(((TextView) findViewById(R.id.diary_mapNpics_Title)).getText());
-        ((EditText) findViewById(R.id.diary_mapNpics_EditBody)).setText(((TextView) findViewById(R.id.diary_mapNpics_ReadBody)).getText());
-
-        findViewById(R.id.diary_mapNpics_EditTitle).setVisibility(View.VISIBLE);
-        findViewById(R.id.diary_mapNpics_Write).setVisibility(View.VISIBLE);
-        findViewById(R.id.diary_mapNpics_Title).setVisibility(View.GONE);
-        findViewById(R.id.diary_mapNpics_Read).setVisibility(View.GONE);
-        findViewById(R.id.diary_mapNpics_EditStart).setVisibility(View.INVISIBLE);
-        isEDIT_MODE = EDIT_MODE;
+        //편집 시작
     }
 
     public void diary_onLikeClick(View view) {
         //하트 클릭
-        if (isLiked) {
-            ((ImageButton) findViewById(R.id.diary_mapNpics_TitleLike)).setImageResource(R.drawable.heartgrey);
-            isLiked = false;
-        } else {
-            ((ImageButton) findViewById(R.id.diary_mapNpics_TitleLike)).setImageResource(R.drawable.heart);
-            isLiked = true;
-        }
-
     }
 }
