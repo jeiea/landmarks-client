@@ -34,8 +34,10 @@ import org.osmdroid.config.Configuration;
 import org.osmdroid.events.MapEventsReceiver;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
+import org.osmdroid.views.overlay.LineDrawer;
 import org.osmdroid.views.overlay.MapEventsOverlay;
 import org.osmdroid.views.overlay.Marker;
+import org.osmdroid.views.overlay.Polygon;
 import org.osmdroid.views.overlay.Polyline;
 import org.osmdroid.views.overlay.infowindow.InfoWindow;
 
@@ -81,12 +83,10 @@ public class GameActivity extends AppCompatActivity {
     Button menuButton = null;
     TextView scoreTextView = null;
 
-
     Button goToNextStageButton, exitGameButton;
     TextView landNameAnswerTextView, landDistanceAnswerTextView, landScoreTextView;
     ImageView pictureAnswerImageView;
     LinearLayout answerLinearLayout;
-
 
     Drawable RED_FLAG_DRAWABLE;
     Drawable BLUE_FLAG_DRAWABLE;
@@ -113,6 +113,7 @@ public class GameActivity extends AppCompatActivity {
     Polyline polyline;  //마커 사이를 이어주는 직선
 
     DrawCircleOverlay drawCircleOverlay;
+    DottedLineOverlay dottedLineOverlay;
 
     ArrayList<GamePictureInfo> questionPic = new ArrayList<>();
 
@@ -258,7 +259,7 @@ public class GameActivity extends AppCompatActivity {
         myMapView.getOverlays().add(markerClickListenerOverlay);
         timeThreadhandler();
         //setPictureQuestion(questionPic.get(problem));  //사진을 보여주고 지명을 찾는 문제 형식
-        setPlaceNameQuestion(questionPic.get(problem)); //지명을 보여주고 사진을 찾는 문제 형식
+        setPictureQuestion(questionPic.get(problem)); //지명을 보여주고 사진을 찾는 문제 형식
     }
 
     /**
@@ -498,11 +499,15 @@ public class GameActivity extends AppCompatActivity {
         List<GeoPoint> geoPoints = new ArrayList<>();
         geoPoints.add(startPosition);
         geoPoints.add(destPosition);
+        dottedLineOverlay = new DottedLineOverlay(myMapView,startPosition,destPosition);
         polyline = new Polyline();
+        Polygon polygon = new Polygon();
+        LineDrawer line = new LineDrawer(4);
+
         polyline.setPoints(geoPoints);
         polyline.setColor(Color.GRAY);
 
-        myMapView.getOverlays().add(polyline);
+        myMapView.getOverlays().add(dottedLineOverlay);
     }
 
     /**
@@ -734,9 +739,12 @@ public class GameActivity extends AppCompatActivity {
                 myMapView.getOverlays().remove(answerMarker);
                 myMapView.getOverlays().remove(polyline);
                 myMapView.getOverlays().remove(drawCircleOverlay);
+                myMapView.getOverlays().remove(dottedLineOverlay);
+
             } else if (gameType == GameType.B) {
                 InfoWindow.closeAllInfoWindowsOn(myMapView);
                 myMapView.getOverlays().remove(answerMarker);
+
             }
 
             myMapView.invalidate();
@@ -747,11 +755,11 @@ public class GameActivity extends AppCompatActivity {
             problem++;
             switch (problem) {
                 case 1:
-                    setPlaceNameQuestion(questionPic.get(problem));
+                    setPictureQuestion(questionPic.get(problem));
                     //setPictureQuestion(questionPic.get(problem));
                     break;
                 case 2:
-                    setPlaceNameQuestion(questionPic.get(problem));
+                    setPictureQuestion(questionPic.get(problem));
                     /*
                     stage++;
                     stageTextView.setText("STAGE " + stage);
@@ -761,7 +769,7 @@ public class GameActivity extends AppCompatActivity {
                     //setPictureQuestion(questionPic.get(problem));
                     break;
                 case 3:
-                    setPlaceNameQuestion(questionPic.get(problem));
+                    setPictureQuestion(questionPic.get(problem));
                     break;
                 case 4:
                     setRecyclerView();
