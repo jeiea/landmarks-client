@@ -15,6 +15,9 @@ import java.util.Date;
 
 //https://gist.github.com/danielniko/775803 참고
 
+/**
+ * 정답 확인 시, 사용자가 찍은 마커의 위치를 중심으로 정답 마커까지 원을 생성
+ */
 public class DrawCircleOverlay extends Overlay {
 
     private Paint circlePainter;
@@ -29,6 +32,13 @@ public class DrawCircleOverlay extends Overlay {
 
     private Handler drawCircleHandler = new Handler();
 
+
+    /**
+     * 핸들러를 이용해 원 그리는 기본 설정
+     * @param userSelectedGeopoint 원의 중심이 될 사용자가 선택한 좌표
+     * @param answerGeopoint 최대 반지름이 될 정답 좌표
+     * @param mapView
+     */
     public DrawCircleOverlay(GeoPoint userSelectedGeopoint, GeoPoint answerGeopoint, final MapView mapView) {
         this.userSelectedGeopoint = userSelectedGeopoint;
         this.answerGeopoint = answerGeopoint;
@@ -55,7 +65,10 @@ public class DrawCircleOverlay extends Overlay {
     }
 
 
-    public void setCirclePainter() {
+    /**
+     * 그려질 원의 스타일, 색, 투명도 설정
+     */
+    private void setCirclePainter() {
         circlePainter = new Paint();
         circlePainter.setAntiAlias(true);
         circlePainter.setStrokeWidth(2.0f);
@@ -64,7 +77,11 @@ public class DrawCircleOverlay extends Overlay {
         circlePainter.setAlpha(70);
     }
 
-    public void changeGeopointToPoint() {
+
+    /**
+     * 맵뷰의 좌표를 화면의 좌표로 변환
+     */
+    private void changeGeopointToPoint() {
         // Get projection from the mapView.
         //맵뷰에서 좌표를 화면에서 x,y좌표로 구해주는 Projection 클래스
         Projection projection = mapView.getProjection();
@@ -76,6 +93,13 @@ public class DrawCircleOverlay extends Overlay {
         radius = Math.sqrt(Math.pow(Math.abs(answerPoint.x - userSelectedPoint.x), 2) + Math.pow(Math.abs(answerPoint.y - userSelectedPoint.y), 2));
     }
 
+
+    /**
+     * 원을 그림
+     * @param c
+     * @param mapView
+     * @param shadow
+     */
     @Override
     public void draw(Canvas c, MapView mapView, boolean shadow) {
         changeGeopointToPoint();

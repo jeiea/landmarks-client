@@ -50,9 +50,6 @@ import kr.ac.kw.coms.globealbum.map.MyMapView;
 import kr.ac.kw.coms.globealbum.provider.EXIFinfo;
 import kr.ac.kw.coms.globealbum.provider.IPicture;
 
-/**
- * TODO: 마커들이 화면에 다 들어오고 최대한 확대가 된 상태로 시작되게 해야함
- */
 public class Diary_mapNPictures extends AppCompatActivity {
 
     final ArrayList<Integer> PicturesArray = new ArrayList<>();

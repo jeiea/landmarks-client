@@ -61,13 +61,7 @@ import kr.ac.kw.coms.landmarks.client.ReverseGeocodeResult;
 import static kr.ac.kw.coms.globealbum.game.GameActivity.TimerState.Running;
 import static kr.ac.kw.coms.globealbum.game.GameActivity.TimerState.Stop;
 
-/**
- *  마지막 지명 문제에서 마커 생성이됨(해결)
- *  TODO : 정답 확인 때 나오는 거리 선분 점선 애니메이션(엑셀 복사한 셀 효과)
- *  TODO : 깃발 애니메이션 마커 생성시에 애니메이션
- *  지도 정중앙으로 움직이면서 줌레벨도 줄이기(완료)
- *  지명 문제에서 답 한번 클릭 후  시간 초과나 두번 클릭 시 정답 확인 (완료)
- */
+
 
 public class GameActivity extends AppCompatActivity {
     public static Activity GActivity;
@@ -99,9 +93,9 @@ public class GameActivity extends AppCompatActivity {
     boolean rightAnswerTypeB = false;
 
     TimerState stopTimer = Running;
-    private Handler animateHandler = null;
 
-
+    private Handler animateHandler = null;  //마커 이동시키는 핸들러
+    private Handler drawDottedLineHandler = null;  // 점선 그리는 핸들러
     private Handler ui;
 
 
@@ -334,8 +328,8 @@ public class GameActivity extends AppCompatActivity {
                             Toast.makeText(context, "1", Toast.LENGTH_SHORT).show();
                         }
                     } else {
-                        Marker marker = addUserMarker(p);
-                        currentMarker = marker;
+                        Marker tmpMarker = addUserMarker(p);
+                        currentMarker = tmpMarker;
 //                    showMarker(myMapView,currentMarker.getPosition(), new GeoPointInterpolator.Spherical());
                         myMapView.getOverlays().add(currentMarker);
 
@@ -488,6 +482,8 @@ public class GameActivity extends AppCompatActivity {
 
     }
 
+
+
     /**
      * 사용자가 정한 마커와 정답 마커 사이를 잇는 직선 생성
      *
@@ -508,6 +504,14 @@ public class GameActivity extends AppCompatActivity {
         polyline.setColor(Color.GRAY);
 
         myMapView.getOverlays().add(dottedLineOverlay);
+        drawDottedLineHandler = new Handler();
+        drawDottedLineHandler.post(new Runnable() { //반복 진행하면서 원 그리기
+            @Override
+            public void run() {
+                myMapView.invalidate();
+                drawDottedLineHandler.postDelayed(this, 1000 / 60);
+            }
+        });
     }
 
     /**
@@ -735,6 +739,10 @@ public class GameActivity extends AppCompatActivity {
                 if (currentMarker != null) {
                     currentMarker.remove(myMapView);
                     currentMarker = null;
+                }
+                if( drawDottedLineHandler != null){
+                    drawDottedLineHandler.removeMessages(0);
+                    drawDottedLineHandler = null;
                 }
                 myMapView.getOverlays().remove(answerMarker);
                 myMapView.getOverlays().remove(polyline);
