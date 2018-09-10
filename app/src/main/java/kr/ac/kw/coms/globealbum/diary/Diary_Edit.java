@@ -3,6 +3,7 @@ package kr.ac.kw.coms.globealbum.diary;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
+import android.view.View;
 import android.widget.TextView;
 
 import kr.ac.kw.coms.globealbum.R;
@@ -25,5 +26,8 @@ public class Diary_Edit extends AppCompatActivity {
     {
         Diary_Parcel Data = (Diary_Parcel) getIntent().getSerializableExtra("Data");
         return Data;
+    }
+
+    public void diary_edit_onClick(View view) {
     }
 }

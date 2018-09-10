@@ -9,7 +9,9 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.RecyclerView;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
@@ -264,9 +266,13 @@ public class Diary_mapNPictures extends AppCompatActivity {
 
     public void diary_onEditClick(View view) {
         //편집 시작
-        Intent intent = new Intent(this, Diary_Edit.class);
-        intent.putExtra("Data", DiaryData);
-        startActivity(intent);
+        diary_Switch(EDIT_MODE);
+        Diary_Parcel DiaryData_Edit = DiaryData.clone();
+        EditText Edit_Title = findViewById(R.id.diary_edit_TitleText);
+        EditText Edit_Description = findViewById(R.id.diary_edit_DescriptionText);
+        RecyclerView Edit_ImageList = findViewById(R.id.diary_edit_ImageList);
+        Edit_Title.setText(DiaryData_Edit.Title);
+        Edit_Description.setText(DiaryData_Edit.Text);
     }
 
     final int VIEW_MODE = 0;
@@ -287,5 +293,17 @@ public class Diary_mapNPictures extends AppCompatActivity {
 
     public void diary_onLikeClick(View view) {
         //하트 클릭
+    }
+
+    public void diary_edit_onClick(View view) {
+        //수정 화면에서 뒤로/저장 버튼 클릭 시
+        switch (view.getId())
+        {
+            case R.id.diary_edit_btnBack:
+                diary_Switch(VIEW_MODE);
+                break;
+            case R.id.diary_edit_btnSave:
+                break;
+        }
     }
 }
