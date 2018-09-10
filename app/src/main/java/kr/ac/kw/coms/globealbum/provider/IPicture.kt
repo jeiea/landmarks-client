@@ -5,7 +5,6 @@ import android.content.res.Resources
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.support.annotation.DrawableRes
-import android.util.Pair
 import com.bumptech.glide.load.DataSource
 import kotlinx.coroutines.experimental.Job
 import kr.ac.kw.coms.landmarks.client.Remote
@@ -80,7 +79,7 @@ abstract class IPicture {
   open val dataSource: DataSource = DataSource.LOCAL
 }
 
-class RemotePicture(val resources: Resources, val client: Remote, val id: Int) : IPicture() {
+class RemotePicture(val client: Remote, val id: Int) : IPicture() {
   override fun toString(): String {
     return "${client.basePath}/picture/$id"
   }

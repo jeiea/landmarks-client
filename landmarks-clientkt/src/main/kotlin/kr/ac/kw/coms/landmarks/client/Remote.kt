@@ -60,7 +60,6 @@ class Remote(base: HttpClient, val basePath: String = herokuUri) {
         storage = AcceptAllCookiesStorage()
       }
       install(JsonFeature) {
-        serializer = KlaxonSerializer()
       }
     }
   }
@@ -74,11 +73,6 @@ class Remote(base: HttpClient, val basePath: String = herokuUri) {
   private fun HttpRequestBuilder.json(json: Any) {
     contentType(ContentType.Application.Json)
     body = json
-  }
-
-  suspend fun <T> suspendForNominatimReqPerSecLimit(block: suspend () -> T): T {
-    val ret: T = block()
-    return ret
   }
 
   suspend fun reverseGeocode(latitude: Double, longitude: Double): ReverseGeocodeResult {
@@ -152,10 +146,8 @@ class Remote(base: HttpClient, val basePath: String = herokuUri) {
     }
   }
 
-  suspend fun getRandomProblem(): PictureRep {
-    val pic: PictureRep = get("$basePath/problem/random")
-    pic.file = get("$basePath/picture/${pic.id}")
-    return pic
+  suspend fun getRandomProblems(n: Int): List<PictureRep> {
+    return get("$basePath/problem/random/$n")
   }
 
   suspend fun getPicture(id: Int): InputStream {

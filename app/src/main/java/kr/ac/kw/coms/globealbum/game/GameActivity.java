@@ -155,7 +155,7 @@ public class GameActivity extends AppCompatActivity {
     private void setQuestion() {
         int[] id = new int[PICTURE_NUM];
         EXIFinfo exifInfo = new EXIFinfo();
-        RemoteJava client = new RemoteJava();
+        RemoteJava client = RemoteJava.INSTANCE;
         for (int i = 0; i < PICTURE_NUM; i++) { //사진 리소스 id 배열에 저장
             id[i] = R.drawable.coord0 + i;
         }

@@ -27,31 +27,13 @@ import java.io.InputStream
 @GlideModule
 class MyGlideModule : AppGlideModule() {
   override fun registerComponents(context: Context, glide: Glide, registry: Registry) {
-//    registry.prepend(ResourcePicture::class.java, Drawable::class.java, ResourcePictureModelLoaderFactory())
     registry.prepend(IPicture::class.java, InputStream::class.java, PictureModelLoaderFactory())
   }
 }
 
-//class ResourcePictureModelLoaderFactory : ModelLoaderFactory<ResourcePicture, Drawable> {
-//
-//  override fun build(multiFactory: MultiModelLoaderFactory): ModelLoader<ResourcePicture, Drawable> {
-//    val resourceLoader: ModelLoader<Int, Drawable> = multiFactory.build(Int::class.java, Drawable::class.java)
-//    return ResourcePictureModelLoader(resourceLoader)
-//  }
-//
-//  override fun teardown() {
-//  }
-//}
-//
-//class ResourcePictureModelLoader(private val resourceLoader: ModelLoader<Int, Drawable>) : ModelLoader<ResourcePicture, Drawable> {
-//
-//  override fun buildLoadData(model: ResourcePicture, width: Int, height: Int, options: Options): LoadData<Drawable>? {
-//    return resourceLoader.buildLoadData(model.id, width, height, options)
-//  }
-//
-//  override fun handles(model: ResourcePicture) = true
-//}
-
+/**
+ *  @see <a href="https://bumptech.github.io/glide/tut/custom-modelloader.html">Glide doc</a>
+ */
 class PictureModelLoaderFactory : ModelLoaderFactory<IPicture, InputStream> {
 
   override fun build(multiFactory: MultiModelLoaderFactory): ModelLoader<IPicture, InputStream> {
@@ -65,7 +47,6 @@ class PictureModelLoaderFactory : ModelLoaderFactory<IPicture, InputStream> {
   override fun teardown() {
   }
 }
-
 
 /**
  * Loads an [InputStream] from a IPicture instance

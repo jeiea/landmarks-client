@@ -20,7 +20,7 @@ public class Login extends AppCompatActivity {
     String stEmail;
     String stPassword;
     Button btnAccount;
-    RemoteJava client = new RemoteJava();
+    RemoteJava client = RemoteJava.INSTANCE;
 
     @Override
     protected void onCreate(Bundle savedInstenceState) {
