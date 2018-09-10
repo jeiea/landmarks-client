@@ -32,7 +32,7 @@ android {
 }
 
 repositories {
-    maven { url 'https://kotlin.bintray.com/kotlinx'}
+    maven { url 'https://kotlin.bintray.com/kotlinx' }
     maven { url 'https://kotlin.bintray.com/ktor' }
     flatDir {
         dirs 'libs'

@@ -118,6 +118,7 @@ class GroupedPicAdapter : RecyclerView.Adapter<GroupedPicAdapter.ElementViewHold
       }
       notifyDataSetChanged()
     }
+
   var padding: Int = 0
   var nameTextSize: Int = 20
   var nameBackgroundColor: Long = 0xFFFFFFFF
