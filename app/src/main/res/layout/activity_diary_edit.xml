@@ -20,7 +20,7 @@
             app:layout_constraintDimensionRatio="1:1"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            android:background="#0"
+            android:background="#00000000"
             />
         <TextView
             android:layout_width="wrap_content"
@@ -37,7 +37,7 @@
             app:layout_constraintDimensionRatio="1:1"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            android:background="#0"/>
+            android:background="#00000000"/>
     </android.support.constraint.ConstraintLayout>
     <TextView
         android:id="@+id/diary_edit_titleLabel"
@@ -45,12 +45,12 @@
         android:layout_height="0dp"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toBottomOf="@id/diary_edit_topbar"
-        app:layout_constraintBottom_toBottomOf="@id/diary_edit_titleText"
+        app:layout_constraintBottom_toBottomOf="@id/diary_edit_TitleText"
         android:gravity="center_vertical"
         android:layout_marginStart="10dp"
         android:text="제목"/>
     <EditText
-        android:id="@+id/diary_edit_titleText"
+        android:id="@+id/diary_edit_TitleText"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         app:layout_constraintRight_toRightOf="parent"
@@ -64,7 +64,7 @@
         android:layout_height="wrap_content"
         android:text="사진 목록"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/diary_edit_titleText"/>
+        app:layout_constraintTop_toBottomOf="@id/diary_edit_TitleText"/>
     <android.support.v7.widget.RecyclerView
         android:id="@+id/diary_edit_ImageList"
         android:layout_width="match_parent"
@@ -74,6 +74,7 @@
 
     </android.support.v7.widget.RecyclerView>
     <EditText
+        android:id="@+id/diary_edit_DescriptionText"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         app:layout_constraintHeight_percent="0.3"

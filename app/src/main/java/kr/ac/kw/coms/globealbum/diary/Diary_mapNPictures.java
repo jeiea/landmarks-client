@@ -2,6 +2,7 @@ package kr.ac.kw.coms.globealbum.diary;
 
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -40,7 +41,7 @@ public class Diary_mapNPictures extends AppCompatActivity {
 
     final ArrayList<Integer> PicturesArray = new ArrayList<>();
     GroupDiaryView picView = null;
-    Diary_Parcel DiaryData; //사용중인 데이터
+    Diary_Parcel DiaryData;
 
     //mapview에서 사용되는 멤버변수
     MyMapView myMapView = null;   //맵뷰 인스턴스
@@ -61,11 +62,13 @@ public class Diary_mapNPictures extends AppCompatActivity {
         DiaryData.Title = "title";
         DiaryData.Text = "text";
         for (int i=0;i<PicturesArray.size();i++)
-        {;
+        {
+            DiaryData.Images.add(resourceToUri(getBaseContext(), PicturesArray.get(i)));
         }
     }
 
     public void PrepareData() {
+        ReceiveData();
         //받은 데이터를 화면에 표시
         ArrayList<PictureGroup> elementList = new ArrayList<>();
         ArrayList<IPicture> pics = new ArrayList<>();
@@ -88,7 +91,6 @@ public class Diary_mapNPictures extends AppCompatActivity {
         picView.getPicAdapter().setPadding(20);
         picView.setDirection(FlexDirection.COLUMN);
 
-        //TODO: show info text
         try {
             if (getIntent().getStringExtra("whose").equals("other")) {
                 findViewById(R.id.diary_mapNpics_EditStart).setVisibility(View.GONE);
@@ -101,7 +103,6 @@ public class Diary_mapNPictures extends AppCompatActivity {
         //mapviewClickEventOverlay = mapviewClickEventDisplay();
         //myMapView.getOverlays().add(mapviewClickEventOverlay);
 
-        ReceiveData();
         PrepareData();
         setMarkerToMapview();
     }
@@ -266,6 +267,25 @@ public class Diary_mapNPictures extends AppCompatActivity {
 
     public void diary_onEditClick(View view) {
         //편집 시작
+        Intent intent = new Intent(this, Diary_Edit.class);
+        intent.putExtra("Data", DiaryData);
+        startActivity(intent);
+    }
+
+    final int VIEW_MODE = 0;
+    final int EDIT_MODE = 1;
+    public void diary_Switch(int MODE)
+    {
+        if (MODE == VIEW_MODE)
+        {
+            findViewById(R.id.diary_mapNpics_ViewLayout).setVisibility(View.VISIBLE);
+            findViewById(R.id.diary_mapNpics_EditLayout).setVisibility(View.GONE);
+        }
+        else if (MODE == EDIT_MODE)
+        {
+            findViewById(R.id.diary_mapNpics_EditLayout).setVisibility(View.VISIBLE);
+            findViewById(R.id.diary_mapNpics_ViewLayout).setVisibility(View.GONE);
+        }
     }
 
     public void diary_onLikeClick(View view) {
