@@ -33,7 +33,7 @@ public object RemoteJava {
   fun getRandomPictures(n: Int, promise: Promise<List<RemotePicture>>) {
     promise.resolve {
       client.getRandomProblems(n).map { pic ->
-        RemotePicture(client, pic.id).apply {
+        RemotePicture(pic.id).apply {
           latlon = Pair(pic.lat, pic.lon)
           time = pic.time
           title = pic.address

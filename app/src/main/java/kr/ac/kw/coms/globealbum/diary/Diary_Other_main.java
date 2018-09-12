@@ -20,9 +20,9 @@ public class Diary_Other_main extends AppCompatActivity {
     public void prepareData() {
 
         PictureArray ResourceList1 = new PictureArray();
-        ResourceList1.add(new ResourcePicture(getBaseContext(), R.drawable.coord0));
-        ResourceList1.add(new ResourcePicture(getBaseContext(), R.drawable.coord1));
-        ResourceList1.add(new ResourcePicture(getBaseContext(), R.drawable.coord2));
+        ResourceList1.add(new ResourcePicture(R.drawable.coord0));
+        ResourceList1.add(new ResourcePicture(R.drawable.coord1));
+        ResourceList1.add(new ResourcePicture(R.drawable.coord2));
         ResourceList1.sort();
 
         for (int i = 0;i < ResourceList1.size(); i++)
@@ -40,9 +40,9 @@ public class Diary_Other_main extends AppCompatActivity {
         PictureList.add(PictureRow);
 
         PictureArray ResourceList2 = new PictureArray();
-        ResourceList2.add(new ResourcePicture(getBaseContext(), R.drawable.coord1));
-        ResourceList2.add(new ResourcePicture(getBaseContext(), R.drawable.coord2));
-        ResourceList2.add(new ResourcePicture(getBaseContext(), R.drawable.coord3));
+        ResourceList2.add(new ResourcePicture(R.drawable.coord1));
+        ResourceList2.add(new ResourcePicture(R.drawable.coord2));
+        ResourceList2.add(new ResourcePicture(R.drawable.coord3));
         ResourceList2.sort();
 
         for (int i = 0;i < ResourceList2.size(); i++)

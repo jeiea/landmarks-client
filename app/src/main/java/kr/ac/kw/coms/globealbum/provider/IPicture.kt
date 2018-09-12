@@ -6,10 +6,11 @@ import android.content.res.Resources
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.net.Uri
+import android.os.Parcel
+import android.os.Parcelable
 import android.support.annotation.DrawableRes
 import com.bumptech.glide.load.DataSource
 import kotlinx.coroutines.experimental.Job
-import kr.ac.kw.coms.landmarks.client.Remote
 import java.io.File
 import java.io.InputStream
 import java.net.URL
@@ -21,7 +22,7 @@ import java.util.*
  * @see kr.ac.kw.coms.globealbum.provider.LocalPicture
  * @see kr.ac.kw.coms.globealbum.provider.UrlPicture
  */
-abstract class IPicture {
+abstract class IPicture() : Parcelable {
   /**
    * 비트맵
    */
@@ -81,15 +82,27 @@ abstract class IPicture {
   open val dataSource: DataSource = DataSource.LOCAL
 }
 
-class RemotePicture(val client: Remote, val id: Int) : IPicture() {
+class RemotePicture(val id: Int) : IPicture() {
   override fun toString(): String {
     return "lmserver://picture/$id"
   }
 
   override val dataSource = DataSource.REMOTE
 
+  constructor(parcel: Parcel) : this(parcel.readInt()) {
+    parcel.apply {
+      title = readString()
+      time = readLong().takeIf { it != -1L }?.let { Date(it) }
+      val lat: Double = readDouble()
+      val lon: Double = readDouble()
+      if (lat != 999.0 && lon != 999.0) {
+        latlon = Pair(lat, lon)
+      }
+    }
+  }
+
   override suspend fun stream(): InputStream {
-    return client.getPicture(id)
+    return RemoteJava.client.getPicture(id)
   }
 
   override fun delete() {
@@ -99,6 +112,30 @@ class RemotePicture(val client: Remote, val id: Int) : IPicture() {
   override fun save() {
     TODO("not implemented")
   }
+
+  override fun writeToParcel(parcel: Parcel, flags: Int) {
+    parcel.apply {
+      writeInt(id)
+      writeString(title)
+      writeLong(time?.time ?: -1L)
+      writeDouble(latlon?.first ?: 999.0)
+      writeDouble(latlon?.second ?: 999.0)
+    }
+  }
+
+  override fun describeContents(): Int {
+    return 0
+  }
+
+  companion object CREATOR : Parcelable.Creator<RemotePicture> {
+    override fun createFromParcel(parcel: Parcel): RemotePicture {
+      return RemotePicture(parcel)
+    }
+
+    override fun newArray(size: Int): Array<RemotePicture?> {
+      return arrayOfNulls(size)
+    }
+  }
 }
 
 class UrlPicture(val url: URL) : IPicture() {
@@ -107,6 +144,8 @@ class UrlPicture(val url: URL) : IPicture() {
   }
 
   override val dataSource = DataSource.REMOTE
+
+  constructor(parcel: Parcel) : this(URL(parcel.readString()))
 
   override suspend fun stream(): InputStream {
     return url.openStream()
@@ -119,9 +158,34 @@ class UrlPicture(val url: URL) : IPicture() {
   override fun save() {
     throw NotImplementedError()
   }
+
+  //region Parcelable implementation
+
+  override fun writeToParcel(parcel: Parcel, flags: Int) {
+    parcel.writeString(url.toString())
+  }
+
+  override fun describeContents(): Int {
+    return 0
+  }
+
+  companion object CREATOR : Parcelable.Creator<UrlPicture> {
+    override fun createFromParcel(parcel: Parcel): UrlPicture {
+      return UrlPicture(parcel)
+    }
+
+    override fun newArray(size: Int): Array<UrlPicture?> {
+      return arrayOfNulls(size)
+    }
+  }
+
+  //endregion
 }
 
-class LocalPicture(val path: String, val context: Context) : IPicture() {
+class LocalPicture(val path: String) : IPicture() {
+
+  constructor(parcel: Parcel) : this(parcel.readString())
+
   override fun toString() = path
 
   override suspend fun stream(): InputStream {
@@ -143,9 +207,33 @@ class LocalPicture(val path: String, val context: Context) : IPicture() {
   override var time: Date?
     get() = Date(EXIFinfo(path).timeTaken);
     set(value) {}
+
+  //region Parcelable implementation
+
+  override fun writeToParcel(parcel: Parcel, flags: Int) {
+    parcel.writeString(path)
+  }
+
+  override fun describeContents(): Int {
+    return 0
+  }
+
+  companion object CREATOR : Parcelable.Creator<LocalPicture> {
+    override fun createFromParcel(parcel: Parcel): LocalPicture {
+      return LocalPicture(parcel)
+    }
+
+    override fun newArray(size: Int): Array<LocalPicture?> {
+      return arrayOfNulls(size)
+    }
+  }
+
+  //endregion
 }
 
-class ResourcePicture(val context: Context, @DrawableRes val id: Int) : IPicture() {
+class ResourcePicture(@DrawableRes val id: Int) : IPicture() {
+
+  constructor(parcel: Parcel) : this(parcel.readInt())
 
   override fun toString(): String = "resource:$id"
 
@@ -168,17 +256,39 @@ class ResourcePicture(val context: Context, @DrawableRes val id: Int) : IPicture
   override fun save() {
     throw NotImplementedError()
   }
+
+  //region Parcelable implementation
+
+  override fun writeToParcel(parcel: Parcel, flags: Int) {
+    parcel.writeInt(id)
+  }
+
+  override fun describeContents(): Int {
+    return 0
+  }
+
+  companion object CREATOR : Parcelable.Creator<ResourcePicture> {
+    override fun createFromParcel(parcel: Parcel): ResourcePicture {
+      return ResourcePicture(parcel)
+    }
+
+    override fun newArray(size: Int): Array<ResourcePicture?> {
+      return arrayOfNulls(size)
+    }
+  }
+
+  //endregion
 }
 
 // android.resource://kr.ac.kw.coms.globealbum/drawable/sample2
 fun instantiatePicture(context: Context, uri: String): IPicture {
   when {
     uri.startsWith("android.resource:") ->
-      return ResourcePicture(context, uriToResourceId(context, uri))
+      return ResourcePicture(uriToResourceId(context, uri))
     uri.startsWith("http") ->
       return UrlPicture(URL(uri))
     uri.startsWith("lmserver://picture/") ->
-      return RemotePicture(RemoteJava.client, uri.split('/')[3].toInt())
+      return RemotePicture(uri.split('/')[3].toInt())
     else -> throw RuntimeException("")
   }
 }

@@ -71,7 +71,7 @@ public class Diary_mapNPictures extends AppCompatActivity {
         ArrayList<IPicture> pics = new ArrayList<>();
         ArrayList<String> urls = new ArrayList<>();
         for (int i = 0; i < PicturesArray.size(); i++) {
-            pics.add(i, new ResourcePicture(this, PicturesArray.get(i)));
+            pics.add(i, new ResourcePicture(PicturesArray.get(i)));
             urls.add(resourceToUri(getBaseContext(), PicturesArray.get(i)).toString());
         }
         elementList.add(new PictureGroup("", pics));

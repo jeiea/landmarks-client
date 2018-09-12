@@ -21,7 +21,6 @@ import kr.ac.kw.coms.globealbum.provider.IPicture
 import kr.ac.kw.coms.globealbum.provider.ResourcePicture
 import org.jetbrains.anko.backgroundColor
 import org.jetbrains.anko.matchParent
-import org.jetbrains.anko.padding
 import org.jetbrains.anko.wrapContent
 import java.util.*
 
@@ -61,7 +60,7 @@ class ExampleDiary : AppCompatActivity() {
 data class PictureGroup(val name: String, val pics: ArrayList<IPicture>)
 
 fun resPicGetter(context: Context): (Int) -> ResourcePicture = @DrawableRes { i ->
-  ResourcePicture(context, i)
+  ResourcePicture(i)
 }
 
 /**

@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -67,15 +68,17 @@ public class Diary_Mine_main extends AppCompatActivity {
         ArrayList<PictureGroup> elementList = new ArrayList<>();
         PictureArray elementRow = new PictureArray();
         Context c = getBaseContext();
-        elementRow.add(new ResourcePicture(c, R.drawable.sample0));
-        elementRow.add(new ResourcePicture(c, R.drawable.sample1));
-        elementRow.add(new ResourcePicture(c, R.drawable.sample2));
+        elementRow.add(new ResourcePicture(R.drawable.sample0));
+        elementRow.add(new ResourcePicture(R.drawable.sample1));
+        elementRow.add(new ResourcePicture(R.drawable.sample2));
         elementRow.sort();
 
         final ArrayList<String> urls = new ArrayList<>();
+        final ArrayList<IPicture> pictures = new ArrayList<>();
 
         for (IPicture i : elementRow) {
             urls.add(Diary_mapNPictures.resourceToUri(this, ((ResourcePicture) i).getId()).toString());
+            pictures.add(i);
         }
 
 
@@ -89,6 +92,7 @@ public class Diary_Mine_main extends AppCompatActivity {
                 if (o instanceof ResourcePicture) {
                     Toast.makeText(Diary_Mine_main.this, ((ResourcePicture) o).getTitle(), Toast.LENGTH_SHORT).show();
                     Intent intent = new Intent(getBaseContext(), GalleryDetail.class);
+                    intent.putParcelableArrayListExtra("pictures", pictures);
                     intent.putExtra("urls", urls);
                     intent.putExtra("index", position-1);
                     startActivity(intent);
@@ -99,22 +103,8 @@ public class Diary_Mine_main extends AppCompatActivity {
 
         elementList.clear();
         elementRow.clear();
-        elementRow.add(new ResourcePicture(c, R.drawable.sample0));
-        elementRow.add(new ResourcePicture(c, R.drawable.sample1));
-//        elementRow.add(new ResourcePicture(c, R.drawable.sample0, new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                Toast.makeText(Diary_Mine_main.this, "0", Toast.LENGTH_SHORT).show();
-//                startActivity(new Intent(getBaseContext(), Diary_mapNPictures.class).putExtra("whose", "mine"));
-//            }
-//        }));
-//        elementRow.add(new ResourcePicture(c, R.drawable.sample1, new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                Toast.makeText(Diary_Mine_main.this, "1", Toast.LENGTH_SHORT).show();
-//                startActivity(new Intent(getBaseContext(), Diary_mapNPictures.class).putExtra("whose", "mine"));
-//            }
-//        }));
+        elementRow.add(new ResourcePicture(R.drawable.sample0));
+        elementRow.add(new ResourcePicture(R.drawable.sample1));
         elementRow.setOnLongClickListener(0, new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
