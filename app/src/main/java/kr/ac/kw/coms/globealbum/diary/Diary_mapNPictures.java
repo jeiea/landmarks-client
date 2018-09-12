@@ -303,6 +303,7 @@ public class Diary_mapNPictures extends AppCompatActivity {
                 diary_Switch(VIEW_MODE);
                 break;
             case R.id.diary_edit_btnSave:
+                diary_Switch(VIEW_MODE);
                 break;
         }
     }
