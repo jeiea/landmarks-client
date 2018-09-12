@@ -1,9 +1,11 @@
 package kr.ac.kw.coms.globealbum.provider
 
+import android.content.ContentResolver
 import android.content.Context
 import android.content.res.Resources
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
+import android.net.Uri
 import android.support.annotation.DrawableRes
 import com.bumptech.glide.load.DataSource
 import kotlinx.coroutines.experimental.Job
@@ -81,7 +83,7 @@ abstract class IPicture {
 
 class RemotePicture(val client: Remote, val id: Int) : IPicture() {
   override fun toString(): String {
-    return "${client.basePath}/picture/$id"
+    return "lmserver://picture/$id"
   }
 
   override val dataSource = DataSource.REMOTE
@@ -166,4 +168,38 @@ class ResourcePicture(val context: Context, @DrawableRes val id: Int) : IPicture
   override fun save() {
     throw NotImplementedError()
   }
+}
+
+// android.resource://kr.ac.kw.coms.globealbum/drawable/sample2
+fun instantiatePicture(context: Context, uri: String): IPicture {
+  when {
+    uri.startsWith("android.resource:") ->
+      return ResourcePicture(context, uriToResourceId(context, uri))
+    uri.startsWith("http") ->
+      return UrlPicture(URL(uri))
+    uri.startsWith("lmserver://picture/") ->
+      return RemotePicture(RemoteJava.client, uri.split('/')[3].toInt())
+    else -> throw RuntimeException("")
+  }
+}
+
+fun resourceToUri(context: Context, resId: Int): Uri {
+  return resourceToUri(context.resources, resId)
+}
+
+fun resourceToUri(resources: Resources, resId: Int): Uri {
+  return Uri.parse(
+    ContentResolver.SCHEME_ANDROID_RESOURCE + "://" +
+      resources.getResourcePackageName(resId) + '/' +
+      resources.getResourceTypeName(resId) + '/' +
+      resources.getResourceEntryName(resId));
+}
+
+fun uriToResourceId(context: Context, uri: String): Int {
+  return uriToResourceId(context.resources, uri)
+}
+
+fun uriToResourceId(resources: Resources, uri: String): Int {
+  val segments: List<String> = uri.split('/')
+  return resources.getIdentifier(segments[4], segments[3], segments[2])
 }

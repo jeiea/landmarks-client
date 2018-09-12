@@ -8,7 +8,7 @@ import java.io.File
 
 public object RemoteJava {
 
-  private val client = Remote()
+  val client = Remote()
 
   fun reverseGeocode(latitude: Double, longitude: Double, prom: Promise<ReverseGeocodeResult>): Job =
     prom.resolve {
