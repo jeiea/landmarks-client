@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
@@ -19,7 +20,9 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.animation.BaseInterpolator;
 import android.view.animation.Interpolator;
+import android.view.animation.LinearInterpolator;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -34,6 +37,7 @@ import org.osmdroid.config.Configuration;
 import org.osmdroid.events.MapEventsReceiver;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
+import org.osmdroid.views.Projection;
 import org.osmdroid.views.overlay.LineDrawer;
 import org.osmdroid.views.overlay.MapEventsOverlay;
 import org.osmdroid.views.overlay.Marker;
@@ -47,7 +51,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import kotlin.Pair;
 import kr.ac.kw.coms.globealbum.R;
 import kr.ac.kw.coms.globealbum.common.GlideApp;
 import kr.ac.kw.coms.globealbum.common.PictureDialogFragment;
@@ -60,7 +63,6 @@ import kr.ac.kw.coms.landmarks.client.ReverseGeocodeResult;
 
 import static kr.ac.kw.coms.globealbum.game.GameActivity.TimerState.Running;
 import static kr.ac.kw.coms.globealbum.game.GameActivity.TimerState.Stop;
-
 
 
 public class GameActivity extends AppCompatActivity {
@@ -137,7 +139,6 @@ public class GameActivity extends AppCompatActivity {
         loadigImageView.setClickable(false);
         DrawableImageViewTarget gifImage = new DrawableImageViewTarget(loadigImageView);
         GlideApp.with(GameActivity.this).load(R.drawable.owl).into(gifImage);
-        ui = new Handler();
         redRect = getResources().getDrawable(R.drawable.rectangle_border, null);
 
         //게임 시작 전 문제 세팅
@@ -251,9 +252,11 @@ public class GameActivity extends AppCompatActivity {
         //마커 이벤트 등록
         markerClickListenerOverlay = markerEvent();
         myMapView.getOverlays().add(markerClickListenerOverlay);
+        ui = new Handler();
         timeThreadhandler();
         //setPictureQuestion(questionPic.get(problem));  //사진을 보여주고 지명을 찾는 문제 형식
         setPictureQuestion(questionPic.get(problem)); //지명을 보여주고 사진을 찾는 문제 형식
+
     }
 
     /**
@@ -285,18 +288,19 @@ public class GameActivity extends AppCompatActivity {
 
                     // 화면을 한번 터치해 마커를 생성하고 난 후
                     // 타임아웃 발생시 그 마커를 위치로 정답 확인
-                    if( gameType == GameType.A){
+                    if (gameType == GameType.A) {
                         if (currentMarker != null) {
                             timeOutAddUserMarker();
                         } else {
                             //화면에 마커 생성 없이 타임아웃 발생시 정답 확인
                             //currentMarker = new Marker(myMapView);
 
+                            //currentMarker.remove(myMapView);
                             myMapView.getOverlays().add(answerMarker);
 
                         }
                     }   //지명 문제에서 한번 테두리가 있는 후 정답 확인과 테두리 없을 시 정답확인 구현하기
-                    else if (gameType == GameType.B){
+                    else if (gameType == GameType.B) {
 
                     }
 
@@ -319,26 +323,8 @@ public class GameActivity extends AppCompatActivity {
         return new MapEventsOverlay(new MapEventsReceiver() {
             @Override
             public boolean singleTapConfirmedHelper(GeoPoint p) {   //화면 한번 터치시
-
-                if( gameType == GameType.A  && stopTimer== Running){
-                    if (currentMarker != null) {
-                        if (animateHandler == null) {
-                            currentMarker.setPosition(p);
-                            //                      showMarker(myMapView,currentMarker.getPosition(), new GeoPointInterpolator.Spherical());
-                            Toast.makeText(context, "1", Toast.LENGTH_SHORT).show();
-                        }
-                    } else {
-                        Marker tmpMarker = addUserMarker(p);
-                        currentMarker = tmpMarker;
-//                    showMarker(myMapView,currentMarker.getPosition(), new GeoPointInterpolator.Spherical());
-                        myMapView.getOverlays().add(currentMarker);
-
-
-                        Toast.makeText(context, "2", Toast.LENGTH_SHORT).show();
-                    }
-
-                    myMapView.invalidate();
-                }
+                if (gameType == GameType.A && ui != null && animateHandler == null)
+                    showMarker(myMapView, p, new GeoPointInterpolator.Spherical());
                 return true;
             }
 
@@ -350,16 +336,43 @@ public class GameActivity extends AppCompatActivity {
     }
 
 
-    private void showMarker(final MapView map, final GeoPoint finalPosition, final GeoPointInterpolator GeoPointInterpolator) {
+    private Point interpolate(float fraction, Point a, Point b) {
+        double lat = (b.x - a.x) * fraction + a.x;
+        double lng = (b.y- a.y) * fraction + a.y;
+        return new Point((int)lat, (int)lng);
+    }
 
-        final GeoPoint startPosition = new GeoPoint(finalPosition.getLatitude() + 10, finalPosition.getLongitude() + 10);
+    /**
+     * 화면을 클릭해 마커를 생성했을 때 애니메이션을 주어서 좌표에 생성
+     * @param map mapview
+     * @param finalGeoPosition  화면에 선택한 곳의 좌표
+     * @param GeoPointInterpolator 마커 애니메이션 종류
+     */
+    private void showMarker(final MapView map, final GeoPoint finalGeoPosition, final GeoPointInterpolator GeoPointInterpolator) {
+
+        final Projection projection = map.getProjection();
+        final Point startPoint = new Point();
+        projection.toPixels(finalGeoPosition, startPoint);
+        final Point finalPoint = new Point();
+
+        finalPoint.x = startPoint.x;
+        finalPoint.y = startPoint.y;
+
+        startPoint.x +=200;
+        startPoint.y +=200;
+
+        Toast.makeText(GActivity, startPoint.x +" " +startPoint.y+" | "+ finalPoint.x + " " + finalPoint.y , Toast.LENGTH_SHORT).show();
+        GeoPoint startGeoPosition = (GeoPoint)projection.fromPixels(startPoint.x,startPoint.y);
+
         final Marker tmpMarker = new Marker(map);
-        tmpMarker.setPosition(startPosition);
+        tmpMarker.setPosition(startGeoPosition);
+        tmpMarker.setIcon(BLUE_FLAG_DRAWABLE);
         map.getOverlays().add(tmpMarker);
-        final Handler showMarkerHandler= new Handler();
+
+        final Handler showMarkerHandler = new Handler();
         final long start = SystemClock.uptimeMillis();
-        final Interpolator interpolator = new AccelerateDecelerateInterpolator();
-        final float durationInMs = 1000;
+        final Interpolator interpolator = new LinearInterpolator();
+        final float durationInMs = 500;
 
         showMarkerHandler.post(new Runnable() {
             long elapsed;
@@ -373,7 +386,15 @@ public class GameActivity extends AppCompatActivity {
                 t = elapsed / durationInMs;
                 v = interpolator.getInterpolation(t);
 
-                tmpMarker.setPosition(GeoPointInterpolator.interpolate(v, startPosition, finalPosition)); //보간법 이용, 시작 위치에서 끝 위치까지 가는 구 모양의 경로 도출
+                tmpMarker.setAnchor(0.25f, 1.0f);
+                Point pixelPoint = interpolate(v,startPoint,finalPoint);
+                GeoPoint geoPoint = (GeoPoint)projection.fromPixels(pixelPoint.x,pixelPoint.y);
+
+                tmpMarker.setPosition(geoPoint); //보간법 이용, 시작 위치에서 끝 위치까지 가는 경로 도출
+
+                if (currentMarker != null) {
+                    currentMarker.remove(map);
+                }
 
                 map.invalidate();
                 // Repeat till progress is complete.
@@ -381,9 +402,27 @@ public class GameActivity extends AppCompatActivity {
                     // 16ms 후 다시 시작
                     showMarkerHandler.postDelayed(this, 1000 / 60);
                 } else {   //정답 마커 위치로 이동되면 정답 마커 추가
-                    tmpMarker.remove(myMapView);
+                    tmpMarker.setOnMarkerClickListener(new Marker.OnMarkerClickListener() {
+                        @Override
+                        public boolean onMarkerClick(Marker marker, MapView mapView) {  //생성된 마커를 클릭하여 화면에 등록
+                            stopTimer = Stop;
+                            //유저가 선택한 위치의 마커에서 정답 마커까지 이동하는 애니메이션 동작을 하는 마커 생성
+                            Marker tmpMarker = new Marker(myMapView);
+                            //tmpMarker.setIcon(BLUE_FLAG_DRAWABLE);
+                            tmpMarker.setPosition(marker.getPosition());
+                            tmpMarker.setAnchor(0.25f, 1.0f);
+                            myMapView.getOverlays().add(tmpMarker);
 
-                    map.invalidate();
+                            distance = calcDistance(finalGeoPosition, answerMarker.getPosition());
+                            animateMarker(myMapView, tmpMarker, answerMarker.getPosition(), new GeoPointInterpolator.Linear()); //마커 이동 애니메이션
+
+                            marker.remove(myMapView);
+                            myMapView.invalidate();
+
+                            return true;
+                        }
+                    });
+                    currentMarker = tmpMarker;
                 }
             }
         });
@@ -405,10 +444,7 @@ public class GameActivity extends AppCompatActivity {
         final Interpolator interpolator = new AccelerateDecelerateInterpolator();
         final float durationInMs = 1000;
 
-        //map.getController().setCenter(finalPosition);
-        map.getController().animateTo(finalPosition,myMapView.getMinZoomLevel(),1000L);
-        //map.getController().zoomTo(); //인자의 속도에 맞춰서 줌 아웃
-        //map.getController().zoomToSpan();
+        map.getController().animateTo(finalPosition, myMapView.getMinZoomLevel(), 1000L);
 
         drawCircleOverlay = new DrawCircleOverlay(marker.getPosition(), finalPosition, map);
         myMapView.getOverlays().add(drawCircleOverlay);
@@ -445,7 +481,6 @@ public class GameActivity extends AppCompatActivity {
 
                     animateHandler = null;
 
-                    //myMapView.setClickable(true);
                     map.invalidate();
                 }
             }
@@ -456,7 +491,7 @@ public class GameActivity extends AppCompatActivity {
      * 정답 확인 레이아웃 값 설정하고 띄우기
      */
     private void setAnswerLayout() {
-
+        ui = null;
         if (gameType == GameType.A) {
             questionTypeAImageView.setVisibility(View.GONE);
             questionTypeAImageView.setClickable(false);
@@ -483,7 +518,6 @@ public class GameActivity extends AppCompatActivity {
     }
 
 
-
     /**
      * 사용자가 정한 마커와 정답 마커 사이를 잇는 직선 생성
      *
@@ -495,7 +529,7 @@ public class GameActivity extends AppCompatActivity {
         List<GeoPoint> geoPoints = new ArrayList<>();
         geoPoints.add(startPosition);
         geoPoints.add(destPosition);
-        dottedLineOverlay = new DottedLineOverlay(myMapView,startPosition,destPosition);
+        dottedLineOverlay = new DottedLineOverlay(myMapView, startPosition, destPosition);
         polyline = new Polyline();
         Polygon polygon = new Polygon();
         LineDrawer line = new LineDrawer(4);
@@ -522,41 +556,7 @@ public class GameActivity extends AppCompatActivity {
      * @return 좌표 사이의 거리를 구해 정수형 Km로 반환
      */
     private int calcDistance(GeoPoint geoPoint1, GeoPoint geoPoint2) {
-        return (int) (geoPoint1.distanceToAsDouble(geoPoint2)/1000);
-    }
-
-    /**
-     * 사용자 마커 생성
-     *
-     * @param geoPoint 사용자가 맵뷰를 클릭한 지점의 좌표
-     * @return 마커 생성 후 마커 반환
-     */
-    private Marker addUserMarker(final GeoPoint geoPoint) {
-        Marker marker = new Marker(myMapView);
-        //marker.setIcon(BLUE_FLAG_DRAWABLE);
-        marker.setPosition(geoPoint);
-        marker.setAnchor(0.25f, 1.0f);
-        marker.setOnMarkerClickListener(new Marker.OnMarkerClickListener() {
-            @Override
-            public boolean onMarkerClick(Marker marker, MapView mapView) {  //생성된 마커를 클릭하여 화면에 등록
-                stopTimer = Stop;
-                //유저가 선택한 위치의 마커에서 정답 마커까지 이동하는 애니메이션 동작을 하는 마커 생성
-                Marker tmpMarker = new Marker(myMapView);
-                //tmpMarker.setIcon(BLUE_FLAG_DRAWABLE);
-                tmpMarker.setPosition(marker.getPosition());
-                tmpMarker.setAnchor(0.25f, 1.0f);
-                myMapView.getOverlays().add(tmpMarker);
-
-                distance = calcDistance(geoPoint, answerMarker.getPosition());
-                animateMarker(myMapView, tmpMarker, answerMarker.getPosition(), new GeoPointInterpolator.Linear()); //마커 이동 애니메이션
-
-                marker.remove(myMapView);
-                myMapView.invalidate();
-
-                return true;
-            }
-        });
-        return marker;
+        return (int) (geoPoint1.distanceToAsDouble(geoPoint2) / 1000);
     }
 
     /**
@@ -652,7 +652,6 @@ public class GameActivity extends AppCompatActivity {
         questionTypeBLayout.setVisibility(View.GONE);
 
 
-
         answerMarker = new Marker(myMapView);
         answerMarker.setIcon(RED_FLAG_DRAWABLE);
         answerMarker.setAnchor(0.25f, 1.0f);
@@ -740,7 +739,7 @@ public class GameActivity extends AppCompatActivity {
                     currentMarker.remove(myMapView);
                     currentMarker = null;
                 }
-                if( drawDottedLineHandler != null){
+                if (drawDottedLineHandler != null) {
                     drawDottedLineHandler.removeMessages(0);
                     drawDottedLineHandler = null;
                 }
@@ -785,6 +784,7 @@ public class GameActivity extends AppCompatActivity {
                     break;
             }
             stopTimer = Running;
+            ui = new Handler();
             timeThreadhandler();
 
         }
@@ -857,11 +857,10 @@ public class GameActivity extends AppCompatActivity {
             view.getOverlay().add(redRect);
             view.setOnClickListener(new PictureClickListenerTypeB2());
             lastSelect = view;
-            if(questionTypeBImageView[problem] == view){
+            if (questionTypeBImageView[problem] == view) {
                 rightAnswerTypeB = true;
-            }
-            else{
-                rightAnswerTypeB=false;
+            } else {
+                rightAnswerTypeB = false;
             }
         }
     }
@@ -872,13 +871,13 @@ public class GameActivity extends AppCompatActivity {
     public class PictureClickListenerTypeB2 implements View.OnClickListener {
         @Override
         public void onClick(View v) {
-            if(questionTypeBImageView[problem] == v){
+            if (questionTypeBImageView[problem] == v) {
                 rightAnswerTypeB = true;
             }
             stopTimer = Stop;
             clearLastSelectIfExists();
             setAnswerLayout();
-            lastSelect=null;
+            lastSelect = null;
         }
     }
 
