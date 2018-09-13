@@ -1,6 +1,5 @@
 package kr.ac.kw.coms.globealbum.game;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -66,10 +65,6 @@ import static kr.ac.kw.coms.globealbum.game.GameActivity.TimerState.Stop;
 public class GameActivity extends AppCompatActivity {
     Context context = null;
     MyMapView myMapView = null;
-    ImageView questionTypeAImageView = null;
-    ConstraintLayout questionTypeBLayout = null;
-    ImageView[] questionTypeBImageView = new ImageView[4];
-    GameType gameType = null;
 
     ProgressBar progressBar = null;
     TextView stageTextView = null;
@@ -78,9 +73,13 @@ public class GameActivity extends AppCompatActivity {
 
     Button goToNextStageButton, exitGameButton;
     TextView landNameAnswerTextView, landDistanceAnswerTextView, landScoreTextView;
-    ImageView pictureAnswerImageView;
+    GameType gameType = null;
+    ConstraintLayout questionTypeALayout;
+    ConstraintLayout questionTypeBLayout;
     ConstraintLayout answerLayout;
-    ConstraintLayout pointProblemLayout;
+    ImageView questionTypeAImageView = null;
+    ImageView[] questionTypeBImageView = new ImageView[4];
+    ImageView pictureAnswerImageView;
 
     Drawable RED_FLAG_DRAWABLE;
     Drawable BLUE_FLAG_DRAWABLE;
@@ -96,7 +95,7 @@ public class GameActivity extends AppCompatActivity {
 
     private Handler animateHandler = null;  //마커 이동시키는 핸들러
     private Handler drawDottedLineHandler = null;  // 점선 그리는 핸들러
-    private Handler ui;
+    private Handler ui = new Handler();
 
 
     final int TIME_LIMIT_MS = 14000;
@@ -129,17 +128,19 @@ public class GameActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        //로팅화면 적용
-        setContentView(R.layout.layout_game_loading_animation);
-        ImageView loadigImageView = findViewById(R.id.gif_loading);
-        loadigImageView.setClickable(false);
-        DrawableImageViewTarget gifImage = new DrawableImageViewTarget(loadigImageView);
-        GlideApp.with(GameActivity.this).load(R.drawable.owl).into(gifImage);
-        ui = new Handler();
+        displayLoadingGif();
         redRect = getResources().getDrawable(R.drawable.rectangle_border, null);
 
         //게임 시작 전 문제 세팅
         setQuestion();
+    }
+
+    private void displayLoadingGif() {
+        setContentView(R.layout.layout_game_loading_animation);
+        ImageView loadigImageView = findViewById(R.id.gif_loading);
+        loadigImageView.setClickable(false);
+        DrawableImageViewTarget gifImage = new DrawableImageViewTarget(loadigImageView);
+        GlideApp.with(this).load(R.drawable.owl).into(gifImage);
     }
 
     /**
@@ -198,12 +199,13 @@ public class GameActivity extends AppCompatActivity {
      */
     private void displayQuiz() {
         setContentView(R.layout.activity_game);
+
         progressBar = findViewById(R.id.progressbar);
         stageTextView = findViewById(R.id.textview_stage);
         scoreTextView = findViewById(R.id.textview_score);
         menuButton = findViewById(R.id.game_button_menu);
         menuButton.setOnClickListener(new MenuButtonClickListener());
-        pointProblemLayout = findViewById(R.id.cl_point_problem);
+        questionTypeALayout = findViewById(R.id.cl_point_problem);
 
         //정답 확인 부분 뷰 연결
         pictureAnswerImageView = findViewById(R.id.picture_answer);
@@ -228,14 +230,12 @@ public class GameActivity extends AppCompatActivity {
         questionTypeAImageView = findViewById(R.id.picture);
         questionTypeAImageView.setOnClickListener(new PictureClickListenerTypeA());      //이미지뷰 클릭 시 화면 확대해서 보여줌
         questionTypeBLayout = findViewById(R.id.pictures);
-        questionTypeBImageView[0] = findViewById(R.id.picture1);
-        questionTypeBImageView[1] = findViewById(R.id.picture2);
-        questionTypeBImageView[2] = findViewById(R.id.picture3);
-        questionTypeBImageView[3] = findViewById(R.id.picture4);
-        questionTypeBImageView[0].setOnClickListener(new PictureClickListenerTypeB1());
-        questionTypeBImageView[1].setOnClickListener(new PictureClickListenerTypeB1());
-        questionTypeBImageView[2].setOnClickListener(new PictureClickListenerTypeB1());
-        questionTypeBImageView[3].setOnClickListener(new PictureClickListenerTypeB1());
+
+        int[] imgViewIds = new int[]{R.id.picture1, R.id.picture2, R.id.picture3, R.id.picture4};
+        for (int i = 0; i < imgViewIds.length; i++) {
+            questionTypeBImageView[i] = findViewById(imgViewIds[i]);
+            questionTypeBImageView[i].setOnClickListener(new PictureClickListenerTypeB1());
+        }
 
 
         //osmdroid 초기 구성
@@ -453,11 +453,9 @@ public class GameActivity extends AppCompatActivity {
     private void setAnswerLayout() {
 
         if (gameType == GameType.A) {
-            questionTypeAImageView.setVisibility(View.GONE);
-            questionTypeAImageView.setClickable(false);
+            questionTypeALayout.setVisibility(View.GONE);
         } else if (gameType == GameType.B) {
             questionTypeBLayout.setVisibility(View.GONE);
-            questionTypeBLayout.setClickable(false);
             myMapView.getController().zoomTo(myMapView.getMinZoomLevel(), 1000L); //인자의 속도에 맞춰서 줌 아웃
         }
 
@@ -641,10 +639,8 @@ public class GameActivity extends AppCompatActivity {
         gameType = GameType.A;
         //레이아웃 설정
 
-        pointProblemLayout.setVisibility(View.VISIBLE);
         questionTypeBLayout.setClickable(false);
         questionTypeBLayout.setVisibility(View.GONE);
-
 
         answerMarker = new Marker(myMapView);
         answerMarker.setIcon(RED_FLAG_DRAWABLE);
@@ -654,7 +650,7 @@ public class GameActivity extends AppCompatActivity {
         myMapView.getController().setZoom(myMapView.getMinZoomLevel());
 
         GlideApp.with(this).load(pi).into(questionTypeAImageView);
-        questionTypeAImageView.invalidate();
+        questionTypeALayout.setVisibility(View.VISIBLE);
     }
 
 
@@ -687,8 +683,6 @@ public class GameActivity extends AppCompatActivity {
         for (int i = 0; i < 4; i++) {
             questionTypeBImageView[i].setScaleType(ImageView.ScaleType.CENTER_INSIDE);
             GlideApp.with(context).load(questionPic.get(i)).into(questionTypeBImageView[i]);
-
-            questionTypeBImageView[i].invalidate();
         }
     }
 
@@ -746,8 +740,6 @@ public class GameActivity extends AppCompatActivity {
                 myMapView.getOverlays().remove(answerMarker);
 
             }
-
-            myMapView.invalidate();
 
             answerLayout.setVisibility(View.GONE);
             answerLayout.setClickable(false);
