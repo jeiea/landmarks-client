@@ -6,185 +6,287 @@
     android:layout_height="match_parent"
     tools:context=".game.GameActivity">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:weightSum="2"
+
+    <android.support.constraint.Guideline
+        android:id="@+id/guide_top"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.1" />
+
+    <ProgressBar
+        android:id="@+id/progressbar"
+        style="@style/Base.Widget.AppCompat.ProgressBar.Horizontal"
+        android:layout_width="0dp"
+        android:layout_height="15dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
+        app:layout_constraintBottom_toTopOf="@id/map"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-        <FrameLayout
-            android:layout_width="match_parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <kr.ac.kw.coms.globealbum.map.MyMapView
+        android:id="@+id/map"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toTopOf="@id/guide_mid"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/guide_top"
+        tools:background="#aaa" />
+
+    <android.support.constraint.Guideline
+        android:id="@+id/guide_mid"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.5" />
+
+    <TextView
+        android:id="@+id/textview_stage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="stage 1"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toStartOf="@id/textview_score"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/map" />
+
+    <TextView
+        android:id="@+id/textview_score"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="20sp"
+        android:text="score : 0"
+        android:layout_below="@id/textview_stage"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/textview_stage"
+        app:layout_constraintTop_toBottomOf="@id/map" />
+
+    <android.support.constraint.Placeholder
+        android:id="@+id/ph_quiz_content"
+        android:layout_width="0dp"
+        android:visibility="gone"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/textview_stage" />
+
+    <!-- 사진 보고 위치를 맞추는 문제 레이아웃 -->
+    <android.support.constraint.ConstraintLayout
+        android:id="@+id/cl_point_problem"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@id/ph_quiz_content"
+        app:layout_constraintEnd_toEndOf="@id/ph_quiz_content"
+        app:layout_constraintStart_toStartOf="@id/ph_quiz_content"
+        app:layout_constraintTop_toTopOf="@id/ph_quiz_content">
+
+        <ImageView
+            android:id="@+id/picture"
+            android:layout_marginStart="15dp"
+            android:layout_marginEnd="15dp"
+
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:scaleType="centerCrop"
+            app:layout_constraintBottom_toTopOf="@id/textview_problem_announce"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:src="@drawable/sample5" />
+
+        <TextView
+            android:id="@+id/textview_problem_announce"
+            android:textSize="30sp"
+            android:text="사진 위치를 맞혀보세요"
+            android:textAlignment="center"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1">
-            <kr.ac.kw.coms.globealbum.map.MyMapView
-                android:id="@+id/map"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"/>
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-                <Button
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="left|top"
-                    android:text="MENU"
-                    android:id="@+id/game_button_menu"/>
-                <ProgressBar
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    style="@style/Base.Widget.AppCompat.ProgressBar.Horizontal"
-                    android:layout_weight="1"
-                    android:id="@+id/progressbar"/>
-                <Button
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:visibility="invisible"
-                    android:enabled="false"/>
-            </LinearLayout>
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
+            android:layout_margin="15dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
 
-                <TextView
-                    android:id="@+id/textview_stage"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentRight="true"
-                    android:layout_alignParentTop="true"
-                    android:text="stage 1"/>
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="score : 0"
-                    android:id="@+id/textview_score"
-                    android:layout_below="@id/textview_stage"
-                    android:layout_alignRight="@id/textview_stage"/>
-            </RelativeLayout>
+    </android.support.constraint.ConstraintLayout>
 
-        </FrameLayout>
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_weight="1">
-            <FrameLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
-                <!-- 사진 보고 지명을 맞추기 위해 필요한 이미지뷰-->
-                <ImageView
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:id="@+id/picture"/>
-                <!-- 지명이 주어졌을 때 여러 사진들을 보여주기 위한 레이아웃-->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:orientation="vertical"
-                    android:id="@+id/pictures"
-                    android:layout_weight="1"
-                    android:weightSum="2">
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:orientation="horizontal"
-                        android:layout_weight="1"
-                        android:weightSum="2">
-                        <ImageView
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:id="@+id/picture1"
-                            android:layout_weight="1"/>
-                        <ImageView
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:id="@+id/picture2"
-                            android:layout_weight="1"/>
-                    </LinearLayout>
+    <!-- 지명이 주어졌을 때 여러 사진들을 보여주기 위한 레이아웃-->
+    <android.support.constraint.ConstraintLayout
+        android:id="@+id/pictures"
+        android:layout_width="0dp"
+        android:visibility="gone"
+        android:layout_height="0dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
+        app:layout_constraintBottom_toBottomOf="@id/ph_quiz_content"
+        app:layout_constraintEnd_toEndOf="@id/ph_quiz_content"
+        app:layout_constraintStart_toStartOf="@id/ph_quiz_content"
+        app:layout_constraintTop_toTopOf="@id/ph_quiz_content">
 
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:orientation="horizontal"
-                        android:layout_weight="1">
-                        <ImageView
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:id="@+id/picture3"
-                            android:layout_weight="1"/>
-                        <ImageView
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:id="@+id/picture4"
-                            android:layout_weight="1"/>
-                    </LinearLayout>
-                </LinearLayout>
+        <ImageView
+            android:id="@+id/picture1"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:scaleType="centerCrop"
+            app:layout_constraintBottom_toTopOf="@id/spc_h"
+            app:layout_constraintEnd_toStartOf="@id/spc_v"
+            app:layout_constraintHorizontal_weight="1"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_weight="1"
+            tools:src="@drawable/sample0" />
 
-                <!--문제를 풀고 정답을 확인할 때 필요한 레이아웃-->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:weightSum="2"
-                    android:orientation="horizontal"
-                    android:visibility="gone"
-                    android:clickable="false"
-                    android:id="@+id/layout_answer">
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1">
-                        <ImageView
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:id="@+id/picture_answer"/>
-                    </LinearLayout>
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1"
-                        android:weightSum="2"
-                        android:orientation="vertical">
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:orientation="vertical"
-                            android:gravity="center"
-                            android:layout_weight="1">
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:id="@+id/textview_land_name_answer"/>
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:id="@+id/textview_land_distance_answer"/>
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:id="@+id/textview_land_score_answer"/>
-                        </LinearLayout>
+        <ImageView
+            android:id="@+id/picture2"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:scaleType="centerCrop"
+            app:layout_constraintBottom_toTopOf="@id/spc_h"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_weight="1"
+            app:layout_constraintStart_toEndOf="@id/spc_v"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:src="@drawable/sample1" />
 
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:layout_weight="1"
-                            android:gravity="center">
-                            <Button
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="EXIT"
-                                android:id="@+id/button_exit"/>
-                            <Button
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="NEXT"
-                                android:id="@+id/button_next"/>
-                        </LinearLayout>
-                    </LinearLayout>
-                </LinearLayout>
-            </FrameLayout>
-        </LinearLayout>
+        <ImageView
+            android:id="@+id/picture3"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:scaleType="centerCrop"
+            app:layout_constraintBottom_toTopOf="@id/tv_select_problem"
+            app:layout_constraintEnd_toStartOf="@id/spc_v"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/spc_h"
+            app:layout_constraintVertical_weight="1"
+            tools:src="@drawable/sample2" />
 
+        <ImageView
+            android:id="@+id/picture4"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:scaleType="centerCrop"
+            app:layout_constraintBottom_toTopOf="@id/tv_select_problem"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/spc_v"
+            app:layout_constraintTop_toBottomOf="@id/spc_h"
+            tools:src="@drawable/sample3" />
 
-    </LinearLayout>
+        <android.widget.Space
+            android:id="@+id/spc_h"
+            android:layout_width="0dp"
+            android:layout_height="10dp"
+            app:layout_constraintBottom_toTopOf="@id/picture3"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/picture1" />
+
+        <android.widget.Space
+            android:id="@+id/spc_v"
+            android:layout_width="10dp"
+            android:layout_height="0dp"
+            app:layout_constraintEnd_toStartOf="@id/picture2"
+            app:layout_constraintStart_toEndOf="@id/picture1"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tv_select_problem"
+            android:textSize="21sp"
+            android:text="해당 위치의 사진을 맞혀보세요"
+            android:textAlignment="center"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="15dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+    </android.support.constraint.ConstraintLayout>
+
+    <!--문제를 풀고 정답을 확인할 때 필요한 레이아웃-->
+    <android.support.constraint.ConstraintLayout
+        android:id="@+id/layout_answer"
+        android:visibility="gone"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
+        app:layout_constraintBottom_toBottomOf="@id/ph_quiz_content"
+        app:layout_constraintEnd_toEndOf="@id/ph_quiz_content"
+        app:layout_constraintStart_toStartOf="@id/ph_quiz_content"
+        app:layout_constraintTop_toTopOf="@id/ph_quiz_content">
+
+        <android.support.constraint.Guideline
+            android:id="@+id/guide_answer_v"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.5" />
+
+        <ImageView
+            android:id="@+id/picture_answer"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/guide_answer_v"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:src="@drawable/sample6" />
+
+        <TextView
+            android:id="@+id/textview_land_name_answer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/guide_answer_v"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="오페라하우스" />
+
+        <TextView
+            android:id="@+id/textview_land_distance_answer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/guide_answer_v"
+            app:layout_constraintTop_toBottomOf="@id/textview_land_name_answer"
+            tools:text="1000km" />
+
+        <TextView
+            android:id="@+id/textview_land_score_answer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/guide_answer_v"
+            app:layout_constraintTop_toBottomOf="@id/textview_land_distance_answer"
+            tools:text="30점" />
+
+        <Button
+            android:id="@+id/button_exit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="EXIT"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/guide_answer_v"
+            app:layout_constraintTop_toBottomOf="@id/textview_land_score_answer" />
+
+        <Button
+            android:id="@+id/button_next"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="NEXT"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/guide_answer_v"
+            app:layout_constraintTop_toBottomOf="@id/button_exit" />
+    </android.support.constraint.ConstraintLayout>
+
+    <!-- what's this? -->
+    <Button
+        android:id="@+id/game_button_menu"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:visibility="gone"
+        android:text="MENU"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 </android.support.constraint.ConstraintLayout>

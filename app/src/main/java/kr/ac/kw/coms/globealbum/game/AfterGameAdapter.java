@@ -14,15 +14,16 @@ import java.util.ArrayList;
 
 import kr.ac.kw.coms.globealbum.R;
 import kr.ac.kw.coms.globealbum.common.GlideApp;
+import kr.ac.kw.coms.globealbum.provider.IPicture;
 
 
 public class AfterGameAdapter extends RecyclerView.Adapter<AfterGameAdapter.ViewHolder> {
 
     Context context;
-    ArrayList<GamePictureInfo> gamePictureInfos;
+    ArrayList<IPicture> gamePictureInfos;
     GameActivity gameActivity;
 
-    public AfterGameAdapter(Context context, ArrayList<GamePictureInfo> gamePictureInfos) {
+    public AfterGameAdapter(Context context, ArrayList<IPicture> gamePictureInfos) {
         this.context = context;
         this.gamePictureInfos = gamePictureInfos;
         gameActivity = (GameActivity) GameActivity.GActivity;
@@ -38,9 +39,9 @@ public class AfterGameAdapter extends RecyclerView.Adapter<AfterGameAdapter.View
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        GamePictureInfo gamePictureInfo = gamePictureInfos.get(position);
-        GlideApp.with(context).load(gamePictureInfo.id).into(holder.imageViewPicture);
-        holder.textViewPlace.setText(gamePictureInfo.name);
+        IPicture gamePictureInfo = gamePictureInfos.get(position);
+        GlideApp.with(context).load(gamePictureInfo).into(holder.imageViewPicture);
+        holder.textViewPlace.setText(gamePictureInfo.getTitle());
     }
 
     @Override

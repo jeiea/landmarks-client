@@ -4,6 +4,7 @@ import android.util.Log
 import kotlinx.coroutines.experimental.Job
 import kr.ac.kw.coms.landmarks.client.Remote
 import kr.ac.kw.coms.landmarks.client.ReverseGeocodeResult
+import org.osmdroid.util.GeoPoint
 import java.io.File
 
 public object RemoteJava {
@@ -34,7 +35,7 @@ public object RemoteJava {
     promise.resolve {
       client.getRandomProblems(n).map { pic ->
         RemotePicture(pic.id).apply {
-          latlon = Pair(pic.lat, pic.lon)
+          geo = GeoPoint(pic.lat, pic.lon)
           time = pic.time
           title = pic.address
         }
