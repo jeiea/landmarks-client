@@ -13,7 +13,6 @@ import android.os.Handler;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.support.constraint.ConstraintLayout;
-import android.support.constraint.Placeholder;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -24,7 +23,6 @@ import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.Interpolator;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -66,7 +64,6 @@ import static kr.ac.kw.coms.globealbum.game.GameActivity.TimerState.Stop;
 
 
 public class GameActivity extends AppCompatActivity {
-    public static Activity GActivity;
     Context context = null;
     MyMapView myMapView = null;
     ImageView questionTypeAImageView = null;
@@ -131,8 +128,6 @@ public class GameActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        GActivity = this;
 
         //로팅화면 적용
         setContentView(R.layout.layout_game_loading_animation);
@@ -708,7 +703,7 @@ public class GameActivity extends AppCompatActivity {
             final List<String> listItems = new ArrayList<>();
             listItems.add("설정");
             listItems.add("종료");
-            final CharSequence[] items = listItems.toArray(new String[listItems.size()]);
+            final CharSequence[] items = listItems.toArray(new String[0]);
 
             AlertDialog.Builder builder = new AlertDialog.Builder(GameActivity.this);
             builder.setTitle("Menu");

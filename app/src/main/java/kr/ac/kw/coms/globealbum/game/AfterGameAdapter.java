@@ -19,28 +19,25 @@ import kr.ac.kw.coms.globealbum.provider.IPicture;
 
 public class AfterGameAdapter extends RecyclerView.Adapter<AfterGameAdapter.ViewHolder> {
 
-    Context context;
-    ArrayList<IPicture> gamePictureInfos;
-    GameActivity gameActivity;
+    private ArrayList<IPicture> gamePictureInfos;
+    private GameActivity gameActivity;
 
-    public AfterGameAdapter(Context context, ArrayList<IPicture> gamePictureInfos) {
-        this.context = context;
+    public AfterGameAdapter(GameActivity activity, ArrayList<IPicture> gamePictureInfos) {
+        gameActivity = activity;
         this.gamePictureInfos = gamePictureInfos;
-        gameActivity = (GameActivity) GameActivity.GActivity;
-
     }
 
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(context).inflate(R.layout.layout_after_game_item, parent, false);
+        View view = LayoutInflater.from(gameActivity).inflate(R.layout.layout_after_game_item, parent, false);
         return new ViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         IPicture gamePictureInfo = gamePictureInfos.get(position);
-        GlideApp.with(context).load(gamePictureInfo).into(holder.imageViewPicture);
+        GlideApp.with(gameActivity).load(gamePictureInfo).into(holder.imageViewPicture);
         holder.textViewPlace.setText(gamePictureInfo.getTitle());
     }
 
@@ -54,7 +51,7 @@ public class AfterGameAdapter extends RecyclerView.Adapter<AfterGameAdapter.View
         TextView textViewPlace;
         Button buttonQuit;
 
-        public ViewHolder(final View itemView) {
+        ViewHolder(final View itemView) {
             super(itemView);
             buttonQuit = itemView.findViewById(R.id.after_game_quit_button);
             buttonQuit.setOnClickListener(new View.OnClickListener() {
