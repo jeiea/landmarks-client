@@ -247,8 +247,8 @@ public class GameActivity extends AppCompatActivity {
         markerClickListenerOverlay = markerEvent();
         myMapView.getOverlays().add(markerClickListenerOverlay);
         timeThreadhandler();
-        //setPictureQuestion(questionPic.get(problem));  //사진을 보여주고 지명을 찾는 문제 형식
-        setPictureQuestion(questionPic.get(problem)); //지명을 보여주고 사진을 찾는 문제 형식
+        setPlaceNameQuestion(questionPic.get(problem));  //사진을 보여주고 지명을 찾는 문제 형식
+//        setPictureQuestion(questionPic.get(problem)); //지명을 보여주고 사진을 찾는 문제 형식
     }
 
     /**
