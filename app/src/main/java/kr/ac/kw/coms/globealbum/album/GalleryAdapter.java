@@ -26,6 +26,8 @@ import android.widget.Toast;
 import java.util.ArrayList;
 
 import kr.ac.kw.coms.globealbum.R;
+import kr.ac.kw.coms.globealbum.provider.IPicture;
+import kr.ac.kw.coms.globealbum.provider.LocalPicture;
 
 class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHolder> {
     private ArrayList<Model> mDataset;
@@ -100,11 +102,11 @@ class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHolder> {
                 } else { //이미지 한 개 선택 시 이벤트
                     Intent intent = new Intent(context, GalleryDetail.class);
                     intent.putExtra("index", holder.index);
-                    String[] ImageList = new String[mDataset.size()];
+                    ArrayList<IPicture> pictures = new ArrayList<>();
                     for (int i = 0; i < mDataset.size(); i++) {
-                        ImageList[i] = mDataset.get(i).getImage();
+                        pictures.add(new LocalPicture(mDataset.get(i).getImage()));
                     }
-                    intent.putExtra("Dataset", ImageList);
+                    intent.putParcelableArrayListExtra("pictures", pictures);
                     ((FragmentActivity) context).startActivityForResult(intent, 1);
                 }
             }

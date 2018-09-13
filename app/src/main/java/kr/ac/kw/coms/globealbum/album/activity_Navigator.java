@@ -127,18 +127,18 @@ public class activity_Navigator extends AppCompatActivity {
         data = new ArrayList<>();
         Context c = getBaseContext();
         ArrayList<IPicture> group1 = new ArrayList<>();
-        group1.add(new ResourcePicture(c, R.drawable.sample0));
-        group1.add(new ResourcePicture(c, R.drawable.sample1));
-        group1.add(new ResourcePicture(c, R.drawable.sample2));
-        group1.add(new ResourcePicture(c, R.drawable.sample3));
-        group1.add(new ResourcePicture(c, R.drawable.sample4));
+        group1.add(new ResourcePicture(R.drawable.sample0));
+        group1.add(new ResourcePicture(R.drawable.sample1));
+        group1.add(new ResourcePicture(R.drawable.sample2));
+        group1.add(new ResourcePicture(R.drawable.sample3));
+        group1.add(new ResourcePicture(R.drawable.sample4));
         data.add(new PictureGroup("group 1", group1));
         ArrayList<IPicture> group2 = new ArrayList<>();
-        group1.add(new ResourcePicture(c, R.drawable.sample5));
-        group1.add(new ResourcePicture(c, R.drawable.sample6));
-        group1.add(new ResourcePicture(c, R.drawable.sample7));
-        group1.add(new ResourcePicture(c, R.drawable.sample8));
-        group1.add(new ResourcePicture(c, R.drawable.sample9));
+        group1.add(new ResourcePicture(R.drawable.sample5));
+        group1.add(new ResourcePicture(R.drawable.sample6));
+        group1.add(new ResourcePicture(R.drawable.sample7));
+        group1.add(new ResourcePicture(R.drawable.sample8));
+        group1.add(new ResourcePicture(R.drawable.sample9));
         data.add(new PictureGroup("group 2", group2));
     }
 

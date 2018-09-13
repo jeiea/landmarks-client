@@ -11,4 +11,20 @@ public class Diary_Parcel implements Serializable {
     public String Text;
     public ArrayList<Uri> Images;
     public boolean Liked;
+    public Diary_Parcel()
+    {
+        Title = "";
+        Text = "";
+        Images = new ArrayList<>();
+        Liked = false;
+    }
+    public Diary_Parcel clone()
+    {
+        Diary_Parcel Clone = new Diary_Parcel();
+        Clone.Title = this.Title;
+        Clone.Text = this.Text;
+        Clone.Images = (ArrayList<Uri>) this.Images.clone();
+        Clone.Liked = this.Liked;
+        return Clone;
+    }
 }

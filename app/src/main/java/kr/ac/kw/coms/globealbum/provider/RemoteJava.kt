@@ -2,14 +2,14 @@ package kr.ac.kw.coms.globealbum.provider
 
 import android.util.Log
 import kotlinx.coroutines.experimental.Job
-import kr.ac.kw.coms.landmarks.client.PictureRep
 import kr.ac.kw.coms.landmarks.client.Remote
 import kr.ac.kw.coms.landmarks.client.ReverseGeocodeResult
+import org.osmdroid.util.GeoPoint
 import java.io.File
 
-class RemoteJava {
+public object RemoteJava {
 
-  private val client = Remote()
+  val client = Remote()
 
   fun reverseGeocode(latitude: Double, longitude: Double, prom: Promise<ReverseGeocodeResult>): Job =
     prom.resolve {
@@ -31,7 +31,15 @@ class RemoteJava {
   fun uploadPicture(file: File, latitude: Float? = null, longitude: Float? = null, addr: String? = null, prom: Promise<Unit>): Job =
     prom.resolve { client.uploadPicture(file, latitude, longitude, addr) }
 
-  fun getRandomProblem(prom: Promise<PictureRep>) {
-    prom.resolve { client.getRandomProblem() }
+  fun getRandomPictures(n: Int, promise: Promise<List<RemotePicture>>) {
+    promise.resolve {
+      client.getRandomProblems(n).map { pic ->
+        RemotePicture(pic.id).apply {
+          geo = GeoPoint(pic.lat, pic.lon)
+          time = pic.time
+          title = pic.address
+        }
+      }
+    }
   }
 }

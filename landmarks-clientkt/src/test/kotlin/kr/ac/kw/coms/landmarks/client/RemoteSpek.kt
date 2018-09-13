@@ -9,6 +9,7 @@ import kotlinx.coroutines.experimental.runBlocking
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.`should be greater than`
 import org.amshove.kluent.`should be true`
+import org.amshove.kluent.`should not be equal to`
 import org.apache.http.HttpHost
 import org.apache.http.conn.ssl.TrustSelfSignedStrategy
 import org.apache.http.ssl.SSLContextBuilder
@@ -64,9 +65,14 @@ class RemoteSpek : Spek({
       }
     }
 
-    blit("receives quiz") {
-      val pic = client.getRandomProblem()
-      pic.file!!.size `should be greater than` 0
+    val pics: ArrayList<PictureRep> = arrayListOf()
+    blit("receives quiz info") {
+      pics.addAll(client.getRandomProblems(2))
+      pics[0].id `should not be equal to` pics[1].id
+    }
+
+    blit("download picture") {
+      client.getPicture(pics[1].id).readBytes().size `should be greater than` 0
     }
 
     blit("query user's pictures") {

@@ -1,14 +1,12 @@
 package kr.ac.kw.coms.globealbum.game;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.graphics.Color;
-import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
@@ -50,14 +48,16 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 import kr.ac.kw.coms.globealbum.R;
 import kr.ac.kw.coms.globealbum.common.GlideApp;
 import kr.ac.kw.coms.globealbum.common.PictureDialogFragment;
 import kr.ac.kw.coms.globealbum.map.DrawCircleOverlay;
 import kr.ac.kw.coms.globealbum.map.MyMapView;
-import kr.ac.kw.coms.globealbum.provider.EXIFinfo;
+import kr.ac.kw.coms.globealbum.provider.IPicture;
 import kr.ac.kw.coms.globealbum.provider.RemoteJava;
+import kr.ac.kw.coms.globealbum.provider.ResourcePicture;
 import kr.ac.kw.coms.globealbum.provider.UIPromise;
 import kr.ac.kw.coms.landmarks.client.ReverseGeocodeResult;
 
@@ -66,13 +66,8 @@ import static kr.ac.kw.coms.globealbum.game.GameActivity.TimerState.Stop;
 
 
 public class GameActivity extends AppCompatActivity {
-    public static Activity GActivity;
     Context context = null;
     MyMapView myMapView = null;
-    ImageView questionTypeAImageView = null;
-    LinearLayout questionTypeBLayout = null;
-    ImageView[] questionTypeBImageView = new ImageView[4];
-    GameType gameType = null;
 
     ProgressBar progressBar = null;
     TextView stageTextView = null;
@@ -81,8 +76,13 @@ public class GameActivity extends AppCompatActivity {
 
     Button goToNextStageButton, exitGameButton;
     TextView landNameAnswerTextView, landDistanceAnswerTextView, landScoreTextView;
+    GameType gameType = null;
+    ConstraintLayout questionTypeALayout;
+    ConstraintLayout questionTypeBLayout;
+    ConstraintLayout answerLayout;
+    ImageView questionTypeAImageView = null;
+    ImageView[] questionTypeBImageView = new ImageView[4];
     ImageView pictureAnswerImageView;
-    LinearLayout answerLinearLayout;
 
     Drawable RED_FLAG_DRAWABLE;
     Drawable BLUE_FLAG_DRAWABLE;
@@ -111,7 +111,7 @@ public class GameActivity extends AppCompatActivity {
     DrawCircleOverlay drawCircleOverlay;
     DottedLineOverlay dottedLineOverlay;
 
-    ArrayList<GamePictureInfo> questionPic = new ArrayList<>();
+    ArrayList<IPicture> questionPic = new ArrayList<>();
 
     int answerImageviewIndex;
 
@@ -131,23 +131,19 @@ public class GameActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        GActivity = this;
+        displayLoadingGif();
+        redRect = getResources().getDrawable(R.drawable.rectangle_border, null);
 
-        //로팅화면 적용
+        //게임 시작 전 문제 세팅
+        setQuestion();
+    }
+
+    private void displayLoadingGif() {
         setContentView(R.layout.layout_game_loading_animation);
         ImageView loadigImageView = findViewById(R.id.gif_loading);
         loadigImageView.setClickable(false);
         DrawableImageViewTarget gifImage = new DrawableImageViewTarget(loadigImageView);
-        GlideApp.with(GameActivity.this).load(R.drawable.owl).into(gifImage);
-        redRect = getResources().getDrawable(R.drawable.rectangle_border, null);
-
-        //게임 시작 전 문제 세팅
-        AsyncTask.execute(new Runnable() {
-            @Override
-            public void run() {
-                setQuestion();
-            }
-        });
+        GlideApp.with(this).load(R.drawable.owl).into(gifImage);
     }
 
     /**
@@ -155,8 +151,6 @@ public class GameActivity extends AppCompatActivity {
      */
     private void setQuestion() {
         int[] id = new int[PICTURE_NUM];
-        EXIFinfo exifInfo = new EXIFinfo();
-        RemoteJava client = new RemoteJava();
         for (int i = 0; i < PICTURE_NUM; i++) { //사진 리소스 id 배열에 저장
             id[i] = R.drawable.coord0 + i;
         }
@@ -167,36 +161,39 @@ public class GameActivity extends AppCompatActivity {
             id[random] = tmp;
         }
 
+        //GPS 정보 뽑아오기
+        Resources resources = getResources();
         for (int i = 0; i < PICTURE_NUM; i++) {
-            //GPS 정보 뽑아오기
-            exifInfo.setMetadata(getResources().openRawResource(id[i]));
-            final GeoPoint geoPoint = exifInfo.getLocationGeopoint();
-            final int s = id[i];
-            //역지오코딩을 통해 지역 정보 뽑아오기
-            client.reverseGeocode(geoPoint.getLatitude(), geoPoint.getLongitude(), new UIPromise<ReverseGeocodeResult>() {
-                @Override
-                public void failure(@NotNull Throwable cause) {
-                    StringWriter sw = new StringWriter();
-                    PrintWriter pw = new PrintWriter(sw);
-                    cause.printStackTrace(pw);
-                    Log.e("failfail", cause.toString() + sw.toString());
-                }
-
-                @Override
-                public void success(ReverseGeocodeResult result) {
-                    String name = result.getCountry() + " " + result.getDetail();
-                    GamePictureInfo pictureInfo = new GamePictureInfo();
-                    pictureInfo.geoPoint = geoPoint;
-                    pictureInfo.id = s;
-                    pictureInfo.name = name;
-                    questionPic.add(pictureInfo);
-
-                    if (questionPic.size() == 1) {  //문제가 하나 완성 시 초기 구성 진행
-                        displayQuiz();
-                    }
-                }
-            });
+            ResourcePicture pic = new ResourcePicture(id[i], resources);
+            questionPic.add(pic);
+//            setReverseGeocodeRegionNameAsPictureTitle(pic);
         }
+        displayQuiz();
+    }
+
+    private void setReverseGeocodeRegionNameAsPictureTitle(final IPicture target) {
+        RemoteJava client = RemoteJava.INSTANCE;
+        GeoPoint geo = Objects.requireNonNull(target.getGeo());
+        client.reverseGeocode(geo.getLatitude(), geo.getLongitude(), new UIPromise<ReverseGeocodeResult>() {
+            @Override
+            public void failure(@NotNull Throwable cause) {
+                StringWriter sw = new StringWriter();
+                PrintWriter pw = new PrintWriter(sw);
+                cause.printStackTrace(pw);
+                Log.e("failfail", cause.toString() + sw.toString());
+            }
+
+            @Override
+            public void success(ReverseGeocodeResult result) {
+                String name = result.getCountry() + " " + result.getDetail();
+                target.setTitle(name);
+
+                // 첫 문제 지역명 수신 시 문제 진행
+                if (questionPic.indexOf(target) == 0) {
+                    displayQuiz();
+                }
+            }
+        });
     }
 
 
@@ -205,11 +202,13 @@ public class GameActivity extends AppCompatActivity {
      */
     private void displayQuiz() {
         setContentView(R.layout.activity_game);
+
         progressBar = findViewById(R.id.progressbar);
         stageTextView = findViewById(R.id.textview_stage);
         scoreTextView = findViewById(R.id.textview_score);
         menuButton = findViewById(R.id.game_button_menu);
         menuButton.setOnClickListener(new MenuButtonClickListener());
+        questionTypeALayout = findViewById(R.id.cl_point_problem);
 
         //정답 확인 부분 뷰 연결
         pictureAnswerImageView = findViewById(R.id.picture_answer);
@@ -219,7 +218,7 @@ public class GameActivity extends AppCompatActivity {
         landDistanceAnswerTextView = findViewById(R.id.textview_land_distance_answer);
         landNameAnswerTextView = findViewById(R.id.textview_land_name_answer);
         landScoreTextView = findViewById(R.id.textview_land_score_answer);
-        answerLinearLayout = findViewById(R.id.layout_answer);
+        answerLayout = findViewById(R.id.layout_answer);
 
         goToNextStageButton.setOnClickListener(new GameNextQuizListener());
         exitGameButton.setOnClickListener(new GameFinishListener());
@@ -234,14 +233,12 @@ public class GameActivity extends AppCompatActivity {
         questionTypeAImageView = findViewById(R.id.picture);
         questionTypeAImageView.setOnClickListener(new PictureClickListenerTypeA());      //이미지뷰 클릭 시 화면 확대해서 보여줌
         questionTypeBLayout = findViewById(R.id.pictures);
-        questionTypeBImageView[0] = findViewById(R.id.picture1);
-        questionTypeBImageView[1] = findViewById(R.id.picture2);
-        questionTypeBImageView[2] = findViewById(R.id.picture3);
-        questionTypeBImageView[3] = findViewById(R.id.picture4);
-        questionTypeBImageView[0].setOnClickListener(new PictureClickListenerTypeB1());
-        questionTypeBImageView[1].setOnClickListener(new PictureClickListenerTypeB1());
-        questionTypeBImageView[2].setOnClickListener(new PictureClickListenerTypeB1());
-        questionTypeBImageView[3].setOnClickListener(new PictureClickListenerTypeB1());
+
+        int[] imgViewIds = new int[]{R.id.picture1, R.id.picture2, R.id.picture3, R.id.picture4};
+        for (int i = 0; i < imgViewIds.length; i++) {
+            questionTypeBImageView[i] = findViewById(imgViewIds[i]);
+            questionTypeBImageView[i].setOnClickListener(new PictureClickListenerTypeB1());
+        }
 
 
         //osmdroid 초기 구성
@@ -254,9 +251,8 @@ public class GameActivity extends AppCompatActivity {
         myMapView.getOverlays().add(markerClickListenerOverlay);
         ui = new Handler();
         timeThreadhandler();
-        //setPictureQuestion(questionPic.get(problem));  //사진을 보여주고 지명을 찾는 문제 형식
-        setPictureQuestion(questionPic.get(problem)); //지명을 보여주고 사진을 찾는 문제 형식
-
+        setPlaceNameQuestion(questionPic.get(problem));  //사진을 보여주고 지명을 찾는 문제 형식
+//        setPictureQuestion(questionPic.get(problem)); //지명을 보여주고 사진을 찾는 문제 형식
     }
 
     /**
@@ -295,7 +291,6 @@ public class GameActivity extends AppCompatActivity {
                             //화면에 마커 생성 없이 타임아웃 발생시 정답 확인
                             //currentMarker = new Marker(myMapView);
 
-                            //currentMarker.remove(myMapView);
                             myMapView.getOverlays().add(answerMarker);
 
                         }
@@ -493,19 +488,17 @@ public class GameActivity extends AppCompatActivity {
     private void setAnswerLayout() {
         ui = null;
         if (gameType == GameType.A) {
-            questionTypeAImageView.setVisibility(View.GONE);
-            questionTypeAImageView.setClickable(false);
+            questionTypeALayout.setVisibility(View.GONE);
         } else if (gameType == GameType.B) {
             questionTypeBLayout.setVisibility(View.GONE);
-            questionTypeBLayout.setClickable(false);
             myMapView.getController().zoomTo(myMapView.getMinZoomLevel(), 1000L); //인자의 속도에 맞춰서 줌 아웃
         }
 
         int curScore = calcScore();
 
-        answerLinearLayout.setVisibility(View.VISIBLE);
-        answerLinearLayout.setClickable(true);
-        landNameAnswerTextView.setText(questionPic.get(problem).name);
+        answerLayout.setVisibility(View.VISIBLE);
+        answerLayout.setClickable(true);
+        landNameAnswerTextView.setText(questionPic.get(problem).getTitle());
         if (gameType == GameType.A && currentMarker != null) {
             landDistanceAnswerTextView.setVisibility(View.VISIBLE);
             landDistanceAnswerTextView.setText(distance + "KM");
@@ -513,10 +506,9 @@ public class GameActivity extends AppCompatActivity {
             landDistanceAnswerTextView.setVisibility(View.INVISIBLE);
         }
         landScoreTextView.setText("score " + curScore);
-        GlideApp.with(context).load(questionPic.get(problem).id).into(pictureAnswerImageView);
+        GlideApp.with(context).load(questionPic.get(problem)).into(pictureAnswerImageView);
 
     }
-
 
     /**
      * 사용자가 정한 마커와 정답 마커 사이를 잇는 직선 생성
@@ -643,24 +635,22 @@ public class GameActivity extends AppCompatActivity {
      *
      * @param pi 사진 정보를 가지고 있는 클래스
      */
-    private void setPictureQuestion(GamePictureInfo pi) {
+    private void setPictureQuestion(IPicture pi) {
         gameType = GameType.A;
         //레이아웃 설정
-        questionTypeAImageView.setVisibility(View.VISIBLE);
-        questionTypeAImageView.setClickable(true);
+
         questionTypeBLayout.setClickable(false);
         questionTypeBLayout.setVisibility(View.GONE);
-
 
         answerMarker = new Marker(myMapView);
         answerMarker.setIcon(RED_FLAG_DRAWABLE);
         answerMarker.setAnchor(0.25f, 1.0f);
-        answerMarker.setPosition(pi.geoPoint);
+        answerMarker.setPosition(Objects.requireNonNull(pi.getGeo()));
 
         myMapView.getController().setZoom(myMapView.getMinZoomLevel());
 
-        GlideApp.with(context).load(pi.id).into(questionTypeAImageView);
-        questionTypeAImageView.invalidate();
+        GlideApp.with(this).load(pi).into(questionTypeAImageView);
+        questionTypeALayout.setVisibility(View.VISIBLE);
     }
 
 
@@ -669,7 +659,7 @@ public class GameActivity extends AppCompatActivity {
      *
      * @param pi 사진 정보를 가지고 있는 클래스
      */
-    private void setPlaceNameQuestion(GamePictureInfo pi) {
+    private void setPlaceNameQuestion(IPicture pi) {
         gameType = GameType.B;
         //레이아웃 설정
         questionTypeBLayout.setVisibility(View.VISIBLE);
@@ -681,10 +671,9 @@ public class GameActivity extends AppCompatActivity {
         answerMarker = new Marker(myMapView);
         answerMarker.setIcon(RED_FLAG_DRAWABLE);
         answerMarker.setAnchor(0.25f, 1.0f);
-        answerMarker.setPosition(pi.geoPoint);
-        answerMarker.setTitle(pi.name);
+        answerMarker.setPosition(Objects.requireNonNull(pi.getGeo()));
+        answerMarker.setTitle(pi.getTitle());
         answerMarker.showInfoWindow();
-        answerMarker.setPosition(pi.geoPoint);
         myMapView.getOverlays().add(answerMarker);
         myMapView.setClickable(false);
 
@@ -693,9 +682,7 @@ public class GameActivity extends AppCompatActivity {
 
         for (int i = 0; i < 4; i++) {
             questionTypeBImageView[i].setScaleType(ImageView.ScaleType.CENTER_INSIDE);
-            GlideApp.with(context).load(questionPic.get(i).id).into(questionTypeBImageView[i]);
-
-            questionTypeBImageView[i].invalidate();
+            GlideApp.with(context).load(questionPic.get(i)).into(questionTypeBImageView[i]);
         }
     }
 
@@ -710,7 +697,7 @@ public class GameActivity extends AppCompatActivity {
             final List<String> listItems = new ArrayList<>();
             listItems.add("설정");
             listItems.add("종료");
-            final CharSequence[] items = listItems.toArray(new String[listItems.size()]);
+            final CharSequence[] items = listItems.toArray(new String[0]);
 
             AlertDialog.Builder builder = new AlertDialog.Builder(GameActivity.this);
             builder.setTitle("Menu");
@@ -754,10 +741,8 @@ public class GameActivity extends AppCompatActivity {
 
             }
 
-            myMapView.invalidate();
-
-            answerLinearLayout.setVisibility(View.GONE);
-            answerLinearLayout.setClickable(false);
+            answerLayout.setVisibility(View.GONE);
+            answerLayout.setClickable(false);
 
             problem++;
             switch (problem) {
