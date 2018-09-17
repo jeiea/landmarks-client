@@ -18,6 +18,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.Interpolator;
@@ -42,6 +43,7 @@ import org.osmdroid.views.overlay.Marker;
 import org.osmdroid.views.overlay.Polygon;
 import org.osmdroid.views.overlay.Polyline;
 import org.osmdroid.views.overlay.infowindow.InfoWindow;
+import org.osmdroid.views.overlay.infowindow.MarkerInfoWindow;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -330,18 +332,17 @@ public class GameActivity extends AppCompatActivity {
         });
     }
 
-
     private Point interpolate(float fraction, Point a, Point b) {
         double lat = (b.x - a.x) * fraction + a.x;
-        double lng = (b.y- a.y) * fraction + a.y;
-        return new Point((int)lat, (int)lng);
+        double lng = (b.y - a.y) * fraction + a.y;
+        return new Point((int) lat, (int) lng);
     }
 
     /**
      * 화면을 클릭해 마커를 생성했을 때 애니메이션을 주어서 좌표에 생성
-     * @param map mapview
-     * @param finalGeoPosition  화면에 선택한 곳의 좌표
-     * @param GeoPointInterpolator 마커 애니메이션 종류
+     *
+     * @param map              mapview
+     * @param finalGeoPosition 화면에 선택한 곳의 좌표
      */
     private void showMarker(final MapView map, final GeoPoint finalGeoPosition) {
 
@@ -353,20 +354,21 @@ public class GameActivity extends AppCompatActivity {
         finalPoint.x = startPoint.x;
         finalPoint.y = startPoint.y;
 
-        startPoint.x +=100;
-        startPoint.y -=100;
+        startPoint.x += 50;
+        startPoint.y -= 50;
 
-        GeoPoint startGeoPosition = (GeoPoint)projection.fromPixels(startPoint.x,startPoint.y);
+        GeoPoint startGeoPosition = (GeoPoint) projection.fromPixels(startPoint.x, startPoint.y);
 
         final Marker tmpMarker = new Marker(map);
         tmpMarker.setPosition(startGeoPosition);
         tmpMarker.setIcon(BLUE_FLAG_DRAWABLE);
+        //tmpMarker.info
         map.getOverlays().add(tmpMarker);
 
         final Handler showMarkerHandler = new Handler();
         final long start = SystemClock.uptimeMillis();
         final Interpolator interpolator = new LinearInterpolator();
-        final float durationInMs = 350;
+        final float durationInMs = 175;
 
         showMarkerHandler.post(new Runnable() {
             long elapsed;
@@ -381,8 +383,8 @@ public class GameActivity extends AppCompatActivity {
                 v = interpolator.getInterpolation(t);
 
                 tmpMarker.setAnchor(0.25f, 1.0f);
-                Point pixelPoint = interpolate(v,startPoint,finalPoint);
-                GeoPoint geoPoint = (GeoPoint)projection.fromPixels(pixelPoint.x,pixelPoint.y);
+                Point pixelPoint = interpolate(v, startPoint, finalPoint);
+                GeoPoint geoPoint = (GeoPoint) projection.fromPixels(pixelPoint.x, pixelPoint.y);
 
                 tmpMarker.setPosition(geoPoint); //보간법 이용, 시작 위치에서 끝 위치까지 가는 경로 도출
 
@@ -522,8 +524,6 @@ public class GameActivity extends AppCompatActivity {
         geoPoints.add(destPosition);
         dottedLineOverlay = new DottedLineOverlay(myMapView, startPosition, destPosition);
         polyline = new Polyline();
-        Polygon polygon = new Polygon();
-        LineDrawer line = new LineDrawer(4);
 
         polyline.setPoints(geoPoints);
         polyline.setColor(Color.GRAY);
@@ -648,6 +648,13 @@ public class GameActivity extends AppCompatActivity {
         answerMarker.setAnchor(0.25f, 1.0f);
         answerMarker.setPosition(Objects.requireNonNull(pi.getGeo()));
 
+        answerMarker.setOnMarkerClickListener(new Marker.OnMarkerClickListener() {
+            @Override
+            public boolean onMarkerClick(Marker marker, MapView mapView) {
+                return false;
+            }
+        });
+
         myMapView.getController().setZoom(myMapView.getMinZoomLevel());
 
         GlideApp.with(this).load(pi).into(questionTypeAImageView);
@@ -674,6 +681,17 @@ public class GameActivity extends AppCompatActivity {
         answerMarker.setAnchor(0.25f, 1.0f);
         answerMarker.setPosition(Objects.requireNonNull(pi.getGeo()));
         answerMarker.setTitle(pi.getTitle());
+        MarkerInfoWindow markerInfoWindow = new MarkerInfoWindow(R.layout.bonuspack_bubble, myMapView);
+        View v = markerInfoWindow.getView();
+        v.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                return false;
+            }
+        });
+        answerMarker.setInfoWindow(markerInfoWindow);
+
+
         answerMarker.showInfoWindow();
         myMapView.getOverlays().add(answerMarker);
         myMapView.setClickable(false);
@@ -686,7 +704,6 @@ public class GameActivity extends AppCompatActivity {
             GlideApp.with(context).load(questionPic.get(i)).into(questionTypeBImageView[i]);
         }
     }
-
 
     /**
      * 메뉴 버튼 클릭 시 다이얼로그 표시하는 리스너
