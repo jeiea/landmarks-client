@@ -5,12 +5,14 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Color;
+import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
+import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -18,12 +20,10 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
-import android.view.animation.BaseInterpolator;
 import android.view.animation.Interpolator;
 import android.view.animation.LinearInterpolator;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -319,7 +319,7 @@ public class GameActivity extends AppCompatActivity {
             @Override
             public boolean singleTapConfirmedHelper(GeoPoint p) {   //화면 한번 터치시
                 if (gameType == GameType.A && ui != null && animateHandler == null)
-                    showMarker(myMapView, p, new GeoPointInterpolator.Spherical());
+                    showMarker(myMapView, p);
                 return true;
             }
 
@@ -343,7 +343,7 @@ public class GameActivity extends AppCompatActivity {
      * @param finalGeoPosition  화면에 선택한 곳의 좌표
      * @param GeoPointInterpolator 마커 애니메이션 종류
      */
-    private void showMarker(final MapView map, final GeoPoint finalGeoPosition, final GeoPointInterpolator GeoPointInterpolator) {
+    private void showMarker(final MapView map, final GeoPoint finalGeoPosition) {
 
         final Projection projection = map.getProjection();
         final Point startPoint = new Point();
@@ -353,10 +353,9 @@ public class GameActivity extends AppCompatActivity {
         finalPoint.x = startPoint.x;
         finalPoint.y = startPoint.y;
 
-        startPoint.x +=200;
-        startPoint.y +=200;
+        startPoint.x +=100;
+        startPoint.y -=100;
 
-        Toast.makeText(GActivity, startPoint.x +" " +startPoint.y+" | "+ finalPoint.x + " " + finalPoint.y , Toast.LENGTH_SHORT).show();
         GeoPoint startGeoPosition = (GeoPoint)projection.fromPixels(startPoint.x,startPoint.y);
 
         final Marker tmpMarker = new Marker(map);
@@ -367,7 +366,7 @@ public class GameActivity extends AppCompatActivity {
         final Handler showMarkerHandler = new Handler();
         final long start = SystemClock.uptimeMillis();
         final Interpolator interpolator = new LinearInterpolator();
-        final float durationInMs = 500;
+        final float durationInMs = 350;
 
         showMarkerHandler.post(new Runnable() {
             long elapsed;
@@ -639,6 +638,8 @@ public class GameActivity extends AppCompatActivity {
         gameType = GameType.A;
         //레이아웃 설정
 
+        questionTypeAImageView.setClickable(true);
+        questionTypeAImageView.setVisibility(View.VISIBLE);
         questionTypeBLayout.setClickable(false);
         questionTypeBLayout.setVisibility(View.GONE);
 
