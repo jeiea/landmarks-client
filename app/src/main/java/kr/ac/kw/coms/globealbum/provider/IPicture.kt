@@ -11,6 +11,7 @@ import android.os.Parcelable
 import android.support.annotation.DrawableRes
 import com.bumptech.glide.load.DataSource
 import kotlinx.coroutines.experimental.Job
+import org.osmdroid.util.GeoPoint
 import java.io.File
 import java.io.InputStream
 import java.net.URL
@@ -59,7 +60,7 @@ abstract class IPicture() : Parcelable {
   /**
    * 위치
    */
-  open var latlon: Pair<Double, Double>? = null
+  open var geo: GeoPoint? = null
 
   /**
    * 사진 삭제
@@ -96,7 +97,7 @@ class RemotePicture(val id: Int) : IPicture() {
       val lat: Double = readDouble()
       val lon: Double = readDouble()
       if (lat != 999.0 && lon != 999.0) {
-        latlon = Pair(lat, lon)
+        geo = GeoPoint(lat, lon)
       }
     }
   }
@@ -118,8 +119,8 @@ class RemotePicture(val id: Int) : IPicture() {
       writeInt(id)
       writeString(title)
       writeLong(time?.time ?: -1L)
-      writeDouble(latlon?.first ?: 999.0)
-      writeDouble(latlon?.second ?: 999.0)
+      writeDouble(geo?.latitude ?: 999.0)
+      writeDouble(geo?.longitude ?: 999.0)
     }
   }
 
@@ -200,13 +201,9 @@ class LocalPicture(val path: String) : IPicture() {
     TODO("not implemented")
   }
 
-  override var title: String?
-    get() = File(path).nameWithoutExtension
-    set(value) {}
+  override var title: String? = File(path).nameWithoutExtension
 
-  override var time: Date?
-    get() = Date(EXIFinfo(path).timeTaken);
-    set(value) {}
+  override var time: Date? = Date(EXIFinfo(path).timeTaken);
 
   //region Parcelable implementation
 
@@ -233,17 +230,20 @@ class LocalPicture(val path: String) : IPicture() {
 
 class ResourcePicture(@DrawableRes val id: Int) : IPicture() {
 
+  constructor(@DrawableRes id: Int, resources: Resources): this(id) {
+    val exif: EXIFinfo = EXIFinfo().apply { setMetadata(resources.openRawResource(+id)) }
+    geo = exif.locationGeopoint
+  }
+
   constructor(parcel: Parcel) : this(parcel.readInt())
 
   override fun toString(): String = "resource:$id"
 
-  override var title: String?
-    get() = toString()
-    set(_) {}
+  override var title: String? = toString()
 
-  override var time: Date?
-    get() = Date(1000000L + 1000 * (100 - id))
-    set(_) {}
+  override var time: Date? = Date(1000000L + 1000 * (100 - id))
+
+  override var geo: GeoPoint? = null
 
   override suspend fun stream(): InputStream {
     throw NotImplementedError()

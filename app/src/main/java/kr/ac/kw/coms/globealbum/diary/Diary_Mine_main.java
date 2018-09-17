@@ -73,14 +73,7 @@ public class Diary_Mine_main extends AppCompatActivity {
         elementRow.add(new ResourcePicture(R.drawable.sample2));
         elementRow.sort();
 
-        final ArrayList<String> urls = new ArrayList<>();
-        final ArrayList<IPicture> pictures = new ArrayList<>();
-
-        for (IPicture i : elementRow) {
-            urls.add(Diary_mapNPictures.resourceToUri(this, ((ResourcePicture) i).getId()).toString());
-            pictures.add(i);
-        }
-
+        final ArrayList<IPicture> pictures = new ArrayList<>(elementRow);
 
         elementList.add(new PictureGroup("My Photos", elementRow));
         diaryImageView.setGroups(elementList);
@@ -93,7 +86,6 @@ public class Diary_Mine_main extends AppCompatActivity {
                     Toast.makeText(Diary_Mine_main.this, ((ResourcePicture) o).getTitle(), Toast.LENGTH_SHORT).show();
                     Intent intent = new Intent(getBaseContext(), GalleryDetail.class);
                     intent.putParcelableArrayListExtra("pictures", pictures);
-                    intent.putExtra("urls", urls);
                     intent.putExtra("index", position-1);
                     startActivity(intent);
                 }
