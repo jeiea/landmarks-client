@@ -91,7 +91,7 @@ public class Diary_mapNPictures extends AppCompatActivity {
         DiaryData.Title = "title";
         DiaryData.Text = "text";
         for (int i = 0; i < PicturesArray.size(); i++) {
-            DiaryData.Images.add(new ResourcePicture(PicturesArray.get(i)));
+            DiaryData.Images.add(new ResourcePicture(PicturesArray.get(i), getResources()));
         }
     }
 
@@ -464,6 +464,7 @@ public class Diary_mapNPictures extends AppCompatActivity {
                 //서버 통신 필요
 
                 //데이터 다시 가져오기
+                setMarkerToMapview();
                 break;
         }
     }
