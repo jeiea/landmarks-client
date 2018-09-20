@@ -61,6 +61,12 @@ public class EXIFinfo {
 
     public long getTimeTaken() //사진 촬영일 읽기(ms 단위의 Unix Time)
     {
-        return metadata.getFirstDirectoryOfType(ExifSubIFDDirectory.class).getDateDigitized().getTime();
+        try {
+            return metadata.getFirstDirectoryOfType(ExifSubIFDDirectory.class).getDateDigitized().getTime();
+        }
+        catch (NullPointerException e)
+        {
+            return 0;
+        }
     }
 }
