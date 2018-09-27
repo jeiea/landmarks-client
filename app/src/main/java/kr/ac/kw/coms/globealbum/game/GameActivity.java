@@ -27,6 +27,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.request.target.DrawableImageViewTarget;
 
@@ -71,7 +72,6 @@ public class GameActivity extends AppCompatActivity {
 
     ProgressBar progressBar = null;
     TextView stageTextView = null;
-    Button menuButton = null;
     TextView scoreTextView = null;
     TextView targetTextView = null;
 
@@ -241,8 +241,6 @@ public class GameActivity extends AppCompatActivity {
         stageTextView = findViewById(R.id.textview_stage);
         targetTextView = findViewById(R.id.textview_target);
         scoreTextView = findViewById(R.id.textview_score);
-        menuButton = findViewById(R.id.game_button_menu);
-        menuButton.setOnClickListener(new MenuButtonClickListener());
         questionTypeALayout = findViewById(R.id.cl_point_problem);
 
         //정답 확인 부분 뷰 연결
@@ -285,6 +283,7 @@ public class GameActivity extends AppCompatActivity {
         //마커 이벤트 등록
         markerClickListenerOverlay = markerEvent();
         myMapView.getOverlays().add(markerClickListenerOverlay);
+        stopTimer = Running;
         ui = new Handler();
         timeThreadhandler();
 
@@ -332,7 +331,7 @@ public class GameActivity extends AppCompatActivity {
                         }
                     }   //지명 문제에서 한번 테두리가 있는 후 정답 확인과 테두리 없을 시 정답확인 구현하기
                     else if (gameType == GameType.B) {
-
+                        clearLastSelectIfExists();
                     }
 
                     setAnswerLayout();
@@ -643,16 +642,15 @@ public class GameActivity extends AppCompatActivity {
             if (currentMarker == null) { //마커를 화면에 찍지 않고 정답을 확인하는 경우
                 curScore = -100;
             } else {
-                int criteria = 400;
+                int criteria = 300;
                 curScore = criteria - distance / 100;
+                curScore += timeScore / 100;
             }
-            curScore += timeScore / 100;
-
         } else if (gameType == GameType.B) {
             if (rightAnswerTypeB == false) {
                 curScore = -100;
             } else {
-                curScore = 400;
+                curScore = 300;
                 curScore += timeScore / 100;
             }
         }
@@ -740,33 +738,6 @@ public class GameActivity extends AppCompatActivity {
     }
 
     /**
-     * 메뉴 버튼 클릭 시 다이얼로그 표시하는 리스너
-     * 아직까지 사용 X
-     */
-    class MenuButtonClickListener implements View.OnClickListener {
-        @Override
-        public void onClick(View view) {
-            final List<String> listItems = new ArrayList<>();
-            listItems.add("설정");
-            listItems.add("종료");
-            final CharSequence[] items = listItems.toArray(new String[0]);
-
-            AlertDialog.Builder builder = new AlertDialog.Builder(GameActivity.this);
-            builder.setTitle("Menu");
-            builder.setItems(items, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialogInterface, int i) {
-                    String selectedText = items[i].toString();
-                    if (selectedText.equals("종료")) {
-                        finish();
-                    }
-                }
-            });
-            builder.show();
-        }
-    }
-
-    /**
      * 한 스테이지가 끝난 후 다음 단계로 넘어가는 리스너
      */
     class GameNextQuizListener implements View.OnClickListener {
@@ -811,6 +782,9 @@ public class GameActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * 지명 문제, 사진 문제를 골라서 화면에 표시
+     */
     private void chooseQuestionType() {
         Random random = new Random();
         random.setSeed(System.currentTimeMillis());

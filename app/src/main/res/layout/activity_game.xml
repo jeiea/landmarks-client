@@ -253,6 +253,13 @@
             android:orientation="vertical"
             app:layout_constraintGuide_percent="0.5" />
 
+        <android.support.constraint.Guideline
+            android:id="@+id/guide_answer_h"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_percent="0.2" />
+
         <ImageView
             android:id="@+id/picture_answer"
             android:layout_width="0dp"
@@ -269,7 +276,7 @@
             android:layout_height="wrap_content"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/guide_answer_v"
-            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintTop_toTopOf="@id/guide_answer_h"
             tools:text="오페라하우스" />
 
         <TextView
@@ -291,6 +298,16 @@
             tools:text="30점" />
 
         <Button
+            android:id="@+id/button_exit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="EXIT"
+            android:layout_marginTop="15dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/guide_answer_v"
+            app:layout_constraintTop_toBottomOf="@id/textview_land_score_answer"/>
+
+        <Button
             android:id="@+id/button_next"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -298,24 +315,5 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/guide_answer_v"
             app:layout_constraintTop_toBottomOf="@id/button_exit" />
-
-        <Button
-            android:id="@+id/button_exit"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="EXIT"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/guide_answer_v"
-            app:layout_constraintTop_toBottomOf="@id/textview_land_score_answer" />
     </android.support.constraint.ConstraintLayout>
-
-    <!-- what's this? -->
-    <Button
-        android:id="@+id/game_button_menu"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:visibility="gone"
-        android:text="MENU"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
 </android.support.constraint.ConstraintLayout>
