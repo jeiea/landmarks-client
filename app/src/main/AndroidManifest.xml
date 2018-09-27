@@ -45,7 +45,7 @@
         <activity android:name=".provider.Login" />
         <activity android:name=".diary.Diary_mapNPictures" />
         <activity android:name=".diary.Diary_Other_main" />
-        <activity android:name=".diary.Diary_Edit"></activity>
+        <activity android:name=".diary.Diary_Edit" />
     </application>
 
 </manifest>

@@ -27,7 +27,6 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.bumptech.glide.request.target.DrawableImageViewTarget;
 
@@ -37,10 +36,8 @@ import org.osmdroid.events.MapEventsReceiver;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.Projection;
-import org.osmdroid.views.overlay.LineDrawer;
 import org.osmdroid.views.overlay.MapEventsOverlay;
 import org.osmdroid.views.overlay.Marker;
-import org.osmdroid.views.overlay.Polygon;
 import org.osmdroid.views.overlay.Polyline;
 import org.osmdroid.views.overlay.infowindow.InfoWindow;
 import org.osmdroid.views.overlay.infowindow.MarkerInfoWindow;
@@ -75,6 +72,8 @@ public class GameActivity extends AppCompatActivity {
     TextView stageTextView = null;
     Button menuButton = null;
     TextView scoreTextView = null;
+    TextView targetTextView = null;
+
 
     Button goToNextStageButton, exitGameButton;
     TextView landNameAnswerTextView, landDistanceAnswerTextView, landScoreTextView;
@@ -92,7 +91,6 @@ public class GameActivity extends AppCompatActivity {
     int problem = 0;
     int score = 0;
     int timeScore = 0;
-    int stage = 1;
     int distance = 0;
     boolean rightAnswerTypeB = false;
 
@@ -128,16 +126,50 @@ public class GameActivity extends AppCompatActivity {
         B
     }
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        displayLoadingGif();
+
+
+        displayNextRoundOrFinishView();
+        //displayLoadingGif();
         redRect = getResources().getDrawable(R.drawable.rectangle_border, null);
 
         //게임 시작 전 문제 세팅
-        setQuestion();
+        //setQuestion();
+    }
+
+    int stage = 0;
+    Button gameStartButton,gameExitButton;
+    TextView gameNextRoundLevelTextview,gameNextRoundGoalTextview;
+
+    int[] limitScore = new int[]{600,800,1100,1400,1650,2000,2700};
+    int[] numberOfGames = new int[]{3,3,3,3,3,3,3};
+
+    private void displayNextRoundOrFinishView(){
+        stage++;
+        if( stage == 1 || score >= limitScore[stage-1] && stage != limitScore.length){
+            setContentView(R.layout.layout_game_next_round);
+            gameStartButton = findViewById(R.id.button_start);
+            gameExitButton = findViewById(R.id.button_exit);
+            gameNextRoundLevelTextview = findViewById(R.id.textview_level);
+            gameNextRoundGoalTextview = findViewById(R.id.textview_goal_score);
+            gameNextRoundLevelTextview.setText("Level " + stage);
+            gameNextRoundGoalTextview.setText(limitScore[stage-1]+"/"+numberOfGames[stage-1]);
+            gameStartButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    score=0;
+                    problem=0;
+                    setQuestion();
+                }
+            });
+            gameExitButton.setOnClickListener(new GameFinishListener());
+        }
+        else {
+            setRecyclerView();
+        }
     }
 
     private void displayLoadingGif() {
@@ -147,6 +179,7 @@ public class GameActivity extends AppCompatActivity {
         DrawableImageViewTarget gifImage = new DrawableImageViewTarget(loadigImageView);
         GlideApp.with(this).load(R.drawable.owl).into(gifImage);
     }
+
 
     /**
      * 문제 세팅
@@ -207,6 +240,7 @@ public class GameActivity extends AppCompatActivity {
 
         progressBar = findViewById(R.id.progressbar);
         stageTextView = findViewById(R.id.textview_stage);
+        targetTextView = findViewById(R.id.textview_target);
         scoreTextView = findViewById(R.id.textview_score);
         menuButton = findViewById(R.id.game_button_menu);
         menuButton.setOnClickListener(new MenuButtonClickListener());
@@ -230,6 +264,7 @@ public class GameActivity extends AppCompatActivity {
         BLUE_FLAG_DRAWABLE = getResources().getDrawable(R.drawable.blue_flag);
 
         stageTextView.setText("STAGE " + stage);
+        targetTextView.setText("TARGEt "+(numberOfGames[stage-1] - problem)+"/"+(numberOfGames[stage]));
 
         //퀴즈에 나올 사진들을 연결
         questionTypeAImageView = findViewById(R.id.picture);
@@ -763,6 +798,8 @@ public class GameActivity extends AppCompatActivity {
             answerLayout.setClickable(false);
 
             problem++;
+            targetTextView.setText("TARGET "+(numberOfGames[stage-1] - problem)+"/"+(numberOfGames[stage]));
+
             switch (problem) {
                 case 1:
                     setPictureQuestion(questionPic.get(problem));
@@ -782,14 +819,16 @@ public class GameActivity extends AppCompatActivity {
                     setPictureQuestion(questionPic.get(problem));
                     break;
                 case 4:
-                    setRecyclerView();
+                    displayNextRoundOrFinishView();
+                    //setRecyclerView();
                     //showDialogAfterGame();
                     break;
             }
-            stopTimer = Running;
-            ui = new Handler();
-            timeThreadhandler();
-
+            if( problem != 4){
+                stopTimer = Running;
+                ui = new Handler();
+                timeThreadhandler();
+            }
         }
     }
 
