@@ -48,6 +48,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
+import java.util.Random;
 
 import kr.ac.kw.coms.globealbum.R;
 import kr.ac.kw.coms.globealbum.common.GlideApp;
@@ -136,20 +137,18 @@ public class GameActivity extends AppCompatActivity {
         //displayLoadingGif();
         redRect = getResources().getDrawable(R.drawable.rectangle_border, null);
 
-        //게임 시작 전 문제 세팅
-        //setQuestion();
     }
 
     int stage = 0;
     Button gameStartButton,gameExitButton;
     TextView gameNextRoundLevelTextview,gameNextRoundGoalTextview;
 
-    int[] limitScore = new int[]{600,800,1100,1400,1650,2000,2700};
-    int[] numberOfGames = new int[]{3,3,3,3,3,3,3};
+    int[] limitScore = new int[]{600,800}; //600,800,1100,1400,1650,2000,2700
+    int[] numberOfGames = new int[]{3,3};
 
     private void displayNextRoundOrFinishView(){
         stage++;
-        if( stage == 1 || score >= limitScore[stage-1] && stage != limitScore.length){
+        if( stage == 1 || (stage  - 1 != limitScore.length && score >= limitScore[stage-1])){
             setContentView(R.layout.layout_game_next_round);
             gameStartButton = findViewById(R.id.button_start);
             gameExitButton = findViewById(R.id.button_exit);
@@ -264,7 +263,7 @@ public class GameActivity extends AppCompatActivity {
         BLUE_FLAG_DRAWABLE = getResources().getDrawable(R.drawable.blue_flag);
 
         stageTextView.setText("STAGE " + stage);
-        targetTextView.setText("TARGEt "+(numberOfGames[stage-1] - problem)+"/"+(numberOfGames[stage]));
+        targetTextView.setText("TARGET "+(problem+1)+"/"+(numberOfGames[stage-1]));
 
         //퀴즈에 나올 사진들을 연결
         questionTypeAImageView = findViewById(R.id.picture);
@@ -288,8 +287,8 @@ public class GameActivity extends AppCompatActivity {
         myMapView.getOverlays().add(markerClickListenerOverlay);
         ui = new Handler();
         timeThreadhandler();
-        setPlaceNameQuestion(questionPic.get(problem));  //사진을 보여주고 지명을 찾는 문제 형식
-//        setPictureQuestion(questionPic.get(problem)); //지명을 보여주고 사진을 찾는 문제 형식
+
+        chooseQuestionType();
     }
 
     /**
@@ -644,8 +643,8 @@ public class GameActivity extends AppCompatActivity {
             if (currentMarker == null) { //마커를 화면에 찍지 않고 정답을 확인하는 경우
                 curScore = -100;
             } else {
-                final int CRITERIA = 400;
-                curScore = CRITERIA - distance / 100;
+                int criteria = 400;
+                curScore = criteria - distance / 100;
             }
             curScore += timeScore / 100;
 
@@ -798,37 +797,30 @@ public class GameActivity extends AppCompatActivity {
             answerLayout.setClickable(false);
 
             problem++;
-            targetTextView.setText("TARGET "+(numberOfGames[stage-1] - problem)+"/"+(numberOfGames[stage]));
+            targetTextView.setText("TARGET "+(problem+1)+"/"+(numberOfGames[stage-1]));
 
-            switch (problem) {
-                case 1:
-                    setPictureQuestion(questionPic.get(problem));
-                    //setPictureQuestion(questionPic.get(problem));
-                    break;
-                case 2:
-                    setPictureQuestion(questionPic.get(problem));
-                    /*
-                    stage++;
-                    stageTextView.setText("STAGE " + stage);
-                    score = 0;
-                    scoreTextView.setText("SCORE " + score);
-                    */
-                    //setPictureQuestion(questionPic.get(problem));
-                    break;
-                case 3:
-                    setPictureQuestion(questionPic.get(problem));
-                    break;
-                case 4:
-                    displayNextRoundOrFinishView();
-                    //setRecyclerView();
-                    //showDialogAfterGame();
-                    break;
-            }
-            if( problem != 4){
+            if(problem < numberOfGames[stage-1]){
+                chooseQuestionType();
                 stopTimer = Running;
                 ui = new Handler();
                 timeThreadhandler();
             }
+            else{
+                displayNextRoundOrFinishView();
+            }
+        }
+    }
+
+    private void chooseQuestionType() {
+        Random random = new Random();
+        random.setSeed(System.currentTimeMillis());
+
+        int randomNumber = random.nextInt(2);
+        if(randomNumber == 0){
+            setPictureQuestion(questionPic.get(problem));
+        }
+        else if (randomNumber == 1){
+            setPlaceNameQuestion(questionPic.get(problem));
         }
     }
 
