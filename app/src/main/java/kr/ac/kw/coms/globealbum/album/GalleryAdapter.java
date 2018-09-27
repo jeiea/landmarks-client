@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import kr.ac.kw.coms.globealbum.R;
 import kr.ac.kw.coms.globealbum.provider.IPicture;
 import kr.ac.kw.coms.globealbum.provider.LocalPicture;
+import kr.ac.kw.coms.globealbum.provider.ResourcePicture;
 
 class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHolder> {
     private ArrayList<Model> mDataset;
@@ -103,14 +104,12 @@ class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHolder> {
                     Intent intent = new Intent(context, GalleryDetail.class);
                     intent.putExtra("index", holder.index);
                     ArrayList<IPicture> pictures = new ArrayList<>();
-                    for (int i = 0; i < mDataset.size(); i++) {
-                        pictures.add(new LocalPicture(mDataset.get(i).getImage()));
-                    }
-                    intent.putParcelableArrayListExtra("pictures", pictures);
-                    ((FragmentActivity) context).startActivityForResult(intent, 1);
+                    pictures.add(new LocalPicture(holder.ImagePath));
+                    intent.putExtra("pictures", pictures);
+                    ((FragmentActivity)context).startActivityForResult(intent, 2);
                 }
             }
-        });
+        });/*
         holder.mImageView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
@@ -122,7 +121,7 @@ class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHolder> {
                 }
                 return true;
             }
-        });
+        });*/
     }
 
     @Override
@@ -138,7 +137,7 @@ class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHolder> {
             i.mImageView.setImageBitmap(i.Image_original);
         }
         MultiSelectMode = false;
-        ((AppCompatImageView) ((Activity) context).findViewById(R.id.btn_detail)).setVisibility(View.GONE);
+        ((AppCompatImageView) ((Activity) context).findViewById(R.id.gallerydetail_btn_Select)).setVisibility(View.GONE);
     }
 
     public boolean isMultiSelectMode() {

@@ -1,5 +1,6 @@
 package kr.ac.kw.coms.globealbum.album;
 /* 작성자: 이상훈 */
+import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.MediaStore;
@@ -18,11 +19,24 @@ import java.util.ArrayList;
 import java.util.Comparator;
 
 import kr.ac.kw.coms.globealbum.R;
+import kr.ac.kw.coms.globealbum.common.MediaScannerKt;
+import kr.ac.kw.coms.globealbum.provider.IPicture;
 
 public class GalleryActivity extends AppCompatActivity {
     private RecyclerView mRecyclerView;
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode == RESULT_OK)
+        {
+            IPicture returned_data = data.getParcelableExtra("data");
+            if (returned_data != null)
+                setResult(1, data);
+            finish();
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,6 +68,7 @@ public class GalleryActivity extends AppCompatActivity {
         Uri uri;
         Cursor cursor;
         int column_index_data, column_index_folder_name;
+        MediaScannerKt.mediaScan(getBaseContext());
         ArrayList<Model> listOfAllImages = new ArrayList<>();
         String absolutePathOfImage = null;
         uri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
@@ -82,8 +97,6 @@ public class GalleryActivity extends AppCompatActivity {
                     setResult(RESULT_CANCELED);
                     finish();
                 }
-                break;
-            case R.id.btn_detail:
                 break;
         }
     }

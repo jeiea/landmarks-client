@@ -11,7 +11,7 @@
         android:id="@+id/gallerydetail_topbar"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:background="#AAAAAA"
+        android:background="@color/colorPrimary"
         android:orientation="horizontal"
         app:layout_constraintBottom_toTopOf="@id/gallerydetail_guideline"
         app:layout_constraintHeight_percent="0.1"
@@ -24,7 +24,7 @@
             android:layout_height="match_parent"
             android:src="@drawable/arrow_left"
             android:padding="10dp"
-            android:onClick="gallerydetail_onClick"
+            android:onClick="gallerycancel_onClick"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintDimensionRatio="1:1"
             app:layout_constraintLeft_toLeftOf="parent"
@@ -39,16 +39,16 @@
             android:textColor="#FFFFFF"
             android:textSize="20dp"
             app:layout_constraintLeft_toRightOf="@id/gallerydetail_btn_back"
-            app:layout_constraintRight_toLeftOf="@id/gallerydetail_btn_detail"
+            app:layout_constraintRight_toLeftOf="@id/gallerydetail_btn_Select"
             app:layout_constraintTop_toTopOf="parent" />
 
         <android.support.v7.widget.AppCompatImageView
-            android:id="@+id/gallerydetail_btn_detail"
+            android:id="@+id/gallerydetail_btn_Select"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:src="@drawable/detail"
             android:padding="10dp"
-            android:onClick="gallerydetail_onClick"
+            android:onClick="galleryselect_onClick"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintDimensionRatio="1:1"
             app:layout_constraintRight_toRightOf="parent"
@@ -89,62 +89,4 @@
         app:layout_constraintTop_toBottomOf="@id/gallerydetail_guidelineBottom">
 
     </android.support.constraint.ConstraintLayout>
-
-
-    <android.support.constraint.ConstraintLayout
-        android:id="@+id/gallerydetail_menu"
-        android:layout_width="match_parent"
-        android:background="@color/black_overlay"
-        android:layout_height="match_parent"
-        android:visibility="gone"
-        android:onClick="gallerydetail_CloseMenu"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <android.support.constraint.ConstraintLayout
-            android:id="@+id/gallerydetail_detailMenu_Inner"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:background="#FFFFFF"
-            android:padding="10dp"
-            android:clickable="true"
-            android:focusable="false"
-            android:layout_margin="14dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
-
-            <TextView
-                android:id="@+id/gallerydetail_detailMenu_Title"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="작업 선택..."
-                android:layout_marginStart="5dp"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <Button
-                android:id="@+id/gallerydetail_detailMenu_btn_Delete"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="삭제"
-                android:onClick="gallerydetail_onClick"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/gallerydetail_detailMenu_Title" />
-
-            <Button
-                android:id="@+id/gallerydetail_detailMenu_btn_Select"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="선택"
-                android:onClick="gallerydetail_onClick"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/gallerydetail_detailMenu_btn_Delete" />
-        </android.support.constraint.ConstraintLayout>
-    </android.support.constraint.ConstraintLayout>
-
-
 </android.support.constraint.ConstraintLayout>

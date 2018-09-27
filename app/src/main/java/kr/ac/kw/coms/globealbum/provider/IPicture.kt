@@ -230,7 +230,10 @@ class LocalPicture(val path: String) : IPicture() {
 
 class ResourcePicture(@DrawableRes val id: Int) : IPicture() {
 
+  var resources: Resources? = null
+
   constructor(@DrawableRes id: Int, resources: Resources): this(id) {
+    this.resources = resources
     val exif: EXIFinfo = EXIFinfo().apply { setMetadata(resources.openRawResource(+id)) }
     geo = exif.locationGeopoint
   }
@@ -246,7 +249,7 @@ class ResourcePicture(@DrawableRes val id: Int) : IPicture() {
   override var geo: GeoPoint? = null
 
   override suspend fun stream(): InputStream {
-    throw NotImplementedError()
+    return resources?.openRawResource(+id) ?: "".byteInputStream()
   }
 
   override fun delete() {
