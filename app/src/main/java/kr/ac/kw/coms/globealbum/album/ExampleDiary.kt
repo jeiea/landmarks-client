@@ -97,6 +97,11 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
       picAdapter.data = value
     }
 
+  fun clearAllItems()
+  {
+    picAdapter.clearAllItems()
+  }
+
 }
 
 /***
@@ -117,6 +122,12 @@ class GroupedPicAdapter : RecyclerView.Adapter<GroupedPicAdapter.ElementViewHold
       }
       notifyDataSetChanged()
     }
+
+  fun clearAllItems()
+  {
+    viewData.clear()
+    notifyDataSetChanged()
+  }
 
   var padding: Int = 0
   var nameTextSize: Int = 20

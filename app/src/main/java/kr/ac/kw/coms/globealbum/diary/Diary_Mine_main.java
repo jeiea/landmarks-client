@@ -166,4 +166,9 @@ public class Diary_Mine_main extends AppCompatActivity {
                 .setNegativeButton("취소", dialogClickListener)
                 .show();
     }
+
+    public void diary_mine_main_AddNewDiary(View view) {
+        Intent intent = new Intent(getBaseContext(), diary_new.class);
+        startActivityForResult(intent, 1);
+    }
 }

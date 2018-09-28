@@ -2,36 +2,23 @@ package kr.ac.kw.coms.globealbum.diary;
 
 import android.content.ContentResolver;
 import android.content.Context;
-import android.content.CursorLoader;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.DrawableWrapper;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.ParcelFileDescriptor;
-import android.provider.MediaStore;
-import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.helper.ItemTouchHelper;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
 import com.google.android.flexbox.FlexDirection;
 
 import org.jetbrains.annotations.NotNull;
@@ -42,29 +29,19 @@ import org.osmdroid.views.overlay.MapEventsOverlay;
 import org.osmdroid.views.overlay.Marker;
 import org.osmdroid.views.overlay.Polyline;
 
-import java.io.File;
-import java.io.FileDescriptor;
-import java.io.InputStream;
-import java.net.URL;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 
 import kr.ac.kw.coms.globealbum.R;
-import kr.ac.kw.coms.globealbum.album.GalleryActivity;
 import kr.ac.kw.coms.globealbum.album.GalleryDetail;
 import kr.ac.kw.coms.globealbum.album.GroupDiaryView;
-import kr.ac.kw.coms.globealbum.album.GroupedPicAdapter;
 import kr.ac.kw.coms.globealbum.album.PictureGroup;
-import kr.ac.kw.coms.globealbum.common.MediaScannerKt;
 import kr.ac.kw.coms.globealbum.provider.Promise;
 import kr.ac.kw.coms.globealbum.provider.ResourcePicture;
 import kr.ac.kw.coms.globealbum.common.CircularImageKt;
 import kr.ac.kw.coms.globealbum.map.MyMapView;
 import kr.ac.kw.coms.globealbum.provider.EXIFinfo;
 import kr.ac.kw.coms.globealbum.provider.IPicture;
-import kr.ac.kw.coms.globealbum.provider.UrlPicture;
 
 public class Diary_mapNPictures extends AppCompatActivity {
 
@@ -89,7 +66,7 @@ public class Diary_mapNPictures extends AppCompatActivity {
         PicturesArray.add(R.drawable.coord3);
 
         DiaryData.Title = "title";
-        DiaryData.Text = "text";
+        DiaryData.Description = "text";
         for (int i = 0; i < PicturesArray.size(); i++) {
             DiaryData.Images.add(new ResourcePicture(PicturesArray.get(i), getResources()));
         }
@@ -326,109 +303,10 @@ public class Diary_mapNPictures extends AppCompatActivity {
 
 
         Edit_Title.setText(DiaryData_Edit.Title);
-        Edit_Description.setText(DiaryData_Edit.Text);
-        adapter = new EditImageListAdapter(DiaryData_Edit.Images);
+        Edit_Description.setText(DiaryData_Edit.Description);
+        adapter = new EditImageListAdapter(this, DiaryData_Edit.Images);
         Edit_ImageList.setLayoutManager(new LinearLayoutManager(getBaseContext()));
         Edit_ImageList.setAdapter(adapter);
-    }
-
-    public class EditImageListAdapter extends RecyclerView.Adapter<ItemViewHolder> {
-        final ArrayList<IPicture> mItems = new ArrayList<>();
-
-        public EditImageListAdapter(ArrayList<IPicture> Items) {
-            mItems.addAll(Items);
-        }
-
-        public void AddNewPicture(IPicture newPicture) {
-            mItems.add(newPicture);
-            notifyDataSetChanged();
-        }
-
-        @Override
-        public int getItemViewType(int position) {
-            if (position < getItemCount() - 1) {
-                return 0;
-            } else {
-                return 1;
-            }
-        }
-
-        @NonNull
-        @Override
-        public ItemViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            View view = null;
-            if (viewType == 0) {
-                view = LayoutInflater.from(getBaseContext()).inflate(R.layout.layout_map_n_pictures_verticallist, parent, false);
-            } else {
-                view = LayoutInflater.from(getBaseContext()).inflate(R.layout.layout_map_n_pictures_verticallist_new, parent, false);
-            }
-            return new ItemViewHolder(view);
-        }
-
-        @Override
-        public void onBindViewHolder(@NonNull ItemViewHolder holder, final int position) {
-            //목록의 내용 추가
-            if (position < getItemCount() - 1) {
-                Glide.with(holder.imageView).load(mItems.get(position)).into(holder.imageView);
-                holder.text_Title.setText(mItems.get(position).getTitle());
-                holder.btn_Delete.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        AlertDialog.Builder alert = new AlertDialog.Builder(Diary_mapNPictures.this);
-                        alert.setTitle("삭제 확인");
-                        alert.setMessage("사진을 삭제합니다.");
-                        alert.setPositiveButton("확인", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                mItems.remove(position);
-                                notifyDataSetChanged();
-                                dialog.dismiss();
-                            }
-                        });
-                        alert.setNegativeButton("취소", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                dialog.dismiss();
-                            }
-                        });
-                        alert.show();
-                    }
-                });
-            } else {
-                holder.btn_New.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        Toast.makeText(Diary_mapNPictures.this, "New Image!", Toast.LENGTH_SHORT).show();
-                        Intent intent = new Intent(getBaseContext(), GalleryActivity.class);
-                        startActivityForResult(intent, 1);
-                    }
-                });
-            }
-        }
-
-        @Override
-        public int getItemCount() {
-            return mItems.size() + 1;
-        }
-    }
-
-    public class ItemViewHolder extends RecyclerView.ViewHolder {
-        ConstraintLayout rootLayout;
-        ImageView imageView;
-        TextView text_Title;
-        Button btn_Delete;
-        Button btn_New;
-
-        public ItemViewHolder(View itemView) {
-            super(itemView);
-            rootLayout = (ConstraintLayout) itemView;
-            imageView = (ImageView) rootLayout.getViewById(R.id.verticalList_Image);
-            text_Title = (TextView) rootLayout.getViewById(R.id.verticalList_Title);
-            if (rootLayout.getId() == R.id.verticalList_Root)
-                btn_Delete = (Button) rootLayout.getViewById(R.id.verticalList_Delete);
-            else
-                btn_New = (Button) rootLayout.getViewById(R.id.verticalList_New);
-        }
     }
 
 
@@ -460,11 +338,24 @@ public class Diary_mapNPictures extends AppCompatActivity {
                 diary_Switch(VIEW_MODE);
                 Toast.makeText(this, "편집 완료", Toast.LENGTH_SHORT).show();
                 //변경된 내용 반영
+                EditText Edit_Title = findViewById(R.id.diary_edit_TitleText);
+                EditText Edit_Description = findViewById(R.id.diary_edit_DescriptionText);
+                DiaryData_Edit.Title = Edit_Title.getText().toString();
+                DiaryData_Edit.Description = Edit_Description.getText().toString();
+                DiaryData_Edit.Images = adapter.getItems();
 
                 //서버 통신 필요
+                //DiaryData_Edit를 서버에 전송
 
                 //데이터 다시 가져오기
-                setMarkerToMapview();
+                DiaryData.set(DiaryData_Edit);
+                ((TextView)findViewById(R.id.diary_mapNpics_Title)).setText(DiaryData.Title);
+                ((TextView)findViewById(R.id.diary_mapNpics_Description)).setText(DiaryData.Description);
+                picView.clearAllItems();
+                ArrayList<PictureGroup> elementList = new ArrayList<>();
+                elementList.add(new PictureGroup("", DiaryData.Images));
+                picView.setGroups(elementList);
+
                 break;
         }
     }

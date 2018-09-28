@@ -19,7 +19,7 @@ public class Diary_Edit extends AppCompatActivity {
         RecyclerView ImageList = findViewById(R.id.diary_edit_ImageList);
         Diary_Parcel Data = LoadData();
         Title.setText(Data.Title);
-        Description.setText(Data.Text);
+        Description.setText(Data.Description);
     }
 
     private Diary_Parcel LoadData()

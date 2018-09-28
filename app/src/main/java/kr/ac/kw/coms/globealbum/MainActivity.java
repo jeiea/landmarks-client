@@ -31,21 +31,6 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        final int WEB_GALLERY = 1;
-        final int LOCAL_STORAGE = 2;
-        if (requestCode == 1 && resultCode == RESULT_OK) {
-
-        } else if (requestCode == 2 && resultCode == RESULT_OK) //이미지 선택 완료
-        {
-            String FilePath = data.getStringExtra("FILEPATH");
-            exifinfo = new EXIFinfo(FilePath);
-            double[] Location = exifinfo.getLocation();
-            Toast.makeText(this, Location[0] + ", " + Location[1], Toast.LENGTH_LONG).show();
-        } else if (requestCode == 3) {
-
-        } else if (resultCode == RESULT_CANCELED) {
-            Toast.makeText(this, "Canceled", Toast.LENGTH_SHORT).show();
-        }
     }
 
     @Override
