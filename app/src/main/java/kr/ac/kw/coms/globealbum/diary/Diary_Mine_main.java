@@ -1,5 +1,6 @@
 package kr.ac.kw.coms.globealbum.diary;
 
+import android.app.DownloadManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -12,6 +13,7 @@ import android.view.View;
 import android.widget.TabHost;
 import android.widget.Toast;
 
+import kr.ac.kw.coms.globealbum.common.RequestCodes;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -169,6 +171,6 @@ public class Diary_Mine_main extends AppCompatActivity {
 
     public void diary_mine_main_AddNewDiary(View view) {
         Intent intent = new Intent(getBaseContext(), diary_new.class);
-        startActivityForResult(intent, 1);
+        startActivityForResult(intent, RequestCodes.MakeNewDiary);
     }
 }

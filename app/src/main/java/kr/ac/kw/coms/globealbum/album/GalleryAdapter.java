@@ -26,6 +26,7 @@ import android.widget.Toast;
 import java.util.ArrayList;
 
 import kr.ac.kw.coms.globealbum.R;
+import kr.ac.kw.coms.globealbum.common.RequestCodes;
 import kr.ac.kw.coms.globealbum.provider.IPicture;
 import kr.ac.kw.coms.globealbum.provider.LocalPicture;
 import kr.ac.kw.coms.globealbum.provider.ResourcePicture;
@@ -106,7 +107,7 @@ class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHolder> {
                     ArrayList<IPicture> pictures = new ArrayList<>();
                     pictures.add(new LocalPicture(holder.ImagePath));
                     intent.putExtra("pictures", pictures);
-                    ((FragmentActivity)context).startActivityForResult(intent, 2);
+                    ((FragmentActivity)context).startActivityForResult(intent, RequestCodes.OpenGalleryDetail);
                 }
             }
         });/*

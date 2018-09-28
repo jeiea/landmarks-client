@@ -21,6 +21,7 @@ import android.widget.Toast;
 
 import com.google.android.flexbox.FlexDirection;
 
+import kr.ac.kw.coms.globealbum.common.RequestCodes;
 import org.jetbrains.annotations.NotNull;
 import org.osmdroid.events.MapEventsReceiver;
 import org.osmdroid.util.GeoPoint;
@@ -362,7 +363,7 @@ public class Diary_mapNPictures extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == 1) {
+        if (requestCode == RequestCodes.SelectNewPhoto) {
             if (data == null) {
                 Toast.makeText(this, "선택된 사진 없음", Toast.LENGTH_SHORT).show();
                 return;
