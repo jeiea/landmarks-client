@@ -33,7 +33,7 @@ public class GalleryActivity extends AppCompatActivity {
         {
             IPicture returned_data = data.getParcelableExtra("data");
             if (returned_data != null)
-                setResult(1, data);
+                setResult(RESULT_OK, data);
             finish();
         }
     }
