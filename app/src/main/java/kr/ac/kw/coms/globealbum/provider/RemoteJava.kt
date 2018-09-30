@@ -2,6 +2,8 @@ package kr.ac.kw.coms.globealbum.provider
 
 import android.util.Log
 import kotlinx.coroutines.experimental.Job
+import kr.ac.kw.coms.landmarks.client.LoginRep
+import kr.ac.kw.coms.landmarks.client.PictureRep
 import kr.ac.kw.coms.landmarks.client.Remote
 import kr.ac.kw.coms.landmarks.client.ReverseGeocodeResult
 import org.osmdroid.util.GeoPoint
@@ -22,22 +24,26 @@ public object RemoteJava {
   fun checkAlive(prom: Promise<Boolean>): Job =
     prom.resolve { client.checkAlive() }
 
-  fun register(ident: String, pass: String, email: String, nick: String, prom: Promise<Unit>): Job =
-    prom.resolve { client.register(ident, pass, email, nick) }
+  fun register(form: LoginRep, prom: Promise<Unit>): Job =
+    prom.resolve { client.register(form.login!!, form.password!!, form.email!!, form.nick!!) }
 
   fun login(ident: String, pass: String, prom: Promise<Unit>): Job =
     prom.resolve { client.login(ident, pass) }
 
-  fun uploadPicture(file: File, latitude: Float? = null, longitude: Float? = null, addr: String? = null, prom: Promise<Unit>): Job =
-    prom.resolve { client.uploadPicture(file, latitude, longitude, addr) }
+  fun uploadPicture(info: PictureRep, file: File, prom: Promise<Unit>): Job =
+    prom.resolve { client.uploadPicture(info, file) }
 
   fun getRandomPictures(n: Int, promise: Promise<List<RemotePicture>>) {
     promise.resolve {
       client.getRandomProblems(n).map { pic ->
+        val p = pic.value
         RemotePicture(pic.id).apply {
-          geo = GeoPoint(pic.lat, pic.lon)
-          time = pic.time
-          title = pic.address
+          val (lat, lon) = Pair(p.lat, p.lon)
+          if (lat != null && lon != null) {
+            geo = GeoPoint(lat.toDouble(), lon.toDouble())
+          }
+          time = p.time
+          title = p.address
         }
       }
     }

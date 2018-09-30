@@ -9,14 +9,17 @@ import io.ktor.client.features.cookies.AcceptAllCookiesStorage
 import io.ktor.client.features.cookies.HttpCookies
 import io.ktor.client.features.json.JsonFeature
 import io.ktor.client.request.*
+import io.ktor.client.request.forms.MultiPartFormDataContent
+import io.ktor.client.request.forms.formData
 import io.ktor.client.response.HttpResponse
 import io.ktor.http.*
 import kotlinx.coroutines.experimental.channels.ArrayChannel
 import kotlinx.coroutines.experimental.channels.sendBlocking
 import kotlinx.coroutines.experimental.delay
-import kotlinx.coroutines.experimental.io.jvm.javaio.toOutputStream
 import kotlinx.io.InputStream
+import kotlinx.io.core.writeFully
 import java.io.File
+import java.net.URLEncoder
 import java.util.*
 import kotlin.math.max
 
@@ -30,12 +33,13 @@ class Remote(base: HttpClient, val basePath: String = herokuUri) {
     private const val chromeAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.59 Safari/537.36"
   }
 
-  var profile: LoginRep? = null
+  var profile: WithIntId<LoginRep>? = null
 
   suspend inline fun <reified T> request(method: HttpMethod, url: String, builder: HttpRequestBuilder.() -> Unit = {}): T {
     val response: HttpResponse = http.request {
       this.method = method
       url(url)
+      header("User-Agent", "landmarks-client")
       builder()
     }
     if (response.status.isSuccess()) {
@@ -44,13 +48,13 @@ class Remote(base: HttpClient, val basePath: String = herokuUri) {
     throw response.call.receive<ServerFault>()
   }
 
-  suspend inline fun <reified T> get(url: String, builder: HttpRequestBuilder.() -> Unit = {}): T =
+  private suspend inline fun <reified T> get(url: String, builder: HttpRequestBuilder.() -> Unit = {}): T =
     request(HttpMethod.Get, url, builder)
 
-  suspend inline fun <reified T> post(url: String, builder: HttpRequestBuilder.() -> Unit = {}): T =
+  private suspend inline fun <reified T> post(url: String, builder: HttpRequestBuilder.() -> Unit = {}): T =
     request(HttpMethod.Post, url, builder)
 
-  suspend inline fun <reified T> put(url: String, builder: HttpRequestBuilder.() -> Unit = {}): T =
+  private suspend inline fun <reified T> put(url: String, builder: HttpRequestBuilder.() -> Unit = {}): T =
     request(HttpMethod.Put, url, builder)
 
   init {
@@ -65,10 +69,6 @@ class Remote(base: HttpClient, val basePath: String = herokuUri) {
   }
 
   constructor() : this(HttpClient(Android.create()), herokuUri)
-
-  private fun HttpRequestBuilder.userAgent() {
-    header("User-Agent", "landmarks-client")
-  }
 
   private fun HttpRequestBuilder.json(json: Any) {
     contentType(ContentType.Application.Json)
@@ -87,9 +87,10 @@ class Remote(base: HttpClient, val basePath: String = herokuUri) {
     return ret
   }
 
-  suspend fun reverseGeocodeUnsafe(latitude: Double, longitude: Double): ReverseGeocodeResult {
+  private suspend fun reverseGeocodeUnsafe(latitude: Double, longitude: Double): ReverseGeocodeResult {
     val json: String = get("https://nominatim.openstreetmap.org/reverse") {
       parameter("format", "json")
+      parameter("accept-language", "ko,en")
       parameter("lat", latitude.toString())
       parameter("lon", longitude.toString())
       userAgent(chromeAgent)
@@ -99,11 +100,11 @@ class Remote(base: HttpClient, val basePath: String = herokuUri) {
   }
 
   suspend fun checkAlive(): Boolean {
-    try {
+    return try {
       get<Unit>("$basePath/")
-      return true
+      true
     } catch (e: Throwable) {
-      return false
+      false
     }
   }
 
@@ -119,49 +120,86 @@ class Remote(base: HttpClient, val basePath: String = herokuUri) {
       nick = nick
     )
     post<Unit>("$basePath/auth/register") {
-      userAgent()
       json(regFields)
     }
   }
 
-  suspend fun login(ident: String, pass: String): LoginRep {
+  suspend fun login(ident: String, pass: String): WithIntId<LoginRep> {
     profile = post("$basePath/auth/login") {
-      userAgent()
       json(LoginRep(login = ident, password = pass))
     }
     return profile!!
   }
 
-  suspend fun uploadPicture(file: File, latitude: Float? = null, longitude: Float? = null, addr: String? = null) {
-    val content = MultiPartContent.build {
-      latitude?.also { add("lat", it.toString()) }
-      longitude?.also { add("lon", it.toString()) }
-      addr?.also { add("address", it) }
-      add("pic0", filename = file.name) {
-        file.inputStream().copyToSuspend(toOutputStream())
+  suspend fun uploadPicture(meta: PictureRep, file: File): WithIntId<PictureRep> {
+    val filename: String = URLEncoder.encode(file.name, "UTF-8")
+    val form = MultiPartFormDataContent(formData {
+      meta.lat?.also { append("lat", it.toString()) }
+      meta.lon?.also { append("lon", it.toString()) }
+      meta.address?.also { append("address", it) }
+      append("pic0", filename) {
+        writeFully(file.readBytes())
       }
-    }
-    put<Unit>("$basePath/picture") {
-      body = content
+    })
+    return put("$basePath/picture") {
+      body = form
     }
   }
 
-  suspend fun getRandomProblems(n: Int): List<PictureRep> {
+  suspend fun getRandomProblems(n: Int): List<WithIntId<PictureRep>> {
     return get("$basePath/problem/random/$n")
   }
 
+  suspend fun modifyPictureInfo(id: Int, info: PictureRep) {
+    return post("$basePath/picture/info/${id}") {
+      json(info)
+    }
+  }
+
+  suspend fun getPictureInfo(id: Int): PictureRep {
+    return get("$basePath/picture/info/$id")
+  }
+
+  suspend fun deletePicture(id: Int) {
+    TODO()
+  }
+
   suspend fun getPicture(id: Int): InputStream {
-    return get("$basePath/picture/${id}")
+    return get("$basePath/picture/$id")
   }
 
-  suspend fun getPictureInfos(userId: Int) {
+  suspend fun getPictureInfos(userId: Int): MutableList<WithIntId<PictureRep>> {
+    return get("$basePath/picture/user/$userId")
   }
 
-  suspend fun getMyPictureInfos() {
-    return getPictureInfos(profile!!.id!!)
+  suspend fun getMyPictureInfos(): MutableList<WithIntId<PictureRep>> {
+    return getPictureInfos(profile!!.id)
   }
 
-  suspend fun getMyCollections() {
+
+  suspend fun uploadCollection(collection: CollectionRep): WithIntId<CollectionRep> {
+    return put("$basePath/collection") {
+      json(collection)
+    }
   }
+
+  suspend fun getCollections(ownerId: Int): MutableList<WithIntId<CollectionRep>> {
+    return get("$basePath/collection/user/$ownerId")
+  }
+
+  suspend fun getMyCollections(): MutableList<WithIntId<CollectionRep>> {
+    return getCollections(profile!!.id)
+  }
+
+  suspend fun modifyCollection(id: Int, collection: CollectionRep) {
+    return post("$basePath/collection/${id}") {
+      json(collection)
+    }
+  }
+
+  suspend fun deleteCollection(id: Int) {
+    TODO()
+  }
+
 
 }
