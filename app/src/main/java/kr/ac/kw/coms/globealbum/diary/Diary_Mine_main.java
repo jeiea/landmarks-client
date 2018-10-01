@@ -9,7 +9,9 @@ import android.os.Parcelable;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
+import android.widget.ImageButton;
 import android.widget.TabHost;
 import android.widget.Toast;
 
@@ -167,6 +169,14 @@ public class Diary_Mine_main extends AppCompatActivity {
                 .setPositiveButton("삭제", dialogClickListener)
                 .setNegativeButton("취소", dialogClickListener)
                 .show();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == RequestCodes.MakeNewDiary && resultCode == RESULT_OK)
+        {
+            //새로 등록된 다이어리 반영하기(서버와의 통신은 이미 완료)
+        }
     }
 
     public void diary_mine_main_AddNewDiary(View view) {

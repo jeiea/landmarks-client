@@ -13,6 +13,7 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import kr.ac.kw.coms.globealbum.R;
 import kr.ac.kw.coms.globealbum.album.GalleryActivity;
+import kr.ac.kw.coms.globealbum.common.RequestCodes;
 import kr.ac.kw.coms.globealbum.provider.IPicture;
 
 import java.util.ArrayList;
@@ -114,7 +115,7 @@ public class EditImageListAdapter extends RecyclerView.Adapter<ItemViewHolder> {
                 public void onClick(View v) {
                     Toast.makeText(RootActivity, "New Image!", Toast.LENGTH_SHORT).show();
                     Intent intent = new Intent(RootActivity.getBaseContext(), GalleryActivity.class);
-                    RootActivity.startActivityForResult(intent, 1);
+                    RootActivity.startActivityForResult(intent, RequestCodes.SelectNewPhoto);
                 }
             });
         }
