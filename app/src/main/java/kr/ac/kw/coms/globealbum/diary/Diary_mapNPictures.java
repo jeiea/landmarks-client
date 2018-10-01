@@ -141,7 +141,9 @@ public class Diary_mapNPictures extends AppCompatActivity {
      */
     private void setMarkerToMapview() {
         myMapView.getOverlays().clear();
+        myMapView.invalidate();
         markerList = new ArrayList<>();
+
         //GPS 정보 뽑아오기
         EXIFinfo exifInfo = new EXIFinfo();
         final Drawable[] drawables = new Drawable[DiaryData.Images.size()];
@@ -150,21 +152,21 @@ public class Diary_mapNPictures extends AppCompatActivity {
             final int idx = i;
             IPicture pic = DiaryData.Images.get(i);
             pic.drawable(getResources(), new Promise<Drawable>() {
-                int cnt = 0;
 
                 @Override
                 public void success(Drawable result) {
                     drawables[idx] = result;
                     arrayList.add(1);
-                    cnt++;
                     if (arrayList.size() == DiaryData.Images.size()) {
+                        Log.d("ddd","ddd1");
                         addCircularMarker(drawables);
                     }
                 }
             });
 
         }
-        myMapView.invalidate();
+        Log.d("ddd","ddd7");
+
     }
 
     /**
@@ -184,7 +186,8 @@ public class Diary_mapNPictures extends AppCompatActivity {
                 drawPolyline(markerList.get(markerListSize - 2).getPosition(), markerList.get(markerListSize - 1).getPosition());
             }
         }
-        /*
+        Log.d("ddd","ddd2");
+
         double minLat = Double.MAX_VALUE;
         double maxLat = Double.MIN_VALUE;
         double minLong = Double.MAX_VALUE;
@@ -202,10 +205,13 @@ public class Diary_mapNPictures extends AppCompatActivity {
         }
         BoundingBox boundingBox = new BoundingBox(maxLat, maxLong, minLat, minLong);
         myMapView.zoomToBoundingBox(boundingBox,false);
-        myMapView.getController().zoomToSpan(boundingBox.getLatitudeSpan(),boundingBox.getLongitudeSpan());*/
-        //myMapView.getController().setCenter(boundingBox.getCenter());
+        Log.d("ddd","ddd3");
+        myMapView.getController().zoomToSpan(boundingBox.getLatitudeSpan(),boundingBox.getLongitudeSpan());
+        Log.d("ddd","ddd4");
+        myMapView.getController().setCenter(boundingBox.getCenterWithDateLine());
+        Log.d("ddd","ddd5");
         myMapView.invalidate();
-
+        Log.d("ddd","ddd6");
     }
 
     public static Uri resourceToUri(Context context, int resID) {
