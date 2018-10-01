@@ -23,6 +23,7 @@ import android.widget.Toast;
 import com.google.android.flexbox.FlexDirection;
 
 import kr.ac.kw.coms.globealbum.common.RequestCodes;
+import kr.ac.kw.coms.globealbum.provider.*;
 import org.jetbrains.annotations.NotNull;
 import org.osmdroid.events.MapEventsReceiver;
 import org.osmdroid.util.BoundingBox;
@@ -40,12 +41,8 @@ import kr.ac.kw.coms.globealbum.R;
 import kr.ac.kw.coms.globealbum.album.GalleryDetail;
 import kr.ac.kw.coms.globealbum.album.GroupDiaryView;
 import kr.ac.kw.coms.globealbum.album.PictureGroup;
-import kr.ac.kw.coms.globealbum.provider.Promise;
-import kr.ac.kw.coms.globealbum.provider.ResourcePicture;
 import kr.ac.kw.coms.globealbum.common.CircularImageKt;
 import kr.ac.kw.coms.globealbum.map.MyMapView;
-import kr.ac.kw.coms.globealbum.provider.EXIFinfo;
-import kr.ac.kw.coms.globealbum.provider.IPicture;
 import org.osmdroid.views.overlay.infowindow.MarkerInfoWindow;
 
 public class Diary_mapNPictures extends AppCompatActivity {
@@ -149,7 +146,7 @@ public class Diary_mapNPictures extends AppCompatActivity {
         for (int i = 0; i < DiaryData.Images.size(); i++) {
             final int idx = i;
             IPicture pic = DiaryData.Images.get(i);
-            pic.drawable(getResources(), new Promise<Drawable>() {
+            pic.drawable(getResources(), new UIPromise<Drawable>() {
                 int cnt = 0;
 
                 @Override
