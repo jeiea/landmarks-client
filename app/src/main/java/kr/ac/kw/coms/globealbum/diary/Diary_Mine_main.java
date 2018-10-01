@@ -61,6 +61,13 @@ public class Diary_Mine_main extends AppCompatActivity {
             @Override
             public void onTabChanged(String tabId) {
                 Log.d("TAB", tabId);
+                if (tabId.equals("Tab_JourneyList")) {
+                    findViewById(R.id.diary_mine_main_NewDiary).setVisibility(View.VISIBLE);
+                }
+                else
+                {
+                    findViewById(R.id.diary_mine_main_NewDiary).setVisibility(View.INVISIBLE);
+                }
             }
         });
     }
@@ -91,7 +98,7 @@ public class Diary_Mine_main extends AppCompatActivity {
                     Intent intent = new Intent(getBaseContext(), GalleryDetail.class);
                     intent.putParcelableArrayListExtra("pictures", pictures);
                     intent.putExtra("index", position-1);
-                    intent.setAction(RequestCodes.ACTION_SELECT_PHOTO);
+                    intent.setAction(RequestCodes.ACTION_VIEW_PHOTO);
                     startActivity(intent);
                 }
             }

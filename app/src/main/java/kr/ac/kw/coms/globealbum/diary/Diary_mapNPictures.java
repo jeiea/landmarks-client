@@ -94,6 +94,7 @@ public class Diary_mapNPictures extends AppCompatActivity {
                 Intent intent = new Intent(getBaseContext(), GalleryDetail.class);
                 intent.putParcelableArrayListExtra("pictures", DiaryData.Images);
                 intent.putExtra("index", position - 1);
+                intent.setAction(RequestCodes.ACTION_VIEW_PHOTO);
                 startActivity(intent);
             }
         }.getItemTouchListener());
@@ -124,7 +125,7 @@ public class Diary_mapNPictures extends AppCompatActivity {
         Toast.makeText(this, "1", Toast.LENGTH_SHORT).show();
 
         PrepareData();
-        setMarkerToMapview();
+        //setMarkerToMapview();
     }
 
 

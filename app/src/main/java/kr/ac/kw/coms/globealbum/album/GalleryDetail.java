@@ -47,7 +47,7 @@ public class GalleryDetail extends AppCompatActivity {
         reloadWithIndex();
         if (!intent.getAction().equals(RequestCodes.ACTION_SELECT_PHOTO))
         {
-            findViewById(R.id.gallerydetail_btn_Select).setVisibility(View.GONE);
+            findViewById(R.id.gallerydetail_btn_Select).setVisibility(View.INVISIBLE);
         }
 
         //이미지 스와이프 시 이벤트 구현
