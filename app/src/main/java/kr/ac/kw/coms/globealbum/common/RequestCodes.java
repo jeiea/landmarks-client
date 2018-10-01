@@ -9,4 +9,5 @@ public final class RequestCodes {
     public final static int OpenGalleryDetailToSelect = 1004;//선택한 사진 확대 표시하고 확인 받기
     public final static String ACTION_SELECT_PHOTO = "select_photo";
     public final static String ACTION_VIEW_PHOTO = "view_photo";
+    public final static String ACTION_EDIT_DIARY = "edit_diary";
 }

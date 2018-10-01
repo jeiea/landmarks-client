@@ -109,24 +109,15 @@ public class Diary_Mine_main extends AppCompatActivity {
         elementRow.clear();
         elementRow.add(new ResourcePicture(R.drawable.sample0));
         elementRow.add(new ResourcePicture(R.drawable.sample1));
-        elementRow.setOnLongClickListener(0, new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                findViewById(R.id.diary_mine_main_menuRoot).setVisibility(View.VISIBLE);
-                return true;
-            }
-        });
-        elementRow.setOnLongClickListener(1, new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                findViewById(R.id.diary_mine_main_menuRoot).setVisibility(View.VISIBLE);
-                return true;
-            }
-        });
         elementList.add(new PictureGroup("group1", elementRow));
         elementList.add(new PictureGroup("group2", elementRow));
         diaryJourneyView.setGroups(elementList);
         diaryJourneyView.addOnItemTouchListener(new RecyclerItemClickListener(diaryJourneyView) {
+            @Override
+            public void onLongItemClick(@NotNull View view, int position) {
+                findViewById(R.id.diary_mine_main_menuRoot).setVisibility(View.VISIBLE);
+            }
+
             @Override
             public void onItemClick(@NotNull View view, int position) {
                 super.onItemClick(view, position);
@@ -150,7 +141,7 @@ public class Diary_Mine_main extends AppCompatActivity {
 
     public void diary_mine_main_EditStart(View view) {
         findViewById(R.id.diary_mine_main_menuRoot).setVisibility(View.GONE);
-        Intent intent = new Intent(getBaseContext(), Diary_mapNPictures.class).putExtra("order", "edit");
+        Intent intent = new Intent(getBaseContext(), Diary_mapNPictures.class).setAction(RequestCodes.ACTION_EDIT_DIARY);
         startActivity(intent);
     }
 

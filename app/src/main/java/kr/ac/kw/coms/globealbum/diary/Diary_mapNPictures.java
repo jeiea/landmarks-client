@@ -126,6 +126,11 @@ public class Diary_mapNPictures extends AppCompatActivity {
 
         PrepareData();
         //setMarkerToMapview();
+
+        if (getIntent().getAction().equals(RequestCodes.ACTION_EDIT_DIARY))
+        {
+            diary_onEditClick(null);
+        }
     }
 
 
