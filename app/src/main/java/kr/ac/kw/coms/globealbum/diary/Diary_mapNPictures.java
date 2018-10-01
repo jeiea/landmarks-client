@@ -23,6 +23,7 @@ import android.widget.Toast;
 import com.google.android.flexbox.FlexDirection;
 
 import kr.ac.kw.coms.globealbum.common.RequestCodes;
+import kr.ac.kw.coms.globealbum.provider.*;
 import org.jetbrains.annotations.NotNull;
 import org.osmdroid.events.MapEventsReceiver;
 import org.osmdroid.util.BoundingBox;
@@ -151,12 +152,14 @@ public class Diary_mapNPictures extends AppCompatActivity {
         for (int i = 0; i < DiaryData.Images.size(); i++) {
             final int idx = i;
             IPicture pic = DiaryData.Images.get(i);
-            pic.drawable(getResources(), new Promise<Drawable>() {
+            pic.drawable(getResources(), new UIPromise<Drawable>() {
+                int cnt = 0;
 
                 @Override
                 public void success(Drawable result) {
                     drawables[idx] = result;
                     arrayList.add(1);
+                    cnt++;
                     if (arrayList.size() == DiaryData.Images.size()) {
                         Log.d("ddd","ddd1");
                         addCircularMarker(drawables);
