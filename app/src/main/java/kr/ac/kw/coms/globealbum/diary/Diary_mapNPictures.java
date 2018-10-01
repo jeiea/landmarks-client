@@ -153,22 +153,18 @@ public class Diary_mapNPictures extends AppCompatActivity {
             final int idx = i;
             IPicture pic = DiaryData.Images.get(i);
             pic.drawable(getResources(), new UIPromise<Drawable>() {
-                int cnt = 0;
 
                 @Override
                 public void success(Drawable result) {
                     drawables[idx] = result;
                     arrayList.add(1);
-                    cnt++;
                     if (arrayList.size() == DiaryData.Images.size()) {
-                        Log.d("ddd","ddd1");
                         addCircularMarker(drawables);
                     }
                 }
             });
 
         }
-        Log.d("ddd","ddd7");
 
     }
 
@@ -189,7 +185,6 @@ public class Diary_mapNPictures extends AppCompatActivity {
                 drawPolyline(markerList.get(markerListSize - 2).getPosition(), markerList.get(markerListSize - 1).getPosition());
             }
         }
-        Log.d("ddd","ddd2");
 
         double minLat = Double.MAX_VALUE;
         double maxLat = Double.MIN_VALUE;
@@ -208,13 +203,9 @@ public class Diary_mapNPictures extends AppCompatActivity {
         }
         BoundingBox boundingBox = new BoundingBox(maxLat, maxLong, minLat, minLong);
         myMapView.zoomToBoundingBox(boundingBox,false);
-        Log.d("ddd","ddd3");
         myMapView.getController().zoomToSpan(boundingBox.getLatitudeSpan(),boundingBox.getLongitudeSpan());
-        Log.d("ddd","ddd4");
         myMapView.getController().setCenter(boundingBox.getCenterWithDateLine());
-        Log.d("ddd","ddd5");
         myMapView.invalidate();
-        Log.d("ddd","ddd6");
     }
 
     public static Uri resourceToUri(Context context, int resID) {
