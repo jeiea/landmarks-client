@@ -25,7 +25,9 @@ import com.google.android.flexbox.FlexDirection;
 import kr.ac.kw.coms.globealbum.common.RequestCodes;
 import org.jetbrains.annotations.NotNull;
 import org.osmdroid.events.MapEventsReceiver;
+import org.osmdroid.util.BoundingBox;
 import org.osmdroid.util.GeoPoint;
+import org.osmdroid.views.MapController;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.MapEventsOverlay;
 import org.osmdroid.views.overlay.Marker;
@@ -44,6 +46,7 @@ import kr.ac.kw.coms.globealbum.common.CircularImageKt;
 import kr.ac.kw.coms.globealbum.map.MyMapView;
 import kr.ac.kw.coms.globealbum.provider.EXIFinfo;
 import kr.ac.kw.coms.globealbum.provider.IPicture;
+import org.osmdroid.views.overlay.infowindow.MarkerInfoWindow;
 
 public class Diary_mapNPictures extends AppCompatActivity {
 
@@ -129,6 +132,9 @@ public class Diary_mapNPictures extends AppCompatActivity {
      * 다이어리 액티비티 실행시 가져오는 사진들의 정보를 가지고 마커를 맵뷰에 띄워줌
      */
     private void setMarkerToMapview() {
+        myMapView.getOverlays().clear();
+        markerList = new ArrayList<>();
+
         //GPS 정보 뽑아오기
         EXIFinfo exifInfo = new EXIFinfo();
         final Drawable[] drawables = new Drawable[DiaryData.Images.size()];
@@ -171,6 +177,25 @@ public class Diary_mapNPictures extends AppCompatActivity {
                 drawPolyline(markerList.get(markerListSize - 2).getPosition(), markerList.get(markerListSize - 1).getPosition());
             }
         }
+        double minLat = Double.MAX_VALUE;
+        double maxLat = Double.MIN_VALUE;
+        double minLong = Double.MAX_VALUE;
+        double maxLong = Double.MIN_VALUE;
+        for (Marker item : markerList) {
+            GeoPoint point = item.getPosition();
+            if (point.getLatitude() < minLat)
+                minLat = point.getLatitude();
+            if (point.getLatitude() > maxLat)
+                maxLat = point.getLatitude();
+            if (point.getLongitude() < minLong)
+                minLong = point.getLongitude();
+            if (point.getLongitude() > maxLong)
+                maxLong = point.getLongitude();
+        }
+        BoundingBox boundingBox = new BoundingBox(maxLat, maxLong, minLat, minLong);
+        myMapView.zoomToBoundingBox(boundingBox,false);
+        myMapView.getController().zoomToSpan(boundingBox.getLatitudeSpan(),boundingBox.getLongitudeSpan());
+        //myMapView.getController().setCenter(boundingBox.getCenter());
     }
 
     public static Uri resourceToUri(Context context, int resID) {
