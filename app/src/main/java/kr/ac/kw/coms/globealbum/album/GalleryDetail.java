@@ -12,6 +12,7 @@ import java.util.ArrayList;
 
 import kr.ac.kw.coms.globealbum.R;
 import kr.ac.kw.coms.globealbum.common.GlideApp;
+import kr.ac.kw.coms.globealbum.common.RequestCodes;
 import kr.ac.kw.coms.globealbum.provider.IPicture;
 
 public class GalleryDetail extends AppCompatActivity {
@@ -44,6 +45,10 @@ public class GalleryDetail extends AppCompatActivity {
         index = intent.getIntExtra("index", 0);
         pictures = intent.getParcelableArrayListExtra("pictures");
         reloadWithIndex();
+        if (!intent.getAction().equals(RequestCodes.ACTION_SELECT_PHOTO))
+        {
+            findViewById(R.id.gallerydetail_btn_Select).setVisibility(View.GONE);
+        }
 
         //이미지 스와이프 시 이벤트 구현
         findViewById(R.id.gallerydetail_Image).setOnTouchListener(swipeTouchListener);

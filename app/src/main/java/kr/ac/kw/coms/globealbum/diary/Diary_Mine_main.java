@@ -91,6 +91,7 @@ public class Diary_Mine_main extends AppCompatActivity {
                     Intent intent = new Intent(getBaseContext(), GalleryDetail.class);
                     intent.putParcelableArrayListExtra("pictures", pictures);
                     intent.putExtra("index", position-1);
+                    intent.setAction(RequestCodes.ACTION_SELECT_PHOTO);
                     startActivity(intent);
                 }
             }

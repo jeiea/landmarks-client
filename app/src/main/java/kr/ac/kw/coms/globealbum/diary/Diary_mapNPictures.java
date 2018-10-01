@@ -363,7 +363,7 @@ public class Diary_mapNPictures extends AppCompatActivity {
                 ArrayList<PictureGroup> elementList = new ArrayList<>();
                 elementList.add(new PictureGroup("", DiaryData.Images));
                 picView.setGroups(elementList);
-
+                setMarkerToMapview();
                 break;
         }
     }

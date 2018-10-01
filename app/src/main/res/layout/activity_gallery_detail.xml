@@ -46,7 +46,7 @@
             android:id="@+id/gallerydetail_btn_Select"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:src="@drawable/detail"
+            android:src="@drawable/confirm"
             android:padding="10dp"
             android:onClick="galleryselect_onClick"
             app:layout_constraintBottom_toBottomOf="parent"
