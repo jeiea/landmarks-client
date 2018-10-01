@@ -55,7 +55,7 @@ public class GalleryDetail extends AppCompatActivity {
     }
 
     private void reloadWithIndex() {
-        IPicture pic = pictures.get(0);
+        IPicture pic = pictures.get(index);
         ImageView iv = findViewById(R.id.gallerydetail_Image);
         GlideApp.with(iv).load(pic).into(iv);
         ((TextView) findViewById(R.id.gallerydetail_imagename)).setText(pic.getTitle());
