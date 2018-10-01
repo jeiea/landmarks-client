@@ -142,7 +142,6 @@ public class Diary_mapNPictures extends AppCompatActivity {
     private void setMarkerToMapview() {
         myMapView.getOverlays().clear();
         markerList = new ArrayList<>();
-
         //GPS 정보 뽑아오기
         EXIFinfo exifInfo = new EXIFinfo();
         final Drawable[] drawables = new Drawable[DiaryData.Images.size()];
@@ -205,6 +204,8 @@ public class Diary_mapNPictures extends AppCompatActivity {
         myMapView.zoomToBoundingBox(boundingBox,false);
         myMapView.getController().zoomToSpan(boundingBox.getLatitudeSpan(),boundingBox.getLongitudeSpan());*/
         //myMapView.getController().setCenter(boundingBox.getCenter());
+        myMapView.invalidate();
+
     }
 
     public static Uri resourceToUri(Context context, int resID) {
