@@ -12,6 +12,7 @@ import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -117,6 +118,8 @@ public class Diary_mapNPictures extends AppCompatActivity {
         //mapviewClickEventOverlay = mapviewClickEventDisplay();
         //myMapView.getOverlays().add(mapviewClickEventOverlay);
 
+        Toast.makeText(this, "1", Toast.LENGTH_SHORT).show();
+
         PrepareData();
         setMarkerToMapview();
     }
@@ -129,6 +132,7 @@ public class Diary_mapNPictures extends AppCompatActivity {
         //GPS 정보 뽑아오기
         EXIFinfo exifInfo = new EXIFinfo();
         final Drawable[] drawables = new Drawable[DiaryData.Images.size()];
+        final ArrayList<Integer> arrayList = new ArrayList<>();
         for (int i = 0; i < DiaryData.Images.size(); i++) {
             final int idx = i;
             IPicture pic = DiaryData.Images.get(i);
@@ -138,8 +142,9 @@ public class Diary_mapNPictures extends AppCompatActivity {
                 @Override
                 public void success(Drawable result) {
                     drawables[idx] = result;
+                    arrayList.add(1);
                     cnt++;
-                    if (cnt == DiaryData.Images.size()) {
+                    if (arrayList.size() == DiaryData.Images.size()) {
                         addCircularMarker(drawables);
                     }
                 }
@@ -149,7 +154,10 @@ public class Diary_mapNPictures extends AppCompatActivity {
         myMapView.invalidate();
     }
 
-    //화면에 사진을 원형 아이콘으로 표시
+    /**
+     * 화면에 사진을 원형 아이콘으로 표시
+     * @param drawables 원형으로 되기 전의 사진들
+     */
     private void addCircularMarker(Drawable[] drawables) {
         for (int idx = 0; idx < drawables.length; idx++) {
             Drawable drawable = drawables[idx];
@@ -158,9 +166,8 @@ public class Diary_mapNPictures extends AppCompatActivity {
             Marker marker = addPicMarker(pic.getGeo(), new BitmapDrawable(getResources(), bm));
             markerList.add(marker);
             myMapView.getOverlays().add(marker);
-
             int markerListSize = markerList.size();
-            if (markerListSize > 0) {
+            if (markerListSize > 1) {
                 drawPolyline(markerList.get(markerListSize - 2).getPosition(), markerList.get(markerListSize - 1).getPosition());
             }
         }
