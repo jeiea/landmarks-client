@@ -54,7 +54,14 @@ public class EXIFinfo {
 
     public GeoPoint getLocationGeopoint(){
         GpsDirectory directory = metadata.getFirstDirectoryOfType(GpsDirectory.class);
-        GeoLocation location = directory.getGeoLocation();
+        GeoLocation location;
+        try {
+            location = directory.getGeoLocation();
+        }
+        catch (Exception e)
+        {
+            return new GeoPoint(0.0,0.0);
+        }
         GeoPoint d_location = new GeoPoint(location.getLatitude(),location.getLongitude());
         return d_location;
     }

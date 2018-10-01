@@ -70,6 +70,7 @@ public class Diary_mapNPictures extends AppCompatActivity {
         PicturesArray.add(R.drawable.coord1);
         PicturesArray.add(R.drawable.coord2);
         PicturesArray.add(R.drawable.coord3);
+        PicturesArray.add(R.drawable.coord4);
 
         DiaryData.Title = "title";
         DiaryData.Description = "text";
