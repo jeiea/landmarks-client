@@ -122,10 +122,8 @@ public class Diary_mapNPictures extends AppCompatActivity {
         //mapviewClickEventOverlay = mapviewClickEventDisplay();
         //myMapView.getOverlays().add(mapviewClickEventOverlay);
 
-        Toast.makeText(this, "1", Toast.LENGTH_SHORT).show();
-
         PrepareData();
-        //setMarkerToMapview();
+        setMarkerToMapview();
 
         if (getIntent().getAction().equals(RequestCodes.ACTION_EDIT_DIARY))
         {
@@ -183,6 +181,7 @@ public class Diary_mapNPictures extends AppCompatActivity {
                 drawPolyline(markerList.get(markerListSize - 2).getPosition(), markerList.get(markerListSize - 1).getPosition());
             }
         }
+        /*
         double minLat = Double.MAX_VALUE;
         double maxLat = Double.MIN_VALUE;
         double minLong = Double.MAX_VALUE;
@@ -200,7 +199,7 @@ public class Diary_mapNPictures extends AppCompatActivity {
         }
         BoundingBox boundingBox = new BoundingBox(maxLat, maxLong, minLat, minLong);
         myMapView.zoomToBoundingBox(boundingBox,false);
-        myMapView.getController().zoomToSpan(boundingBox.getLatitudeSpan(),boundingBox.getLongitudeSpan());
+        myMapView.getController().zoomToSpan(boundingBox.getLatitudeSpan(),boundingBox.getLongitudeSpan());*/
         //myMapView.getController().setCenter(boundingBox.getCenter());
     }
 
