@@ -44,10 +44,12 @@ import kr.ac.kw.coms.globealbum.album.PictureGroup;
 import kr.ac.kw.coms.globealbum.provider.Promise;
 import kr.ac.kw.coms.globealbum.provider.ResourcePicture;
 import kr.ac.kw.coms.globealbum.common.CircularImageKt;
+import kr.ac.kw.coms.globealbum.common.RequestCodes;
 import kr.ac.kw.coms.globealbum.map.MyMapView;
 import kr.ac.kw.coms.globealbum.provider.EXIFinfo;
 import kr.ac.kw.coms.globealbum.provider.IPicture;
-import org.osmdroid.views.overlay.infowindow.MarkerInfoWindow;
+import kr.ac.kw.coms.globealbum.provider.ResourcePicture;
+import kr.ac.kw.coms.globealbum.provider.UIPromise;
 
 public class Diary_mapNPictures extends AppCompatActivity {
 
@@ -108,6 +110,7 @@ public class Diary_mapNPictures extends AppCompatActivity {
         setContentView(R.layout.activity_diary_map_n_pictures);
 
         myMapView = findViewById(R.id.diary_mapNpics_Map);
+        myMapView.setMaxZoomLevel(15.0);
         picView = findViewById(R.id.diary_mapNpics_Pics);
         picView.getPicAdapter().setPadding(20);
         picView.setDirection(FlexDirection.COLUMN);
@@ -146,6 +149,10 @@ public class Diary_mapNPictures extends AppCompatActivity {
         myMapView.invalidate();
         markerList = new ArrayList<>();
 
+        if(DiaryData.Images.size() < 1){
+            return;
+        }
+
         //GPS 정보 뽑아오기
         EXIFinfo exifInfo = new EXIFinfo();
         final Drawable[] drawables = new Drawable[DiaryData.Images.size()];
@@ -178,7 +185,7 @@ public class Diary_mapNPictures extends AppCompatActivity {
             Drawable drawable = drawables[idx];
             Bitmap bm = CircularImageKt.getCircularBitmap(drawable, 150);
             IPicture pic = DiaryData.Images.get(idx);
-            Marker marker = addPicMarker(pic.getGeo(), new BitmapDrawable(getResources(), bm));
+            Marker marker = addPicMarker(pic.getMeta().getGeo(), new BitmapDrawable(getResources(), bm));
             markerList.add(marker);
             myMapView.getOverlays().add(marker);
             int markerListSize = markerList.size();
@@ -187,25 +194,32 @@ public class Diary_mapNPictures extends AppCompatActivity {
             }
         }
 
-        double minLat = Double.MAX_VALUE;
-        double maxLat = Double.MIN_VALUE;
-        double minLong = Double.MAX_VALUE;
-        double maxLong = Double.MIN_VALUE;
-        for (Marker item : markerList) {
-            GeoPoint point = item.getPosition();
-            if (point.getLatitude() < minLat)
-                minLat = point.getLatitude();
-            if (point.getLatitude() > maxLat)
-                maxLat = point.getLatitude();
-            if (point.getLongitude() < minLong)
-                minLong = point.getLongitude();
-            if (point.getLongitude() > maxLong)
-                maxLong = point.getLongitude();
+        BoundingBox boundingBox;
+        if(markerList.size() == 1){
+            Marker item = markerList.get(0);
+            boundingBox = new BoundingBox(item.getPosition().getLatitude()+10,item.getPosition().getLongitude()+10,item.getPosition().getLatitude()-5,item.getPosition().getLongitude()-5);
         }
-        BoundingBox boundingBox = new BoundingBox(maxLat+25, maxLong+20, minLat-5, minLong-20);
+        else{
+            double minLat = Double.MAX_VALUE;
+            double maxLat = Double.MIN_VALUE;
+            double minLong = Double.MAX_VALUE;
+            double maxLong = Double.MIN_VALUE;
+            for (Marker item : markerList) {
+                GeoPoint point = item.getPosition();
+                if (point.getLatitude() < minLat)
+                    minLat = point.getLatitude();
+                if (point.getLatitude() > maxLat)
+                    maxLat = point.getLatitude();
+                if (point.getLongitude() < minLong)
+                    minLong = point.getLongitude();
+                if (point.getLongitude() > maxLong)
+                    maxLong = point.getLongitude();
+            }
+            boundingBox = new BoundingBox(maxLat+20, maxLong+15, minLat, minLong-5);
+        }
         myMapView.zoomToBoundingBox(boundingBox,false);
-        myMapView.getController().zoomToSpan(boundingBox.getLatitudeSpan(),boundingBox.getLongitudeSpan());
-        myMapView.getController().setCenter(boundingBox.getCenterWithDateLine());
+        //myMapView.getController().zoomToSpan(boundingBox.getLatitudeSpan(),boundingBox.getLongitudeSpan());
+        //myMapView.getController().setCenter(boundingBox.getCenterWithDateLine());
         myMapView.invalidate();
     }
 

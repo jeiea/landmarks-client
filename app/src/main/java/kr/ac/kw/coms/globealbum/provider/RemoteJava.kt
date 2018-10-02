@@ -2,9 +2,7 @@ package kr.ac.kw.coms.globealbum.provider
 
 import android.util.Log
 import kotlinx.coroutines.experimental.Job
-import kr.ac.kw.coms.landmarks.client.Remote
-import kr.ac.kw.coms.landmarks.client.ReverseGeocodeResult
-import org.osmdroid.util.GeoPoint
+import kr.ac.kw.coms.landmarks.client.*
 import java.io.File
 
 public object RemoteJava {
@@ -22,24 +20,30 @@ public object RemoteJava {
   fun checkAlive(prom: Promise<Boolean>): Job =
     prom.resolve { client.checkAlive() }
 
-  fun register(ident: String, pass: String, email: String, nick: String, prom: Promise<Unit>): Job =
-    prom.resolve { client.register(ident, pass, email, nick) }
+  fun register(form: LoginRep, prom: Promise<Unit>): Job =
+    prom.resolve { client.register(form.login!!, form.password!!, form.email!!, form.nick!!) }
 
   fun login(ident: String, pass: String, prom: Promise<Unit>): Job =
     prom.resolve { client.login(ident, pass) }
 
-  fun uploadPicture(file: File, latitude: Float? = null, longitude: Float? = null, addr: String? = null, prom: Promise<Unit>): Job =
-    prom.resolve { client.uploadPicture(file, latitude, longitude, addr) }
+  fun uploadPicture(info: PictureRep, file: File, prom: Promise<Unit>): Job =
+    prom.resolve { client.uploadPicture(info, file) }
 
-  fun getRandomPictures(n: Int, promise: Promise<List<RemotePicture>>) {
-    promise.resolve {
-      client.getRandomProblems(n).map { pic ->
-        RemotePicture(pic.id).apply {
-          geo = GeoPoint(pic.lat, pic.lon)
-          time = pic.time
-          title = pic.address
-        }
-      }
+  fun modifyPictureInfo(id: Int, info: PictureRep, prom: Promise<Unit>): Job =
+    prom.resolve { client.modifyPictureInfo(id, info) }
+
+  fun getPicture(id: Int, prom: Promise<IPicture>): Job =
+    prom.resolve { RemotePicture(WithIntId(id, client.getPictureInfo(id))) }
+
+  fun getMyPictures(prom: Promise<List<IPicture>>): Job =
+    prom.resolve { client.getMyPictureInfos().map(::RemotePicture) }
+
+  fun getMyCollections(prom: Promise<List<Diary>>): Job =
+    prom.resolve {
+      val colls: MutableList<WithIntId<CollectionRep>> = client.getMyCollections()
+      colls.map(::Diary)
     }
-  }
+
+  fun getRandomPictures(n: Int, promise: Promise<List<RemotePicture>>): Job =
+    promise.resolve { client.getRandomProblems(n).map(::RemotePicture) }
 }

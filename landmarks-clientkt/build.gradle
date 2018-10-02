@@ -1,5 +1,6 @@
 buildscript {
-    ext.kotlin_version = rootProject.ext.properties.kotlin_version ?: '1.2.61'
+    ext.kotlin_version = rootProject.ext.properties.kotlin_version ?: '1.2.71'
+    ext.ktor_version ='0.9.5'
     repositories {
         jcenter()
     }
@@ -30,6 +31,7 @@ dependencies {
     implementation "io.ktor:ktor-client-core:$ktor_version"
     implementation "io.ktor:ktor-client-android:$ktor_version"
     implementation "io.ktor:ktor-client-json-jvm:$ktor_version"
+    implementation "io.ktor:ktor-client-gson:$ktor_version"
 
     // JSON
     implementation 'com.beust:klaxon:3.0.1'

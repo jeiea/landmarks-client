@@ -12,8 +12,9 @@ data class ServerFault(
 
 data class ServerOK(val msg: String)
 
+data class WithIntId<T>(val id: Int, val value: T)
+
 data class LoginRep(
-  val id: Int? = null,
   val login: String? = null,
   val password: String? = null,
   val email: String? = null,
@@ -21,13 +22,24 @@ data class LoginRep(
 )
 
 data class PictureRep(
-  val id: Int,
-  val owner: Int? = null,
-  val address: String,
-  val lat: Double,
-  val lon: Double,
-  var file: ByteArray? = null,
-  var time: Date? = null
+  var uid: Int? = null,
+  var author: String? = null,
+  var address: String? = null,
+  var lat: Float? = null,
+  var lon: Float? = null,
+  var time: Date? = null,
+  var isPublic: Boolean = true
+)
+
+data class CollectionRep(
+  var title: String? = null,
+  var text: String? = null,
+  var images: List<Int>? = null,
+  var previews: List<WithIntId<PictureRep>>? = listOf(),
+  var likes: Int? = null,
+  var liking: Boolean? = null,
+  var isRoute: Boolean? = null,
+  var parent: Int? = null
 )
 
 /**

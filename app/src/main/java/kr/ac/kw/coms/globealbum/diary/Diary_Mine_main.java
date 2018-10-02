@@ -1,21 +1,16 @@
 package kr.ac.kw.coms.globealbum.diary;
 
-import android.app.DownloadManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.view.MotionEvent;
 import android.view.View;
-import android.widget.ImageButton;
 import android.widget.TabHost;
 import android.widget.Toast;
 
-import kr.ac.kw.coms.globealbum.common.RequestCodes;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -25,9 +20,10 @@ import kr.ac.kw.coms.globealbum.album.GalleryDetail;
 import kr.ac.kw.coms.globealbum.album.GroupDiaryView;
 import kr.ac.kw.coms.globealbum.album.PictureArray;
 import kr.ac.kw.coms.globealbum.album.PictureGroup;
-import kr.ac.kw.coms.globealbum.provider.ResourcePicture;
 import kr.ac.kw.coms.globealbum.common.RecyclerItemClickListener;
+import kr.ac.kw.coms.globealbum.common.RequestCodes;
 import kr.ac.kw.coms.globealbum.provider.IPicture;
+import kr.ac.kw.coms.globealbum.provider.ResourcePicture;
 
 public class Diary_Mine_main extends AppCompatActivity {
 
@@ -94,7 +90,7 @@ public class Diary_Mine_main extends AppCompatActivity {
                 super.onItemClick(view, position);
                 Object o = diaryImageView.getPicAdapter().getViewData().get(position);
                 if (o instanceof ResourcePicture) {
-                    Toast.makeText(Diary_Mine_main.this, ((ResourcePicture) o).getTitle(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(Diary_Mine_main.this, ((ResourcePicture) o).getMeta().getAddress(), Toast.LENGTH_SHORT).show();
                     Intent intent = new Intent(getBaseContext(), GalleryDetail.class);
                     intent.putParcelableArrayListExtra("pictures", pictures);
                     intent.putExtra("index", position-1);
@@ -124,7 +120,7 @@ public class Diary_Mine_main extends AppCompatActivity {
                 Object o = diaryJourneyView.getPicAdapter().getViewData().get(position);
                 if (o instanceof ResourcePicture) {
                     ResourcePicture rp = (ResourcePicture) o;
-                    Toast.makeText(Diary_Mine_main.this, String.valueOf(rp.getTitle()), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(Diary_Mine_main.this, String.valueOf(rp.getMeta().getAddress()), Toast.LENGTH_SHORT).show();
                     startActivity(new Intent(getBaseContext(), Diary_mapNPictures.class).putExtra("whose", "mine"));
                 }
             }

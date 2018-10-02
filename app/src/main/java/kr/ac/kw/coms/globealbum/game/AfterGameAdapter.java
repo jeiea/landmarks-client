@@ -1,6 +1,5 @@
 package kr.ac.kw.coms.globealbum.game;
 
-import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -38,7 +37,7 @@ public class AfterGameAdapter extends RecyclerView.Adapter<AfterGameAdapter.View
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         IPicture gamePictureInfo = gamePictureInfos.get(position);
         GlideApp.with(gameActivity).load(gamePictureInfo).into(holder.imageViewPicture);
-        holder.textViewPlace.setText(gamePictureInfo.getTitle());
+        holder.textViewPlace.setText(gamePictureInfo.getMeta().getAddress());
     }
 
     @Override

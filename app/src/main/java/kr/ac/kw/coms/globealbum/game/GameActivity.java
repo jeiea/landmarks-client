@@ -27,7 +27,6 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.bumptech.glide.request.target.DrawableImageViewTarget;
 
@@ -57,8 +56,9 @@ import kr.ac.kw.coms.globealbum.common.PictureDialogFragment;
 import kr.ac.kw.coms.globealbum.map.DrawCircleOverlay;
 import kr.ac.kw.coms.globealbum.map.MyMapView;
 import kr.ac.kw.coms.globealbum.provider.IPicture;
+import kr.ac.kw.coms.globealbum.provider.Promise;
 import kr.ac.kw.coms.globealbum.provider.RemoteJava;
-import kr.ac.kw.coms.globealbum.provider.ResourcePicture;
+import kr.ac.kw.coms.globealbum.provider.RemotePicture;
 import kr.ac.kw.coms.globealbum.provider.UIPromise;
 import kr.ac.kw.coms.landmarks.client.ReverseGeocodeResult;
 
@@ -132,7 +132,6 @@ public class GameActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
 
-
         displayNextRoundOrFinishView();
         //displayLoadingGif();
         redRect = getResources().getDrawable(R.drawable.rectangle_border, null);
@@ -140,43 +139,41 @@ public class GameActivity extends AppCompatActivity {
     }
 
     int stage = 0;
-    Button gameStartButton,gameExitButton;
-    TextView gameNextRoundLevelTextview,gameNextRoundGoalTextview;
+    Button gameStartButton, gameExitButton;
+    TextView gameNextRoundLevelTextview, gameNextRoundGoalTextview;
 
-    int[] limitScore = new int[]{600,800}; //600,800,1100,1400,1650,2000,2700
-    int[] numberOfGames = new int[]{3,3};
+    int[] limitScore = new int[]{600, 800}; //600,800,1100,1400,1650,2000,2700
+    int[] numberOfGames = new int[]{3, 3};
 
-    private void displayNextRoundOrFinishView(){
+    private void displayNextRoundOrFinishView() {
         stage++;
-        if( stage == 1 || (stage  - 1 != limitScore.length && score >= limitScore[stage-1])){
+        if (stage == 1 || (stage - 1 != limitScore.length && score >= limitScore[stage - 1])) {
             setContentView(R.layout.layout_game_next_round);
             gameStartButton = findViewById(R.id.button_start);
             gameExitButton = findViewById(R.id.button_exit);
             gameNextRoundLevelTextview = findViewById(R.id.textview_level);
             gameNextRoundGoalTextview = findViewById(R.id.textview_goal_score);
             gameNextRoundLevelTextview.setText("Level " + stage);
-            gameNextRoundGoalTextview.setText(limitScore[stage-1]+"/"+numberOfGames[stage-1]);
+            gameNextRoundGoalTextview.setText(limitScore[stage - 1] + "/" + numberOfGames[stage - 1]);
             gameStartButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    score=0;
-                    problem=0;
+                    score = 0;
+                    problem = 0;
                     setQuestion();
                 }
             });
             gameExitButton.setOnClickListener(new GameFinishListener());
-        }
-        else {
+        } else {
             setRecyclerView();
         }
     }
 
     private void displayLoadingGif() {
         setContentView(R.layout.layout_game_loading_animation);
-        ImageView loadigImageView = findViewById(R.id.gif_loading);
-        loadigImageView.setClickable(false);
+        ImageView loadigImageView = findViewById(R.id.game_gif_loading);
         DrawableImageViewTarget gifImage = new DrawableImageViewTarget(loadigImageView);
-        GlideApp.with(this).load(R.drawable.owl).into(gifImage);
+        GlideApp.with(this).load(R.drawable.game_loading_gif).into(gifImage);
     }
 
 
@@ -198,16 +195,25 @@ public class GameActivity extends AppCompatActivity {
         //GPS 정보 뽑아오기
         Resources resources = getResources();
         for (int i = 0; i < PICTURE_NUM; i++) {
-            ResourcePicture pic = new ResourcePicture(id[i], resources);
-            questionPic.add(pic);
+//            ResourcePicture pic = new ResourcePicture(id[i], resources);
+            RemoteJava.INSTANCE.getRandomPictures(10, afterPictureReceive);
+//            questionPic.add(pic);
 //            setReverseGeocodeRegionNameAsPictureTitle(pic);
         }
-        displayQuiz();
+//        displayQuiz();
     }
+
+    Promise afterPictureReceive = new UIPromise<List<RemotePicture>>() {
+        @Override
+        public void success(List<RemotePicture> result) {
+            questionPic.addAll(result);
+            displayQuiz();
+        }
+    };
 
     private void setReverseGeocodeRegionNameAsPictureTitle(final IPicture target) {
         RemoteJava client = RemoteJava.INSTANCE;
-        GeoPoint geo = Objects.requireNonNull(target.getGeo());
+        GeoPoint geo = Objects.requireNonNull(target.getMeta().getGeo());
         client.reverseGeocode(geo.getLatitude(), geo.getLongitude(), new UIPromise<ReverseGeocodeResult>() {
             @Override
             public void failure(@NotNull Throwable cause) {
@@ -220,7 +226,7 @@ public class GameActivity extends AppCompatActivity {
             @Override
             public void success(ReverseGeocodeResult result) {
                 String name = result.getCountry() + " " + result.getDetail();
-                target.setTitle(name);
+                target.getMeta().setAddress(name);
 
                 // 첫 문제 지역명 수신 시 문제 진행
                 if (questionPic.indexOf(target) == 0) {
@@ -261,7 +267,7 @@ public class GameActivity extends AppCompatActivity {
         BLUE_FLAG_DRAWABLE = getResources().getDrawable(R.drawable.blue_flag);
 
         stageTextView.setText("STAGE " + stage);
-        targetTextView.setText("TARGET "+(problem+1)+"/"+(numberOfGames[stage-1]));
+        targetTextView.setText("TARGET " + (problem + 1) + "/" + (numberOfGames[stage - 1]));
 
         //퀴즈에 나올 사진들을 연결
         questionTypeAImageView = findViewById(R.id.picture);
@@ -532,7 +538,7 @@ public class GameActivity extends AppCompatActivity {
 
         answerLayout.setVisibility(View.VISIBLE);
         answerLayout.setClickable(true);
-        landNameAnswerTextView.setText(questionPic.get(problem).getTitle());
+        landNameAnswerTextView.setText(questionPic.get(problem).getMeta().getAddress());
         if (gameType == GameType.A && currentMarker != null) {
             landDistanceAnswerTextView.setVisibility(View.VISIBLE);
             landDistanceAnswerTextView.setText(distance + "KM");
@@ -678,7 +684,7 @@ public class GameActivity extends AppCompatActivity {
         answerMarker = new Marker(myMapView);
         answerMarker.setIcon(RED_FLAG_DRAWABLE);
         answerMarker.setAnchor(0.25f, 1.0f);
-        answerMarker.setPosition(Objects.requireNonNull(pi.getGeo()));
+        answerMarker.setPosition(Objects.requireNonNull(pi.getMeta().getGeo()));
 
         answerMarker.setOnMarkerClickListener(new Marker.OnMarkerClickListener() {
             @Override
@@ -711,8 +717,8 @@ public class GameActivity extends AppCompatActivity {
         answerMarker = new Marker(myMapView);
         answerMarker.setIcon(RED_FLAG_DRAWABLE);
         answerMarker.setAnchor(0.25f, 1.0f);
-        answerMarker.setPosition(Objects.requireNonNull(pi.getGeo()));
-        answerMarker.setTitle(pi.getTitle());
+        answerMarker.setPosition(Objects.requireNonNull(pi.getMeta().getGeo()));
+        answerMarker.setTitle(pi.getMeta().getAddress());
         MarkerInfoWindow markerInfoWindow = new MarkerInfoWindow(R.layout.bonuspack_bubble, myMapView);
         View v = markerInfoWindow.getView();
         v.setOnTouchListener(new View.OnTouchListener() {
@@ -768,15 +774,14 @@ public class GameActivity extends AppCompatActivity {
             answerLayout.setClickable(false);
 
             problem++;
-            targetTextView.setText("TARGET "+(problem+1)+"/"+(numberOfGames[stage-1]));
+            targetTextView.setText("TARGET " + (problem + 1) + "/" + (numberOfGames[stage - 1]));
 
-            if(problem < numberOfGames[stage-1]){
+            if (problem < numberOfGames[stage - 1]) {
                 chooseQuestionType();
                 stopTimer = Running;
                 ui = new Handler();
                 timeThreadhandler();
-            }
-            else{
+            } else {
                 displayNextRoundOrFinishView();
             }
         }
@@ -790,10 +795,9 @@ public class GameActivity extends AppCompatActivity {
         random.setSeed(System.currentTimeMillis());
 
         int randomNumber = random.nextInt(2);
-        if(randomNumber == 0){
+        if (randomNumber == 0) {
             setPictureQuestion(questionPic.get(problem));
-        }
-        else if (randomNumber == 1){
+        } else if (randomNumber == 1) {
             setPlaceNameQuestion(questionPic.get(problem));
         }
     }

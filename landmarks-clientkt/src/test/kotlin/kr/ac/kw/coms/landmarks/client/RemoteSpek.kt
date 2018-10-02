@@ -6,10 +6,7 @@ import io.ktor.client.engine.config
 import io.ktor.client.features.cookies.AcceptAllCookiesStorage
 import io.ktor.client.features.cookies.HttpCookies
 import kotlinx.coroutines.experimental.runBlocking
-import org.amshove.kluent.`should be equal to`
-import org.amshove.kluent.`should be greater than`
-import org.amshove.kluent.`should be true`
-import org.amshove.kluent.`should not be equal to`
+import org.amshove.kluent.*
 import org.apache.http.HttpHost
 import org.apache.http.conn.ssl.TrustSelfSignedStrategy
 import org.apache.http.ssl.SSLContextBuilder
@@ -26,7 +23,8 @@ import java.util.*
 
 @RunWith(JUnitPlatform::class)
 class RemoteSpek : Spek({
-  describe("landmarks client") {
+  describe("landmarks server single user") {
+//    val client = Remote(getTestClient(), "https://landmarks-coms.herokuapp.com/")
     val client = Remote(getTestClient(), "http://localhost:8080")
 
     xblit("does reverse geocoding") {
@@ -52,40 +50,89 @@ class RemoteSpek : Spek({
 
     var profile: LoginRep? = null
     blit("does login") {
-      val p = client.login(ident, "pasowo")
+      val p = client.login(ident, "pasowo").value
       p.login!! `should be equal to` ident
       p.email!! `should be equal to` email
       p.nick!! `should be equal to` ident
       profile = p
     }
 
+    val pics = mutableListOf<WithIntId<PictureRep>>()
     blit("uploads picture") {
       for (i in 0..3) {
-        client.uploadPicture(File("../data/coord$i.jpg"), i.toFloat(), i.toFloat(), "address$i")
+        val gps = i.toFloat()
+        val info = PictureRep(lat = gps, lon = gps, address = "address$i")
+        val pic = client.uploadPicture(info, File("../data/coord$i.jpg"))
+        pics.add(pic)
       }
     }
 
-    val pics: ArrayList<PictureRep> = arrayListOf()
-    blit("receives quiz info") {
-      pics.addAll(client.getRandomProblems(2))
-      pics[0].id `should not be equal to` pics[1].id
-    }
-
     blit("download picture") {
-      client.getPicture(pics[1].id).readBytes().size `should be greater than` 0
+      client.getPicture(pics[0].id).readBytes().size `should be greater than` 3000
     }
 
-    blit("query user's pictures") {
-      TODO()
+    var replaced = PictureRep()
+    blit("modify picture info") {
+      replaced = pics[0].value.copy(address = "Manhatan?", lat = 110.0f, lon = 20.0f)
+      client.modifyPictureInfo(pics[0].id, replaced)
     }
 
-    blit("query user's collections") {
-      TODO()
+    blit("receive picture info") {
+      val modified: PictureRep = client.getPictureInfo(pics[0].id)
+      val rep = replaced
+      modified.address!! `should be equal to` rep.address!!
+      modified.lat!! `should be equal to` rep.lat!!
+      modified.lon!! `should be equal to` rep.lon!!
     }
 
-    blit("query a collection") {
-      TODO()
+    blit("query my pictures") {
+      client.getMyPictureInfos().size `should be equal to` 4
     }
+
+    blit("receives quiz info") {
+      val quizs = mutableListOf<WithIntId<PictureRep>>()
+      quizs.addAll(client.getRandomProblems(2))
+      quizs[0].id `should not be equal to` quizs[1].id
+    }
+
+    blit("query thumbnail") {
+      client.getThumbnail(pics[0].id).readBytes().size `should be greater than` 1000
+    }
+
+    // Deletion of picture is not yet implemented.
+
+    val collection = CollectionRep(
+      title = "first diary",
+      text = "just first"
+    )
+    var realCollection: WithIntId<CollectionRep>? = null
+    blit("upload collections") {
+      realCollection = client.uploadCollection(collection)
+    }
+
+    blit("modify collections") {
+      collection.images = pics.map { it.id }.toList()
+      client.modifyCollection(realCollection!!.id, collection)
+    }
+
+    var createdCollId = 0
+    blit("query my collections") {
+      val queried = client.getMyCollections()
+      queried.size `should be equal to` 1
+
+      val collGot: CollectionRep = queried[0].value
+      collGot.images!! `should equal` collection.images!!
+      collGot.previews!!.size `should be equal to`  collection.images!!.size
+
+      createdCollId = queried[0].id
+    }
+
+    blit("query collection picture info") {
+      val collPics = client.getCollectionPics(createdCollId)
+      collPics.size `should be equal to` pics.size
+    }
+
+    // Deletion of collection is not yet implemented
   }
 })
 
