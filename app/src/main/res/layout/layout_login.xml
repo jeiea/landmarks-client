@@ -8,16 +8,18 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:background="@drawable/login_mid_gradient"
+        app:layout_constraintBottom_toTopOf="@id/guide_login_horizontal_boundary"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/guide_login_horizontal_boundary"/>
+        app:layout_constraintStart_toStartOf="parent" />
+
     <View
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:background="@drawable/login_bottom_gradient"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toTopOf="@id/guide_login_horizontal_boundary"
-        app:layout_constraintLeft_toLeftOf="parent" />
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="@id/guide_login_horizontal_boundary" />
+
     <android.support.constraint.Guideline
         android:id="@+id/guide_login_vertical_left"
         android:layout_width="wrap_content"
@@ -45,24 +47,28 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         app:layout_constraintGuide_percent="0.85" />
+
     <android.support.constraint.Guideline
         android:id="@+id/guide_login_horizontal_boundary"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         app:layout_constraintGuide_percent="0.80" />
+
     <android.support.constraint.Guideline
         android:id="@+id/guide_login_horizontal_edit_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         app:layout_constraintGuide_percent="0.25" />
+
     <android.support.constraint.Guideline
         android:id="@+id/guide_login_horizontal_top"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         app:layout_constraintGuide_percent="0.15" />
+
     <android.support.constraint.Guideline
         android:id="@+id/guide_login_horizontal_mid"
         android:layout_width="wrap_content"
@@ -80,7 +86,6 @@
         app:layout_constraintBottom_toTopOf="@id/guide_login_horizontal_top"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent" />
-
 
 
     <ImageView
@@ -110,6 +115,7 @@
         android:ems="10"
         android:inputType="textEmailAddress"
         android:text="ID"
+        android:layout_marginLeft="15dp"
         app:layout_constraintLeft_toRightOf="@id/imageview_login_id_icon"
         app:layout_constraintRight_toRightOf="@id/guide_login_vertical_right"
         app:layout_constraintTop_toBottomOf="@id/guide_login_horizontal_edit_text" />
@@ -121,6 +127,7 @@
         android:ems="10"
         android:inputType="textPassword"
         android:text="password"
+        android:layout_marginLeft="15dp"
         app:layout_constraintLeft_toRightOf="@id/imageview_login_pw_icon"
         app:layout_constraintRight_toRightOf="@id/guide_login_vertical_right"
         app:layout_constraintTop_toBottomOf="@id/et_email" />
@@ -129,11 +136,11 @@
         android:id="@+id/btn_login"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:layout_constraintDimensionRatio="W,1:4"
         android:onClick="onLogin"
         android:text="LOGIN"
         android:src="@drawable/login_login_btn"
         android:clickable="true"
+        app:layout_constraintDimensionRatio="W,1:4"
         app:layout_constraintLeft_toLeftOf="@id/guide_login_vertical_left"
         app:layout_constraintRight_toRightOf="@id/guide_login_vertical_right"
         app:layout_constraintTop_toBottomOf="@id/guide_login_horizontal_mid" />
@@ -142,11 +149,11 @@
         android:id="@+id/btnAccount"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:layout_constraintDimensionRatio="W,1:4"
         android:onClick="onRegister"
         android:text="NEW ACCOUNT"
         android:src="@drawable/login_register_btn"
         android:clickable="true"
+        app:layout_constraintDimensionRatio="W,1:4"
         app:layout_constraintLeft_toLeftOf="@id/guide_login_vertical_left"
         app:layout_constraintRight_toRightOf="@id/guide_login_vertical_right"
         app:layout_constraintTop_toBottomOf="@id/btn_login" />
@@ -155,11 +162,11 @@
         android:id="@+id/btnForget"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:layout_constraintDimensionRatio="W,1:4"
         android:onClick="onForget"
         android:src="@drawable/login_forget_btn"
         android:text="FORGET YOUR PASSWORD?"
         android:clickable="true"
+        app:layout_constraintDimensionRatio="W,1:4"
         app:layout_constraintLeft_toLeftOf="@id/guide_login_vertical_left"
         app:layout_constraintRight_toRightOf="@id/guide_login_vertical_right"
         app:layout_constraintTop_toBottomOf="@id/guide_login_horizontal_bottom" />
