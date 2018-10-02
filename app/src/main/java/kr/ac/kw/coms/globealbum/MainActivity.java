@@ -5,10 +5,14 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.Toast;
+
+import com.bumptech.glide.request.target.DrawableImageViewTarget;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -17,6 +21,7 @@ import java.util.Map;
 
 import kr.ac.kw.coms.globealbum.album.GalleryActivity;
 import kr.ac.kw.coms.globealbum.album.activity_Navigator;
+import kr.ac.kw.coms.globealbum.common.GlideApp;
 import kr.ac.kw.coms.globealbum.diary.Diary_Mine_main;
 import kr.ac.kw.coms.globealbum.diary.Diary_Other_main;
 import kr.ac.kw.coms.globealbum.game.GameActivity;
@@ -36,13 +41,21 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-
-        if (Build.VERSION.SDK_INT >= 23) { //시작 시 권한 처리
-            checkPermissions();
-        }
-
+        displayLoading();
 //        MediaScannerKt.mediaScan(this);
+    }
+    private void displayLoading() {
+        setContentView(R.layout.layout_start_loading);
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                setContentView(R.layout.activity_main);
+
+                if (Build.VERSION.SDK_INT >= 23) { //시작 시 권한 처리
+                    checkPermissions();
+                }
+            }
+        },1000);
     }
 
     //layout button click listener

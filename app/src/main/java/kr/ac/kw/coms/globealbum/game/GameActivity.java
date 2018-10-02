@@ -171,10 +171,9 @@ public class GameActivity extends AppCompatActivity {
 
     private void displayLoadingGif() {
         setContentView(R.layout.layout_game_loading_animation);
-        ImageView loadigImageView = findViewById(R.id.gif_loading);
-        loadigImageView.setClickable(false);
+        ImageView loadigImageView = findViewById(R.id.game_gif_loading);
         DrawableImageViewTarget gifImage = new DrawableImageViewTarget(loadigImageView);
-        GlideApp.with(this).load(R.drawable.owl).into(gifImage);
+        GlideApp.with(this).load(R.drawable.game_loading_gif).into(gifImage);
     }
 
 
