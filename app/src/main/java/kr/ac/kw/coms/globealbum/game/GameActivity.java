@@ -56,8 +56,9 @@ import kr.ac.kw.coms.globealbum.common.PictureDialogFragment;
 import kr.ac.kw.coms.globealbum.map.DrawCircleOverlay;
 import kr.ac.kw.coms.globealbum.map.MyMapView;
 import kr.ac.kw.coms.globealbum.provider.IPicture;
+import kr.ac.kw.coms.globealbum.provider.Promise;
 import kr.ac.kw.coms.globealbum.provider.RemoteJava;
-import kr.ac.kw.coms.globealbum.provider.ResourcePicture;
+import kr.ac.kw.coms.globealbum.provider.RemotePicture;
 import kr.ac.kw.coms.globealbum.provider.UIPromise;
 import kr.ac.kw.coms.landmarks.client.ReverseGeocodeResult;
 
@@ -131,7 +132,6 @@ public class GameActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
 
-
         displayNextRoundOrFinishView();
         //displayLoadingGif();
         redRect = getResources().getDrawable(R.drawable.rectangle_border, null);
@@ -139,33 +139,32 @@ public class GameActivity extends AppCompatActivity {
     }
 
     int stage = 0;
-    Button gameStartButton,gameExitButton;
-    TextView gameNextRoundLevelTextview,gameNextRoundGoalTextview;
+    Button gameStartButton, gameExitButton;
+    TextView gameNextRoundLevelTextview, gameNextRoundGoalTextview;
 
-    int[] limitScore = new int[]{600,800}; //600,800,1100,1400,1650,2000,2700
-    int[] numberOfGames = new int[]{3,3};
+    int[] limitScore = new int[]{600, 800}; //600,800,1100,1400,1650,2000,2700
+    int[] numberOfGames = new int[]{3, 3};
 
-    private void displayNextRoundOrFinishView(){
+    private void displayNextRoundOrFinishView() {
         stage++;
-        if( stage == 1 || (stage  - 1 != limitScore.length && score >= limitScore[stage-1])){
+        if (stage == 1 || (stage - 1 != limitScore.length && score >= limitScore[stage - 1])) {
             setContentView(R.layout.layout_game_next_round);
             gameStartButton = findViewById(R.id.button_start);
             gameExitButton = findViewById(R.id.button_exit);
             gameNextRoundLevelTextview = findViewById(R.id.textview_level);
             gameNextRoundGoalTextview = findViewById(R.id.textview_goal_score);
             gameNextRoundLevelTextview.setText("Level " + stage);
-            gameNextRoundGoalTextview.setText(limitScore[stage-1]+"/"+numberOfGames[stage-1]);
+            gameNextRoundGoalTextview.setText(limitScore[stage - 1] + "/" + numberOfGames[stage - 1]);
             gameStartButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    score=0;
-                    problem=0;
+                    score = 0;
+                    problem = 0;
                     setQuestion();
                 }
             });
             gameExitButton.setOnClickListener(new GameFinishListener());
-        }
-        else {
+        } else {
             setRecyclerView();
         }
     }
@@ -197,12 +196,21 @@ public class GameActivity extends AppCompatActivity {
         //GPS 정보 뽑아오기
         Resources resources = getResources();
         for (int i = 0; i < PICTURE_NUM; i++) {
-            ResourcePicture pic = new ResourcePicture(id[i], resources);
-            questionPic.add(pic);
+//            ResourcePicture pic = new ResourcePicture(id[i], resources);
+            RemoteJava.INSTANCE.getRandomPictures(10, afterPictureReceive);
+//            questionPic.add(pic);
 //            setReverseGeocodeRegionNameAsPictureTitle(pic);
         }
-        displayQuiz();
+//        displayQuiz();
     }
+
+    Promise afterPictureReceive = new UIPromise<List<RemotePicture>>() {
+        @Override
+        public void success(List<RemotePicture> result) {
+            questionPic.addAll(result);
+            displayQuiz();
+        }
+    };
 
     private void setReverseGeocodeRegionNameAsPictureTitle(final IPicture target) {
         RemoteJava client = RemoteJava.INSTANCE;
@@ -260,7 +268,7 @@ public class GameActivity extends AppCompatActivity {
         BLUE_FLAG_DRAWABLE = getResources().getDrawable(R.drawable.blue_flag);
 
         stageTextView.setText("STAGE " + stage);
-        targetTextView.setText("TARGET "+(problem+1)+"/"+(numberOfGames[stage-1]));
+        targetTextView.setText("TARGET " + (problem + 1) + "/" + (numberOfGames[stage - 1]));
 
         //퀴즈에 나올 사진들을 연결
         questionTypeAImageView = findViewById(R.id.picture);
@@ -743,7 +751,7 @@ public class GameActivity extends AppCompatActivity {
         @Override
         public void onClick(View v) {
 
-          if (gameType == GameType.A) {
+            if (gameType == GameType.A) {
                 if (currentMarker != null) {
                     currentMarker.remove(myMapView);
                     currentMarker = null;
@@ -767,15 +775,14 @@ public class GameActivity extends AppCompatActivity {
             answerLayout.setClickable(false);
 
             problem++;
-            targetTextView.setText("TARGET "+(problem+1)+"/"+(numberOfGames[stage-1]));
+            targetTextView.setText("TARGET " + (problem + 1) + "/" + (numberOfGames[stage - 1]));
 
-            if(problem < numberOfGames[stage-1]){
+            if (problem < numberOfGames[stage - 1]) {
                 chooseQuestionType();
                 stopTimer = Running;
                 ui = new Handler();
                 timeThreadhandler();
-            }
-            else{
+            } else {
                 displayNextRoundOrFinishView();
             }
         }
@@ -789,10 +796,9 @@ public class GameActivity extends AppCompatActivity {
         random.setSeed(System.currentTimeMillis());
 
         int randomNumber = random.nextInt(2);
-        if(randomNumber == 0){
+        if (randomNumber == 0) {
             setPictureQuestion(questionPic.get(problem));
-        }
-        else if (randomNumber == 1){
+        } else if (randomNumber == 1) {
             setPlaceNameQuestion(questionPic.get(problem));
         }
     }
