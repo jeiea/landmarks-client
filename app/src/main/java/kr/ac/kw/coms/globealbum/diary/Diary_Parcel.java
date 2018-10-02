@@ -19,6 +19,12 @@ public class Diary_Parcel implements Serializable {
         Liked = false;
     }
 
+    public Diary_Parcel add(IPicture picture)
+    {
+        this.Images.add(picture);
+        return this;
+    }
+
     @Override
     public Diary_Parcel clone() {
         Diary_Parcel Clone = new Diary_Parcel();

@@ -45,11 +45,15 @@ public class GalleryDetail extends AppCompatActivity {
         index = intent.getIntExtra("index", 0);
         pictures = intent.getParcelableArrayListExtra("pictures");
         reloadWithIndex();
-        if (!intent.getAction().equals(RequestCodes.ACTION_SELECT_PHOTO))
-        {
-            findViewById(R.id.gallerydetail_btn_Select).setVisibility(View.INVISIBLE);
+        try {
+            if (intent.getAction().equals(RequestCodes.ACTION_SELECT_PHOTO)) {
+                findViewById(R.id.gallerydetail_btn_Select).setVisibility(View.VISIBLE);
+            }
         }
-
+        catch (Exception e)
+        {
+            //ignore
+        }
         //이미지 스와이프 시 이벤트 구현
         findViewById(R.id.gallerydetail_Image).setOnTouchListener(swipeTouchListener);
     }

@@ -205,7 +205,7 @@ public class Diary_mapNPictures extends AppCompatActivity {
         BoundingBox boundingBox = new BoundingBox(maxLat+25, maxLong+20, minLat-5, minLong-20);
         myMapView.zoomToBoundingBox(boundingBox,false);
         myMapView.getController().zoomToSpan(boundingBox.getLatitudeSpan(),boundingBox.getLongitudeSpan());
-        //myMapView.getController().setCenter(boundingBox.getCenterWithDateLine());
+        myMapView.getController().setCenter(boundingBox.getCenterWithDateLine());
         myMapView.invalidate();
     }
 
