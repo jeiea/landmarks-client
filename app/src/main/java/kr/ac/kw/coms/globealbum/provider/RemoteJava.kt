@@ -2,11 +2,7 @@ package kr.ac.kw.coms.globealbum.provider
 
 import android.util.Log
 import kotlinx.coroutines.experimental.Job
-import kr.ac.kw.coms.landmarks.client.LoginRep
-import kr.ac.kw.coms.landmarks.client.PictureRep
-import kr.ac.kw.coms.landmarks.client.Remote
-import kr.ac.kw.coms.landmarks.client.ReverseGeocodeResult
-import org.osmdroid.util.GeoPoint
+import kr.ac.kw.coms.landmarks.client.*
 import java.io.File
 
 public object RemoteJava {
@@ -33,19 +29,21 @@ public object RemoteJava {
   fun uploadPicture(info: PictureRep, file: File, prom: Promise<Unit>): Job =
     prom.resolve { client.uploadPicture(info, file) }
 
-  fun getRandomPictures(n: Int, promise: Promise<List<RemotePicture>>) {
-    promise.resolve {
-      client.getRandomProblems(n).map { pic ->
-        val p = pic.value
-        RemotePicture(pic.id).apply {
-          val (lat, lon) = Pair(p.lat, p.lon)
-          if (lat != null && lon != null) {
-            geo = GeoPoint(lat.toDouble(), lon.toDouble())
-          }
-          time = p.time
-          title = p.address
-        }
-      }
+  fun modifyPictureInfo(id: Int, info: PictureRep, prom: Promise<Unit>): Job =
+    prom.resolve { client.modifyPictureInfo(id, info) }
+
+  fun getPicture(id: Int, prom: Promise<IPicture>): Job =
+    prom.resolve { RemotePicture(WithIntId(id, client.getPictureInfo(id))) }
+
+  fun getMyPictures(prom: Promise<List<IPicture>>): Job =
+    prom.resolve { client.getMyPictureInfos().map(::RemotePicture) }
+
+  fun getMyCollections(prom: Promise<List<Diary>>): Job =
+    prom.resolve {
+      val colls: MutableList<WithIntId<CollectionRep>> = client.getMyCollections()
+      colls.map(::Diary)
     }
-  }
+
+  fun getRandomPictures(n: Int, promise: Promise<List<RemotePicture>>): Job =
+    promise.resolve { client.getRandomProblems(n).map(::RemotePicture) }
 }

@@ -168,6 +168,10 @@ class Remote(base: HttpClient, val basePath: String = herokuUri) {
     return get("$basePath/picture/$id")
   }
 
+  suspend fun getThumbnail(id: Int): InputStream {
+    return get("$basePath/picture/thumbnail/$id")
+  }
+
   suspend fun getPictureInfos(userId: Int): MutableList<WithIntId<PictureRep>> {
     return get("$basePath/picture/user/$userId")
   }
@@ -185,6 +189,10 @@ class Remote(base: HttpClient, val basePath: String = herokuUri) {
 
   suspend fun getCollections(ownerId: Int): MutableList<WithIntId<CollectionRep>> {
     return get("$basePath/collection/user/$ownerId")
+  }
+
+  suspend fun getCollectionPics(collectionId: Int): MutableList<WithIntId<PictureRep>> {
+    return get("$basePath/collection/$collectionId/picture")
   }
 
   suspend fun getMyCollections(): MutableList<WithIntId<CollectionRep>> {

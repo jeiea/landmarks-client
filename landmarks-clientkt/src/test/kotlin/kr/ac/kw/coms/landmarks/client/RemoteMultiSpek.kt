@@ -14,8 +14,8 @@ import java.io.File
 class RemoteMultiSpek : Spek({
 
   fun newClient(): Remote {
-//    return Remote(getTestClient(), "http://localhost:8080")
-    return Remote(getTestClient(), "https://landmarks-coms.herokuapp.com/")
+    return Remote(getTestClient(), "http://localhost:8080")
+//    return Remote(getTestClient(), "https://landmarks-coms.herokuapp.com/")
   }
 
   val client = newClient()

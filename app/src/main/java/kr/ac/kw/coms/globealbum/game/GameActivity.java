@@ -27,7 +27,6 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.bumptech.glide.request.target.DrawableImageViewTarget;
 
@@ -207,7 +206,7 @@ public class GameActivity extends AppCompatActivity {
 
     private void setReverseGeocodeRegionNameAsPictureTitle(final IPicture target) {
         RemoteJava client = RemoteJava.INSTANCE;
-        GeoPoint geo = Objects.requireNonNull(target.getGeo());
+        GeoPoint geo = Objects.requireNonNull(target.getMeta().getGeo());
         client.reverseGeocode(geo.getLatitude(), geo.getLongitude(), new UIPromise<ReverseGeocodeResult>() {
             @Override
             public void failure(@NotNull Throwable cause) {
@@ -220,7 +219,7 @@ public class GameActivity extends AppCompatActivity {
             @Override
             public void success(ReverseGeocodeResult result) {
                 String name = result.getCountry() + " " + result.getDetail();
-                target.setTitle(name);
+                target.getMeta().setAddress(name);
 
                 // 첫 문제 지역명 수신 시 문제 진행
                 if (questionPic.indexOf(target) == 0) {
@@ -532,7 +531,7 @@ public class GameActivity extends AppCompatActivity {
 
         answerLayout.setVisibility(View.VISIBLE);
         answerLayout.setClickable(true);
-        landNameAnswerTextView.setText(questionPic.get(problem).getTitle());
+        landNameAnswerTextView.setText(questionPic.get(problem).getMeta().getAddress());
         if (gameType == GameType.A && currentMarker != null) {
             landDistanceAnswerTextView.setVisibility(View.VISIBLE);
             landDistanceAnswerTextView.setText(distance + "KM");
@@ -678,7 +677,7 @@ public class GameActivity extends AppCompatActivity {
         answerMarker = new Marker(myMapView);
         answerMarker.setIcon(RED_FLAG_DRAWABLE);
         answerMarker.setAnchor(0.25f, 1.0f);
-        answerMarker.setPosition(Objects.requireNonNull(pi.getGeo()));
+        answerMarker.setPosition(Objects.requireNonNull(pi.getMeta().getGeo()));
 
         answerMarker.setOnMarkerClickListener(new Marker.OnMarkerClickListener() {
             @Override
@@ -711,8 +710,8 @@ public class GameActivity extends AppCompatActivity {
         answerMarker = new Marker(myMapView);
         answerMarker.setIcon(RED_FLAG_DRAWABLE);
         answerMarker.setAnchor(0.25f, 1.0f);
-        answerMarker.setPosition(Objects.requireNonNull(pi.getGeo()));
-        answerMarker.setTitle(pi.getTitle());
+        answerMarker.setPosition(Objects.requireNonNull(pi.getMeta().getGeo()));
+        answerMarker.setTitle(pi.getMeta().getAddress());
         MarkerInfoWindow markerInfoWindow = new MarkerInfoWindow(R.layout.bonuspack_bubble, myMapView);
         View v = markerInfoWindow.getView();
         v.setOnTouchListener(new View.OnTouchListener() {

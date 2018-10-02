@@ -11,23 +11,92 @@ import android.os.Parcelable
 import android.support.annotation.DrawableRes
 import com.bumptech.glide.load.DataSource
 import kotlinx.coroutines.experimental.Job
+import kr.ac.kw.coms.landmarks.client.CollectionRep
+import kr.ac.kw.coms.landmarks.client.PictureRep
+import kr.ac.kw.coms.landmarks.client.WithIntId
 import org.osmdroid.util.GeoPoint
 import java.io.File
 import java.io.InputStream
 import java.net.URL
 import java.util.*
 
+interface Deletable {
+  /**
+   * 삭제
+   */
+  fun delete()
+}
+
+data class PictureMeta(
+  /**
+   * 제목
+   */
+  var address: String? = null,
+  /**
+   * 저작자
+   */
+  var author: String? = null,
+  /**
+   * 생성시각
+   */
+  var time: Date? = null,
+  /**
+   * 위치
+   */
+  var geo: GeoPoint? = null
+) : Parcelable {
+  constructor(parcel: Parcel) : this(
+    parcel.readString(),
+    parcel.readString(),
+    if (parcel.readInt() == 1) Date(parcel.readLong()) else null,
+    parcel.readParcelable(GeoPoint::class.java.classLoader)) {
+  }
+
+  override fun writeToParcel(parcel: Parcel, flags: Int) {
+    parcel.writeString(address)
+    parcel.writeString(author)
+    val t = time
+    when (t) {
+      null -> parcel.writeInt(0)
+      else -> {
+        parcel.writeInt(1)
+        parcel.writeLong(t.time)
+      }
+    }
+    parcel.writeParcelable(geo, flags)
+  }
+
+  override fun describeContents(): Int {
+    return 0
+  }
+
+  companion object CREATOR : Parcelable.Creator<PictureMeta> {
+    override fun createFromParcel(parcel: Parcel): PictureMeta {
+      return PictureMeta(parcel)
+    }
+
+    override fun newArray(size: Int): Array<PictureMeta?> {
+      return arrayOfNulls(size)
+    }
+  }
+}
+
 /**
- * 보편적으로 사진을 다룰 때 쓸 클래스
+ * 보편적으로 사진을 다룰 때 쓰는 인터페이스
  * @see kr.ac.kw.coms.globealbum.provider.ResourcePicture
  * @see kr.ac.kw.coms.globealbum.provider.LocalPicture
  * @see kr.ac.kw.coms.globealbum.provider.UrlPicture
  */
-abstract class IPicture() : Parcelable {
+interface IPicture : Parcelable {
+  /**
+   * 메타 데이터
+   */
+  var meta: PictureMeta
+
   /**
    * 비트맵
    */
-  open fun drawable(resources: Resources, promise: Promise<Drawable>): Job {
+  fun drawable(resources: Resources, promise: Promise<Drawable>): Job {
     return promise.resolve {
       BitmapDrawable(resources, stream())
     }
@@ -36,7 +105,7 @@ abstract class IPicture() : Parcelable {
   /**
    * 바이너리 데이터
    */
-  open fun stream(promise: Promise<InputStream>): Job {
+  fun stream(promise: Promise<InputStream>): Job {
     return promise.resolve {
       stream()
     }
@@ -45,82 +114,78 @@ abstract class IPicture() : Parcelable {
   /**
    * 바이너리 데이터
    */
-  abstract suspend fun stream(): InputStream
-
-  /**
-   * 제목
-   */
-  open var title: String? = null
-
-  /**
-   * 생성시각
-   */
-  open var time: Date? = null
-
-  /**
-   * 위치
-   */
-  open var geo: GeoPoint? = null
-
-  /**
-   * 사진 삭제
-   */
-  abstract fun delete()
-
-  /**
-   * 변경 사항 저장
-   */
-  abstract fun save()
+  suspend fun stream(): InputStream
 
   /**
    * Glide에서 모델로 삼기위한 해시로 사용
    */
-  abstract override fun toString(): String
+  override fun toString(): String
 
   /**
    * Glide에서 캐시 방식을 결정하는데 도움
    */
-  open val dataSource: DataSource = DataSource.LOCAL
+  val dataSource: DataSource
 }
 
-class RemotePicture(val id: Int) : IPicture() {
-  override fun toString(): String {
-    return "lmserver://picture/$id"
+class RemotePicture(val info: WithIntId<PictureRep>) : IPicture, Deletable {
+
+  fun latlonToGeoPoint(pic: PictureRep): GeoPoint? {
+    return pic.let { v ->
+      val lat = v.lat ?: return null
+      val lon = v.lon ?: return null
+      GeoPoint(lat.toDouble(), lon.toDouble())
+    }
   }
+
+  override var meta = PictureMeta(
+    info.value.address,
+    info.value.author,
+    info.value.time,
+    latlonToGeoPoint(info.value)
+  )
+    set(value) {
+      // TODO: Update picture metadata
+      field = value
+    }
 
   override val dataSource = DataSource.REMOTE
 
-  constructor(parcel: Parcel) : this(parcel.readInt()) {
+  override fun toString(): String {
+    return "lmserver://picture/$info"
+  }
+
+  constructor(parcel: Parcel) : this(WithIntId(parcel.readInt(), PictureRep())) {
     parcel.apply {
-      title = readString()
-      time = readLong().takeIf { it != -1L }?.let { Date(it) }
-      val lat: Double = readDouble()
-      val lon: Double = readDouble()
-      if (lat != 999.0 && lon != 999.0) {
-        geo = GeoPoint(lat, lon)
-      }
+      val v = info.value
+      v.uid = readInt().takeIf { it != -1 }
+      v.author = readString()
+      v.address = readString()
+      v.lat = readDouble().takeIf { it != 999.0 }?.toFloat()
+      v.lon = readDouble().takeIf { it != 999.0 }?.toFloat()
+      v.time = readLong().takeIf { it != -1L }?.let { Date(it) }
+      v.isPublic = if (readByte() == 1.toByte()) true else false
     }
   }
 
   override suspend fun stream(): InputStream {
-    return RemoteJava.client.getPicture(id)
+    return RemoteJava.client.getPicture(info.id)
   }
 
   override fun delete() {
     TODO("not implemented")
   }
 
-  override fun save() {
-    TODO("not implemented")
-  }
-
   override fun writeToParcel(parcel: Parcel, flags: Int) {
     parcel.apply {
-      writeInt(id)
-      writeString(title)
-      writeLong(time?.time ?: -1L)
-      writeDouble(geo?.latitude ?: 999.0)
-      writeDouble(geo?.longitude ?: 999.0)
+      writeInt(info.id)
+      val v = info.value
+      writeInt(v.uid ?: -1)
+      writeString(v.author)
+      writeString(v.address)
+      writeDouble(v.lat?.toDouble() ?: 999.0)
+      writeDouble(v.lon?.toDouble() ?: 999.0)
+      writeLong(v.time?.time ?: -1L)
+      writeByte(if (v.isPublic) 1 else 0)
     }
   }
 
@@ -139,7 +204,13 @@ class RemotePicture(val id: Int) : IPicture() {
   }
 }
 
-class UrlPicture(val url: URL) : IPicture() {
+class UrlPicture(val url: URL) : IPicture {
+  override var meta: PictureMeta
+    get() {
+      return PictureMeta(url.toString(), url.authority, null, null)
+    }
+    set(_) {}
+
   override fun toString(): String {
     return url.toString()
   }
@@ -150,14 +221,6 @@ class UrlPicture(val url: URL) : IPicture() {
 
   override suspend fun stream(): InputStream {
     return url.openStream()
-  }
-
-  override fun delete() {
-    throw NotImplementedError()
-  }
-
-  override fun save() {
-    throw NotImplementedError()
   }
 
   //region Parcelable implementation
@@ -183,7 +246,16 @@ class UrlPicture(val url: URL) : IPicture() {
   //endregion
 }
 
-class LocalPicture(val path: String) : IPicture() {
+class LocalPicture(val path: String) : IPicture, Deletable {
+  override var meta: PictureMeta
+    get() {
+      val filename = File(path).nameWithoutExtension
+      val time = Date(EXIFinfo(path).timeTaken)
+      return PictureMeta(filename, "You", time, null)
+    }
+    set(value) {}
+
+  override val dataSource = DataSource.LOCAL
 
   constructor(parcel: Parcel) : this(parcel.readString())
 
@@ -196,14 +268,6 @@ class LocalPicture(val path: String) : IPicture() {
   override fun delete() {
     File(path).delete()
   }
-
-  override fun save() {
-    TODO("not implemented")
-  }
-
-  override var title: String? = File(path).nameWithoutExtension
-
-  override var time: Date? = Date(EXIFinfo(path).timeTaken);
 
   //region Parcelable implementation
 
@@ -228,36 +292,30 @@ class LocalPicture(val path: String) : IPicture() {
   //endregion
 }
 
-class ResourcePicture(@DrawableRes val id: Int) : IPicture() {
+class ResourcePicture(@DrawableRes val id: Int) : IPicture {
+
+  override fun toString() = "resource:$id"
+
+  override var meta: PictureMeta
+    get() {
+      val exif: EXIFinfo = EXIFinfo().apply { setMetadata(resources!!.openRawResource(+id)) }
+      val geo = exif.locationGeopoint
+      return PictureMeta(toString(), toString(), Date(1000000L + 1000 * (100 - id)), geo)
+    }
+    set(_) {}
+
+  override val dataSource = DataSource.LOCAL
 
   var resources: Resources? = null
 
-  constructor(@DrawableRes id: Int, resources: Resources): this(id) {
+  constructor(@DrawableRes id: Int, resources: Resources) : this(id) {
     this.resources = resources
-    val exif: EXIFinfo = EXIFinfo().apply { setMetadata(resources.openRawResource(+id)) }
-    geo = exif.locationGeopoint
   }
 
   constructor(parcel: Parcel) : this(parcel.readInt())
 
-  override fun toString(): String = "resource:$id"
-
-  override var title: String? = toString()
-
-  override var time: Date? = Date(1000000L + 1000 * (100 - id))
-
-  override var geo: GeoPoint? = null
-
   override suspend fun stream(): InputStream {
     return resources?.openRawResource(+id) ?: "".byteInputStream()
-  }
-
-  override fun delete() {
-    throw NotImplementedError()
-  }
-
-  override fun save() {
-    throw NotImplementedError()
   }
 
   //region Parcelable implementation
@@ -283,17 +341,11 @@ class ResourcePicture(@DrawableRes val id: Int) : IPicture() {
   //endregion
 }
 
-// android.resource://kr.ac.kw.coms.globealbum/drawable/sample2
-fun instantiatePicture(context: Context, uri: String): IPicture {
-  when {
-    uri.startsWith("android.resource:") ->
-      return ResourcePicture(uriToResourceId(context, uri))
-    uri.startsWith("http") ->
-      return UrlPicture(URL(uri))
-    uri.startsWith("lmserver://picture/") ->
-      return RemotePicture(uri.split('/')[3].toInt())
-    else -> throw RuntimeException("")
-  }
+class Diary(val info: WithIntId<CollectionRep>) {
+  val pictures: List<RemotePicture>
+    get() {
+      return info.value.previews!!.map(::RemotePicture)
+    }
 }
 
 fun resourceToUri(context: Context, resId: Int): Uri {

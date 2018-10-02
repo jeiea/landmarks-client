@@ -8,27 +8,20 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.flexbox.FlexDirection;
 
-import kr.ac.kw.coms.globealbum.common.RequestCodes;
-import kr.ac.kw.coms.globealbum.provider.*;
 import org.jetbrains.annotations.NotNull;
 import org.osmdroid.events.MapEventsReceiver;
 import org.osmdroid.util.BoundingBox;
 import org.osmdroid.util.GeoPoint;
-import org.osmdroid.views.MapController;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.MapEventsOverlay;
 import org.osmdroid.views.overlay.Marker;
@@ -41,13 +34,13 @@ import kr.ac.kw.coms.globealbum.R;
 import kr.ac.kw.coms.globealbum.album.GalleryDetail;
 import kr.ac.kw.coms.globealbum.album.GroupDiaryView;
 import kr.ac.kw.coms.globealbum.album.PictureGroup;
-import kr.ac.kw.coms.globealbum.provider.Promise;
-import kr.ac.kw.coms.globealbum.provider.ResourcePicture;
 import kr.ac.kw.coms.globealbum.common.CircularImageKt;
+import kr.ac.kw.coms.globealbum.common.RequestCodes;
 import kr.ac.kw.coms.globealbum.map.MyMapView;
 import kr.ac.kw.coms.globealbum.provider.EXIFinfo;
 import kr.ac.kw.coms.globealbum.provider.IPicture;
-import org.osmdroid.views.overlay.infowindow.MarkerInfoWindow;
+import kr.ac.kw.coms.globealbum.provider.ResourcePicture;
+import kr.ac.kw.coms.globealbum.provider.UIPromise;
 
 public class Diary_mapNPictures extends AppCompatActivity {
 
@@ -183,7 +176,7 @@ public class Diary_mapNPictures extends AppCompatActivity {
             Drawable drawable = drawables[idx];
             Bitmap bm = CircularImageKt.getCircularBitmap(drawable, 150);
             IPicture pic = DiaryData.Images.get(idx);
-            Marker marker = addPicMarker(pic.getGeo(), new BitmapDrawable(getResources(), bm));
+            Marker marker = addPicMarker(pic.getMeta().getGeo(), new BitmapDrawable(getResources(), bm));
             markerList.add(marker);
             myMapView.getOverlays().add(marker);
             int markerListSize = markerList.size();

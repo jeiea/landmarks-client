@@ -10,13 +10,15 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
+
 import com.bumptech.glide.Glide;
+
+import java.util.ArrayList;
+
 import kr.ac.kw.coms.globealbum.R;
 import kr.ac.kw.coms.globealbum.album.GalleryActivity;
 import kr.ac.kw.coms.globealbum.common.RequestCodes;
 import kr.ac.kw.coms.globealbum.provider.IPicture;
-
-import java.util.ArrayList;
 
 public class EditImageListAdapter extends RecyclerView.Adapter<ItemViewHolder> {
     private AppCompatActivity RootActivity;
@@ -63,7 +65,7 @@ public class EditImageListAdapter extends RecyclerView.Adapter<ItemViewHolder> {
         //목록의 내용 추가
         if (position < getItemCount() - 1) {
             Glide.with(holder.imageView).load(mItems.get(position)).into(holder.imageView);
-            holder.text_Title.setText(mItems.get(position).getTitle());
+            holder.text_Title.setText(mItems.get(position).getMeta().getAddress());
             holder.btn_Delete.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {

@@ -5,6 +5,8 @@ import android.view.View;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
+import java.util.Objects;
 
 import kr.ac.kw.coms.globealbum.provider.IPicture;
 
@@ -34,7 +36,9 @@ public class PictureArray extends ArrayList<IPicture> {
         Collections.sort(this, new Comparator<IPicture>() {
             @Override
             public int compare(IPicture o1, IPicture o2) {
-                return o1.getTime().compareTo(o2.getTime());
+                Date t1 = Objects.requireNonNull(o1.getMeta().getTime());
+                Date t2 = Objects.requireNonNull(o2.getMeta().getTime());
+                return t1.compareTo(t2);
             }
         });
     }

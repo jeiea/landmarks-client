@@ -115,7 +115,7 @@ public class MyMapView extends org.osmdroid.views.MapView {
                 final StringBuilder buffer = new StringBuilder();
                 String sep = "";
                 for (final OverlayItem item : displayed) {
-                    buffer.append(sep).append('\'').append(item.getTitle()).append('\'');
+                    buffer.append(sep).append('\'').append(item.getAddress()).append('\'');
                     sep = ", ";
                 }
                 Toast.makeText(
