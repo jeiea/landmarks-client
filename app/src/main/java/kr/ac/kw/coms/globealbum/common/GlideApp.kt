@@ -1,23 +1,23 @@
 package kr.ac.kw.coms.globealbum.common
 
 import android.content.Context
-import android.graphics.drawable.Drawable
+import com.bumptech.glide.Glide
 import com.bumptech.glide.Priority
+import com.bumptech.glide.Registry
 import com.bumptech.glide.annotation.GlideModule
 import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.Options
 import com.bumptech.glide.load.data.DataFetcher
 import com.bumptech.glide.load.model.ModelLoader
 import com.bumptech.glide.load.model.ModelLoader.LoadData
+import com.bumptech.glide.load.model.ModelLoaderFactory
+import com.bumptech.glide.load.model.MultiModelLoaderFactory
 import com.bumptech.glide.module.AppGlideModule
 import com.bumptech.glide.signature.ObjectKey
+import kotlinx.coroutines.experimental.GlobalScope
 import kotlinx.coroutines.experimental.Job
 import kotlinx.coroutines.experimental.launch
 import kr.ac.kw.coms.globealbum.provider.IPicture
-import com.bumptech.glide.load.model.MultiModelLoaderFactory
-import com.bumptech.glide.load.model.ModelLoaderFactory
-import com.bumptech.glide.Glide
-import com.bumptech.glide.Registry
 import kr.ac.kw.coms.globealbum.provider.LocalPicture
 import kr.ac.kw.coms.globealbum.provider.ResourcePicture
 import kr.ac.kw.coms.globealbum.provider.UrlPicture
@@ -82,7 +82,7 @@ class PictureDataFetcher(val model: IPicture) : DataFetcher<InputStream> {
   override fun getDataSource(): DataSource = model.dataSource
 
   override fun loadData(priority: Priority, callback: DataFetcher.DataCallback<in InputStream>) {
-    fetch = launch {
+    fetch = GlobalScope.launch {
       try {
         callback.onDataReady(model.stream())
       } catch (e: Exception) {

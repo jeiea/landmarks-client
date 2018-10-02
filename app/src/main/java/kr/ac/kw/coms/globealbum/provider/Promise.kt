@@ -18,7 +18,7 @@ open class Promise<T> {
   open fun resolve(result: T): Unit = success(result)
   open fun resolve(cause: Throwable): Unit = failure(cause)
   open fun resolve(
-    context: CoroutineContext = CommonPool,
+    context: CoroutineContext = Dispatchers.Default,
     block: suspend CoroutineScope.() -> T)
-    : Job = launch(context) { resolve(block()) }
+    : Job = GlobalScope.launch(context) { resolve(block()) }
 }
