@@ -12,7 +12,7 @@
         android:layout_height="0dp"
         android:background="@color/colorPrimary"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/guide_top"
+        app:layout_constraintBottom_toTopOf="@id/guide_login_horizontal_top"
         app:layout_constraintTop_toTopOf="parent">
 
         <android.support.v7.widget.AppCompatImageView
@@ -31,7 +31,7 @@
     </android.support.constraint.ConstraintLayout>
 
     <android.support.constraint.Guideline
-        android:id="@+id/guide_top"
+        android:id="@+id/guide_login_horizontal_top"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:orientation="horizontal"
@@ -46,7 +46,7 @@
         app:layoutManager="android.support.v7.widget.GridLayoutManager"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/guide_top"
+        app:layout_constraintTop_toBottomOf="@id/guide_login_horizontal_top"
         app:layout_constraintBottom_toBottomOf="parent"
         app:spanCount="3" />
 

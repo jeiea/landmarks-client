@@ -49,6 +49,11 @@ public class Login extends AppCompatActivity {
         client.register(ident, pass, ident, ident, new ToastPromise<Unit>("Register success"));
     }
 
+    public void onForget(View view){
+        //구현하기
+    }
+
+
     class ToastPromise<T> extends UIPromise<T> {
         String successMessage;
 

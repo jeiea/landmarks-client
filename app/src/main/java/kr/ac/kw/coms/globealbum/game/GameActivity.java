@@ -744,7 +744,7 @@ public class GameActivity extends AppCompatActivity {
         @Override
         public void onClick(View v) {
 
-            if (gameType == GameType.A) {
+          if (gameType == GameType.A) {
                 if (currentMarker != null) {
                     currentMarker.remove(myMapView);
                     currentMarker = null;
