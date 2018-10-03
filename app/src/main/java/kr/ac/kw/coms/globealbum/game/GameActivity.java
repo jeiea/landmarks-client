@@ -55,6 +55,7 @@ import kr.ac.kw.coms.globealbum.provider.IPicture;
 import kr.ac.kw.coms.globealbum.provider.Promise;
 import kr.ac.kw.coms.globealbum.provider.RemoteJava;
 import kr.ac.kw.coms.globealbum.provider.RemotePicture;
+import kr.ac.kw.coms.globealbum.provider.ResourcePicture;
 import kr.ac.kw.coms.globealbum.provider.UIPromise;
 import kr.ac.kw.coms.landmarks.client.ReverseGeocodeResult;
 
@@ -72,7 +73,7 @@ public class GameActivity extends AppCompatActivity {
     TextView targetTextView = null;
 
 
-    Button goToNextStageButton, exitGameButton;
+    ImageView goToNextStageButton, exitGameButton;
     TextView landNameAnswerTextView, landDistanceAnswerTextView, landScoreTextView;
     GameType gameType = null;
     ConstraintLayout questionTypeALayout;
@@ -82,8 +83,8 @@ public class GameActivity extends AppCompatActivity {
     ImageView[] questionTypeBImageView = new ImageView[4];
     ImageView pictureAnswerImageView;
 
-    Drawable RED_FLAG_DRAWABLE;
-    Drawable BLUE_FLAG_DRAWABLE;
+    Drawable RED_MARKER_DRAWABLE;
+    Drawable BLUE_MARKER_DRAWABLE;
     final int PICTURE_NUM = 4;
     int problem = 0;
     int score = 0;
@@ -127,16 +128,15 @@ public class GameActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+
         displayNextRoundOrFinishView();
-        logic = new GameLogic(new GameUI(this));
-        logic.initiateGame();
+        //displayLoadingGif();
+        redRect = getResources().getDrawable(R.drawable.rectangle_border, null);
+
     }
 
-    GameLogic logic;
-
-
     int stage = 0;
-    Button gameStartButton, gameExitButton;
+    ImageView gameStartButton, gameExitButton;
     TextView gameNextRoundLevelTextview, gameNextRoundGoalTextview;
 
     int[] limitScore = new int[]{600, 800}; //600,800,1100,1400,1650,2000,2700
@@ -146,8 +146,8 @@ public class GameActivity extends AppCompatActivity {
         stage++;
         if (stage == 1 || (stage - 1 != limitScore.length && score >= limitScore[stage - 1])) {
             setContentView(R.layout.layout_game_next_round);
-            gameStartButton = findViewById(R.id.button_start);
-            gameExitButton = findViewById(R.id.button_exit);
+            gameStartButton = findViewById(R.id.game_start_button);
+            gameExitButton = findViewById(R.id.game_exit_button);
             gameNextRoundLevelTextview = findViewById(R.id.textview_level);
             gameNextRoundGoalTextview = findViewById(R.id.textview_goal_score);
             gameNextRoundLevelTextview.setText("Level " + stage);
@@ -166,39 +166,45 @@ public class GameActivity extends AppCompatActivity {
         }
     }
 
+    private void displayLoadingGif() {
+        setContentView(R.layout.layout_game_loading_animation);
+        ImageView loadigImageView = findViewById(R.id.game_gif_loading);
+        DrawableImageViewTarget gifImage = new DrawableImageViewTarget(loadigImageView);
+        GlideApp.with(this).load(R.drawable.game_loading_gif).into(gifImage);
+    }
+
 
     /**
      * 문제 세팅
      */
     private void setQuestion() {
+        int[] id = new int[PICTURE_NUM];
+        for (int i = 0; i < PICTURE_NUM; i++) { //사진 리소스 id 배열에 저장
+            id[i] = R.drawable.coord0 + i;
+        }
+        for (int i = 0; i < 1000; i++) {    //반복하여 리소스 id 섞음
+            int random = (int) (Math.random() * PICTURE_NUM);
+            int tmp = id[0];
+            id[0] = id[random];
+            id[random] = tmp;
+        }
+
         //GPS 정보 뽑아오기
-        RemoteJava.INSTANCE.login("login", "password", afterLogin);
+        Resources resources = getResources();
+        for (int i = 0; i < PICTURE_NUM; i++) {
+            ResourcePicture pic = new ResourcePicture(id[i], resources);
+//            RemoteJava.INSTANCE.getRandomPictures(10, afterPictureReceive);
+            questionPic.add(pic);
+            setReverseGeocodeRegionNameAsPictureTitle(pic);
+        }
+       displayQuiz();
     }
 
-    Promise afterLogin = new Promise() {
-        @Override
-        public void success(Object result) {
-            RemoteJava.INSTANCE.getRandomPictures(10, afterPictureReceive);
-            IPictureExaminer<RemotePicture> gen = new RemoteExaminer();
-            gen.getRandomPictures(3, afterPictureReceive);
-        }
-
-        @Override
-        public void failure(@NotNull Throwable cause) {
-            super.failure(cause);
-        }
-    };
-
-    Promise<List<RemotePicture>> afterPictureReceive = new UIPromise<List<RemotePicture>>() {
+    Promise afterPictureReceive = new UIPromise<List<RemotePicture>>() {
         @Override
         public void success(List<RemotePicture> result) {
             questionPic.addAll(result);
             displayQuiz();
-        }
-
-        @Override
-        public void failure(@NotNull Throwable cause) {
-            super.failure(cause);
         }
     };
 
@@ -254,8 +260,8 @@ public class GameActivity extends AppCompatActivity {
         exitGameButton.setOnClickListener(new GameFinishListener());
 
 
-        RED_FLAG_DRAWABLE = getResources().getDrawable(R.drawable.red_flag);
-        BLUE_FLAG_DRAWABLE = getResources().getDrawable(R.drawable.blue_flag);
+        RED_MARKER_DRAWABLE = getResources().getDrawable(R.drawable.game_red_marker);
+        BLUE_MARKER_DRAWABLE = getResources().getDrawable(R.drawable.game_blue_marker);
 
         stageTextView.setText("STAGE " + stage);
         targetTextView.setText("TARGET " + (problem + 1) + "/" + (numberOfGames[stage - 1]));
@@ -391,7 +397,7 @@ public class GameActivity extends AppCompatActivity {
 
         final Marker tmpMarker = new Marker(map);
         tmpMarker.setPosition(startGeoPosition);
-        tmpMarker.setIcon(BLUE_FLAG_DRAWABLE);
+        tmpMarker.setIcon(BLUE_MARKER_DRAWABLE);
         //tmpMarker.info
         map.getOverlays().add(tmpMarker);
 
@@ -434,7 +440,7 @@ public class GameActivity extends AppCompatActivity {
                             stopTimer = Stop;
                             //유저가 선택한 위치의 마커에서 정답 마커까지 이동하는 애니메이션 동작을 하는 마커 생성
                             Marker tmpMarker = new Marker(myMapView);
-                            //tmpMarker.setIcon(BLUE_FLAG_DRAWABLE);
+                            tmpMarker.setIcon(BLUE_MARKER_DRAWABLE);
                             tmpMarker.setPosition(marker.getPosition());
                             tmpMarker.setAnchor(0.25f, 1.0f);
                             myMapView.getOverlays().add(tmpMarker);
@@ -616,7 +622,7 @@ public class GameActivity extends AppCompatActivity {
     private void timeOutAddUserMarker() {
 
         Marker tmpMarker = new Marker(myMapView);
-        //tmpMarker.setIcon(BLUE_FLAG_DRAWABLE);
+        tmpMarker.setIcon(BLUE_MARKER_DRAWABLE);
         tmpMarker.setPosition(currentMarker.getPosition());
         tmpMarker.setAnchor(0.25f, 1.0f);
         myMapView.getOverlays().add(tmpMarker);
@@ -673,7 +679,7 @@ public class GameActivity extends AppCompatActivity {
         questionTypeBLayout.setVisibility(View.GONE);
 
         answerMarker = new Marker(myMapView);
-        answerMarker.setIcon(RED_FLAG_DRAWABLE);
+        answerMarker.setIcon(RED_MARKER_DRAWABLE);
         answerMarker.setAnchor(0.25f, 1.0f);
         answerMarker.setPosition(Objects.requireNonNull(pi.getMeta().getGeo()));
 
@@ -706,7 +712,7 @@ public class GameActivity extends AppCompatActivity {
 
         //마커에 지명 설정하고 맵뷰에 표시
         answerMarker = new Marker(myMapView);
-        answerMarker.setIcon(RED_FLAG_DRAWABLE);
+        answerMarker.setIcon(RED_MARKER_DRAWABLE);
         answerMarker.setAnchor(0.25f, 1.0f);
         answerMarker.setPosition(Objects.requireNonNull(pi.getMeta().getGeo()));
         answerMarker.setTitle(pi.getMeta().getAddress());

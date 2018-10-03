@@ -296,24 +296,39 @@
             app:layout_constraintStart_toEndOf="@id/guide_answer_v"
             app:layout_constraintTop_toBottomOf="@id/textview_land_distance_answer"
             tools:text="30점" />
-
-        <Button
-            android:id="@+id/button_exit"
+        <android.support.constraint.Guideline
+            android:id="@+id/guide_btn_left"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="EXIT"
-            android:layout_marginTop="15dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/guide_answer_v"
-            app:layout_constraintTop_toBottomOf="@id/textview_land_score_answer"/>
-
-        <Button
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.58"/>
+        <android.support.constraint.Guideline
+            android:id="@+id/guide_btn_right"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.95"/>
+        <ImageView
             android:id="@+id/button_next"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
             android:text="NEXT"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/guide_answer_v"
-            app:layout_constraintTop_toBottomOf="@id/button_exit" />
+            android:src="@drawable/game_next_btn"
+            android:layout_marginTop="5dp"
+            app:layout_constraintDimensionRatio="W,1:2"
+            app:layout_constraintEnd_toEndOf="@id/guide_btn_right"
+            app:layout_constraintStart_toEndOf="@id/guide_btn_left"
+            app:layout_constraintTop_toBottomOf="@id/textview_land_score_answer" />
+        <ImageView
+            android:id="@+id/button_exit"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:text="EXIT"
+            android:src="@drawable/game_exit_btn"
+            app:layout_constraintDimensionRatio="W,1:2"
+            app:layout_constraintEnd_toEndOf="@id/guide_btn_right"
+            app:layout_constraintStart_toEndOf="@id/guide_btn_left"
+            app:layout_constraintTop_toBottomOf="@id/button_next" />
+
     </android.support.constraint.ConstraintLayout>
 </android.support.constraint.ConstraintLayout>

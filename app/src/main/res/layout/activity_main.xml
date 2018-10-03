@@ -22,9 +22,7 @@
         android:textSize="20dp"
         android:layout_marginRight="20dp"
         android:text="Profile"
-        android:textStyle="bold"
-        android:fontFamily="@font/custom_font"
-        android:textColor="#2D446E"
+        style="@style/CustomFontStyle"
         app:layout_constraintBottom_toBottomOf="@id/main_upper_view"
         app:layout_constraintRight_toRightOf="parent" />
 
@@ -44,9 +42,7 @@
         android:layout_height="wrap_content"
         android:text="Main Menu"
         android:textSize="20dp"
-        android:textStyle="bold"
-        android:fontFamily="@font/custom_font"
-        android:textColor="#2D446E"
+        style="@style/CustomFontStyle"
         android:layout_marginBottom="3dp"
         app:layout_constraintBottom_toTopOf="@id/imageview_game_start"
         app:layout_constraintStart_toStartOf="@id/imageview_game_start" />
