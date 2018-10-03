@@ -36,6 +36,9 @@
             android:textSize="20sp"
             android:layout_marginRight="20sp"
             android:text="Profile"
+            android:textStyle="bold"
+            android:fontFamily="@font/custom_font"
+            android:textColor="#0D0D59"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintRight_toRightOf="parent"/>
     </android.support.constraint.ConstraintLayout>

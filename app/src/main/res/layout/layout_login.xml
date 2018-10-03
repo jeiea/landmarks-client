@@ -83,6 +83,9 @@
         android:text="── Sign in with ──"
         android:textAlignment="center"
         android:textSize="14pt"
+        android:textStyle="bold"
+        android:fontFamily="@font/custom_font"
+        android:textColor="#0D0D59"
         app:layout_constraintBottom_toTopOf="@id/guide_login_horizontal_top"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent" />
@@ -115,6 +118,9 @@
         android:ems="9"
         android:inputType="textEmailAddress"
         android:text="ID"
+        android:textStyle="bold"
+        android:fontFamily="@font/custom_font"
+        android:textColor="#0D0D59"
         app:layout_constraintLeft_toRightOf="@id/imageview_login_id_icon"
         app:layout_constraintRight_toRightOf="@id/guide_login_vertical_right"
         app:layout_constraintTop_toBottomOf="@id/guide_login_horizontal_edit_text" />
@@ -126,6 +132,9 @@
         android:ems="9"
         android:inputType="textPassword"
         android:text="password"
+        android:textStyle="bold"
+        android:fontFamily="@font/custom_font"
+        android:textColor="#0D0D59"
         app:layout_constraintLeft_toRightOf="@id/imageview_login_pw_icon"
         app:layout_constraintRight_toRightOf="@id/guide_login_vertical_right"
         app:layout_constraintTop_toBottomOf="@id/et_email" />
