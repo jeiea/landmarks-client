@@ -20,14 +20,6 @@
         android:orientation="horizontal"
         app:layout_constraintGuide_percent="0.5"
         android:id="@+id/guide_mid_horizontal"/>
-
-    <android.support.constraint.Guideline
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        app:layout_constraintGuide_percent="0.45"
-        android:id="@+id/guide_mid_vertical"/>
-
     <TextView
         android:id="@+id/textview_next"
         android:layout_width="wrap_content"
@@ -35,7 +27,7 @@
         android:textSize="20sp"
         android:text="next: "
         app:layout_constraintBottom_toTopOf="@+id/textview_goal_score"
-        app:layout_constraintEnd_toStartOf="@id/guide_mid_vertical"
+        app:layout_constraintStart_toEndOf="@id/guide_btn_left"
         app:layout_constraintTop_toBottomOf="@id/guide_mid_horizontal" />
 
     <TextView
@@ -54,36 +46,51 @@
         android:textSize="20sp"
         android:text="goal: "
         app:layout_constraintBottom_toBottomOf="@+id/textview_goal_score"
-        app:layout_constraintEnd_toStartOf="@id/guide_mid_vertical"
+        app:layout_constraintStart_toEndOf="@id/guide_btn_left"
         app:layout_constraintTop_toBottomOf="@id/textview_level" />
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintTop_toBottomOf="@id/textview_level"
-        app:layout_constraintStart_toEndOf="@id/guide_mid_vertical"
+        app:layout_constraintStart_toEndOf="@id/textview_goal"
         android:textSize="35sp"
         android:id="@+id/textview_goal_score"
         android:text="000/0"/>
 
-    <Button
-        android:id="@+id/button_start"
+    <android.support.constraint.Guideline
+        android:id="@+id/guide_btn_left"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Start"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.3"/>
+    <android.support.constraint.Guideline
+        android:id="@+id/guide_btn_right"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.7"/>
+
+    <ImageView
+        android:id="@+id/game_start_button"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:src="@drawable/game_next_btn"
+        app:layout_constraintDimensionRatio="W,1:2"
         android:layout_marginTop="20dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintStart_toStartOf="@id/guide_btn_left"
+        app:layout_constraintEnd_toEndOf="@id/guide_btn_right"
         app:layout_constraintTop_toBottomOf="@id/textview_goal_score" />
 
-    <Button
-        android:id="@+id/button_exit"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Exit"
-        android:layout_marginTop="5dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/button_start" />
+    <ImageView
+        android:id="@+id/game_exit_button"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:src="@drawable/game_exit_btn"
+        android:layout_marginTop="15dp"
+        app:layout_constraintDimensionRatio="W,1:2"
+        app:layout_constraintEnd_toEndOf="@id/guide_btn_right"
+        app:layout_constraintStart_toStartOf="@id/guide_btn_left"
+        app:layout_constraintTop_toBottomOf="@+id/game_start_button" />
 
 
 
