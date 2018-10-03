@@ -20,12 +20,11 @@
             android:id="@+id/diary_main_Back"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_marginLeft="15sp"
+            android:layout_marginLeft="15dp"
             android:onClick="diary_onBackClick"
             android:src="@drawable/logo"
             android:scaleType="fitCenter"
             android:padding="0dp"
-            android:background="#00000000"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintDimensionRatio="1:1"
             app:layout_constraintLeft_toLeftOf="parent" />
@@ -34,7 +33,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="20dp"
-            android:layout_marginRight="20sp"
+            android:layout_marginRight="20dp"
             android:text="Profile"
             style="@style/CustomFontStyle"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -89,11 +88,11 @@
                 android:gravity="center"
                 style="@style/CustomFontStyle"/>
             <View
+                android:id="@+id/diary_main_TabBar_HighLight"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 app:layout_constraintHeight_percent="0.1"
                 android:background="@color/colorPrimary"
-                android:visibility="invisible"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"/>
         </android.support.constraint.ConstraintLayout>
