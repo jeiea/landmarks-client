@@ -21,13 +21,13 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        app:layout_constraintGuide_percent="0.17"/>
+        app:layout_constraintGuide_percent="0.19"/>
     <android.support.constraint.Guideline
         android:id="@+id/guide_start_vertical_pic"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        app:layout_constraintGuide_percent="0.32"/>
+        app:layout_constraintGuide_percent="0.34"/>
     <ImageView
         android:id="@+id/start_logo_icon"
         android:layout_width="0dp"
@@ -42,6 +42,9 @@
         android:layout_height="wrap_content"
         android:textSize="30dp"
         android:text="LANDMARKS"
+        android:textStyle="bold"
+        android:fontFamily="@font/custom_font"
+        android:textColor="#0D0D59"
         app:layout_constraintLeft_toRightOf="@id/start_logo_icon"
         app:layout_constraintBottom_toTopOf="@id/guide_start_horizontal"/>
 
