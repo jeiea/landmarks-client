@@ -3,8 +3,10 @@ package kr.ac.kw.coms.globealbum.game;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.Point;
+import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
@@ -25,6 +27,8 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+
+import com.bumptech.glide.request.target.DrawableImageViewTarget;
 
 import org.jetbrains.annotations.NotNull;
 import org.osmdroid.config.Configuration;
@@ -842,6 +846,7 @@ public class GameActivity extends AppCompatActivity {
     }
 
     View lastSelect;
+    Drawable redRect;
 
     /**
      * 예비 선택을 지우고 테두리 없는 상태로 바꿈
@@ -861,8 +866,8 @@ public class GameActivity extends AppCompatActivity {
         @Override
         public void onClick(View view) {
             clearLastSelectIfExists();
-//            redRect.setBounds(new Rect(0, 0, view.getWidth(), view.getHeight()));
-//            view.getOverlay().add(redRect);
+            redRect.setBounds(new Rect(0, 0, view.getWidth(), view.getHeight()));
+            view.getOverlay().add(redRect);
             view.setOnClickListener(new PictureClickListenerTypeB2());
             lastSelect = view;
             if (questionTypeBImageView[problem] == view) {
