@@ -24,6 +24,10 @@ import java.util.*
 import kotlin.math.max
 
 class Remote(base: HttpClient, val basePath: String = herokuUri) {
+  /*
+  Implementation details: method's signature MutableList should be kept.
+  Gson can't aware List<> in deserialization type detection.
+   */
 
   val http: HttpClient
   val nominatimLastRequestMs = ArrayChannel<Long>(1)

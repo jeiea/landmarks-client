@@ -34,8 +34,8 @@ data class PictureRep(
 data class CollectionRep(
   var title: String? = null,
   var text: String? = null,
-  var images: List<Int>? = null,
-  var previews: List<WithIntId<PictureRep>>? = listOf(),
+  var images: ArrayList<Int>? = null,
+  var previews: ArrayList<WithIntId<PictureRep>>? = null,
   var likes: Int? = null,
   var liking: Boolean? = null,
   var isRoute: Boolean? = null,
