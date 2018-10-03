@@ -146,7 +146,7 @@ class Remote(base: HttpClient, val basePath: String = herokuUri) {
     }
   }
 
-  suspend fun getRandomProblems(n: Int): List<WithIntId<PictureRep>> {
+  suspend fun getRandomProblems(n: Int): MutableList<WithIntId<PictureRep>> {
     return get("$basePath/problem/random/$n")
   }
 
@@ -208,6 +208,4 @@ class Remote(base: HttpClient, val basePath: String = herokuUri) {
   suspend fun deleteCollection(id: Int) {
     TODO()
   }
-
-
 }

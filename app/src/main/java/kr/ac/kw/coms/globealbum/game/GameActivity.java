@@ -3,10 +3,8 @@ package kr.ac.kw.coms.globealbum.game;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.Point;
-import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
@@ -27,8 +25,6 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-
-import com.bumptech.glide.request.target.DrawableImageViewTarget;
 
 import org.jetbrains.annotations.NotNull;
 import org.osmdroid.config.Configuration;
@@ -131,12 +127,13 @@ public class GameActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-
         displayNextRoundOrFinishView();
-        //displayLoadingGif();
-        redRect = getResources().getDrawable(R.drawable.rectangle_border, null);
-
+        logic = new GameLogic(new GameUI(this));
+        logic.initiateGame();
     }
+
+    GameLogic logic;
+
 
     int stage = 0;
     Button gameStartButton, gameExitButton;
@@ -169,45 +166,39 @@ public class GameActivity extends AppCompatActivity {
         }
     }
 
-    private void displayLoadingGif() {
-        setContentView(R.layout.layout_game_loading_animation);
-        ImageView loadigImageView = findViewById(R.id.game_gif_loading);
-        DrawableImageViewTarget gifImage = new DrawableImageViewTarget(loadigImageView);
-        GlideApp.with(this).load(R.drawable.game_loading_gif).into(gifImage);
-    }
-
 
     /**
      * 문제 세팅
      */
     private void setQuestion() {
-        int[] id = new int[PICTURE_NUM];
-        for (int i = 0; i < PICTURE_NUM; i++) { //사진 리소스 id 배열에 저장
-            id[i] = R.drawable.coord0 + i;
-        }
-        for (int i = 0; i < 1000; i++) {    //반복하여 리소스 id 섞음
-            int random = (int) (Math.random() * PICTURE_NUM);
-            int tmp = id[0];
-            id[0] = id[random];
-            id[random] = tmp;
-        }
-
         //GPS 정보 뽑아오기
-        Resources resources = getResources();
-        for (int i = 0; i < PICTURE_NUM; i++) {
-//            ResourcePicture pic = new ResourcePicture(id[i], resources);
-            RemoteJava.INSTANCE.getRandomPictures(10, afterPictureReceive);
-//            questionPic.add(pic);
-//            setReverseGeocodeRegionNameAsPictureTitle(pic);
-        }
-//        displayQuiz();
+        RemoteJava.INSTANCE.login("login", "password", afterLogin);
     }
 
-    Promise afterPictureReceive = new UIPromise<List<RemotePicture>>() {
+    Promise afterLogin = new Promise() {
+        @Override
+        public void success(Object result) {
+            RemoteJava.INSTANCE.getRandomPictures(10, afterPictureReceive);
+            IPictureExaminer<RemotePicture> gen = new RemoteExaminer();
+            gen.getRandomPictures(3, afterPictureReceive);
+        }
+
+        @Override
+        public void failure(@NotNull Throwable cause) {
+            super.failure(cause);
+        }
+    };
+
+    Promise<List<RemotePicture>> afterPictureReceive = new UIPromise<List<RemotePicture>>() {
         @Override
         public void success(List<RemotePicture> result) {
             questionPic.addAll(result);
             displayQuiz();
+        }
+
+        @Override
+        public void failure(@NotNull Throwable cause) {
+            super.failure(cause);
         }
     };
 
@@ -845,7 +836,6 @@ public class GameActivity extends AppCompatActivity {
     }
 
     View lastSelect;
-    Drawable redRect;
 
     /**
      * 예비 선택을 지우고 테두리 없는 상태로 바꿈
@@ -865,8 +855,8 @@ public class GameActivity extends AppCompatActivity {
         @Override
         public void onClick(View view) {
             clearLastSelectIfExists();
-            redRect.setBounds(new Rect(0, 0, view.getWidth(), view.getHeight()));
-            view.getOverlay().add(redRect);
+//            redRect.setBounds(new Rect(0, 0, view.getWidth(), view.getHeight()));
+//            view.getOverlay().add(redRect);
             view.setOnClickListener(new PictureClickListenerTypeB2());
             lastSelect = view;
             if (questionTypeBImageView[problem] == view) {
