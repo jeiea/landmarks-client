@@ -67,7 +67,10 @@
                 android:layout_margin="1px"
                 android:text="My Image"
                 android:textAlignment="center"
-                android:gravity="center"/>
+                android:gravity="center"
+                android:textStyle="bold"
+                android:fontFamily="@font/custom_font"
+                android:textColor="#0D0D59"/>
             <View
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
@@ -92,7 +95,10 @@
                 android:layout_margin="1px"
                 android:text="My Diary"
                 android:textAlignment="center"
-                android:gravity="center"/>
+                android:gravity="center"
+                android:textStyle="bold"
+                android:fontFamily="@font/custom_font"
+                android:textColor="#0D0D59"/>
             <View
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
