@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:padding="10sp"
+    android:clickable="false">
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintDimensionRatio="2:1"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:src="@drawable/coord2"
+        android:scaleType="centerCrop"
+        android:clickable="true"
+        />
+    <android.support.constraint.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintHeight_percent="0.35"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/diary_Row_BottomMargin"
+        android:clickable="false">
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:src="@color/black_overlay"/>
+        <TextView
+            android:id="@+id/diary_Row_Name"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintWidth_percent="0.9"
+            app:layout_constraintHeight_percent="0.5"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/diary_Row_Date"
+            android:text="○○ 여행"
+            android:textStyle="italic"
+            android:textColor="#FFFFFF"
+            android:textSize="25sp"/>
+        <TextView
+            android:id="@+id/diary_Row_Date"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintWidth_percent="0.8"
+            app:layout_constraintHeight_percent="0.3"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/diary_row_TitleMargin"
+            android:text="1970.01.01 ~ 1970.01.01"
+            android:textStyle="italic"
+            android:textColor="#FFFFFF"
+            android:textSize="15sp"/>
+        <View
+            android:id="@+id/diary_row_TitleMargin"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            app:layout_constraintHeight_percent="0.1"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"/>
+    </android.support.constraint.ConstraintLayout>
+    <View
+        android:id="@+id/diary_Row_BottomMargin"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintHeight_percent="0.07"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"/>
+
+</android.support.constraint.ConstraintLayout>
