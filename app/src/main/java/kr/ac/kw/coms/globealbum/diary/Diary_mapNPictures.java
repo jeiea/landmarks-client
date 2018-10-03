@@ -8,27 +8,19 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.flexbox.FlexDirection;
 
-import kr.ac.kw.coms.globealbum.common.RequestCodes;
-import kr.ac.kw.coms.globealbum.provider.*;
 import org.jetbrains.annotations.NotNull;
 import org.osmdroid.events.MapEventsReceiver;
 import org.osmdroid.util.BoundingBox;
 import org.osmdroid.util.GeoPoint;
-import org.osmdroid.views.MapController;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.MapEventsOverlay;
 import org.osmdroid.views.overlay.Marker;
@@ -36,27 +28,30 @@ import org.osmdroid.views.overlay.Polyline;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import kr.ac.kw.coms.globealbum.R;
 import kr.ac.kw.coms.globealbum.album.GalleryDetail;
 import kr.ac.kw.coms.globealbum.album.GroupDiaryView;
 import kr.ac.kw.coms.globealbum.album.PictureGroup;
-import kr.ac.kw.coms.globealbum.provider.Promise;
-import kr.ac.kw.coms.globealbum.provider.ResourcePicture;
 import kr.ac.kw.coms.globealbum.common.CircularImageKt;
 import kr.ac.kw.coms.globealbum.common.RequestCodes;
 import kr.ac.kw.coms.globealbum.map.MyMapView;
+import kr.ac.kw.coms.globealbum.provider.Diary;
 import kr.ac.kw.coms.globealbum.provider.EXIFinfo;
 import kr.ac.kw.coms.globealbum.provider.IPicture;
-import kr.ac.kw.coms.globealbum.provider.ResourcePicture;
+import kr.ac.kw.coms.globealbum.provider.Promise;
+import kr.ac.kw.coms.globealbum.provider.RemoteJava;
+import kr.ac.kw.coms.globealbum.provider.RemotePicture;
 import kr.ac.kw.coms.globealbum.provider.UIPromise;
+import kr.ac.kw.coms.landmarks.client.CollectionRep;
 
 public class Diary_mapNPictures extends AppCompatActivity {
 
+    static final String PARCEL_DIARY = "diary";
     final ArrayList<Integer> PicturesArray = new ArrayList<>();
     GroupDiaryView picView = null;
-    final Diary_Parcel DiaryData = new Diary_Parcel();
-    Diary_Parcel DiaryData_Edit = new Diary_Parcel();
+    Diary diary;
     EditImageListAdapter adapter;
 
     //mapview에서 사용되는 멤버변수
@@ -66,29 +61,11 @@ public class Diary_mapNPictures extends AppCompatActivity {
     List<Polyline> polylineList = new ArrayList<>();
     int selectedMarkerIndex = -1;
 
-    public void ReceiveData() {
-        //서버로부터 데이터 전송받기
-        PicturesArray.add(R.drawable.coord0);
-        PicturesArray.add(R.drawable.coord1);
-        PicturesArray.add(R.drawable.coord2);
-        PicturesArray.add(R.drawable.coord3);
-        PicturesArray.add(R.drawable.coord4);
-
-        DiaryData.Title = "title";
-        DiaryData.Description = "text";
-        for (int i = 0; i < PicturesArray.size(); i++) {
-            DiaryData.Images.add(new ResourcePicture(PicturesArray.get(i), getResources()));
-        }
-    }
-
-    public void PrepareData() {
-        ReceiveData();
+    public void setDiary(Diary data) {
+        diary = data;
         //받은 데이터를 화면에 표시
+        ArrayList<IPicture> pics = new ArrayList<IPicture>(diary.getPictures());
         ArrayList<PictureGroup> elementList = new ArrayList<>();
-        ArrayList<IPicture> pics = new ArrayList<>();
-        for (int i = 0; i < DiaryData.Images.size(); i++) {
-            pics.add(i, DiaryData.Images.get(i));
-        }
         elementList.add(new PictureGroup("", pics));
         picView.setGroups(elementList);
         picView.addOnItemTouchListener(new kr.ac.kw.coms.globealbum.common.RecyclerItemClickListener(picView) {
@@ -96,12 +73,14 @@ public class Diary_mapNPictures extends AppCompatActivity {
             public void onItemClick(@NotNull View view, int position) {
                 super.onItemClick(view, position);
                 Intent intent = new Intent(getBaseContext(), GalleryDetail.class);
-                intent.putParcelableArrayListExtra("pictures", DiaryData.Images);
+                ArrayList<IPicture> pics = new ArrayList<IPicture>(diary.getPictures());
+                intent.putParcelableArrayListExtra("pictures", pics);
                 intent.putExtra("index", position - 1);
                 intent.setAction(RequestCodes.ACTION_VIEW_PHOTO);
                 startActivity(intent);
             }
         }.getItemTouchListener());
+        setMarkerToMapview();
     }
 
     @Override
@@ -127,15 +106,14 @@ public class Diary_mapNPictures extends AppCompatActivity {
         //mapviewClickEventOverlay = mapviewClickEventDisplay();
         //myMapView.getOverlays().add(mapviewClickEventOverlay);
 
-        PrepareData();
-        setMarkerToMapview();
+        Diary data = getIntent().getParcelableExtra(PARCEL_DIARY);
+        setDiary(data);
 
         try {
-            if (getIntent().getAction().equals(RequestCodes.ACTION_EDIT_DIARY)) {
+            if (Objects.equals(getIntent().getAction(), RequestCodes.ACTION_EDIT_DIARY)) {
                 diary_onEditClick(null);
             }
-        }catch (Exception e)
-        {
+        } catch (Exception e) {
             //ignore
         }
     }
@@ -149,24 +127,24 @@ public class Diary_mapNPictures extends AppCompatActivity {
         myMapView.invalidate();
         markerList = new ArrayList<>();
 
-        if(DiaryData.Images.size() < 1){
+        if (diary.getInfo().getValue().getImages().size() < 1) {
             return;
         }
 
         //GPS 정보 뽑아오기
         EXIFinfo exifInfo = new EXIFinfo();
-        final Drawable[] drawables = new Drawable[DiaryData.Images.size()];
+        final Drawable[] drawables = new Drawable[diary.getInfo().getValue().getImages().size()];
         final ArrayList<Integer> arrayList = new ArrayList<>();
-        for (int i = 0; i < DiaryData.Images.size(); i++) {
+        for (int i = 0; i < diary.Images.size(); i++) {
             final int idx = i;
-            IPicture pic = DiaryData.Images.get(i);
+            IPicture pic = diary.Images.get(i);
             pic.drawable(getResources(), new UIPromise<Drawable>() {
 
                 @Override
                 public void success(Drawable result) {
                     drawables[idx] = result;
                     arrayList.add(1);
-                    if (arrayList.size() == DiaryData.Images.size()) {
+                    if (arrayList.size() == diary.Images.size()) {
                         addCircularMarker(drawables);
                     }
                 }
@@ -178,13 +156,14 @@ public class Diary_mapNPictures extends AppCompatActivity {
 
     /**
      * 화면에 사진을 원형 아이콘으로 표시
+     *
      * @param drawables 원형으로 되기 전의 사진들
      */
     private void addCircularMarker(Drawable[] drawables) {
         for (int idx = 0; idx < drawables.length; idx++) {
             Drawable drawable = drawables[idx];
             Bitmap bm = CircularImageKt.getCircularBitmap(drawable, 150);
-            IPicture pic = DiaryData.Images.get(idx);
+            IPicture pic = diary.Images.get(idx);
             Marker marker = addPicMarker(pic.getMeta().getGeo(), new BitmapDrawable(getResources(), bm));
             markerList.add(marker);
             myMapView.getOverlays().add(marker);
@@ -195,11 +174,10 @@ public class Diary_mapNPictures extends AppCompatActivity {
         }
 
         BoundingBox boundingBox;
-        if(markerList.size() == 1){
+        if (markerList.size() == 1) {
             Marker item = markerList.get(0);
-            boundingBox = new BoundingBox(item.getPosition().getLatitude()+10,item.getPosition().getLongitude()+10,item.getPosition().getLatitude()-5,item.getPosition().getLongitude()-5);
-        }
-        else{
+            boundingBox = new BoundingBox(item.getPosition().getLatitude() + 10, item.getPosition().getLongitude() + 10, item.getPosition().getLatitude() - 5, item.getPosition().getLongitude() - 5);
+        } else {
             double minLat = Double.MAX_VALUE;
             double maxLat = Double.MIN_VALUE;
             double minLong = Double.MAX_VALUE;
@@ -215,9 +193,9 @@ public class Diary_mapNPictures extends AppCompatActivity {
                 if (point.getLongitude() > maxLong)
                     maxLong = point.getLongitude();
             }
-            boundingBox = new BoundingBox(maxLat+20, maxLong+15, minLat, minLong-5);
+            boundingBox = new BoundingBox(maxLat + 20, maxLong + 15, minLat, minLong - 5);
         }
-        myMapView.zoomToBoundingBox(boundingBox,false);
+        myMapView.zoomToBoundingBox(boundingBox, false);
         //myMapView.getController().zoomToSpan(boundingBox.getLatitudeSpan(),boundingBox.getLongitudeSpan());
         //myMapView.getController().setCenter(boundingBox.getCenterWithDateLine());
         myMapView.invalidate();
@@ -354,15 +332,15 @@ public class Diary_mapNPictures extends AppCompatActivity {
     public void diary_onEditClick(View view) {
         //편집 시작
         diary_Switch(EDIT_MODE);
-        DiaryData_Edit = DiaryData.clone();
         EditText Edit_Title = findViewById(R.id.diary_edit_TitleText);
         EditText Edit_Description = findViewById(R.id.diary_edit_DescriptionText);
         RecyclerView Edit_ImageList = findViewById(R.id.diary_edit_ImageList);
 
-
-        Edit_Title.setText(DiaryData_Edit.Title);
-        Edit_Description.setText(DiaryData_Edit.Description);
-        adapter = new EditImageListAdapter(this, DiaryData_Edit.Images);
+        CollectionRep editData = diary.getInfo().getValue();
+        Edit_Title.setText(editData.getTitle());
+        Edit_Description.setText(editData.getText());
+        ArrayList<IPicture> pics = new ArrayList<IPicture>(diary.getPictures());
+        adapter = new EditImageListAdapter(this, pics);
         Edit_ImageList.setLayoutManager(new LinearLayoutManager(getBaseContext()));
         Edit_ImageList.setAdapter(adapter);
     }
@@ -398,25 +376,32 @@ public class Diary_mapNPictures extends AppCompatActivity {
                 //변경된 내용 반영
                 EditText Edit_Title = findViewById(R.id.diary_edit_TitleText);
                 EditText Edit_Description = findViewById(R.id.diary_edit_DescriptionText);
-                DiaryData_Edit.Title = Edit_Title.getText().toString();
-                DiaryData_Edit.Description = Edit_Description.getText().toString();
-                DiaryData_Edit.Images = adapter.getItems();
+                CollectionRep editData = diary.getInfo().getValue();
+                editData.setTitle(Edit_Title.getText().toString());
+                editData.setText(Edit_Description.getText().toString());
+                ArrayList<Integer> imgIds = new ArrayList<>();
+                for (IPicture pic : adapter.getItems()) {
+                    imgIds.add(((RemotePicture) pic).getInfo().getId());
+                }
+                editData.setImages(imgIds);
 
-                //서버 통신 필요
-                //DiaryData_Edit를 서버에 전송
-
-                //데이터 다시 가져오기
-                DiaryData.set(DiaryData_Edit);
-                ((TextView)findViewById(R.id.diary_mapNpics_Title)).setText(DiaryData.Title);
-                ((TextView)findViewById(R.id.diary_mapNpics_Description)).setText(DiaryData.Description);
-                picView.clearAllItems();
-                ArrayList<PictureGroup> elementList = new ArrayList<>();
-                elementList.add(new PictureGroup("", DiaryData.Images));
-                picView.setGroups(elementList);
-                setMarkerToMapview();
+                RemoteJava.INSTANCE.modifyCollection(diary.getInfo().getId(), editData, afterModify);
                 break;
         }
     }
+
+    Promise<Diary> afterModify = new Promise<Diary>() {
+        @Override
+        public void success(Diary result) {
+            setDiary(result);
+        }
+
+        @Override
+        public void failure(@NotNull Throwable cause) {
+            Toast.makeText(Diary_mapNPictures.this, cause.toString(), Toast.LENGTH_SHORT);
+        }
+    };
+
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {

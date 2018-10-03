@@ -39,6 +39,7 @@ data class CollectionRep(
   var likes: Int? = null,
   var liking: Boolean? = null,
   var isRoute: Boolean? = null,
+  var isPublic: Boolean? = null,
   var parent: Int? = null
 )
 

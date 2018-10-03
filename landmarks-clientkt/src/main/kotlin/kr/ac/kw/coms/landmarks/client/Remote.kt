@@ -191,6 +191,10 @@ class Remote(base: HttpClient, val basePath: String = herokuUri) {
     }
   }
 
+  suspend fun getRandomCollections(): MutableList<WithIntId<CollectionRep>> {
+    return get("$basePath/collection")
+  }
+
   suspend fun getCollections(ownerId: Int): MutableList<WithIntId<CollectionRep>> {
     return get("$basePath/collection/user/$ownerId")
   }
@@ -203,7 +207,7 @@ class Remote(base: HttpClient, val basePath: String = herokuUri) {
     return getCollections(profile!!.id)
   }
 
-  suspend fun modifyCollection(id: Int, collection: CollectionRep) {
+  suspend fun modifyCollection(id: Int, collection: CollectionRep): WithIntId<CollectionRep> {
     return post("$basePath/collection/${id}") {
       json(collection)
     }

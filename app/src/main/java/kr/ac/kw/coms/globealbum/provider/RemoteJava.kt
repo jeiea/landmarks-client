@@ -29,21 +29,24 @@ public object RemoteJava {
   fun uploadPicture(info: PictureRep, file: File, prom: Promise<Unit>): Job =
     prom.resolve { client.uploadPicture(info, file) }
 
-  fun modifyPictureInfo(id: Int, info: PictureRep, prom: Promise<Unit>): Job =
-    prom.resolve { client.modifyPictureInfo(id, info) }
-
   fun getPicture(id: Int, prom: Promise<IPicture>): Job =
     prom.resolve { RemotePicture(WithIntId(id, client.getPictureInfo(id))) }
+
+  fun getRandomPictures(n: Int, promise: Promise<List<RemotePicture>>): Job =
+    promise.resolve { client.getRandomProblems(n).map(::RemotePicture) }
+
+  fun modifyPictureInfo(id: Int, info: PictureRep, prom: Promise<Unit>): Job =
+    prom.resolve { client.modifyPictureInfo(id, info) }
 
   fun getMyPictures(prom: Promise<List<IPicture>>): Job =
     prom.resolve { client.getMyPictureInfos().map(::RemotePicture) }
 
-  fun getMyCollections(prom: Promise<List<Diary>>): Job =
-    prom.resolve {
-      val colls: MutableList<WithIntId<CollectionRep>> = client.getMyCollections()
-      colls.map(::Diary)
-    }
+  fun uploadCollection(info: CollectionRep, prom: Promise<Diary>): Job =
+    prom.resolve { Diary(client.uploadCollection(info)) }
 
-  fun getRandomPictures(n: Int, promise: Promise<List<RemotePicture>>): Job =
-    promise.resolve { client.getRandomProblems(n).map(::RemotePicture) }
+  fun getMyCollections(prom: Promise<List<Diary>>): Job =
+    prom.resolve { client.getMyCollections().map(::Diary) }
+
+  fun modifyCollection(id: Int, info: CollectionRep, prom: Promise<Diary>): Job =
+    prom.resolve { Diary(client.modifyCollection(id, info)) }
 }

@@ -111,7 +111,7 @@ class RemoteSpek : Spek({
     }
 
     blit("modify collections") {
-      collection.images = pics.map { it.id }.toList()
+      collection.images = ArrayList(pics.map { it.id })
       client.modifyCollection(realCollection!!.id, collection)
     }
 
@@ -125,6 +125,12 @@ class RemoteSpek : Spek({
       collGot.previews!!.size `should be equal to`  collection.images!!.size
 
       createdCollId = queried[0].id
+    }
+
+    blit("get random collections") {
+      val queried = client.getRandomCollections()
+      // it filters myself one
+      queried.size `should be equal to` 0
     }
 
     blit("query collection picture info") {

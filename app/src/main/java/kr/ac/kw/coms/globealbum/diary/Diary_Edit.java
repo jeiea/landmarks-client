@@ -1,14 +1,18 @@
 package kr.ac.kw.coms.globealbum.diary;
 
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.TextView;
 
 import kr.ac.kw.coms.globealbum.R;
+import kr.ac.kw.coms.globealbum.provider.Diary;
+import kr.ac.kw.coms.landmarks.client.CollectionRep;
 
 public class Diary_Edit extends AppCompatActivity {
+
+    Diary diary;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -17,15 +21,14 @@ public class Diary_Edit extends AppCompatActivity {
         TextView Title = findViewById(R.id.diary_edit_TitleText);
         TextView Description = findViewById(R.id.diary_edit_DescriptionText);
         RecyclerView ImageList = findViewById(R.id.diary_edit_ImageList);
-        Diary_Parcel Data = LoadData();
-        Title.setText(Data.Title);
-        Description.setText(Data.Description);
+        diary = LoadData();
+        CollectionRep data = diary.getInfo().getValue();
+        Title.setText(data.getTitle());
+        Description.setText(data.getText());
     }
 
-    private Diary_Parcel LoadData()
-    {
-        Diary_Parcel Data = (Diary_Parcel) getIntent().getSerializableExtra("Data");
-        return Data;
+    private Diary LoadData() {
+        return (Diary) getIntent().getParcelableExtra("Data");
     }
 
     public void diary_edit_onClick(View view) {

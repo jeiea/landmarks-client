@@ -341,11 +341,72 @@ class ResourcePicture(@DrawableRes val id: Int) : IPicture {
   //endregion
 }
 
-class Diary(val info: WithIntId<CollectionRep>) {
+class Diary(var info: WithIntId<CollectionRep>) : Parcelable {
+
   val pictures: List<RemotePicture>
     get() {
       return info.value.previews!!.map(::RemotePicture)
     }
+
+  //region Parcelable implementation
+  constructor(parcel: Parcel) : this(parcelToRemoteCollectionWithIntId(parcel))
+
+  override fun writeToParcel(parcel: Parcel, flags: Int) {
+    val v = info.value
+    parcel.run {
+      writeInt(info.id)
+      writeString(v.title)
+      writeString(v.text)
+      writeParcelableArray(v.previews?.map(::RemotePicture)?.toTypedArray(), 0)
+      writeInt(v.likes ?: -1)
+      writeByte(boolToByte(v.liking))
+      writeByte(boolToByte(v.isRoute))
+      writeInt(v.parent ?: -1)
+    }
+  }
+
+  override fun describeContents(): Int {
+    return 0
+  }
+
+  companion object CREATOR : Parcelable.Creator<Diary> {
+    override fun createFromParcel(parcel: Parcel) = Diary(parcel)
+
+    override fun newArray(size: Int): Array<Diary?> {
+      return arrayOfNulls(size)
+    }
+
+    fun boolToByte(b: Boolean?): Byte = when (b) {
+      true -> 1
+      false -> 0
+      null -> -1
+    }
+
+    fun byteToBool(b: Byte): Boolean? = when (b) {
+      1.toByte() -> true
+      0.toByte() -> false
+      else -> null
+    }
+
+    fun parcelToRemoteCollectionWithIntId(parcel: Parcel): WithIntId<CollectionRep> {
+      val v = CollectionRep()
+      val collection = WithIntId(parcel.readInt(), v)
+      parcel.run {
+        v.title = readString()
+        v.text = readString()
+        val pics = mutableListOf<RemotePicture>()
+        readTypedList(pics, RemotePicture.CREATOR)
+        v.images = ArrayList(pics.map { it.info.id })
+        v.previews = ArrayList(pics.map { it.info })
+        v.likes = readInt().takeIf { it != -1 }
+        v.liking = byteToBool(readByte())
+        v.isRoute = byteToBool(readByte())
+        v.parent = readInt().takeIf { it != -1 }
+      }
+      return collection
+    }
+  }
+  //endregion
 }
 
 fun resourceToUri(context: Context, resId: Int): Uri {
