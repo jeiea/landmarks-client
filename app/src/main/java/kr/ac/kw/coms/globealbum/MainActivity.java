@@ -9,10 +9,7 @@ import android.os.Handler;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
-import android.widget.ImageView;
 import android.widget.Toast;
-
-import com.bumptech.glide.request.target.DrawableImageViewTarget;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -21,9 +18,7 @@ import java.util.Map;
 
 import kr.ac.kw.coms.globealbum.album.GalleryActivity;
 import kr.ac.kw.coms.globealbum.album.activity_Navigator;
-import kr.ac.kw.coms.globealbum.common.GlideApp;
-import kr.ac.kw.coms.globealbum.diary.Diary_Mine_main;
-import kr.ac.kw.coms.globealbum.diary.Diary_Other_main;
+import kr.ac.kw.coms.globealbum.diary.Diary_main;
 import kr.ac.kw.coms.globealbum.game.GameActivity;
 import kr.ac.kw.coms.globealbum.provider.EXIFinfo;
 import kr.ac.kw.coms.globealbum.provider.Login;
@@ -74,10 +69,7 @@ public class MainActivity extends AppCompatActivity {
                 startActivityForResult(new Intent(this, activity_Navigator.class), 3);
                 break;
             case R.id.btn_start_diary:
-                startActivityForResult(new Intent(this, Diary_Mine_main.class), 4);
-                break;
-            case R.id.btn_start_diaryOther:
-                startActivityForResult(new Intent(this, Diary_Other_main.class), 5);
+                startActivityForResult(new Intent(this, Diary_main.class), 4);
                 break;
             default:
         }

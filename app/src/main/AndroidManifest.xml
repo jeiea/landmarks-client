@@ -41,10 +41,9 @@
                 android:label="@string/title_activity_gallery_detail"
                 android:theme="@style/FullscreenTheme"/>
         <activity android:name=".album.ExampleDiary"/>
-        <activity android:name=".diary.Diary_Mine_main"/>
+        <activity android:name=".diary.Diary_main"/>
         <activity android:name=".provider.Login"/>
         <activity android:name=".diary.Diary_mapNPictures"/>
-        <activity android:name=".diary.Diary_Other_main"/>
         <activity android:name=".diary.Diary_Edit"/>
         <activity android:name=".diary.diary_new">
         </activity>
