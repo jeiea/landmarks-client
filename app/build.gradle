@@ -37,6 +37,7 @@ repositories {
     flatDir {
         dirs 'libs'
     }
+    jcenter()
 }
 
 dependencies {
@@ -102,6 +103,8 @@ dependencies {
     // Android test
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
+
+    implementation 'at.wirecube:additive_animations:1.6.2'
 }
 
 kotlin {

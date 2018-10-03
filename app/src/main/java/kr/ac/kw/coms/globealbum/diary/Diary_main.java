@@ -2,31 +2,42 @@ package kr.ac.kw.coms.globealbum.diary;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.media.Image;
 import android.os.Bundle;
+import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
+import android.view.animation.AccelerateInterpolator;
+import android.view.animation.Animation;
+import android.view.animation.AnimationSet;
+import android.view.animation.TranslateAnimation;
 import android.widget.ImageButton;
 import android.widget.TabHost;
 import android.widget.Toast;
 
+import at.wirecube.additiveanimations.additive_animator.AdditiveAnimator;
 import kr.ac.kw.coms.globealbum.R;
 import kr.ac.kw.coms.globealbum.album.GroupDiaryView;
 import kr.ac.kw.coms.globealbum.common.RequestCodes;
 
 public class Diary_main extends AppCompatActivity {
 
+    View Root;
     RecyclerView ImageList;
     RecyclerView JourneyList;
     ImageButton BtnNewDiary;
+    boolean isTabLeft = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_diary_main);
 
+        Root = findViewById(R.id.diary_main_Root);
         ImageList = findViewById(R.id.diary_main_ImageList);
         JourneyList = findViewById(R.id.diary_main_JourneyList);
         BtnNewDiary = findViewById(R.id.diary_main_NewDiary);
@@ -85,5 +96,27 @@ public class Diary_main extends AppCompatActivity {
     public void diary_main_AddNewDiary(View view) {
         Intent intent = new Intent(getBaseContext(), diary_new.class);
         startActivityForResult(intent, RequestCodes.MakeNewDiary);
+    }
+
+    public void diary_main_SwitchToLeft(View view) {
+        if (isTabLeft)
+            return;
+        final View bar = findViewById(R.id.diary_main_TabBar_HighLight);
+
+        AdditiveAnimator.animate(bar).setDuration(200).translationX(0).start();
+        AdditiveAnimator.animate(JourneyList).setDuration(200).translationX(Root.getWidth()).start();
+        AdditiveAnimator.animate(ImageList).setDuration(200).translationX(0).start();
+        isTabLeft = true;
+    }
+
+    public void diary_main_SwitchToRight(View view) {
+        if (!isTabLeft)
+            return;
+        final View bar = findViewById(R.id.diary_main_TabBar_HighLight);
+
+        AdditiveAnimator.animate(bar).setDuration(200).translationX(bar.getWidth()).start();
+        AdditiveAnimator.animate(ImageList).setDuration(200).translationX(-Root.getWidth()).start();
+        AdditiveAnimator.animate(JourneyList).setDuration(200).translationX(0).start();
+        isTabLeft = false;
     }
 }
