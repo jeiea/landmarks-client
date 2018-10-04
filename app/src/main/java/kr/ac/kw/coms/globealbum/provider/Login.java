@@ -13,6 +13,7 @@ import org.jetbrains.annotations.NotNull;
 import kotlin.Unit;
 import kr.ac.kw.coms.globealbum.R;
 import kr.ac.kw.coms.landmarks.client.AccountForm;
+import kr.ac.kw.coms.landmarks.client.WithIntId;
 
 public class Login extends AppCompatActivity {
     String TAG = "Login";
@@ -39,7 +40,7 @@ public class Login extends AppCompatActivity {
         String ident = etEmail.getText().toString();
         String pass = etPassword.getText().toString();
 
-        client.login(ident, pass, new ToastPromise<Unit>("Login success"));
+        client.login(ident, pass, new ToastPromise<WithIntId<AccountForm>>("Login success"));
     }
 
 

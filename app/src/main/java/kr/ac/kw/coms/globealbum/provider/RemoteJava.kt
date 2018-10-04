@@ -23,7 +23,7 @@ public object RemoteJava {
   fun register(form: AccountForm, prom: Promise<Unit>): Job =
     prom.resolve { client.register(form.login!!, form.password!!, form.email!!, form.nick!!) }
 
-  fun login(ident: String, pass: String, prom: Promise<Unit>): Job =
+  fun login(ident: String, pass: String, prom: Promise<WithIntId<AccountForm>>): Job =
     prom.resolve { client.login(ident, pass) }
 
   fun uploadPicture(info: PictureInfo, file: File, prom: Promise<Unit>): Job =

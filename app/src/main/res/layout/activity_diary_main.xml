@@ -108,7 +108,8 @@
         android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/diary_main_TabBar"/>
+        app:layout_constraintTop_toBottomOf="@id/diary_main_TabBar">
+    </android.support.v7.widget.RecyclerView>
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/diary_main_JourneyList"
