@@ -56,7 +56,7 @@ public class MainActivity extends AppCompatActivity {
     //layout button click listener
     public void startOnClick(View v) {
         switch (v.getId()) {
-            case R.id.btn_start_map:
+            case R.id.imageview_game_start:
                 startActivity(new Intent(this, GameActivity.class));
                 break;
             case R.id.btn_start_web_gallery:

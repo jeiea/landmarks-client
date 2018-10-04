@@ -26,6 +26,7 @@
         android:layout_height="wrap_content"
         android:textSize="20sp"
         android:text="next: "
+        style="@style/CustomFontStyle"
         app:layout_constraintBottom_toTopOf="@+id/textview_goal_score"
         app:layout_constraintStart_toEndOf="@id/guide_btn_left"
         app:layout_constraintTop_toBottomOf="@id/guide_mid_horizontal" />
@@ -37,7 +38,8 @@
         app:layout_constraintTop_toBottomOf="@id/guide_mid_horizontal"
         app:layout_constraintStart_toEndOf="@id/textview_next"
         android:id="@+id/textview_level"
-        android:text="Level 0"/>
+        android:text="Level 0"
+        style="@style/CustomFontStyle"/>
 
     <TextView
         android:id="@+id/textview_goal"
@@ -45,6 +47,7 @@
         android:layout_height="wrap_content"
         android:textSize="20sp"
         android:text="goal: "
+        style="@style/CustomFontStyle"
         app:layout_constraintBottom_toBottomOf="@+id/textview_goal_score"
         app:layout_constraintStart_toEndOf="@id/guide_btn_left"
         app:layout_constraintTop_toBottomOf="@id/textview_level" />
@@ -55,7 +58,8 @@
         app:layout_constraintStart_toEndOf="@id/textview_goal"
         android:textSize="35sp"
         android:id="@+id/textview_goal_score"
-        android:text="000/0"/>
+        android:text="000/0"
+        style="@style/CustomFontStyle"/>
 
     <android.support.constraint.Guideline
         android:id="@+id/guide_btn_left"

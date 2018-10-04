@@ -148,7 +148,7 @@ public class GameActivity extends AppCompatActivity {
 
     private void displayNextRoundOrFinishView() {
         stage++;
-        if (stage == 1 || (stage - 1 != limitScore.length && score >= limitScore[stage - 1])) {
+        if (stage == 1 || (stage - 1 != limitScore.length && score >= limitScore[stage - 2])) {
             setContentView(R.layout.layout_game_next_round);
             gameStartButton = findViewById(R.id.game_start_button);
             gameExitButton = findViewById(R.id.game_exit_button);
@@ -394,8 +394,8 @@ public class GameActivity extends AppCompatActivity {
         finalPoint.x = startPoint.x;
         finalPoint.y = startPoint.y;
 
-        startPoint.x += 50;
-        startPoint.y -= 50;
+        startPoint.x += 40;
+        startPoint.y -= 40;
 
         GeoPoint startGeoPosition = (GeoPoint) projection.fromPixels(startPoint.x, startPoint.y);
 
@@ -422,7 +422,7 @@ public class GameActivity extends AppCompatActivity {
                 t = elapsed / durationInMs;
                 v = interpolator.getInterpolation(t);
 
-                answerMarker.setAnchor(-0.25f, 0);
+                answerMarker.setAnchor(0.5f, 1.0f);
                 Point pixelPoint = interpolate(v, startPoint, finalPoint);
                 GeoPoint geoPoint = (GeoPoint) projection.fromPixels(pixelPoint.x, pixelPoint.y);
 
@@ -446,7 +446,7 @@ public class GameActivity extends AppCompatActivity {
                             Marker tmpMarker = new Marker(myMapView);
                             tmpMarker.setIcon(BLUE_MARKER_DRAWABLE);
                             tmpMarker.setPosition(marker.getPosition());
-                            answerMarker.setAnchor(-0.25f, 0);
+                            answerMarker.setAnchor(0.5f, 1.0f);
                             myMapView.getOverlays().add(tmpMarker);
 
                             distance = calcDistance(finalGeoPosition, answerMarker.getPosition());
@@ -628,7 +628,7 @@ public class GameActivity extends AppCompatActivity {
         Marker tmpMarker = new Marker(myMapView);
         tmpMarker.setIcon(BLUE_MARKER_DRAWABLE);
         tmpMarker.setPosition(currentMarker.getPosition());
-        answerMarker.setAnchor(-0.25f, 0);
+        answerMarker.setAnchor(0.5f, 1.0f);
         myMapView.getOverlays().add(tmpMarker);
 
         distance = calcDistance(currentMarker.getPosition(), answerMarker.getPosition());
@@ -684,7 +684,7 @@ public class GameActivity extends AppCompatActivity {
 
         answerMarker = new Marker(myMapView);
         answerMarker.setIcon(RED_MARKER_DRAWABLE);
-        answerMarker.setAnchor(-0.25f, 0);
+        answerMarker.setAnchor(0.5f, 1.0f);
         answerMarker.setPosition(Objects.requireNonNull(pi.getMeta().getGeo()));
 
         answerMarker.setOnMarkerClickListener(new Marker.OnMarkerClickListener() {
@@ -717,7 +717,7 @@ public class GameActivity extends AppCompatActivity {
         //마커에 지명 설정하고 맵뷰에 표시
         answerMarker = new Marker(myMapView);
         answerMarker.setIcon(RED_MARKER_DRAWABLE);
-        answerMarker.setAnchor(-0.25f, 0);
+        answerMarker.setAnchor(0.5f, 1.0f);
         answerMarker.setPosition(Objects.requireNonNull(pi.getMeta().getGeo()));
         answerMarker.setTitle(pi.getMeta().getAddress());
         MarkerInfoWindow markerInfoWindow = new MarkerInfoWindow(R.layout.game_infowindow_bubble, myMapView);
@@ -732,6 +732,7 @@ public class GameActivity extends AppCompatActivity {
 
 
         answerMarker.showInfoWindow();
+        myMapView.getController().setZoom(myMapView.getMinZoomLevel());
         myMapView.getOverlays().add(answerMarker);
         myMapView.setClickable(false);
 

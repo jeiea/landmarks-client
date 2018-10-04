@@ -54,6 +54,7 @@
         app:layout_constraintHeight_percent="0.22"
         app:layout_constraintDimensionRatio="1.822"
         android:src="@drawable/main_game_btn"
+        android:onClick="startOnClick"
         app:layout_constraintTop_toBottomOf="@id/main_upper_view"
         app:layout_constraintBottom_toTopOf="@id/up_space"
         app:layout_constraintLeft_toLeftOf="parent"
@@ -108,13 +109,6 @@
         android:orientation="vertical"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toBottomOf="@id/main_upper_view">
-
-        <Button
-            android:id="@+id/btn_start_map"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="start map"
-            android:onClick="startOnClick" />
 
         <Button
             android:id="@+id/btn_start_web_gallery"

@@ -67,6 +67,7 @@
         android:text="stage 1"
         android:textSize="20sp"
         android:layout_marginTop="5dp"
+        style="@style/CustomFontStyle"
         app:layout_constraintEnd_toStartOf="@id/textview_target"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/map" />
@@ -79,6 +80,7 @@
         android:text="target 3/3"
         android:layout_marginTop="5dp"
         android:layout_below="@id/textview_stage"
+        style="@style/CustomFontStyle"
         app:layout_constraintEnd_toStartOf="@id/textview_score"
         app:layout_constraintStart_toEndOf="@id/textview_stage"
         app:layout_constraintTop_toBottomOf="@id/map" />
@@ -89,6 +91,7 @@
         android:textSize="20sp"
         android:text="score : 0"
         android:layout_marginTop="5dp"
+        style="@style/CustomFontStyle"
         android:layout_below="@id/textview_stage"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/textview_target"
@@ -130,12 +133,13 @@
 
         <TextView
             android:id="@+id/textview_problem_announce"
-            android:textSize="30sp"
-            android:text="사진 위치를 맞혀보세요"
+            android:textSize="21sp"
+            android:text="Try to find the location of the photo!"
             android:textAlignment="center"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_margin="15dp"
+            style="@style/CustomFontStyle"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
@@ -222,11 +226,12 @@
         <TextView
             android:id="@+id/tv_select_problem"
             android:textSize="21sp"
-            android:text="해당 위치의 사진을 맞혀보세요"
+            android:text="Match up the photo of the location!"
             android:textAlignment="center"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_margin="15dp"
+            style="@style/CustomFontStyle"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
@@ -274,24 +279,27 @@
             android:id="@+id/textview_land_name_answer"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/guide_answer_v"
+            style="@style/CustomFontStyle"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/guide_answer_v"
             app:layout_constraintTop_toTopOf="@id/guide_answer_h"
-            tools:text="오페라하우스" />
+            tools:text="opera house" />
 
         <TextView
             android:id="@+id/textview_land_distance_answer"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            style="@style/CustomFontStyle"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/guide_answer_v"
-            app:layout_constraintTop_toBottomOf="@id/textview_land_name_answer"
+            app:layout_constraintTop_toTopOf="@id/guide_answer_h"
             tools:text="1000km" />
 
         <TextView
             android:id="@+id/textview_land_score_answer"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            style="@style/CustomFontStyle"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/guide_answer_v"
             app:layout_constraintTop_toBottomOf="@id/textview_land_distance_answer"
@@ -314,7 +322,7 @@
             android:layout_height="0dp"
             android:text="NEXT"
             android:src="@drawable/game_next_btn"
-            android:layout_marginTop="5dp"
+            android:layout_marginTop="15dp"
             app:layout_constraintDimensionRatio="W,1:2"
             app:layout_constraintEnd_toEndOf="@id/guide_btn_right"
             app:layout_constraintStart_toEndOf="@id/guide_btn_left"
