@@ -59,7 +59,7 @@ public class DottedLineOverlay extends Overlay {
         mPath.moveTo(endPoint.x, endPoint.y);
         mPath.lineTo(startPoint.x, startPoint.y);
         Paint mPaint = new Paint();
-        mPaint.setARGB(255, 0, 0, 0);
+        mPaint.setARGB(255, 13, 39, 89);
         mPaint.setStyle(Paint.Style.STROKE);
         mPaint.setStrokeWidth(5.5f);
 

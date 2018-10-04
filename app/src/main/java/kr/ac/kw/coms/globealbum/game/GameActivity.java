@@ -422,7 +422,7 @@ public class GameActivity extends AppCompatActivity {
                 t = elapsed / durationInMs;
                 v = interpolator.getInterpolation(t);
 
-                tmpMarker.setAnchor(0.25f, 1.0f);
+                answerMarker.setAnchor(-0.25f, 0);
                 Point pixelPoint = interpolate(v, startPoint, finalPoint);
                 GeoPoint geoPoint = (GeoPoint) projection.fromPixels(pixelPoint.x, pixelPoint.y);
 
@@ -446,7 +446,7 @@ public class GameActivity extends AppCompatActivity {
                             Marker tmpMarker = new Marker(myMapView);
                             tmpMarker.setIcon(BLUE_MARKER_DRAWABLE);
                             tmpMarker.setPosition(marker.getPosition());
-                            tmpMarker.setAnchor(0.25f, 1.0f);
+                            answerMarker.setAnchor(-0.25f, 0);
                             myMapView.getOverlays().add(tmpMarker);
 
                             distance = calcDistance(finalGeoPosition, answerMarker.getPosition());
@@ -628,7 +628,7 @@ public class GameActivity extends AppCompatActivity {
         Marker tmpMarker = new Marker(myMapView);
         tmpMarker.setIcon(BLUE_MARKER_DRAWABLE);
         tmpMarker.setPosition(currentMarker.getPosition());
-        tmpMarker.setAnchor(0.25f, 1.0f);
+        answerMarker.setAnchor(-0.25f, 0);
         myMapView.getOverlays().add(tmpMarker);
 
         distance = calcDistance(currentMarker.getPosition(), answerMarker.getPosition());
@@ -684,7 +684,7 @@ public class GameActivity extends AppCompatActivity {
 
         answerMarker = new Marker(myMapView);
         answerMarker.setIcon(RED_MARKER_DRAWABLE);
-        answerMarker.setAnchor(0.25f, 1.0f);
+        answerMarker.setAnchor(-0.25f, 0);
         answerMarker.setPosition(Objects.requireNonNull(pi.getMeta().getGeo()));
 
         answerMarker.setOnMarkerClickListener(new Marker.OnMarkerClickListener() {
@@ -717,10 +717,10 @@ public class GameActivity extends AppCompatActivity {
         //마커에 지명 설정하고 맵뷰에 표시
         answerMarker = new Marker(myMapView);
         answerMarker.setIcon(RED_MARKER_DRAWABLE);
-        answerMarker.setAnchor(0.25f, 1.0f);
+        answerMarker.setAnchor(-0.25f, 0);
         answerMarker.setPosition(Objects.requireNonNull(pi.getMeta().getGeo()));
         answerMarker.setTitle(pi.getMeta().getAddress());
-        MarkerInfoWindow markerInfoWindow = new MarkerInfoWindow(R.layout.bonuspack_bubble, myMapView);
+        MarkerInfoWindow markerInfoWindow = new MarkerInfoWindow(R.layout.game_infowindow_bubble, myMapView);
         View v = markerInfoWindow.getView();
         v.setOnTouchListener(new View.OnTouchListener() {
             @Override
