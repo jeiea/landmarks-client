@@ -37,7 +37,7 @@ class Remote(base: HttpClient, val basePath: String = herokuUri) {
     private const val chromeAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.59 Safari/537.36"
   }
 
-  var profile: WithIntId<LoginRep>? = null
+  var profile: WithIntId<AccountForm>? = null
 
   suspend inline fun <reified T> request(method: HttpMethod, url: String, builder: HttpRequestBuilder.() -> Unit = {}): T {
     val response: HttpResponse = http.request {
@@ -117,7 +117,7 @@ class Remote(base: HttpClient, val basePath: String = herokuUri) {
   }
 
   suspend fun register(ident: String, pass: String, email: String, nick: String) {
-    val regFields = LoginRep(
+    val regFields = AccountForm(
       login = ident,
       password = pass,
       email = email,
@@ -128,14 +128,14 @@ class Remote(base: HttpClient, val basePath: String = herokuUri) {
     }
   }
 
-  suspend fun login(ident: String, pass: String): WithIntId<LoginRep> {
+  suspend fun login(ident: String, pass: String): WithIntId<AccountForm> {
     profile = post("$basePath/auth/login") {
-      json(LoginRep(login = ident, password = pass))
+      json(AccountForm(login = ident, password = pass))
     }
     return profile!!
   }
 
-  suspend fun uploadPicture(meta: PictureRep, file: File): WithIntId<PictureRep> {
+  suspend fun uploadPicture(meta: PictureInfo, file: File): WithIntId<PictureInfo> {
     val filename: String = URLEncoder.encode(file.name, "UTF-8")
     val form = MultiPartFormDataContent(formData {
       meta.lat?.also { append("lat", it.toString()) }
@@ -150,17 +150,17 @@ class Remote(base: HttpClient, val basePath: String = herokuUri) {
     }
   }
 
-  suspend fun getRandomProblems(n: Int): MutableList<WithIntId<PictureRep>> {
+  suspend fun getRandomProblems(n: Int): MutableList<WithIntId<PictureInfo>> {
     return get("$basePath/problem/random/$n")
   }
 
-  suspend fun modifyPictureInfo(id: Int, info: PictureRep) {
+  suspend fun modifyPictureInfo(id: Int, info: PictureInfo) {
     return post("$basePath/picture/info/${id}") {
       json(info)
     }
   }
 
-  suspend fun getPictureInfo(id: Int): PictureRep {
+  suspend fun getPictureInfo(id: Int): PictureInfo {
     return get("$basePath/picture/info/$id")
   }
 
@@ -176,38 +176,38 @@ class Remote(base: HttpClient, val basePath: String = herokuUri) {
     return get("$basePath/picture/thumbnail/$id")
   }
 
-  suspend fun getPictureInfos(userId: Int): MutableList<WithIntId<PictureRep>> {
+  suspend fun getPictureInfos(userId: Int): MutableList<WithIntId<PictureInfo>> {
     return get("$basePath/picture/user/$userId")
   }
 
-  suspend fun getMyPictureInfos(): MutableList<WithIntId<PictureRep>> {
+  suspend fun getMyPictureInfos(): MutableList<WithIntId<PictureInfo>> {
     return getPictureInfos(profile!!.id)
   }
 
 
-  suspend fun uploadCollection(collection: CollectionRep): WithIntId<CollectionRep> {
+  suspend fun uploadCollection(collection: CollectionInfo): WithIntId<CollectionInfo> {
     return put("$basePath/collection") {
       json(collection)
     }
   }
 
-  suspend fun getRandomCollections(): MutableList<WithIntId<CollectionRep>> {
+  suspend fun getRandomCollections(): MutableList<WithIntId<CollectionInfo>> {
     return get("$basePath/collection")
   }
 
-  suspend fun getCollections(ownerId: Int): MutableList<WithIntId<CollectionRep>> {
+  suspend fun getCollections(ownerId: Int): MutableList<WithIntId<CollectionInfo>> {
     return get("$basePath/collection/user/$ownerId")
   }
 
-  suspend fun getCollectionPics(collectionId: Int): MutableList<WithIntId<PictureRep>> {
+  suspend fun getCollectionPics(collectionId: Int): MutableList<WithIntId<PictureInfo>> {
     return get("$basePath/collection/$collectionId/picture")
   }
 
-  suspend fun getMyCollections(): MutableList<WithIntId<CollectionRep>> {
+  suspend fun getMyCollections(): MutableList<WithIntId<CollectionInfo>> {
     return getCollections(profile!!.id)
   }
 
-  suspend fun modifyCollection(id: Int, collection: CollectionRep): WithIntId<CollectionRep> {
+  suspend fun modifyCollection(id: Int, collection: CollectionInfo): WithIntId<CollectionInfo> {
     return post("$basePath/collection/${id}") {
       json(collection)
     }

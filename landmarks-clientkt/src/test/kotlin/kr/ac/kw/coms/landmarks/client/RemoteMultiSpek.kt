@@ -21,29 +21,29 @@ class RemoteMultiSpek : Spek({
   val client = newClient()
 
   val validUsers = listOf(
-    LoginRep("login", "password", "email", "nick"),
-    LoginRep("user01", "fight!", "some@a.com", "헐크"),
-    LoginRep("user02", "비밀번호한글?", "some@b.com", "냥냥"),
-    LoginRep("user03", "fight!", "some@c.com", "음..")
+    AccountForm("login", "password", "email", "nick"),
+    AccountForm("user01", "fight!", "some@a.com", "헐크"),
+    AccountForm("user02", "비밀번호한글?", "some@b.com", "냥냥"),
+    AccountForm("user03", "fight!", "some@c.com", "음..")
   )
 
   val invalidUsers = listOf(
     // a field empty
-    LoginRep("", "fight!", "some@d.com", "헐크"),
-    LoginRep("user04", "", "some@d.com", "헐크"),
-    LoginRep("user05", "fight!", "", "헐크"),
-    LoginRep("user06", "fight!", "some@d.com", ""),
+    AccountForm("", "fight!", "some@d.com", "헐크"),
+    AccountForm("user04", "", "some@d.com", "헐크"),
+    AccountForm("user05", "fight!", "", "헐크"),
+    AccountForm("user06", "fight!", "some@d.com", ""),
 
     // a field null
-    LoginRep("", "fight!", "some@e.com", "헐크"),
-    LoginRep("user04", "", "some@f.com", "헐크"),
-    LoginRep("user05", "fight!", "", "헐크"),
-    LoginRep("user06", "fight!", "some@g.com", ""),
+    AccountForm("", "fight!", "some@e.com", "헐크"),
+    AccountForm("user04", "", "some@f.com", "헐크"),
+    AccountForm("user05", "fight!", "", "헐크"),
+    AccountForm("user06", "fight!", "some@g.com", ""),
 
     // duplicate fields
-    LoginRep("user01", "fight!", "some@e.com", "ahh"),
-    LoginRep("user07", "fight!", "some@a.com", "grr"),
-    LoginRep("user08", "fight!", "some@h.com", "nick")
+    AccountForm("user01", "fight!", "some@e.com", "ahh"),
+    AccountForm("user07", "fight!", "some@a.com", "grr"),
+    AccountForm("user08", "fight!", "some@h.com", "nick")
   )
 
   val clients = mutableListOf<Remote>()
@@ -96,13 +96,13 @@ class RemoteMultiSpek : Spek({
         val lat = vs[1].toFloat()
         val lon = vs[2].toFloat()
         val addr = file.nameWithoutExtension.replace('_', ' ')
-        val info = PictureRep(lat = lat, lon = lon, address = addr)
+        val info = PictureInfo(lat = lat, lon = lon, address = addr)
         clients[idx % clients.size].uploadPicture(info, file)
         idx++
       }
     }
 
-    val userPics = mutableListOf<MutableList<WithIntId<PictureRep>>>()
+    val userPics = mutableListOf<MutableList<WithIntId<PictureInfo>>>()
     blit("test valid access") {
       clients.forEach {
         val pics = it.getMyPictureInfos()

@@ -1,21 +1,38 @@
 package kr.ac.kw.coms.globealbum.map;
 
 import android.content.Context;
+import android.graphics.drawable.Drawable;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.widget.Toast;
 
+import com.bumptech.glide.request.target.CustomViewTarget;
+import com.bumptech.glide.request.transition.Transition;
+
+import org.jetbrains.annotations.NotNull;
 import org.osmdroid.events.MapListener;
 import org.osmdroid.events.ScrollEvent;
 import org.osmdroid.events.ZoomEvent;
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
+import org.osmdroid.util.BoundingBox;
+import org.osmdroid.util.GeoPoint;
 import org.osmdroid.util.TileSystem;
 import org.osmdroid.util.TileSystemWebMercator;
+import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.MapEventsOverlay;
 import org.osmdroid.views.overlay.Marker;
+import org.osmdroid.views.overlay.Overlay;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
-public class MyMapView extends org.osmdroid.views.MapView {
+import kotlin.jvm.functions.Function1;
+import kr.ac.kw.coms.globealbum.common.GlideApp;
+import kr.ac.kw.coms.globealbum.provider.IPicture;
+
+public class MyMapView extends org.osmdroid.views.MapView implements ILandmarkMapView {
     public Context context = null;
 
     ArrayList<MarkerTouchListener> markerListeners = new ArrayList<>(); //마커클릭 시 필요한 리스너를 모아둔다
@@ -56,7 +73,7 @@ public class MyMapView extends org.osmdroid.views.MapView {
         setBuiltInZoomControls(false);
         setMultiTouchControls(true);
         TileSystem tileSystem = new TileSystemWebMercator();
-        setScrollableAreaLimitLatitude(tileSystem.getMaxLatitude(), tileSystem.getMinLatitude()+ 30, 0);
+        setScrollableAreaLimitLatitude(tileSystem.getMaxLatitude(), tileSystem.getMinLatitude() + 30, 0);
         setScrollableAreaLimitLongitude(tileSystem.getMinLongitude(), tileSystem.getMaxLongitude(), 0);
         //맵 반복 방지
         setHorizontalMapRepetitionEnabled(false);
@@ -87,6 +104,197 @@ public class MyMapView extends org.osmdroid.views.MapView {
 
     public void deleteRoute(int index) {
 
+    }
+
+    List<DiaryOverlays> groups = new ArrayList<>();
+    List<DiaryOverlays> chains = new ArrayList<>();
+    HashMap<IPicture, GlideTarget> targets = new HashMap<>();
+    HashMap<Marker, IPicture> pictures = new HashMap<>();
+    Function1<IPicture, Void> touchListener = new Function1<IPicture, Void>() {
+        @Override
+        public Void invoke(IPicture iPicture) {
+            return null;
+        }
+    };
+
+    private void addToThisAndMakeTargets(ArrayList<IPicture> ar, @NotNull List<? extends IPicture> list) {
+        ar.clear();
+        ArrayList<IPicture> newAr = new ArrayList<>();
+        ar.addAll(list);
+        for (IPicture pic : ar) {
+            GlideApp.with(this).load(pic).into(new GlideTarget(pic));
+        }
+    }
+
+    private void addTarget(GlideTarget target, IPicture pic) {
+        targets.put(pic, target);
+        pictures.put(target.marker, pic);
+        getOverlays().add(target.marker);
+    }
+
+    private void removeTarget(GlideTarget target) {
+        getOverlays().remove(target.marker);
+        IPicture pic = pictures.remove(target.marker);
+        targets.remove(pic);
+    }
+
+    class GlideTarget extends CustomViewTarget<MyMapView, Drawable> {
+        IPicture picture;
+        Marker marker;
+
+        GlideTarget(IPicture pic) {
+            super(MyMapView.this);
+            picture = pic;
+        }
+
+        @Override
+        protected void onResourceCleared(@Nullable Drawable placeholder) {
+            removeTarget(this);
+        }
+
+        @Override
+        public void onLoadFailed(@Nullable Drawable errorDrawable) {
+            removeTarget(this);
+        }
+
+        @Override
+        public void onResourceReady(@NonNull Drawable resource, @Nullable Transition<? super Drawable> transition) {
+            Marker m = new Marker(MyMapView.this);
+            GeoPoint p = picture.getMeta().getGeo();
+            if (p != null) {
+                m.setPosition(p);
+            }
+            m.setImage(resource);
+            m.setOnMarkerClickListener(onMarkerClick);
+            marker = m;
+
+            addTarget(this, picture);
+        }
+    }
+
+    Marker.OnMarkerClickListener onMarkerClick = new Marker.OnMarkerClickListener() {
+        @Override
+        public boolean onMarkerClick(Marker marker, MapView mapView) {
+            if (touchListener != null) {
+                touchListener.invoke(pictures.get(marker));
+                return true;
+            } else {
+                return false;
+            }
+        }
+    };
+
+    @NotNull
+    @Override
+    public MapView getMapView() {
+        return this;
+    }
+
+    @Override
+    public void setGroups(@NotNull List<? extends List<? extends IPicture>> list) {
+        ArrayList<DiaryOverlays> g = new ArrayList<>();
+        for (List<? extends IPicture> group : list) {
+            g.add(new DiaryOverlays(this, group));
+        }
+        for (DiaryOverlays group : groups) {
+            group.detach();
+        }
+        groups = g;
+    }
+
+    @Override
+    public void setChains(@NotNull List<? extends List<? extends IPicture>> list) {
+        ArrayList<DiaryOverlays> g = new ArrayList<>();
+        for (List<? extends IPicture> group : list) {
+            g.add(new DiaryOverlays(this, group));
+        }
+        for (DiaryOverlays group : chains) {
+            group.detach();
+        }
+        chains = g;
+    }
+
+    @NotNull
+    @Override
+    public List<List<IPicture>> getChains() {
+        return getGroupsInternal(chains);
+    }
+
+    @NotNull
+    @Override
+    public List<List<IPicture>> getGroups() {
+        return getGroupsInternal(groups);
+    }
+
+    @NonNull
+    private static List<List<IPicture>> getGroupsInternal(List<DiaryOverlays> gs) {
+        ArrayList<List<IPicture>> ppics = new ArrayList<>();
+        for (DiaryOverlays g : gs) {
+            ppics.add(new ArrayList<>(g.getPictures()));
+        }
+        return ppics;
+    }
+
+    @Override
+    public void setOnTouchThumbnail(@NotNull Function1<IPicture, Void> listener) {
+        touchListener = listener;
+    }
+
+    @NotNull
+    @Override
+    public Function1<IPicture, Void> getOnTouchThumbnail() {
+        return touchListener;
+    }
+
+    @Override
+    public void addToSelection(@NotNull IPicture picture) {
+
+    }
+
+    @Override
+    public void removeFromSelection(@NotNull IPicture picture) {
+
+    }
+
+    @Override
+    public void clearSelection() {
+
+    }
+
+    @Override
+    public void fitZoomToMarkers() {
+        BoundingBox boundingBox;
+        ArrayList<Marker> markers = new ArrayList<>();
+        for (Overlay o : getOverlays()) {
+            if (o instanceof DiaryOverlays.PictureMarker) {
+                markers.add((DiaryOverlays.PictureMarker) o);
+            }
+        }
+        if (markers.size() == 1) {
+            Marker item = markers.get(0);
+            boundingBox = new BoundingBox(item.getPosition().getLatitude() + 10, item.getPosition().getLongitude() + 10, item.getPosition().getLatitude() - 5, item.getPosition().getLongitude() - 5);
+        } else {
+            double minLat = Double.MAX_VALUE;
+            double maxLat = Double.MIN_VALUE;
+            double minLong = Double.MAX_VALUE;
+            double maxLong = Double.MIN_VALUE;
+            for (Marker item : markers) {
+                GeoPoint point = item.getPosition();
+                if (point.getLatitude() < minLat)
+                    minLat = point.getLatitude();
+                if (point.getLatitude() > maxLat)
+                    maxLat = point.getLatitude();
+                if (point.getLongitude() < minLong)
+                    minLong = point.getLongitude();
+                if (point.getLongitude() > maxLong)
+                    maxLong = point.getLongitude();
+            }
+            boundingBox = new BoundingBox(maxLat + 20, maxLong + 15, minLat, minLong - 5);
+        }
+        zoomToBoundingBox(boundingBox, false);
+        //myMapView.getController().zoomToSpan(boundingBox.getLatitudeSpan(),boundingBox.getLongitudeSpan());
+        //myMapView.getController().setCenter(boundingBox.getCenterWithDateLine());
+        invalidate();
     }
 
     public interface MarkerTouchListener {

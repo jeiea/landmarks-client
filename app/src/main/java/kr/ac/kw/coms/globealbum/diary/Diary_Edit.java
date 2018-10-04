@@ -8,7 +8,7 @@ import android.widget.TextView;
 
 import kr.ac.kw.coms.globealbum.R;
 import kr.ac.kw.coms.globealbum.provider.Diary;
-import kr.ac.kw.coms.landmarks.client.CollectionRep;
+import kr.ac.kw.coms.landmarks.client.CollectionInfo;
 
 public class Diary_Edit extends AppCompatActivity {
 
@@ -22,7 +22,7 @@ public class Diary_Edit extends AppCompatActivity {
         TextView Description = findViewById(R.id.diary_edit_DescriptionText);
         RecyclerView ImageList = findViewById(R.id.diary_edit_ImageList);
         diary = LoadData();
-        CollectionRep data = diary.getInfo().getValue();
+        CollectionInfo data = diary.getInfo().getValue();
         Title.setText(data.getTitle());
         Description.setText(data.getText());
     }

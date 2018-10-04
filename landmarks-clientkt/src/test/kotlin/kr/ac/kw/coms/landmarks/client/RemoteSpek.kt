@@ -48,7 +48,7 @@ class RemoteSpek : Spek({
       client.register(ident, pass, email, ident)
     }
 
-    var profile: LoginRep? = null
+    var profile: AccountForm? = null
     blit("does login") {
       val p = client.login(ident, "pasowo").value
       p.login!! `should be equal to` ident
@@ -57,11 +57,11 @@ class RemoteSpek : Spek({
       profile = p
     }
 
-    val pics = mutableListOf<WithIntId<PictureRep>>()
+    val pics = mutableListOf<WithIntId<PictureInfo>>()
     blit("uploads picture") {
       for (i in 0..3) {
         val gps = i.toFloat()
-        val info = PictureRep(lat = gps, lon = gps, address = "address$i")
+        val info = PictureInfo(lat = gps, lon = gps, address = "address$i")
         val pic = client.uploadPicture(info, File("../data/coord$i.jpg"))
         pics.add(pic)
       }
@@ -71,14 +71,14 @@ class RemoteSpek : Spek({
       client.getPicture(pics[0].id).readBytes().size `should be greater than` 3000
     }
 
-    var replaced = PictureRep()
+    var replaced = PictureInfo()
     blit("modify picture info") {
       replaced = pics[0].value.copy(address = "Manhatan?", lat = 110.0f, lon = 20.0f)
       client.modifyPictureInfo(pics[0].id, replaced)
     }
 
     blit("receive picture info") {
-      val modified: PictureRep = client.getPictureInfo(pics[0].id)
+      val modified: PictureInfo = client.getPictureInfo(pics[0].id)
       val rep = replaced
       modified.address!! `should be equal to` rep.address!!
       modified.lat!! `should be equal to` rep.lat!!
@@ -90,7 +90,7 @@ class RemoteSpek : Spek({
     }
 
     blit("receives quiz info") {
-      val quizs = mutableListOf<WithIntId<PictureRep>>()
+      val quizs = mutableListOf<WithIntId<PictureInfo>>()
       quizs.addAll(client.getRandomProblems(2))
       quizs[0].id `should not be equal to` quizs[1].id
     }
@@ -101,11 +101,11 @@ class RemoteSpek : Spek({
 
     // Deletion of picture is not yet implemented.
 
-    val collection = CollectionRep(
+    val collection = CollectionInfo(
       title = "first diary",
       text = "just first"
     )
-    var realCollection: WithIntId<CollectionRep>? = null
+    var realCollection: WithIntId<CollectionInfo>? = null
     blit("upload collections") {
       realCollection = client.uploadCollection(collection)
     }
@@ -120,7 +120,7 @@ class RemoteSpek : Spek({
       val queried = client.getMyCollections()
       queried.size `should be equal to` 1
 
-      val collGot: CollectionRep = queried[0].value
+      val collGot: CollectionInfo = queried[0].value
       collGot.images!! `should equal` collection.images!!
       collGot.previews!!.size `should be equal to`  collection.images!!.size
 

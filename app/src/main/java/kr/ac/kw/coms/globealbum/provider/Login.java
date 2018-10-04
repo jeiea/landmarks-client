@@ -12,7 +12,7 @@ import org.jetbrains.annotations.NotNull;
 
 import kotlin.Unit;
 import kr.ac.kw.coms.globealbum.R;
-import kr.ac.kw.coms.landmarks.client.LoginRep;
+import kr.ac.kw.coms.landmarks.client.AccountForm;
 
 public class Login extends AppCompatActivity {
     String TAG = "Login";
@@ -46,7 +46,7 @@ public class Login extends AppCompatActivity {
     public void onRegister(View view) {
         String ident = etEmail.getText().toString();
         String pass = etPassword.getText().toString();
-        LoginRep sign = new LoginRep(ident, pass, ident, ident);
+        AccountForm sign = new AccountForm(ident, pass, ident, ident);
 
         client.register(sign, new ToastPromise<Unit>("Register success"));
     }

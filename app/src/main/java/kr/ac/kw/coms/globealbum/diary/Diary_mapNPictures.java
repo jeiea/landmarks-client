@@ -19,7 +19,6 @@ import com.google.android.flexbox.FlexDirection;
 
 import org.jetbrains.annotations.NotNull;
 import org.osmdroid.events.MapEventsReceiver;
-import org.osmdroid.util.BoundingBox;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.MapEventsOverlay;
@@ -43,8 +42,7 @@ import kr.ac.kw.coms.globealbum.provider.IPicture;
 import kr.ac.kw.coms.globealbum.provider.Promise;
 import kr.ac.kw.coms.globealbum.provider.RemoteJava;
 import kr.ac.kw.coms.globealbum.provider.RemotePicture;
-import kr.ac.kw.coms.globealbum.provider.UIPromise;
-import kr.ac.kw.coms.landmarks.client.CollectionRep;
+import kr.ac.kw.coms.landmarks.client.CollectionInfo;
 
 public class Diary_mapNPictures extends AppCompatActivity {
 
@@ -64,7 +62,7 @@ public class Diary_mapNPictures extends AppCompatActivity {
     public void setDiary(Diary data) {
         diary = data;
         //받은 데이터를 화면에 표시
-        ArrayList<IPicture> pics = new ArrayList<IPicture>(diary.getPictures());
+        ArrayList<IPicture> pics = new ArrayList<IPicture>(diary);
         ArrayList<PictureGroup> elementList = new ArrayList<>();
         elementList.add(new PictureGroup("", pics));
         picView.setGroups(elementList);
@@ -73,7 +71,7 @@ public class Diary_mapNPictures extends AppCompatActivity {
             public void onItemClick(@NotNull View view, int position) {
                 super.onItemClick(view, position);
                 Intent intent = new Intent(getBaseContext(), GalleryDetail.class);
-                ArrayList<IPicture> pics = new ArrayList<IPicture>(diary.getPictures());
+                ArrayList<IPicture> pics = new ArrayList<IPicture>(diary);
                 intent.putParcelableArrayListExtra("pictures", pics);
                 intent.putExtra("index", position - 1);
                 intent.setAction(RequestCodes.ACTION_VIEW_PHOTO);
@@ -127,78 +125,19 @@ public class Diary_mapNPictures extends AppCompatActivity {
         myMapView.invalidate();
         markerList = new ArrayList<>();
 
-        if (diary.getInfo().getValue().getImages().size() < 1) {
+        int cntImgs = Objects.requireNonNull(diary.getImages()).size();
+        if (cntImgs < 1) {
             return;
         }
 
         //GPS 정보 뽑아오기
         EXIFinfo exifInfo = new EXIFinfo();
-        final Drawable[] drawables = new Drawable[diary.getInfo().getValue().getImages().size()];
-        final ArrayList<Integer> arrayList = new ArrayList<>();
-        for (int i = 0; i < diary.Images.size(); i++) {
-            final int idx = i;
-            IPicture pic = diary.Images.get(i);
-            pic.drawable(getResources(), new UIPromise<Drawable>() {
+        final Drawable[] drawables = new Drawable[cntImgs];
+        ArrayList<ArrayList<IPicture>> ppics = new ArrayList<>();
+        ppics.add(diary.toArrayList());
+        myMapView.setChains(ppics);
 
-                @Override
-                public void success(Drawable result) {
-                    drawables[idx] = result;
-                    arrayList.add(1);
-                    if (arrayList.size() == diary.Images.size()) {
-                        addCircularMarker(drawables);
-                    }
-                }
-            });
-
-        }
-
-    }
-
-    /**
-     * 화면에 사진을 원형 아이콘으로 표시
-     *
-     * @param drawables 원형으로 되기 전의 사진들
-     */
-    private void addCircularMarker(Drawable[] drawables) {
-        for (int idx = 0; idx < drawables.length; idx++) {
-            Drawable drawable = drawables[idx];
-            Bitmap bm = CircularImageKt.getCircularBitmap(drawable, 150);
-            IPicture pic = diary.Images.get(idx);
-            Marker marker = addPicMarker(pic.getMeta().getGeo(), new BitmapDrawable(getResources(), bm));
-            markerList.add(marker);
-            myMapView.getOverlays().add(marker);
-            int markerListSize = markerList.size();
-            if (markerListSize > 1) {
-                drawPolyline(markerList.get(markerListSize - 2).getPosition(), markerList.get(markerListSize - 1).getPosition());
-            }
-        }
-
-        BoundingBox boundingBox;
-        if (markerList.size() == 1) {
-            Marker item = markerList.get(0);
-            boundingBox = new BoundingBox(item.getPosition().getLatitude() + 10, item.getPosition().getLongitude() + 10, item.getPosition().getLatitude() - 5, item.getPosition().getLongitude() - 5);
-        } else {
-            double minLat = Double.MAX_VALUE;
-            double maxLat = Double.MIN_VALUE;
-            double minLong = Double.MAX_VALUE;
-            double maxLong = Double.MIN_VALUE;
-            for (Marker item : markerList) {
-                GeoPoint point = item.getPosition();
-                if (point.getLatitude() < minLat)
-                    minLat = point.getLatitude();
-                if (point.getLatitude() > maxLat)
-                    maxLat = point.getLatitude();
-                if (point.getLongitude() < minLong)
-                    minLong = point.getLongitude();
-                if (point.getLongitude() > maxLong)
-                    maxLong = point.getLongitude();
-            }
-            boundingBox = new BoundingBox(maxLat + 20, maxLong + 15, minLat, minLong - 5);
-        }
-        myMapView.zoomToBoundingBox(boundingBox, false);
-        //myMapView.getController().zoomToSpan(boundingBox.getLatitudeSpan(),boundingBox.getLongitudeSpan());
-        //myMapView.getController().setCenter(boundingBox.getCenterWithDateLine());
-        myMapView.invalidate();
+        myMapView.fitZoomToMarkers();
     }
 
     public static Uri resourceToUri(Context context, int resID) {
@@ -336,10 +275,10 @@ public class Diary_mapNPictures extends AppCompatActivity {
         EditText Edit_Description = findViewById(R.id.diary_edit_DescriptionText);
         RecyclerView Edit_ImageList = findViewById(R.id.diary_edit_ImageList);
 
-        CollectionRep editData = diary.getInfo().getValue();
+        CollectionInfo editData = diary.getInfo().getValue();
         Edit_Title.setText(editData.getTitle());
         Edit_Description.setText(editData.getText());
-        ArrayList<IPicture> pics = new ArrayList<IPicture>(diary.getPictures());
+        ArrayList<IPicture> pics = new ArrayList<IPicture>(diary);
         adapter = new EditImageListAdapter(this, pics);
         Edit_ImageList.setLayoutManager(new LinearLayoutManager(getBaseContext()));
         Edit_ImageList.setAdapter(adapter);
@@ -376,7 +315,7 @@ public class Diary_mapNPictures extends AppCompatActivity {
                 //변경된 내용 반영
                 EditText Edit_Title = findViewById(R.id.diary_edit_TitleText);
                 EditText Edit_Description = findViewById(R.id.diary_edit_DescriptionText);
-                CollectionRep editData = diary.getInfo().getValue();
+                CollectionInfo editData = diary.getInfo().getValue();
                 editData.setTitle(Edit_Title.getText().toString());
                 editData.setText(Edit_Description.getText().toString());
                 ArrayList<Integer> imgIds = new ArrayList<>();

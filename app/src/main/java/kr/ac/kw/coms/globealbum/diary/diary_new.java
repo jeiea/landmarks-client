@@ -21,11 +21,11 @@ import kr.ac.kw.coms.globealbum.provider.Promise;
 import kr.ac.kw.coms.globealbum.provider.RemoteJava;
 import kr.ac.kw.coms.globealbum.provider.RemotePicture;
 import kr.ac.kw.coms.globealbum.provider.UIPromise;
-import kr.ac.kw.coms.landmarks.client.CollectionRep;
+import kr.ac.kw.coms.landmarks.client.CollectionInfo;
 
 //새로 작성하는 화면. 여행지 목록에 플로팅 버튼을 통해 진입할 예정.
 public class diary_new extends AppCompatActivity {
-    CollectionRep diary;
+    CollectionInfo diary;
     EditImageListAdapter adapter;
 
     @Override
@@ -40,7 +40,7 @@ public class diary_new extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_diary_new);
 
-        diary = new CollectionRep();
+        diary = new CollectionInfo();
         RecyclerView Edit_ImageList = findViewById(R.id.diary_edit_ImageList);
         adapter = new EditImageListAdapter(this, new ArrayList<IPicture>());
         Edit_ImageList.setLayoutManager(new LinearLayoutManager(getBaseContext()));

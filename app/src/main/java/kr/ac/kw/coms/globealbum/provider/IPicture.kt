@@ -11,9 +11,7 @@ import android.os.Parcelable
 import android.support.annotation.DrawableRes
 import com.bumptech.glide.load.DataSource
 import kotlinx.coroutines.experimental.Job
-import kr.ac.kw.coms.landmarks.client.CollectionRep
-import kr.ac.kw.coms.landmarks.client.PictureRep
-import kr.ac.kw.coms.landmarks.client.WithIntId
+import kr.ac.kw.coms.landmarks.client.*
 import org.osmdroid.util.GeoPoint
 import java.io.File
 import java.io.InputStream
@@ -127,9 +125,10 @@ interface IPicture : Parcelable {
   val dataSource: DataSource
 }
 
-class RemotePicture(val info: WithIntId<PictureRep>) : IPicture, Deletable {
+class RemotePicture(val info: WithIntId<PictureInfo>) :
+  IPicture, Deletable, IPictureInfo by info.value {
 
-  fun latlonToGeoPoint(pic: PictureRep): GeoPoint? {
+  fun latlonToGeoPoint(pic: PictureInfo): GeoPoint? {
     return pic.let { v ->
       val lat = v.lat ?: return null
       val lon = v.lon ?: return null
@@ -154,7 +153,7 @@ class RemotePicture(val info: WithIntId<PictureRep>) : IPicture, Deletable {
     return "lmserver://picture/$info"
   }
 
-  constructor(parcel: Parcel) : this(WithIntId(parcel.readInt(), PictureRep())) {
+  constructor(parcel: Parcel) : this(WithIntId(parcel.readInt(), PictureInfo())) {
     parcel.apply {
       val v = info.value
       v.uid = readInt().takeIf { it != -1 }
@@ -341,12 +340,10 @@ class ResourcePicture(@DrawableRes val id: Int) : IPicture {
   //endregion
 }
 
-class Diary(var info: WithIntId<CollectionRep>) : Parcelable {
-
-  val pictures: List<RemotePicture>
-    get() {
-      return info.value.previews!!.map(::RemotePicture)
-    }
+class Diary(var info: WithIntId<CollectionInfo>) :
+  Parcelable,
+  ICollectionInfo by info.value,
+  List<RemotePicture> by toRemotePictures(info) {
 
   //region Parcelable implementation
   constructor(parcel: Parcel) : this(parcelToRemoteCollectionWithIntId(parcel))
@@ -369,6 +366,10 @@ class Diary(var info: WithIntId<CollectionRep>) : Parcelable {
     return 0
   }
 
+  fun toArrayList(): ArrayList<IPicture> {
+    return ArrayList(this)
+  }
+
   companion object CREATOR : Parcelable.Creator<Diary> {
     override fun createFromParcel(parcel: Parcel) = Diary(parcel)
 
@@ -388,8 +389,8 @@ class Diary(var info: WithIntId<CollectionRep>) : Parcelable {
       else -> null
     }
 
-    fun parcelToRemoteCollectionWithIntId(parcel: Parcel): WithIntId<CollectionRep> {
-      val v = CollectionRep()
+    fun parcelToRemoteCollectionWithIntId(parcel: Parcel): WithIntId<CollectionInfo> {
+      val v = CollectionInfo()
       val collection = WithIntId(parcel.readInt(), v)
       parcel.run {
         v.title = readString()
@@ -404,6 +405,10 @@ class Diary(var info: WithIntId<CollectionRep>) : Parcelable {
         v.parent = readInt().takeIf { it != -1 }
       }
       return collection
+    }
+
+    fun toRemotePictures(info: WithIntId<CollectionInfo>): List<RemotePicture> {
+      return info.value.previews!!.map(::RemotePicture)
     }
   }
   //endregion

@@ -14,34 +14,56 @@ data class ServerOK(val msg: String)
 
 data class WithIntId<T>(val id: Int, val value: T)
 
-data class LoginRep(
+data class AccountForm(
   val login: String? = null,
   val password: String? = null,
   val email: String? = null,
   val nick: String? = null
 )
 
-data class PictureRep(
-  var uid: Int? = null,
-  var author: String? = null,
-  var address: String? = null,
-  var lat: Float? = null,
-  var lon: Float? = null,
-  var time: Date? = null,
-  var isPublic: Boolean = true
-)
+interface IPictureInfo {
+  var uid: Int?
+  var author: String?
+  var address: String?
+  var lat: Float?
+  var lon: Float?
+  var time: Date?
+  var isPublic: Boolean
+}
 
-data class CollectionRep(
-  var title: String? = null,
-  var text: String? = null,
-  var images: ArrayList<Int>? = null,
-  var previews: ArrayList<WithIntId<PictureRep>>? = null,
-  var likes: Int? = null,
-  var liking: Boolean? = null,
-  var isRoute: Boolean? = null,
-  var isPublic: Boolean? = null,
-  var parent: Int? = null
-)
+data class PictureInfo(
+  override var uid: Int? = null,
+  override var author: String? = null,
+  override var address: String? = null,
+  override var lat: Float? = null,
+  override var lon: Float? = null,
+  override var time: Date? = null,
+  override var isPublic: Boolean = true
+) : IPictureInfo
+
+interface ICollectionInfo {
+  var title: String?
+  var text: String?
+  var images: ArrayList<Int>?
+  var previews: ArrayList<WithIntId<PictureInfo>>?
+  var likes: Int?
+  var liking: Boolean?
+  var isRoute: Boolean?
+  var isPublic: Boolean?
+  var parent: Int?
+}
+
+data class CollectionInfo(
+  override var title: String? = null,
+  override var text: String? = null,
+  override var images: ArrayList<Int>? = null,
+  override var previews: ArrayList<WithIntId<PictureInfo>>? = null,
+  override var likes: Int? = null,
+  override var liking: Boolean? = null,
+  override var isRoute: Boolean? = null,
+  override var isPublic: Boolean? = null,
+  override var parent: Int? = null
+) : ICollectionInfo
 
 /**
  * https://wiki.openstreetmap.org/wiki/Nominatim
