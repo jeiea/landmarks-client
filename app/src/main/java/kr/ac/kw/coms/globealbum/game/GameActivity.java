@@ -23,7 +23,6 @@ import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.Interpolator;
 import android.view.animation.LinearInterpolator;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -122,7 +121,6 @@ public class GameActivity extends AppCompatActivity {
         Stop,
         Running
     }
-
     enum GameType {
         A,
         B
@@ -132,11 +130,20 @@ public class GameActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-
+        refactoring();
+        /*
         displayNextRoundOrFinishView();
         //displayLoadingGif();
-        redRect = getResources().getDrawable(R.drawable.rectangle_border, null);
+        redRect = getResources().getDrawable(R.drawable.rectangle_border, null);*/
 
+    }
+
+    void refactoring() {
+        GameUI gui = new GameUI(this);
+        GameLogic logic = new GameLogic(gui, this);
+        gui.input = logic;
+
+        logic.initiateGame();
     }
 
     int stage = 0;
@@ -149,8 +156,8 @@ public class GameActivity extends AppCompatActivity {
     private void displayNextRoundOrFinishView() {
         stage++;
         if (stage == 1 || (stage - 1 != limitScore.length && score >= limitScore[stage - 2])) {
-            setContentView(R.layout.layout_game_next_round);
-            gameStartButton = findViewById(R.id.game_start_button);
+            setContentView(R.layout.layout_game_entry_point);
+            gameStartButton = findViewById(R.id.game_start_stage_button);
             gameExitButton = findViewById(R.id.game_exit_button);
             gameNextRoundLevelTextview = findViewById(R.id.textview_level);
             gameNextRoundGoalTextview = findViewById(R.id.textview_goal_score);
@@ -248,7 +255,7 @@ public class GameActivity extends AppCompatActivity {
         stageTextView = findViewById(R.id.textview_stage);
         targetTextView = findViewById(R.id.textview_target);
         scoreTextView = findViewById(R.id.textview_score);
-        questionTypeALayout = findViewById(R.id.cl_point_problem);
+        questionTypeALayout = findViewById(R.id.position_problem);
 
         //정답 확인 부분 뷰 연결
         pictureAnswerImageView = findViewById(R.id.picture_answer);
@@ -273,7 +280,7 @@ public class GameActivity extends AppCompatActivity {
         //퀴즈에 나올 사진들을 연결
         questionTypeAImageView = findViewById(R.id.picture);
         questionTypeAImageView.setOnClickListener(new PictureClickListenerTypeA());      //이미지뷰 클릭 시 화면 확대해서 보여줌
-        questionTypeBLayout = findViewById(R.id.pictures);
+        questionTypeBLayout = findViewById(R.id.choice_pic);
 
         int[] imgViewIds = new int[]{R.id.picture1, R.id.picture2, R.id.picture3, R.id.picture4};
         for (int i = 0; i < imgViewIds.length; i++) {
@@ -524,6 +531,31 @@ public class GameActivity extends AppCompatActivity {
     }
 
     /**
+     * 사용자가 정한 마커와 정답 마커 사이를 잇는 직선 생성
+     *
+     * @param startPosition 사용자 마커의 좌표
+     * @param destPosition  정답 마커의 좌표
+     */
+    //
+    private void addPolyline(GeoPoint startPosition, GeoPoint destPosition) {
+        List<GeoPoint> geoPoints = new ArrayList<>();
+        geoPoints.add(startPosition);
+        geoPoints.add(destPosition);
+        dottedLineOverlay = new DottedLineOverlay(myMapView, startPosition, destPosition);
+
+
+        myMapView.getOverlays().add(dottedLineOverlay);
+        drawDottedLineHandler = new Handler();
+        drawDottedLineHandler.post(new Runnable() { //반복 진행하면서 원 그리기
+            @Override
+            public void run() {
+                myMapView.invalidate();
+                drawDottedLineHandler.postDelayed(this, 1000 / 60);
+            }
+        });
+    }
+
+    /**
      * 정답 확인 레이아웃 값 설정하고 띄우기
      */
     private void setAnswerLayout() {
@@ -551,33 +583,7 @@ public class GameActivity extends AppCompatActivity {
 
     }
 
-    /**
-     * 사용자가 정한 마커와 정답 마커 사이를 잇는 직선 생성
-     *
-     * @param startPosition 사용자 마커의 좌표
-     * @param destPosition  정답 마커의 좌표
-     */
-    //
-    private void addPolyline(GeoPoint startPosition, GeoPoint destPosition) {
-        List<GeoPoint> geoPoints = new ArrayList<>();
-        geoPoints.add(startPosition);
-        geoPoints.add(destPosition);
-        dottedLineOverlay = new DottedLineOverlay(myMapView, startPosition, destPosition);
-        polyline = new Polyline();
 
-        polyline.setPoints(geoPoints);
-        polyline.setColor(Color.GRAY);
-
-        myMapView.getOverlays().add(dottedLineOverlay);
-        drawDottedLineHandler = new Handler();
-        drawDottedLineHandler.post(new Runnable() { //반복 진행하면서 원 그리기
-            @Override
-            public void run() {
-                myMapView.invalidate();
-                drawDottedLineHandler.postDelayed(this, 1000 / 60);
-            }
-        });
-    }
 
     /**
      * 두 좌표 사이의 거리를 구해서 리턴
@@ -687,12 +693,7 @@ public class GameActivity extends AppCompatActivity {
         answerMarker.setAnchor(0.5f, 1.0f);
         answerMarker.setPosition(Objects.requireNonNull(pi.getMeta().getGeo()));
 
-        answerMarker.setOnMarkerClickListener(new Marker.OnMarkerClickListener() {
-            @Override
-            public boolean onMarkerClick(Marker marker, MapView mapView) {
-                return false;
-            }
-        });
+
 
         myMapView.getController().setZoom(myMapView.getMinZoomLevel());
 
@@ -807,7 +808,7 @@ public class GameActivity extends AppCompatActivity {
 
     RecyclerView recyclerView;
     AfterGameAdapter adapter;
-
+    
     /**
      * 게임이 완료된 후 사진들을 모아서 보여주는 리사이클뷰 적용
      */

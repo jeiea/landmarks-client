@@ -42,7 +42,7 @@
                 android:theme="@style/FullscreenTheme"/>
         <activity android:name=".album.ExampleDiary"/>
         <activity android:name=".diary.Diary_main"/>
-        <activity android:name=".provider.Login"/>
+        <activity android:name=".provider.LoginActivity" />
         <activity android:name=".diary.Diary_mapNPictures"/>
         <activity android:name=".diary.Diary_Edit"/>
         <activity android:name=".diary.diary_new">

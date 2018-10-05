@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -21,7 +20,7 @@ import kr.ac.kw.coms.globealbum.album.activity_Navigator;
 import kr.ac.kw.coms.globealbum.diary.Diary_main;
 import kr.ac.kw.coms.globealbum.game.GameActivity;
 import kr.ac.kw.coms.globealbum.provider.EXIFinfo;
-import kr.ac.kw.coms.globealbum.provider.Login;
+import kr.ac.kw.coms.globealbum.provider.LoginActivity;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -36,21 +35,12 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        displayLoading();
-//        MediaScannerKt.mediaScan(this);
-    }
-    private void displayLoading() {
-        setContentView(R.layout.layout_start_loading);
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                setContentView(R.layout.activity_main);
+        if (Build.VERSION.SDK_INT >= 23) { //시작 시 권한 처리
+            checkPermissions();
+        }
+        setContentView(R.layout.activity_main);
 
-                if (Build.VERSION.SDK_INT >= 23) { //시작 시 권한 처리
-                    checkPermissions();
-                }
-            }
-        },1000);
+//        MediaScannerKt.mediaScan(this);
     }
 
     //layout button click listener
@@ -68,7 +58,8 @@ public class MainActivity extends AppCompatActivity {
             case R.id.btn_start_navigator:
                 startActivityForResult(new Intent(this, activity_Navigator.class), 3);
                 break;
-            case R.id.btn_start_diary:
+            case R.id.imageview_game_my_diary:
+            case R.id.imageview_game_other_diary:
                 startActivityForResult(new Intent(this, Diary_main.class), 4);
                 break;
             default:
@@ -124,7 +115,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void startLogin(View view) {
-        Intent intent = new Intent(MainActivity.this, Login.class);
+        Intent intent = new Intent(MainActivity.this, LoginActivity.class);
         startActivity(intent);
     }
 }

@@ -132,21 +132,6 @@
             android:text="Open Navigator"
             android:onClick="startOnClick"
             android:enabled="false" />
-
-        <Button
-            android:id="@+id/btn_start_diary"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Open Diary_Mine"
-            android:onClick="startOnClick" />
-
-        <Button
-            android:id="@+id/btn_start_diaryOther"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Open Diary_Other"
-            android:onClick="startOnClick" />
-
         <Button
             android:id="@+id/btn_start_login"
             android:layout_width="wrap_content"

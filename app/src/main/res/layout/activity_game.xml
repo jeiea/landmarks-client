@@ -109,7 +109,7 @@
 
     <!-- 사진 보고 위치를 맞추는 문제 레이아웃 -->
     <android.support.constraint.ConstraintLayout
-        android:id="@+id/cl_point_problem"
+        android:id="@+id/position_problem"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:visibility="gone"
@@ -148,7 +148,7 @@
 
     <!-- 지명이 주어졌을 때 여러 사진들을 보여주기 위한 레이아웃-->
     <android.support.constraint.ConstraintLayout
-        android:id="@+id/pictures"
+        android:id="@+id/choice_pic"
         android:layout_width="0dp"
         android:visibility="gone"
         android:layout_height="0dp"
