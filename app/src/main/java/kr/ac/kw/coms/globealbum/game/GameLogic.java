@@ -97,7 +97,7 @@ class GameLogic implements IGameInputHandler {
             public void run() {
                 onGameEntryPoint();
             }
-        },1000);
+        },2000);
 
     }
 
@@ -232,7 +232,8 @@ class GameLogic implements IGameInputHandler {
         Random random = new Random();
         random.setSeed(System.currentTimeMillis());
 
-        int randomNumber = random.nextInt(2);
+        //int randomNumber = random.nextInt(2);
+        int randomNumber = 0;
         if (randomNumber == 0) {
             gameType = GameType.A;
             ui.bottomOnePicture(questionPic.get(problem));
@@ -243,7 +244,6 @@ class GameLogic implements IGameInputHandler {
             ui.bottomFourPicture(questionPic);
             answerMarker = ui.makeMarker("red",Objects.requireNonNull(questionPic.get(problem).getMeta().getGeo()),questionPic.get(problem).getMeta().getAddress());
             answerImageviewIndex = problem;
-
         }
     }
 

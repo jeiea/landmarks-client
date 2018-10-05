@@ -175,9 +175,9 @@ class GameUI {
      */
     Marker makeMarker(String strColor, GeoPoint pt) {
         Marker marker = new Marker(myMapView);
-        if (strColor == "red") {
+        if (strColor.equals("red")) {
             marker.setIcon(RED_MARKER_DRAWABLE);
-        } else if (strColor == "blue") {
+        } else if (strColor.equals("blue")) {
             marker.setIcon(BLUE_MARKER_DRAWABLE);
         }
         marker.setAnchor(0.5f, 1.0f);
