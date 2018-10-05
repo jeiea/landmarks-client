@@ -257,7 +257,7 @@ public class Diary_main extends AppCompatActivity {
 
         @Override
         public void onBindViewHolder(@NonNull DiaryListViewHolder holder, int position) {
-            Diary diaryToShow = items.get(position);
+            final Diary diaryToShow = items.get(position);
             Glide.with(holder.image_Thumbnail).load(diaryToShow.get(0)).into(holder.image_Thumbnail);
             holder.text_Name.setText(diaryToShow.getTitle());
 
@@ -274,6 +274,14 @@ public class Diary_main extends AppCompatActivity {
             }
             holder.text_Date.setText(new SimpleDateFormat("yyyy-MM-dd").format(StartTime) + " ~ "
                     + new SimpleDateFormat("yyyy-MM-dd").format(EndTime));
+            holder.image_Thumbnail.setOnTouchListener(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
+                    Intent intent = new Intent(Diary_main.this, Diary_mapNPictures.class).putExtra("diary", diaryToShow);
+                    startActivity(intent);
+                    return true;
+                }
+            });
         }
 
         @Override

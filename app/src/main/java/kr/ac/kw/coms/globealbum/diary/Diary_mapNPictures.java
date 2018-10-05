@@ -78,7 +78,7 @@ public class Diary_mapNPictures extends AppCompatActivity {
                 startActivity(intent);
             }
         }.getItemTouchListener());
-        setMarkerToMapview();
+        //setMarkerToMapview();
     }
 
     @Override
