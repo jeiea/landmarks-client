@@ -1,5 +1,6 @@
 package kr.ac.kw.coms.globealbum.game;
 
+import android.app.Activity;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -10,6 +11,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import kr.ac.kw.coms.globealbum.R;
 import kr.ac.kw.coms.globealbum.common.GlideApp;
@@ -18,10 +20,10 @@ import kr.ac.kw.coms.globealbum.provider.IPicture;
 
 public class AfterGameAdapter extends RecyclerView.Adapter<AfterGameAdapter.ViewHolder> {
 
-    private ArrayList<IPicture> gamePictureInfos;
-    private GameActivity gameActivity;
+    private List<IPicture> gamePictureInfos;
+    private Activity gameActivity;
 
-    public AfterGameAdapter(GameActivity activity, ArrayList<IPicture> gamePictureInfos) {
+    public AfterGameAdapter(Activity activity, List<IPicture> gamePictureInfos) {
         gameActivity = activity;
         this.gamePictureInfos = gamePictureInfos;
     }
@@ -60,7 +62,7 @@ public class AfterGameAdapter extends RecyclerView.Adapter<AfterGameAdapter.View
                 }
             });
             imageViewPicture = itemView.findViewById(R.id.after_game_place_imageview);
-            imageViewPicture.setOnClickListener(gameActivity.new PictureClickListenerTypeA());      //사진 클릭 시 사진 확대
+            imageViewPicture.setOnClickListener(new GameUI.PictureClickZoomingListener());      //사진 클릭 시 사진 확대
             textViewPlace = itemView.findViewById(R.id.after_game_show_place_name);
         }
     }

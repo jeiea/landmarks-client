@@ -75,7 +75,7 @@
         app:layout_constraintGuide_percent="0.7"/>
 
     <ImageView
-        android:id="@+id/game_start_button"
+        android:id="@+id/game_start_stage_button"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:src="@drawable/game_next_btn"
@@ -94,7 +94,7 @@
         app:layout_constraintDimensionRatio="W,1:2"
         app:layout_constraintEnd_toEndOf="@id/guide_btn_right"
         app:layout_constraintStart_toStartOf="@id/guide_btn_left"
-        app:layout_constraintTop_toBottomOf="@+id/game_start_button" />
+        app:layout_constraintTop_toBottomOf="@+id/game_start_stage_button" />
 
 
 
