@@ -354,7 +354,7 @@ class Diary(var info: WithIntId<CollectionInfo>) :
       writeInt(info.id)
       writeString(v.title)
       writeString(v.text)
-      writeParcelableArray(v.previews?.map(::RemotePicture)?.toTypedArray(), 0)
+      writeTypedList(v.previews?.map(::RemotePicture))
       writeInt(v.likes ?: -1)
       writeByte(boolToByte(v.liking))
       writeByte(boolToByte(v.isRoute))
