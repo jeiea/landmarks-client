@@ -59,6 +59,8 @@ public class MainActivity extends AppCompatActivity {
                 startActivityForResult(new Intent(this, activity_Navigator.class), 3);
                 break;
             case R.id.imageview_game_my_diary:
+                startActivityForResult(new Intent(this, Diary_main.class), 4);
+                break;
             case R.id.imageview_game_other_diary:
                 startActivityForResult(new Intent(this, Diary_main.class), 4);
                 break;
