@@ -11,6 +11,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
@@ -22,32 +23,38 @@ import com.bumptech.glide.Glide;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 import at.wirecube.additiveanimations.additive_animator.AdditiveAnimator;
-import kotlin.Unit;
 import kr.ac.kw.coms.globealbum.R;
+import kr.ac.kw.coms.globealbum.album.GroupDiaryView;
+import kr.ac.kw.coms.globealbum.album.GroupedPicAdapter;
+import kr.ac.kw.coms.globealbum.album.OnSwipeTouchListener;
+import kr.ac.kw.coms.globealbum.album.PictureGroup;
+import kr.ac.kw.coms.globealbum.common.RecyclerItemClickListener;
 import kr.ac.kw.coms.globealbum.common.RequestCodes;
 import kr.ac.kw.coms.globealbum.provider.Diary;
-import kr.ac.kw.coms.globealbum.provider.Promise;
+import kr.ac.kw.coms.globealbum.provider.IPicture;
 import kr.ac.kw.coms.globealbum.provider.RemoteJava;
 import kr.ac.kw.coms.globealbum.provider.UIPromise;
 import kr.ac.kw.coms.landmarks.client.AccountForm;
-import kr.ac.kw.coms.landmarks.client.Remote;
 import kr.ac.kw.coms.landmarks.client.WithIntId;
 
 public class Diary_main extends AppCompatActivity {
 
     View Root;
-    RecyclerView ImageList;
+    GroupDiaryView ImageList;
     RecyclerView JourneyList;
-    RecyclerView.Adapter<DiaryListViewHolder> ImageListAdapter;
     RecyclerView.Adapter<DiaryListViewHolder> JourneyListAdapter;
     ImageButton BtnNewDiary;
     boolean isTabLeft = true;
     List<Diary> DownloadedDiaryList;
+    List<IPicture> DownloadedImageList;
+    int ZoomIndex;
+    OnSwipeTouchListener swipeTouchListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -112,8 +119,8 @@ public class Diary_main extends AppCompatActivity {
         final View bar = findViewById(R.id.diary_main_TabBar_HighLight);
 
         AdditiveAnimator.animate(bar).setDuration(200).translationX(0).start();
-        AdditiveAnimator.animate(JourneyList).setDuration(200).translationX(Root.getWidth()).start();
-        AdditiveAnimator.animate(ImageList).setDuration(200).translationX(0).start();
+        ImageList.setVisibility(View.VISIBLE);
+        JourneyList.setVisibility(View.GONE);
         isTabLeft = true;
     }
 
@@ -123,36 +130,47 @@ public class Diary_main extends AppCompatActivity {
         final View bar = findViewById(R.id.diary_main_TabBar_HighLight);
 
         AdditiveAnimator.animate(bar).setDuration(200).translationX(bar.getWidth()).start();
-        AdditiveAnimator.animate(ImageList).setDuration(200).translationX(-Root.getWidth()).start();
-        AdditiveAnimator.animate(JourneyList).setDuration(200).translationX(0).start();
+        JourneyList.setVisibility(View.VISIBLE);
+        ImageList.setVisibility(View.GONE);
         isTabLeft = false;
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == RequestCodes.MakeNewDiary && resultCode == RESULT_OK)
-        {
+        if (requestCode == RequestCodes.MakeNewDiary && resultCode == RESULT_OK) {
             //새로 등록된 다이어리 반영하기
         }
     }
 
     public void PrepareData() {
         //서버에서 데이터 다운로드
-        RemoteJava.INSTANCE.login("login", "password", new UIPromise<WithIntId<AccountForm>>(){
+        RemoteJava.INSTANCE.login("login", "password", new UIPromise<WithIntId<AccountForm>>() {
             @Override
             public void success(WithIntId<AccountForm> result) {
                 super.success(result);
-                RemoteJava.INSTANCE.getMyCollections(new UIPromise<List<Diary>>()
-                {
+                RemoteJava.INSTANCE.getMyPictures(new UIPromise<List<IPicture>>() {
                     @Override
-                    public void success(List<Diary> result) {
-                        DownloadedDiaryList = result;
-                        ShowData();
+                    public void success(List<IPicture> result) {
+                        DownloadedImageList = result;
+                        ShowImageData();
                     }
 
                     @Override
                     public void failure(@NotNull Throwable cause) {
-                        Toast.makeText(Diary_main.this, "데이터 다운로드 실패", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(Diary_main.this, "Image 데이터 다운로드 실패", Toast.LENGTH_SHORT).show();
+                    }
+                });
+
+                RemoteJava.INSTANCE.getMyCollections(new UIPromise<List<Diary>>() {
+                    @Override
+                    public void success(List<Diary> result) {
+                        DownloadedDiaryList = result;
+                        ShowDiaryData();
+                    }
+
+                    @Override
+                    public void failure(@NotNull Throwable cause) {
+                        Toast.makeText(Diary_main.this, "Diary 데이터 다운로드 실패", Toast.LENGTH_SHORT).show();
                     }
                 });
             }
@@ -164,23 +182,66 @@ public class Diary_main extends AppCompatActivity {
         });
     }
 
-    public void ShowData()
-    {
-        //준비된 데이터를 화면에 표시
+    public void ShowImageData() {
+        //준비된 Image 데이터를 화면에 표시
+        PictureGroup PictureRow = new PictureGroup("", (ArrayList<IPicture>) DownloadedImageList);
+        List<PictureGroup> PictureList = new ArrayList<>();
+        PictureList.add(PictureRow);
+        ImageList.setGroups(PictureList);
+        ImageList.addOnItemTouchListener(new RecyclerItemClickListener(ImageList) {
+            @Override
+            public void onItemClick(@NotNull View view, int position) {
+                if (view instanceof ImageView) {
+                    ZoomIndex = position - 1;
+                    Glide.with(view).load(DownloadedImageList.get(ZoomIndex)).into(((ImageView) findViewById(R.id.diary_main_ZoomImage)));
+                    ((TextView)findViewById(R.id.diary_main_ZoomName)).setText(DownloadedImageList.get(ZoomIndex).getMeta().getAddress());
+                    findViewById(R.id.diary_main_ZoomInRoot).setVisibility(View.VISIBLE);
+                }
+            }
+
+            @Override
+            public void onLongItemClick(@NotNull View view, int position) {
+                super.onLongItemClick(view, position);
+            }
+        }.getItemTouchListener());
+        swipeTouchListener = new OnSwipeTouchListener(this.getBaseContext()) {
+            @Override
+            public void onSwipeRight() {
+                if (--ZoomIndex < 0)
+                    ZoomIndex += DownloadedImageList.size();
+                Glide.with(findViewById(R.id.diary_main_ZoomImage)).load(DownloadedImageList.get(ZoomIndex)).into((ImageView) findViewById(R.id.diary_main_ZoomImage));
+                ((TextView) findViewById(R.id.diary_main_ZoomName)).setText(DownloadedImageList.get(ZoomIndex).getMeta().getAddress());
+            }
+
+            @Override
+            public void onSwipeLeft() {
+                if (++ZoomIndex == DownloadedImageList.size())
+                    ZoomIndex = 0;
+                Glide.with(findViewById(R.id.diary_main_ZoomImage)).load(DownloadedImageList.get(ZoomIndex)).into((ImageView) findViewById(R.id.diary_main_ZoomImage));
+                ((TextView) findViewById(R.id.diary_main_ZoomName)).setText(DownloadedImageList.get(ZoomIndex).getMeta().getAddress());
+
+            }
+        };
+        findViewById(R.id.diary_main_ZoomImage).setOnTouchListener(swipeTouchListener);
+    }
+
+    public void ShowDiaryData() {
+        //준비된 Diary 데이터를 화면에 표시
         JourneyListAdapter = new DiaryListAdapter(this, DownloadedDiaryList);
         JourneyList.setLayoutManager(new LinearLayoutManager(getBaseContext()));
         JourneyList.setAdapter(JourneyListAdapter);
     }
 
-    public class DiaryListAdapter extends RecyclerView.Adapter<DiaryListViewHolder>
-    {
+    public void diary_main_CloseZoomIn(View view) {
+        findViewById(R.id.diary_main_ZoomInRoot).setVisibility(View.INVISIBLE);
+    }
+
+    public class DiaryListAdapter extends RecyclerView.Adapter<DiaryListViewHolder> {
         private AppCompatActivity RootActivity;
         List<Diary> items;
 
-        public DiaryListAdapter(AppCompatActivity RootActivity, List<Diary> items)
-        {
-            if (items == null)
-            {
+        public DiaryListAdapter(AppCompatActivity RootActivity, List<Diary> items) {
+            if (items == null) {
                 Log.e("Diary_main", "Downloaded Data: NULL");
             }
             this.RootActivity = RootActivity;
@@ -191,7 +252,7 @@ public class Diary_main extends AppCompatActivity {
         @Override
         public DiaryListViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
             View view = LayoutInflater.from(RootActivity.getBaseContext()).inflate(R.layout.layout_diary_row, parent, false);
-            return new DiaryListViewHolder( view);
+            return new DiaryListViewHolder(view);
         }
 
         @Override
@@ -199,21 +260,20 @@ public class Diary_main extends AppCompatActivity {
             Diary diaryToShow = items.get(position);
             Glide.with(holder.image_Thumbnail).load(diaryToShow.get(0)).into(holder.image_Thumbnail);
             holder.text_Name.setText(diaryToShow.getTitle());
+
             Date StartTime = null;
             Date EndTime = null;
-            for (int i=0;i<diaryToShow.getSize();i++)
-            {
+            for (int i = 0; i < diaryToShow.getSize(); i++) {
                 Date time = diaryToShow.get(i).getMeta().getTime();
-                if (StartTime == null || time.compareTo(StartTime) < 0)
-                {
+                if (StartTime == null || time.compareTo(StartTime) < 0) {
                     StartTime = time;
                 }
-                if (EndTime == null || time.compareTo(EndTime) > 0)
-                {
+                if (EndTime == null || time.compareTo(EndTime) > 0) {
                     EndTime = time;
                 }
             }
-            holder.text_Date.setText("0000-00-00 ~ 0000-00-00");
+            holder.text_Date.setText(new SimpleDateFormat("yyyy-MM-dd").format(StartTime) + " ~ "
+                    + new SimpleDateFormat("yyyy-MM-dd").format(EndTime));
         }
 
         @Override
@@ -222,19 +282,33 @@ public class Diary_main extends AppCompatActivity {
         }
     }
 
-    public class DiaryListViewHolder extends RecyclerView.ViewHolder
-    {
+    public class DiaryListViewHolder extends RecyclerView.ViewHolder {
         ConstraintLayout Root;
         ImageView image_Thumbnail;
+        ConstraintLayout NameTag;
         TextView text_Name;
         TextView text_Date;
         int DiaryID;
+
         public DiaryListViewHolder(View itemView) {
             super(itemView);
             Root = (ConstraintLayout) itemView;
             image_Thumbnail = (ImageView) Root.getViewById(R.id.diary_Row_Thumbnail);
-            text_Name = (TextView)Root.getViewById(R.id.diary_Row_Name);
-            text_Date = (TextView)Root.getViewById(R.id.diary_Row_Date);
+            NameTag = (ConstraintLayout) Root.getViewById(R.id.diary_Row_NameTag);
+            text_Name = (TextView) NameTag.getViewById(R.id.diary_Row_Name);
+            text_Date = (TextView) NameTag.getViewById(R.id.diary_Row_Date);
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (findViewById(R.id.diary_main_ZoomInRoot).getVisibility() == View.VISIBLE)
+        {
+            findViewById(R.id.diary_main_ZoomInRoot).setVisibility(View.GONE);
+        }
+        else
+        {
+            super.onBackPressed();
         }
     }
 }

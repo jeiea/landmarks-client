@@ -123,6 +123,11 @@ class GroupedPicAdapter : RecyclerView.Adapter<GroupedPicAdapter.ElementViewHold
       notifyDataSetChanged()
     }
 
+  fun getAllPictures(): List<IPicture>
+  {
+    return viewData.filter { it is PictureHolder } as List<IPicture>
+  }
+
   fun clearAllItems()
   {
     viewData.clear()
