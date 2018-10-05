@@ -2,45 +2,41 @@ package kr.ac.kw.coms.globealbum.game;
 
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Handler;
-import android.os.SystemClock;
-import android.preference.PreferenceManager;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.animation.AccelerateDecelerateInterpolator;
-import android.view.animation.Interpolator;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import org.osmdroid.config.Configuration;
+import org.osmdroid.events.MapEventsReceiver;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
+import org.osmdroid.views.overlay.MapEventsOverlay;
 import org.osmdroid.views.overlay.Marker;
 import org.osmdroid.views.overlay.Overlay;
 import org.osmdroid.views.overlay.infowindow.InfoWindow;
 import org.osmdroid.views.overlay.infowindow.MarkerInfoWindow;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 import kr.ac.kw.coms.globealbum.R;
 import kr.ac.kw.coms.globealbum.common.GlideApp;
 import kr.ac.kw.coms.globealbum.common.PictureDialogFragment;
-import kr.ac.kw.coms.globealbum.map.DrawCircleOverlay;
 import kr.ac.kw.coms.globealbum.map.MyMapView;
 import kr.ac.kw.coms.globealbum.provider.IPicture;
 
-import static kr.ac.kw.coms.globealbum.game.ga.TimerState.Running;
 
 class GameUI {
     private AppCompatActivity activity;
-    IGameInputHandler input;
+    public IGameInputHandler input;
 
     //game entry point
     private ImageView gameStartNextStageButton, gameExitButton;
@@ -54,11 +50,10 @@ class GameUI {
     private Drawable RED_MARKER_DRAWABLE;
     private Drawable BLUE_MARKER_DRAWABLE;
 
-    DrawCircleOverlay drawCircleOverlay;
-    DottedLineOverlay dottedLineOverlay;
+
     //answer
-    private Button answerGoToNextStageButton;
-    private Button answerExitButton;
+    private ImageView answerGoToNextStageButton;
+    private ImageView answerExitButton;
     private TextView answerLandNameTextView, answerDistanceTextView, answerScoreTextView;
     private ImageView answerCorrectImageView;
     private ConstraintLayout answerLayout;
@@ -80,13 +75,14 @@ class GameUI {
 
     void displayLoadingGif(boolean show) {
         activity.setContentView(R.layout.layout_game_loading_animation);
-        ImageView imgLoading = activity.findViewById(R.id.imageview_game_start);
+        ImageView imgLoading = activity.findViewById(R.id.game_gif_loading);
         imgLoading.setClickable(false);
         GlideApp.with(imgLoading).load(R.drawable.game_loading_gif).into(imgLoading);
+
     }
 
 
-    void displayGameEntryPoint(int stage, int score, int games, View.OnClickListener startListener, View.OnClickListener finishListener) {
+    void displayGameEntryPoint(int stage, int score, int games) {
         activity.setContentView(R.layout.layout_game_entry_point);
         gameStartNextStageButton = activity.findViewById(R.id.game_start_stage_button);
         gameExitButton = activity.findViewById(R.id.game_exit_button);
@@ -94,11 +90,13 @@ class GameUI {
         gameNextStageGoalTextview = activity.findViewById(R.id.textview_goal_score);
         gameNextStageLevelTextview.setText("Level " + stage);
         gameNextStageGoalTextview.setText(score + "/" + games);
-        gameStartNextStageButton.setOnClickListener(startListener);
-        gameExitButton.setOnClickListener(finishListener);
+        gameStartNextStageButton.setOnClickListener(onPressStart);
+        gameExitButton.setOnClickListener(onPressExit);
     }
 
-    void displayQuiz(int stage, int problem, int games, View.OnClickListener nextStageListener, View.OnClickListener finishListener, View.OnClickListener pictureZoomingListener) {
+
+
+    void displayQuiz(int stage, int problem, int games) {
         activity.setContentView(R.layout.activity_game);
 
         //game layout
@@ -121,8 +119,8 @@ class GameUI {
         answerLandNameTextView = activity.findViewById(R.id.textview_land_name_answer);
         answerScoreTextView = activity.findViewById(R.id.textview_land_score_answer);
 
-        answerGoToNextStageButton.setOnClickListener(nextStageListener);
-        answerExitButton.setOnClickListener(finishListener);
+        answerGoToNextStageButton.setOnClickListener(onPressNext);
+        answerExitButton.setOnClickListener(onPressExit);
 
         //game type layout
         positionProblemLayout = activity.findViewById(R.id.position_problem);
@@ -131,19 +129,42 @@ class GameUI {
         int[] imgViewIds = new int[]{R.id.picture1, R.id.picture2, R.id.picture3, R.id.picture4};
         for (int i = 0; i < imgViewIds.length; i++) {
             choicePicImageViews[i] = activity.findViewById(imgViewIds[i]);
-            choicePicImageViews[i].setOnClickListener(new PictureClickZoomingListener());
+            choicePicImageViews[i].setOnClickListener(onPressPicFirst);
         }
 
-        positionPicImageView.setOnClickListener(pictureZoomingListener);
+        positionPicImageView.setOnClickListener(onPressPicZoom);
 
         myMapView = activity.findViewById(R.id.map);
+        addOverlay(onPressMarker);
+    }
 
-        //마커 이벤트 등록
-        markerClickListenerOverlay = markerEvent();
-        myMapView.getOverlays().add(markerClickListenerOverlay);
+    void displayAnswerLayout(GameLogic.GameType gameType,int score,int distance,IPicture pic,boolean isNull){
+        if (gameType == GameLogic.GameType.A) {
+            positionProblemLayout.setVisibility(View.GONE);
+        } else if (gameType == GameLogic.GameType.B) {
+            choicePicProblemLayout.setVisibility(View.GONE);
+            myMapView.getController().zoomTo(myMapView.getMinZoomLevel(), 1000L); //인자의 속도에 맞춰서 줌 아웃
+        }
 
+        answerLayout.setVisibility(View.VISIBLE);
+        answerLayout.setClickable(true);
+        answerLandNameTextView.setText(pic.getMeta().getAddress());
+        if (gameType == GameLogic.GameType.A && !isNull) {
+            answerDistanceTextView.setVisibility(View.VISIBLE);
+            answerDistanceTextView.setText(distance + "KM");
+        } else {
+            answerDistanceTextView.setVisibility(View.INVISIBLE);
+        }
+        answerScoreTextView.setText("score " + score);
+        GlideApp.with(activity).load(pic).into(answerCorrectImageView);
 
     }
+
+
+    MyMapView getMyMapView(){
+        return myMapView;
+    }
+
 
     /**
      * 지명 찾기 문제에서의 마커 생성
@@ -170,7 +191,6 @@ class GameUI {
         return marker;
     }
 
-
     /**
      * 사진 고르기 문제에서의 마커 생성
      *
@@ -181,9 +201,9 @@ class GameUI {
      */
     Marker makeMarker(String strColor, GeoPoint pt, String placeName) {
         Marker marker = new Marker(myMapView);
-        if (strColor == "red") {
+        if (strColor.equals("red") ) {
             marker.setIcon(RED_MARKER_DRAWABLE);
-        } else if (strColor == "blue") {
+        } else if (strColor.equals("blue")) {
             marker.setIcon(BLUE_MARKER_DRAWABLE);
         }
         marker.setAnchor(0.5f, 1.0f);
@@ -204,17 +224,23 @@ class GameUI {
         return marker;
     }
 
-    void addOverlay(Overlay overlay){
+    void addOverlay(Overlay overlay) {
         myMapView.getOverlays().add(overlay);
     }
 
-    void mapviewInvalidate(){
+    void setGameScoreTextView(int score) {
+        gameScoreTextView.setText("SCORE " + score);
+    }
+
+    void mapviewInvalidate() {
         myMapView.invalidate();
     }
-    void setGameTimeProgressBarMAx(int max){
+
+    void setGameTimeProgressBarMAx(int max) {
         gameTimeProgressBar.setMax(max);
     }
-    void setGameTimeProgressBarProgress(int timeLeft){
+
+    void setGameTimeProgressBarProgress(int timeLeft) {
         gameTimeProgressBar.setProgress(timeLeft);
     }
 
@@ -229,78 +255,104 @@ class GameUI {
         answerLayout.setVisibility(View.GONE);
         answerLayout.setClickable(false);
 
-        gameTargetTextView.setText("TARGET " + (problem + 1) + "/" + games));
+        gameTargetTextView.setText("TARGET " + (problem + 1) + "/" + games);
     }
 
     /**
-     * 사용자가 찍은 마커가 위치에서 시작하여 정답마커까지 이동하는 애니메이션
+     * 사용자가 정한 마커와 정답 마커 사이를 잇는 직선 생성
      *
-     * @param map                  mapview
-     * @param marker               사용자가자 찍은 마커
-     * @param finalPosition        정답 마커의 좌표
-     * @param GeoPointInterpolator 마커 이동 방식
+     * @param startPosition 사용자 마커의 좌표
+     * @param destPosition  정답 마커의 좌표
      */
-    private void animateMarker(final MapView map, final Marker marker, final GeoPoint finalPosition, final GeoPointInterpolator GeoPointInterpolator) {
-        final GeoPoint startPosition = marker.getPosition();
-        animateHandler = new Handler();
-        final long start = SystemClock.uptimeMillis();
-        final Interpolator interpolator = new AccelerateDecelerateInterpolator();
-        final float durationInMs = 1000;
+    void addLine(GeoPoint startPosition, GeoPoint destPosition) {
+        List<GeoPoint> geoPoints = new ArrayList<>();
+        geoPoints.add(startPosition);
+        geoPoints.add(destPosition);
 
-        map.getController().animateTo(finalPosition, myMapView.getMinZoomLevel(), 1000L);
-
-        drawCircleOverlay = new DrawCircleOverlay(marker.getPosition(), finalPosition, map);
-        myMapView.getOverlays().add(drawCircleOverlay);
-
-        animateHandler.post(new Runnable() {
-            long elapsed;
-            float t;
-            float v;
-
-            @Override
-            public void run() {
-                // Calculate progress using interpolator
-                elapsed = SystemClock.uptimeMillis() - start;
-                t = elapsed / durationInMs;
-                v = interpolator.getInterpolation(t);
-
-                marker.setPosition(GeoPointInterpolator.interpolate(v, startPosition, finalPosition)); //보간법 이용, 시작 위치에서 끝 위치까지 가는 구 모양의 경로 도출
-
-
-                //map.getController().zoomOut(2000L);          //인자의 속도에 맞춰서 줌 아웃
-                map.invalidate();
-                // Repeat till progress is complete.
-                if (t < 1) {
-                    // 16ms 후 다시 시작
-                    animateHandler.postDelayed(this, 1000 / 60);
-                } else {   //정답 마커 위치로 이동되면 정답 마커 추가
-
-                    marker.remove(myMapView);
-                    myMapView.getOverlays().add(answerMarker);
-                    addPolyline(currentMarker.getPosition(), answerMarker.getPosition());    //마커 사이를 직선으로 연결
-
-                    onProblemDone();
-
-
-                    animateHandler = null;
-
-                    map.invalidate();
-                }
-            }
-        });
     }
 
-    /**
-     * 문제 사진 클릭 시 다이얼로그로 크게 띄워주는 리스너
-     */
-    class PictureClickZoomingListener implements View.OnClickListener {
+    View.OnClickListener onPressStart = new View.OnClickListener() {
         @Override
-        public void onClick(View view) {    //이미지뷰를 다이얼로그로 화면에 표시
-            ImageView imgv = (ImageView) view;
+        public void onClick(View v) {
+            input.onPressStart();
+        }
+    };
+
+    View.OnClickListener onPressExit= new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            input.onPressExit();
+        }
+    };
+
+    View.OnClickListener onPressPicZoom = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            ImageView imgv = (ImageView)v;
             PictureDialogFragment pdf = PictureDialogFragment.Companion.newInstance(imgv.getDrawable());
             pdf.show(activity.getSupportFragmentManager(), "wow");
         }
+    };
+
+
+    MapEventsOverlay onPressMarker = new MapEventsOverlay(new MapEventsReceiver() {
+        @Override
+        public boolean singleTapConfirmedHelper(GeoPoint p) {
+            input.onPressMarker(myMapView,p);
+            return true;
+        }
+
+        @Override
+        public boolean longPressHelper(GeoPoint p) {
+            return false;
+        }
+    });
+
+
+    View.OnClickListener onPressNext = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            input.onPressNext();
+        }
+    };
+
+    View lastSelect;
+
+
+
+    /**
+     * 예비 선택을 지우고 테두리 없는 상태로 바꿈
+     */
+    void clearLastSelectIfExists() {
+        if (lastSelect == null) {
+            return;
+        }
+        lastSelect.getOverlay().clear();
+        lastSelect.setOnClickListener(onPressPicFirst);
     }
+
+    View.OnClickListener onPressPicFirst = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            clearLastSelectIfExists();
+            redRect.setBounds(new Rect(0, 0, v.getWidth(), v.getHeight()));
+            v.getOverlay().add(redRect);
+            v.setOnClickListener(onPressPicSecond);
+            lastSelect = v;
+            input.onSelectPicFirst(choicePicImageViews[0],v);
+
+        }
+    };
+
+    View.OnClickListener onPressPicSecond = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            input.onSelectPicSecond(choicePicImageViews[0],v);
+            clearLastSelectIfExists();
+            lastSelect = null;
+
+        }
+    };
 
 
     /**
@@ -344,7 +396,6 @@ class GameUI {
             GlideApp.with(activity).load(pics.get(i)).into(choicePicImageViews[i]);
         }
     }
-
 
 
     /**

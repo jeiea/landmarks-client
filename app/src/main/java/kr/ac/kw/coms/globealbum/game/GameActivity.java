@@ -121,7 +121,6 @@ public class GameActivity extends AppCompatActivity {
         Stop,
         Running
     }
-
     enum GameType {
         A,
         B
@@ -131,11 +130,20 @@ public class GameActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-
+        refactoring();
+        /*
         displayNextRoundOrFinishView();
         //displayLoadingGif();
-        redRect = getResources().getDrawable(R.drawable.rectangle_border, null);
+        redRect = getResources().getDrawable(R.drawable.rectangle_border, null);*/
 
+    }
+
+    void refactoring() {
+        GameUI gui = new GameUI(this);
+        GameLogic logic = new GameLogic(gui, this);
+        gui.input = logic;
+
+        logic.initiateGame();
     }
 
     int stage = 0;
@@ -523,6 +531,31 @@ public class GameActivity extends AppCompatActivity {
     }
 
     /**
+     * 사용자가 정한 마커와 정답 마커 사이를 잇는 직선 생성
+     *
+     * @param startPosition 사용자 마커의 좌표
+     * @param destPosition  정답 마커의 좌표
+     */
+    //
+    private void addPolyline(GeoPoint startPosition, GeoPoint destPosition) {
+        List<GeoPoint> geoPoints = new ArrayList<>();
+        geoPoints.add(startPosition);
+        geoPoints.add(destPosition);
+        dottedLineOverlay = new DottedLineOverlay(myMapView, startPosition, destPosition);
+
+
+        myMapView.getOverlays().add(dottedLineOverlay);
+        drawDottedLineHandler = new Handler();
+        drawDottedLineHandler.post(new Runnable() { //반복 진행하면서 원 그리기
+            @Override
+            public void run() {
+                myMapView.invalidate();
+                drawDottedLineHandler.postDelayed(this, 1000 / 60);
+            }
+        });
+    }
+
+    /**
      * 정답 확인 레이아웃 값 설정하고 띄우기
      */
     private void setAnswerLayout() {
@@ -550,33 +583,7 @@ public class GameActivity extends AppCompatActivity {
 
     }
 
-    /**
-     * 사용자가 정한 마커와 정답 마커 사이를 잇는 직선 생성
-     *
-     * @param startPosition 사용자 마커의 좌표
-     * @param destPosition  정답 마커의 좌표
-     */
-    //
-    private void addPolyline(GeoPoint startPosition, GeoPoint destPosition) {
-        List<GeoPoint> geoPoints = new ArrayList<>();
-        geoPoints.add(startPosition);
-        geoPoints.add(destPosition);
-        dottedLineOverlay = new DottedLineOverlay(myMapView, startPosition, destPosition);
-        polyline = new Polyline();
 
-        polyline.setPoints(geoPoints);
-        polyline.setColor(Color.GRAY);
-
-        myMapView.getOverlays().add(dottedLineOverlay);
-        drawDottedLineHandler = new Handler();
-        drawDottedLineHandler.post(new Runnable() { //반복 진행하면서 원 그리기
-            @Override
-            public void run() {
-                myMapView.invalidate();
-                drawDottedLineHandler.postDelayed(this, 1000 / 60);
-            }
-        });
-    }
 
     /**
      * 두 좌표 사이의 거리를 구해서 리턴
@@ -801,7 +808,7 @@ public class GameActivity extends AppCompatActivity {
 
     RecyclerView recyclerView;
     AfterGameAdapter adapter;
-
+    
     /**
      * 게임이 완료된 후 사진들을 모아서 보여주는 리사이클뷰 적용
      */

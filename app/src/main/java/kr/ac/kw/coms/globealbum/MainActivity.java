@@ -38,6 +38,8 @@ public class MainActivity extends AppCompatActivity {
         if (Build.VERSION.SDK_INT >= 23) { //시작 시 권한 처리
             checkPermissions();
         }
+        setContentView(R.layout.activity_main);
+
 //        MediaScannerKt.mediaScan(this);
     }
 
