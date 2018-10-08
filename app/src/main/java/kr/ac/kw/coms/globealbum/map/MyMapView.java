@@ -270,9 +270,27 @@ public class MyMapView extends org.osmdroid.views.MapView implements ILandmarkMa
                 markers.add((DiaryOverlays.PictureMarker) o);
             }
         }
+
+
+        Marker m1 = new Marker(this);
+        m1.setPosition(new GeoPoint(41.895466,12.482323));
+        getOverlays().add(m1);
+        markers.add(m1);
+        Marker m3 = new Marker(this);
+        m3.setPosition(new GeoPoint(48.856558,2.350966));
+        //getOverlays().add(m3);
+        //markers.add(m3);
+        /*
+
+        Marker m2 = new Marker(this);
+        m2.setPosition(new GeoPoint(41.895466,12.482323));
+        //getOverlays().add(m2);
+        */
         if (markers.size() == 1) {
             Marker item = markers.get(0);
-            boundingBox = new BoundingBox(Math.min(item.getPosition().getLatitude() + 10, 85.0f), Math.min(item.getPosition().getLongitude() + 10, 180.0f), Math.max(item.getPosition().getLatitude() - 5, -85.0f), Math.max(item.getPosition().getLongitude() - 5, -180.0f));
+            boundingBox = new BoundingBox(10,10,-10,-10);
+//            boundingBox = new BoundingBox(item.getPosition().getLatitude(),item.getPosition().getLongitude(),item.getPosition().getLatitude(),item.getPosition().getLongitude());
+            //boundingBox = new BoundingBox(Math.min(item.getPosition().getLatitude() + 10, 85.0f), Math.min(item.getPosition().getLongitude() + 10, 180.0f), Math.max(item.getPosition().getLatitude() - 5, -85.0f), Math.max(item.getPosition().getLongitude() - 5, -180.0f));
         } else {
             double minLat = +85.0f;
             double maxLat = -85.0f;
@@ -291,9 +309,12 @@ public class MyMapView extends org.osmdroid.views.MapView implements ILandmarkMa
             }
             boundingBox = new BoundingBox(Math.min(maxLat + 20, 85.0f), Math.min(maxLong + 15, 180.0f), minLat, Math.max(minLong - 5, -180.0f));
         }
+        Toast.makeText(context, boundingBox.getLatitudeSpan()+ " "+ boundingBox.getLongitudeSpan(), Toast.LENGTH_SHORT).show();
+        Toast.makeText(context, boundingBox.getCenterLatitude()+ " "+ boundingBox.getCenterLongitude(), Toast.LENGTH_SHORT).show();
         zoomToBoundingBox(boundingBox, false);
-        getController().zoomToSpan(boundingBox.getCenterLatitude(),boundingBox.getCenterLongitude());
-     //   getController().setCenter(boundingBox.getCenterWithDateLine());
+        //getController().zoomToSpan(boundingBox.getLatitudeSpan(),boundingBox.getLongitudeSpan());
+        //getController().zoomToSpan(boundingBox.getCenterLatitude(),boundingBox.getCenterLongitude());
+        //getController().setCenter(boundingBox.getCenterWithDateLine());
         invalidate();
     }
 

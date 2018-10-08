@@ -91,8 +91,8 @@ class GameUI {
         activity.setContentView(R.layout.layout_game_entry_point);
         View backgroundView = activity.findViewById(R.id.game_start_background);
         backgroundView.setBackgroundResource(bgId[randomNumber]);
-        gameStartNextStageButton = activity.findViewById(R.id.game_start_stage_button);
-        gameExitButton = activity.findViewById(R.id.game_exit_button);
+        gameStartNextStageButton = activity.findViewById(R.id.game_start_stage_btn);
+        gameExitButton = activity.findViewById(R.id.game_start_exit_btn);
         gameNextStageLevelTextview = activity.findViewById(R.id.textview_level);
         gameNextStageGoalTextview = activity.findViewById(R.id.textview_goal_score);
         gameNextStageLevelTextview.setText("Level " + stage);

@@ -54,7 +54,7 @@ class GameLogic implements IGameInputHandler {
     private ArrayList<IPicture> questionPic = new ArrayList<>();
 
 
-    private int[] stageLimitScore = new int[]{600, 800}; //600,800,1100,1400,1650,2000,2700
+    private int[] stageLimitScore = new int[]{400, 500}; //600,800,1100,1400,1650,2000,2700
     private int[] stageNumberOfGames = new int[]{3, 3};
 
     private Handler animateHandler = null;  //마커 이동시키는 핸들러
@@ -214,9 +214,14 @@ class GameLogic implements IGameInputHandler {
             if (currentMarker == null) { //마커를 화면에 찍지 않고 정답을 확인하는 경우
                 curScore = -100;
             } else {
-                int criteria = 300;
-                curScore = criteria - distance / 100;
-                curScore += timeScore / 100;
+                if( distance >= 6000){
+                    curScore=0;
+                }
+                else{
+                    int criteria = 300;
+                    curScore = criteria - distance / 25;
+                    curScore += timeScore / 100;
+                }
             }
         } else if (gameType == GameType.B) {
             if (rightAnswerTypeB == false) {
@@ -484,7 +489,7 @@ class GameLogic implements IGameInputHandler {
                         }
                     });
                     currentMarker = tmpMarker;
-                    if(timerHandler == null){           //정답 확인 직전 마커를 선택했을 때, 마커 지우기
+                    if(timerState == TimerState.Stop){           //정답 확인 직전 마커를 선택했을 때, 마커 지우기
                         ui.clearOverlay(currentMarker);
                     }
 
@@ -561,7 +566,7 @@ class GameLogic implements IGameInputHandler {
 
     @Override
     public void onPressMarker(MyMapView myMapView, GeoPoint geoPoint) {
-        if (gameType == GameType.A && timerHandler != null && animateHandler == null)
+        if (gameType == GameType.A && timerState == TimerState.Running && animateHandler == null)
             showMarker(myMapView, geoPoint);
     }
 
