@@ -23,6 +23,8 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
+
 import java.util.ArrayList;
 
 import kr.ac.kw.coms.globealbum.R;
@@ -36,6 +38,7 @@ class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHolder> {
     private static Context context;
     private boolean MultiSelectMode = false;
     private ArrayList<ViewHolder> Elements = new ArrayList<>();
+    String Mode;
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         public ImageView mImageView;
@@ -57,8 +60,10 @@ class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHolder> {
         }
     }
 
-    public GalleryAdapter(ArrayList<Model> Dataset) {
+    public GalleryAdapter(ArrayList<Model> Dataset, String Action) {
         mDataset = Dataset;
+        if (Action.equals(RequestCodes.ACTION_SELECT_PHOTO) || Action.equals(RequestCodes.ACTION_VIEW_PHOTO))
+            Mode = Action;
     }
 
     @Override
@@ -74,9 +79,8 @@ class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHolder> {
     @Override
     public void onBindViewHolder(final ViewHolder holder, final int position) {
         final Model model = mDataset.get(position);
-        holder.Image_original = ThumbnailUtils.extractThumbnail(BitmapFactory.decodeFile(model.getImage()), holder.DisplayWidth / 3, holder.DisplayWidth / 3);
-        holder.mImageView.setImageBitmap(holder.Image_original);
-
+        Glide.with(holder.mImageView).load(model.getImage()).into(holder.mImageView);
+/*
         Bitmap overlay = Bitmap.createBitmap(holder.Image_original.getWidth(), holder.Image_original.getHeight(), holder.Image_original.getConfig());
         Canvas canvas = new Canvas(overlay);
         canvas.drawBitmap(holder.Image_original, new Matrix(), null);
@@ -87,7 +91,7 @@ class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHolder> {
         canvas.drawBitmap(holder.Image_original, new Matrix(), null);
         canvas.drawBitmap(holder.uncheckedbox, new Matrix(), null);
         holder.Image_unchecked = overlay.copy(holder.Image_original.getConfig(), false);
-
+*/
         ViewGroup.LayoutParams params = holder.mImageView.getLayoutParams();
         params.height = holder.DisplayWidth / 3;
         holder.mImageView.setLayoutParams(params);
@@ -97,18 +101,32 @@ class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHolder> {
         holder.mImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (MultiSelectMode) {
+                /*if (MultiSelectMode) {
                     model.setSelected(!model.isSelected());
-                    holder.mImageView.setImageBitmap(model.isSelected()?holder.Image_checked:holder.Image_unchecked);
+                    holder.mImageView.setImageBitmap(model.isSelected() ? holder.Image_checked : holder.Image_unchecked);
 
-                } else { //이미지 한 개 선택 시 이벤트
-                    Intent intent = new Intent(context, GalleryDetail.class);
-                    intent.putExtra("index", holder.index);
-                    ArrayList<IPicture> pictures = new ArrayList<>();
-                    pictures.add(new LocalPicture(holder.ImagePath));
-                    intent.putExtra("pictures", pictures);
-                    ((FragmentActivity)context).startActivityForResult(intent, RequestCodes.OpenGalleryDetail);
-                }
+                } else { //이미지 한 개 선택 시 이벤트*/
+                    if (Mode.equals(RequestCodes.ACTION_VIEW_PHOTO)) {
+                        Intent intent = new Intent(context, GalleryDetail.class);
+                        intent.putExtra("index", holder.index);
+                        ArrayList<IPicture> pictures = new ArrayList<>();
+                        pictures.add(new LocalPicture(holder.ImagePath));
+                        intent.putExtra("pictures", pictures);
+                        intent.setAction(RequestCodes.ACTION_VIEW_PHOTO);
+                        context.startActivity(intent);
+                    }
+                    else if (Mode.equals(RequestCodes.ACTION_SELECT_PHOTO))
+                    {
+                        Intent intent = new Intent(context, GalleryDetail.class);
+                        intent.putExtra("index", 0);
+                        ArrayList<IPicture> pictures = new ArrayList<>();
+                        pictures.add(new LocalPicture(holder.ImagePath));
+                        intent.putExtra("pictures", pictures);
+                        intent.setAction(RequestCodes.ACTION_SELECT_PHOTO);
+
+                        context.startActivity(intent);
+                    }
+                //}
             }
         });/*
         holder.mImageView.setOnLongClickListener(new View.OnLongClickListener() {
@@ -144,4 +162,5 @@ class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHolder> {
     public boolean isMultiSelectMode() {
         return MultiSelectMode;
     }
+
 }

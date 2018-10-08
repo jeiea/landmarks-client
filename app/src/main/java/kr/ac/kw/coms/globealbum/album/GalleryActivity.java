@@ -8,6 +8,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
@@ -20,6 +21,7 @@ import java.util.Comparator;
 
 import kr.ac.kw.coms.globealbum.R;
 import kr.ac.kw.coms.globealbum.common.MediaScannerKt;
+import kr.ac.kw.coms.globealbum.common.RequestCodes;
 import kr.ac.kw.coms.globealbum.provider.IPicture;
 
 public class GalleryActivity extends AppCompatActivity {
@@ -34,6 +36,13 @@ public class GalleryActivity extends AppCompatActivity {
             IPicture returned_data = data.getParcelableExtra("data");
             if (returned_data != null)
                 setResult(RESULT_OK, data);
+            else
+                setResult(RESULT_CANCELED);
+            finish();
+        }
+        else
+        {
+            setResult(RESULT_CANCELED);
             finish();
         }
     }
@@ -47,7 +56,7 @@ public class GalleryActivity extends AppCompatActivity {
         mRecyclerView.setHasFixedSize(true);
         mLayoutManager = new GridLayoutManager(this, 3);
         mRecyclerView.setLayoutManager(mLayoutManager);
-        mAdapter = new GalleryAdapter(getImageFilePath()); //파일 목록을 인수로 제공할 것
+        mAdapter = new GalleryAdapter(getImageFilePath(), getIntent().getAction()); //파일 목록을 인수로 제공할 것
         mRecyclerView.setAdapter(mAdapter);
     }
 

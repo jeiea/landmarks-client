@@ -51,6 +51,7 @@ public class Diary_mapNPictures extends AppCompatActivity {
     final ArrayList<Integer> PicturesArray = new ArrayList<>();
     GroupDiaryView picView = null;
     Diary diary;
+    Diary data;
     EditImageListAdapter adapter;
 
     //mapview에서 사용되는 멤버변수
@@ -319,7 +320,7 @@ public class Diary_mapNPictures extends AppCompatActivity {
                 //변경된 내용 반영
                 EditText Edit_Title = findViewById(R.id.diary_edit_TitleText);
                 EditText Edit_Description = findViewById(R.id.diary_edit_DescriptionText);
-                IdCollectionInfo editData = diary.getInfo();
+                CollectionInfo editData = diary.getInfo().getValue();
                 editData.setTitle(Edit_Title.getText().toString());
                 editData.setText(Edit_Description.getText().toString());
                 ArrayList<Integer> imgIds = new ArrayList<>();
