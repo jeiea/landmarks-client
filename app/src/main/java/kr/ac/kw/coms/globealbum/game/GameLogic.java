@@ -13,6 +13,7 @@ import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.Interpolator;
 import android.view.animation.LinearInterpolator;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import org.jetbrains.annotations.NotNull;
 import org.osmdroid.config.Configuration;
@@ -410,6 +411,12 @@ class GameLogic implements IGameInputHandler {
      * @param finalGeoPosition 화면에 선택한 곳의 좌표
      */
     private void showMarker(final MyMapView myMapView, final GeoPoint finalGeoPosition) {
+        if (currentMarker != null) {
+            ui.clearOverlay(currentMarker);
+        }
+        Marker marker =ui.makeMarker("blue",finalGeoPosition);
+        currentMarker = marker;
+
 
         final Projection projection = myMapView.getProjection();
         final Point startPoint = new Point();
@@ -449,7 +456,6 @@ class GameLogic implements IGameInputHandler {
                 GeoPoint geoPoint = (GeoPoint) projection.fromPixels(pixelPoint.x, pixelPoint.y);
 
                 tmpMarker.setPosition(geoPoint);
-
                 if (currentMarker != null) {
                     ui.clearOverlay(currentMarker);
                 }
@@ -478,6 +484,10 @@ class GameLogic implements IGameInputHandler {
                         }
                     });
                     currentMarker = tmpMarker;
+                    if(timerHandler == null){           //정답 확인 직전 마커를 선택했을 때, 마커 지우기
+                        ui.clearOverlay(currentMarker);
+                    }
+
                 }
             }
         });
