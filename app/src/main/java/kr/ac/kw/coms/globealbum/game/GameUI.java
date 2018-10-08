@@ -26,6 +26,7 @@ import org.osmdroid.views.overlay.infowindow.MarkerInfoWindow;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import kr.ac.kw.coms.globealbum.R;
 import kr.ac.kw.coms.globealbum.common.GlideApp;
@@ -83,7 +84,13 @@ class GameUI {
 
 
     void displayGameEntryPoint(int stage, int score, int games) {
+        int[] bgId = new int[]{R.drawable.game_start_bg1,R.drawable.game_start_bg2,R.drawable.game_start_bg3,R.drawable.game_start_bg4,R.drawable.game_start_bg5,R.drawable.game_start_bg6,R.drawable.game_start_bg7};
+        Random random = new Random();
+        random.setSeed(System.currentTimeMillis());
+        int randomNumber = random.nextInt(7);
         activity.setContentView(R.layout.layout_game_entry_point);
+        View backgroundView = activity.findViewById(R.id.game_start_background);
+        backgroundView.setBackgroundResource(bgId[randomNumber]);
         gameStartNextStageButton = activity.findViewById(R.id.game_start_stage_button);
         gameExitButton = activity.findViewById(R.id.game_exit_button);
         gameNextStageLevelTextview = activity.findViewById(R.id.textview_level);

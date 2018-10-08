@@ -104,6 +104,7 @@ class GameLogic implements IGameInputHandler {
     void onGameEntryPoint() {
         stage++;
         if (stage == 1 || (stage - 1 != stageLimitScore.length && score >= stageLimitScore[stage - 2])) {
+
             ui.displayGameEntryPoint(stage, stageLimitScore[stage - 1], stageNumberOfGames[stage - 1]);
         } else {
             ui.setRecyclerView(questionPic);
@@ -140,6 +141,12 @@ class GameLogic implements IGameInputHandler {
 
     void onGameReady(){
         Configuration.getInstance().load(context, PreferenceManager.getDefaultSharedPreferences(context));
+
+        Random random = new Random();
+        random.setSeed(System.currentTimeMillis());
+
+        //int randomNumber = random.nextInt(2);
+
         ui.displayQuiz(stage, problem, stageNumberOfGames[stage - 1]);
 
 
@@ -544,7 +551,7 @@ class GameLogic implements IGameInputHandler {
 
     @Override
     public void onPressMarker(MyMapView myMapView, GeoPoint geoPoint) {
-        if (gameType == GameType.A && ui != null && animateHandler == null)
+        if (gameType == GameType.A && timerHandler != null && animateHandler == null)
             showMarker(myMapView, geoPoint);
     }
 
