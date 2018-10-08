@@ -30,6 +30,19 @@ class DiaryOverlays(val lmView: ILandmarkMapView, val pictures: List<IPicture>) 
     return polyline
   }
 
+  fun detach() {
+    targets.forEach {
+      it.request?.clear()
+    }
+  }
+
+  override fun onMarkerClick(marker: Marker?, mapView: MapView?): Boolean {
+    if (marker is PictureMarker) {
+      lmView.onTouchThumbnail(marker.picture)
+    }
+    return true
+  }
+
   internal inner class GlideTarget(var picture: IPicture) :
     CustomViewTarget<MapView, Drawable>(lmView.mapView) {
 
@@ -46,19 +59,6 @@ class DiaryOverlays(val lmView: ILandmarkMapView, val pictures: List<IPicture>) 
       marker = PictureMarker(picture, bm)
       view.overlays.add(marker)
     }
-  }
-
-  fun detach() {
-    targets.forEach {
-      it.request?.clear()
-    }
-  }
-
-  override fun onMarkerClick(marker: Marker?, mapView: MapView?): Boolean {
-    if (marker is PictureMarker) {
-      lmView.onTouchThumbnail(marker.picture)
-    }
-    return true
   }
 
   internal inner class PictureMarker(val picture: IPicture, icon: Drawable) : Marker(lmView.mapView) {
