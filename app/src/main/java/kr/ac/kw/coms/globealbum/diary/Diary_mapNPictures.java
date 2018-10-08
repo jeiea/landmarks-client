@@ -43,7 +43,7 @@ import kr.ac.kw.coms.globealbum.provider.IPicture;
 import kr.ac.kw.coms.globealbum.provider.Promise;
 import kr.ac.kw.coms.globealbum.provider.RemoteJava;
 import kr.ac.kw.coms.globealbum.provider.RemotePicture;
-import kr.ac.kw.coms.landmarks.client.CollectionInfo;
+import kr.ac.kw.coms.landmarks.client.IdCollectionInfo;
 
 public class Diary_mapNPictures extends AppCompatActivity {
 
@@ -81,8 +81,8 @@ public class Diary_mapNPictures extends AppCompatActivity {
         }.getItemTouchListener());
         setMarkerToMapview();
 
-        ((TextView)findViewById(R.id.diary_mapNpics_Title)).setText(diary.getTitle());
-        ((TextView)findViewById(R.id.diary_mapNpics_Description)).setText(diary.getText());
+        ((TextView) findViewById(R.id.diary_mapNpics_Title)).setText(diary.getTitle());
+        ((TextView) findViewById(R.id.diary_mapNpics_Description)).setText(diary.getText());
     }
 
     @Override
@@ -279,7 +279,7 @@ public class Diary_mapNPictures extends AppCompatActivity {
         EditText Edit_Description = findViewById(R.id.diary_edit_DescriptionText);
         RecyclerView Edit_ImageList = findViewById(R.id.diary_edit_ImageList);
 
-        CollectionInfo editData = diary.getInfo().getValue();
+        IdCollectionInfo editData = diary.getInfo();
         Edit_Title.setText(editData.getTitle());
         Edit_Description.setText(editData.getText());
         ArrayList<IPicture> pics = new ArrayList<IPicture>(diary);
@@ -319,7 +319,7 @@ public class Diary_mapNPictures extends AppCompatActivity {
                 //변경된 내용 반영
                 EditText Edit_Title = findViewById(R.id.diary_edit_TitleText);
                 EditText Edit_Description = findViewById(R.id.diary_edit_DescriptionText);
-                CollectionInfo editData = diary.getInfo().getValue();
+                IdCollectionInfo editData = diary.getInfo();
                 editData.setTitle(Edit_Title.getText().toString());
                 editData.setText(Edit_Description.getText().toString());
                 ArrayList<Integer> imgIds = new ArrayList<>();
@@ -341,7 +341,7 @@ public class Diary_mapNPictures extends AppCompatActivity {
 
         @Override
         public void failure(@NotNull Throwable cause) {
-            Toast.makeText(Diary_mapNPictures.this, cause.toString(), Toast.LENGTH_SHORT);
+            Toast.makeText(Diary_mapNPictures.this, cause.toString(), Toast.LENGTH_SHORT).show();
         }
     };
 

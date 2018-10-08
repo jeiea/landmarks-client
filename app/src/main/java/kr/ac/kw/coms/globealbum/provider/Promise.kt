@@ -1,6 +1,9 @@
 package kr.ac.kw.coms.globealbum.provider
 
-import kotlinx.coroutines.experimental.*
+import kotlinx.coroutines.experimental.CommonPool
+import kotlinx.coroutines.experimental.CoroutineScope
+import kotlinx.coroutines.experimental.Job
+import kotlinx.coroutines.experimental.launch
 import kotlin.coroutines.experimental.CoroutineContext
 
 open class Promise<T> {
@@ -18,7 +21,7 @@ open class Promise<T> {
   open fun resolve(result: T): Unit = success(result)
   open fun resolve(cause: Throwable): Unit = failure(cause)
   open fun resolve(
-    context: CoroutineContext = Dispatchers.Default,
+    context: CoroutineContext = CommonPool,
     block: suspend CoroutineScope.() -> T)
-    : Job = GlobalScope.launch(context) { resolve(block()) }
+    : Job = launch(context) { resolve(block()) }
 }

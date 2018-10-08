@@ -14,8 +14,11 @@ import io.ktor.client.request.forms.formData
 import io.ktor.client.response.HttpResponse
 import io.ktor.http.*
 import kotlinx.coroutines.experimental.channels.ArrayChannel
+import kotlinx.coroutines.experimental.channels.Channel
 import kotlinx.coroutines.experimental.channels.sendBlocking
 import kotlinx.coroutines.experimental.delay
+import kotlinx.coroutines.experimental.io.readUTF8LineTo
+import kotlinx.coroutines.experimental.launch
 import kotlinx.io.InputStream
 import kotlinx.io.core.writeFully
 import java.io.File
@@ -30,16 +33,25 @@ class Remote(base: HttpClient, val basePath: String = herokuUri) {
    */
 
   val http: HttpClient
-  val nominatimLastRequestMs = ArrayChannel<Long>(1)
+  private val nominatimLastRequestMs = ArrayChannel<Long>(1)
+  private val problemBuffer = Channel<IdPictureInfo>(10)
+  private val problemBuffering by lazy {
+    launch {
+      while (true) {
+        val pics: MutableList<IdPictureInfo> = get("$basePath/problem/random/10")
+        pics.forEach { problemBuffer.send(it) }
+      }
+    }
+  }
 
   companion object {
     const val herokuUri = "http://landmarks-coms.herokuapp.com"
     private const val chromeAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.59 Safari/537.36"
   }
 
-  var profile: WithIntId<AccountForm>? = null
+  var profile: IdAccountForm? = null
 
-  suspend inline fun <reified T> request(method: HttpMethod, url: String, builder: HttpRequestBuilder.() -> Unit = {}): T {
+  private suspend inline fun <reified T> request(method: HttpMethod, url: String, builder: HttpRequestBuilder.() -> Unit = {}): T {
     val response: HttpResponse = http.request {
       this.method = method
       url(url)
@@ -49,7 +61,14 @@ class Remote(base: HttpClient, val basePath: String = herokuUri) {
     if (response.status.isSuccess()) {
       return response.call.receive()
     }
-    throw response.call.receive<ServerFault>()
+    if (response.status == HttpStatusCode.BadRequest) {
+      throw response.call.receive<ServerFault>()
+    } else {
+      val sb = StringBuilder()
+      while (response.content.readUTF8LineTo(sb));
+      val msg = "${response.status}: $sb"
+      throw RuntimeException(msg)
+    }
   }
 
   private suspend inline fun <reified T> get(url: String, builder: HttpRequestBuilder.() -> Unit = {}): T =
@@ -128,14 +147,14 @@ class Remote(base: HttpClient, val basePath: String = herokuUri) {
     }
   }
 
-  suspend fun login(ident: String, pass: String): WithIntId<AccountForm> {
+  suspend fun login(ident: String, pass: String): IdAccountForm {
     profile = post("$basePath/auth/login") {
       json(AccountForm(login = ident, password = pass))
     }
     return profile!!
   }
 
-  suspend fun uploadPicture(meta: PictureInfo, file: File): WithIntId<PictureInfo> {
+  suspend fun uploadPicture(meta: IPictureInfo, file: File): IdPictureInfo {
     val filename: String = URLEncoder.encode(file.name, "UTF-8")
     val form = MultiPartFormDataContent(formData {
       meta.lat?.also { append("lat", it.toString()) }
@@ -150,12 +169,17 @@ class Remote(base: HttpClient, val basePath: String = herokuUri) {
     }
   }
 
-  suspend fun getRandomProblems(n: Int): MutableList<WithIntId<PictureInfo>> {
-    return get("$basePath/problem/random/$n")
+  suspend fun getRandomProblems(n: Int): MutableList<IdPictureInfo> {
+    problemBuffering
+    val ret = mutableListOf<IdPictureInfo>()
+    for (i in 1..n) {
+      ret.add(problemBuffer.receive())
+    }
+    return ret
   }
 
-  suspend fun modifyPictureInfo(id: Int, info: PictureInfo) {
-    return post("$basePath/picture/info/${id}") {
+  suspend fun modifyPictureInfo(id: Int, info: IPictureInfo) {
+    return post("$basePath/picture/info/$id") {
       json(info)
     }
   }
@@ -172,43 +196,47 @@ class Remote(base: HttpClient, val basePath: String = herokuUri) {
     return get("$basePath/picture/$id")
   }
 
-  suspend fun getThumbnail(id: Int): InputStream {
-    return get("$basePath/picture/thumbnail/$id")
+  suspend fun getThumbnail(id: Int, desiredWidth: Int = 640, desiredHeight: Int = 480): InputStream {
+    return get("$basePath/picture/thumbnail/$id?width=$desiredWidth&height=$desiredHeight")
   }
 
-  suspend fun getPictureInfos(userId: Int): MutableList<WithIntId<PictureInfo>> {
+  suspend fun getPictureInfos(userId: Int): MutableList<IdPictureInfo> {
     return get("$basePath/picture/user/$userId")
   }
 
-  suspend fun getMyPictureInfos(): MutableList<WithIntId<PictureInfo>> {
+  suspend fun getMyPictureInfos(): MutableList<IdPictureInfo> {
     return getPictureInfos(profile!!.id)
   }
 
 
-  suspend fun uploadCollection(collection: CollectionInfo): WithIntId<CollectionInfo> {
+  suspend fun uploadCollection(collection: ICollectionInfo): IdCollectionInfo {
     return put("$basePath/collection") {
       json(collection)
     }
   }
 
-  suspend fun getRandomCollections(): MutableList<WithIntId<CollectionInfo>> {
+  suspend fun getRandomCollections(): MutableList<IdCollectionInfo> {
     return get("$basePath/collection")
   }
 
-  suspend fun getCollections(ownerId: Int): MutableList<WithIntId<CollectionInfo>> {
+  suspend fun getCollections(ownerId: Int): MutableList<IdCollectionInfo> {
     return get("$basePath/collection/user/$ownerId")
   }
 
-  suspend fun getCollectionPics(collectionId: Int): MutableList<WithIntId<PictureInfo>> {
+  suspend fun getCollectionPics(collectionId: Int): MutableList<IdPictureInfo> {
     return get("$basePath/collection/$collectionId/picture")
   }
 
-  suspend fun getMyCollections(): MutableList<WithIntId<CollectionInfo>> {
+  suspend fun getMyCollections(): MutableList<IdCollectionInfo> {
     return getCollections(profile!!.id)
   }
 
-  suspend fun modifyCollection(id: Int, collection: CollectionInfo): WithIntId<CollectionInfo> {
-    return post("$basePath/collection/${id}") {
+  suspend fun getCollectionsContainPicture(picId: Int): MutableList<IdCollectionInfo> {
+    return get("$basePath/collection/contains/picture/$picId")
+  }
+
+  suspend fun modifyCollection(id: Int, collection: ICollectionInfo): IdCollectionInfo {
+    return post("$basePath/collection/$id") {
       json(collection)
     }
   }
