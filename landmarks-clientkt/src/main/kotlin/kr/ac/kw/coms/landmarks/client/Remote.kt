@@ -45,7 +45,7 @@ class Remote(base: HttpClient, val basePath: String = herokuUri) {
   }
 
   companion object {
-    const val herokuUri = "https://landmarks-coms.herokuapp.com"
+    const val herokuUri = "http://landmarks-coms.herokuapp.com"
     private const val chromeAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.59 Safari/537.36"
   }
 
