@@ -33,7 +33,8 @@ import kr.ac.kw.coms.globealbum.provider.IPicture;
 import kr.ac.kw.coms.globealbum.provider.LocalPicture;
 import kr.ac.kw.coms.globealbum.provider.ResourcePicture;
 
-class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHolder> {
+//사용 안함
+class _GalleryAdapter extends RecyclerView.Adapter<_GalleryAdapter.ViewHolder> {
     private ArrayList<Model> mDataset;
     private static Context context;
     private boolean MultiSelectMode = false;
@@ -60,14 +61,14 @@ class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHolder> {
         }
     }
 
-    public GalleryAdapter(ArrayList<Model> Dataset, String Action) {
+    public _GalleryAdapter(ArrayList<Model> Dataset, String Action) {
         mDataset = Dataset;
         if (Action.equals(RequestCodes.ACTION_SELECT_PHOTO) || Action.equals(RequestCodes.ACTION_VIEW_PHOTO))
             Mode = Action;
     }
 
     @Override
-    public GalleryAdapter.ViewHolder onCreateViewHolder(final ViewGroup parent, final int viewType) {
+    public _GalleryAdapter.ViewHolder onCreateViewHolder(final ViewGroup parent, final int viewType) {
         context = parent.getContext();
         ImageView v = (ImageView) LayoutInflater.from(parent.getContext()).inflate(R.layout.inner_view, parent, false);
         ViewHolder vh = new ViewHolder(v);
@@ -106,26 +107,9 @@ class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHolder> {
                     holder.mImageView.setImageBitmap(model.isSelected() ? holder.Image_checked : holder.Image_unchecked);
 
                 } else { //이미지 한 개 선택 시 이벤트*/
-                    if (Mode.equals(RequestCodes.ACTION_VIEW_PHOTO)) {
-                        Intent intent = new Intent(context, GalleryDetail.class);
-                        intent.putExtra("index", holder.index);
-                        ArrayList<IPicture> pictures = new ArrayList<>();
-                        pictures.add(new LocalPicture(holder.ImagePath));
-                        intent.putExtra("pictures", pictures);
-                        intent.setAction(RequestCodes.ACTION_VIEW_PHOTO);
-                        context.startActivity(intent);
-                    }
-                    else if (Mode.equals(RequestCodes.ACTION_SELECT_PHOTO))
-                    {
-                        Intent intent = new Intent(context, GalleryDetail.class);
-                        intent.putExtra("index", 0);
-                        ArrayList<IPicture> pictures = new ArrayList<>();
-                        pictures.add(new LocalPicture(holder.ImagePath));
-                        intent.putExtra("pictures", pictures);
-                        intent.setAction(RequestCodes.ACTION_SELECT_PHOTO);
-
-                        context.startActivity(intent);
-                    }
+                if (Mode.equals(RequestCodes.ACTION_VIEW_PHOTO)) {
+                } else if (Mode.equals(RequestCodes.ACTION_SELECT_PHOTO)) {
+                }
                 //}
             }
         });/*

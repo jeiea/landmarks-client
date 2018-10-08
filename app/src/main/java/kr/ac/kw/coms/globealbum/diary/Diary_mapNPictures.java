@@ -320,7 +320,7 @@ public class Diary_mapNPictures extends AppCompatActivity {
                 //변경된 내용 반영
                 EditText Edit_Title = findViewById(R.id.diary_edit_TitleText);
                 EditText Edit_Description = findViewById(R.id.diary_edit_DescriptionText);
-                CollectionInfo editData = diary.getInfo().getValue();
+                IdCollectionInfo editData = diary.getInfo();
                 editData.setTitle(Edit_Title.getText().toString());
                 editData.setText(Edit_Description.getText().toString());
                 ArrayList<Integer> imgIds = new ArrayList<>();
@@ -345,17 +345,4 @@ public class Diary_mapNPictures extends AppCompatActivity {
             Toast.makeText(Diary_mapNPictures.this, cause.toString(), Toast.LENGTH_SHORT).show();
         }
     };
-
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == RequestCodes.SelectNewPhoto) {
-            if (data == null) {
-                Toast.makeText(this, "선택된 사진 없음", Toast.LENGTH_SHORT).show();
-                return;
-            }
-            IPicture returned_data = data.getParcelableExtra("data");
-            adapter.AddNewPicture(returned_data);
-        }
-    }
 }
