@@ -11,7 +11,6 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
@@ -27,6 +26,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import at.wirecube.additiveanimations.additive_animator.AdditiveAnimator;
 import kr.ac.kw.coms.globealbum.R;
@@ -270,14 +270,15 @@ public class Diary_main extends AppCompatActivity {
                     EndTime = time;
                 }
             }
-            holder.text_Date.setText(new SimpleDateFormat("yyyy-MM-dd").format(StartTime) + " ~ "
-                    + new SimpleDateFormat("yyyy-MM-dd").format(EndTime));
-            holder.image_Thumbnail.setOnTouchListener(new View.OnTouchListener() {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.KOREAN);
+            String date = sdf.format(StartTime) + " ~ " + sdf.format(EndTime);
+            holder.text_Date.setText(date);
+            holder.image_Thumbnail.setOnClickListener(new View.OnClickListener() {
                 @Override
-                public boolean onTouch(View v, MotionEvent event) {
-                    Intent intent = new Intent(Diary_main.this, Diary_mapNPictures.class).putExtra("diary", diaryToShow);
+                public void onClick(View v) {
+                    Intent intent = new Intent(Diary_main.this, Diary_mapNPictures.class);
+                    intent.putExtra(Diary_mapNPictures.PARCEL_DIARY, diaryToShow);
                     startActivity(intent);
-                    return true;
                 }
             });
         }
