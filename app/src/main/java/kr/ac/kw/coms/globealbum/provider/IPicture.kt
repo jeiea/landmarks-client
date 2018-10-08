@@ -391,7 +391,7 @@ class Diary(var info: IdCollectionInfo) :
 
     fun parcelToRemoteCollectionWithIntId(parcel: Parcel): IdCollectionInfo {
       val v = CollectionInfo()
-      val collection = IdCollectionInfo(parcel.readInt(), CollectionInfo())
+      val collection = IdCollectionInfo(parcel.readInt(), v)
       parcel.run {
         v.title = readString()
         v.text = readString()
