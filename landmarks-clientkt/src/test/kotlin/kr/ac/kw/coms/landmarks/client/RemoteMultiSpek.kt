@@ -9,13 +9,14 @@ import org.jetbrains.spek.api.dsl.describe
 import org.junit.platform.runner.JUnitPlatform
 import org.junit.runner.RunWith
 import java.io.File
+import java.util.*
 
 @RunWith(JUnitPlatform::class)
 class RemoteMultiSpek : Spek({
 
   fun newClient(): Remote {
     return Remote(getTestClient(), "http://localhost:8080")
-//    return Remote(getTestClient(), "https://landmarks-coms.herokuapp.com/")
+//    return Remote(getTestClient(), "http://landmarks-coms.herokuapp.com/")
   }
 
   val client = newClient()
@@ -65,7 +66,7 @@ class RemoteMultiSpek : Spek({
     blit("login as valid users") {
       validUsers.forEach { rep ->
         val cl = newClient()
-        val profile = cl.login(rep.login!!, rep.password!!).value
+        val profile = cl.login(rep.login!!, rep.password!!).data
         profile.login!! `should be equal to` rep.login!!
         profile.email!! `should be equal to` rep.email!!
         profile.nick!! `should be equal to` rep.nick!!
@@ -85,6 +86,7 @@ class RemoteMultiSpek : Spek({
     }
   }
 
+  val userPics = mutableListOf<MutableList<IdPictureInfo>>()
   describe("test picture features with multiple users") {
     blit("uploads pictures") {
       val archive = File("../data/archive1")
@@ -102,7 +104,6 @@ class RemoteMultiSpek : Spek({
       }
     }
 
-    val userPics = mutableListOf<MutableList<WithIntId<PictureInfo>>>()
     blit("test valid access") {
       clients.forEach {
         val pics = it.getMyPictureInfos()
@@ -110,6 +111,41 @@ class RemoteMultiSpek : Spek({
         userPics.add(pics)
       }
     }
+  }
+
+  describe("test collection features with multiple users") {
+    blit("upload collections") {
+      val ids = userPics.flatten().map { it.id }.toMutableList()
+      val collIds = mutableListOf<Int>();
+      var cnt = 1
+      clients.zip(0..9).forEach { (cl, i) ->
+        (1..4).forEach { j ->
+          ids.shuffle()
+          val coll = CollectionInfo(
+            title = "diary $i-$j",
+            text = "설명 $cnt 번째",
+            images = ArrayList(ids.take(8)),
+            isPublic = true,
+            isRoute = true,
+            likes = i,
+            liking = true
+          )
+          val res = cl.uploadCollection(coll)
+          collIds.add(res.id)
+          cnt++
+        }
+      }
+      collIds.size `should be equal to` collIds.distinct().size
+    }
+
+    blit("download collection") {
+      clients.forEach { cl ->
+        val coll = cl.getMyCollections()
+        coll.size `should be equal to` 4
+        coll.forEach { it.data.previews?.size!! `should be equal to` 8 }
+      }
+    }
+
   }
 
 })

@@ -125,8 +125,8 @@ interface IPicture : Parcelable {
   val dataSource: DataSource
 }
 
-class RemotePicture(val info: WithIntId<PictureInfo>) :
-  IPicture, Deletable, IPictureInfo by info.value {
+class RemotePicture(val info: IdPictureInfo) :
+  IPicture, Deletable, IPictureInfo by info.data {
 
   fun latlonToGeoPoint(pic: PictureInfo): GeoPoint? {
     return pic.let { v ->
@@ -137,10 +137,10 @@ class RemotePicture(val info: WithIntId<PictureInfo>) :
   }
 
   override var meta = PictureMeta(
-    info.value.address,
-    info.value.author,
-    info.value.time,
-    latlonToGeoPoint(info.value)
+    info.data.address,
+    info.data.author,
+    info.data.time,
+    latlonToGeoPoint(info.data)
   )
     set(value) {
       // TODO: Update picture metadata
@@ -153,9 +153,9 @@ class RemotePicture(val info: WithIntId<PictureInfo>) :
     return "lmserver://picture/$info"
   }
 
-  constructor(parcel: Parcel) : this(WithIntId(parcel.readInt(), PictureInfo())) {
+  constructor(parcel: Parcel) : this(IdPictureInfo(parcel.readInt(), PictureInfo())) {
     parcel.apply {
-      val v = info.value
+      val v = info.data
       v.uid = readInt().takeIf { it != -1 }
       v.author = readString()
       v.address = readString()
@@ -177,7 +177,7 @@ class RemotePicture(val info: WithIntId<PictureInfo>) :
   override fun writeToParcel(parcel: Parcel, flags: Int) {
     parcel.apply {
       writeInt(info.id)
-      val v = info.value
+      val v = info.data
       writeInt(v.uid ?: -1)
       writeString(v.author)
       writeString(v.address)
@@ -340,16 +340,16 @@ class ResourcePicture(@DrawableRes val id: Int) : IPicture {
   //endregion
 }
 
-class Diary(var info: WithIntId<CollectionInfo>) :
+class Diary(var info: IdCollectionInfo) :
   Parcelable,
-  ICollectionInfo by info.value,
+  ICollectionInfo by info.data,
   List<RemotePicture> by toRemotePictures(info) {
 
   //region Parcelable implementation
   constructor(parcel: Parcel) : this(parcelToRemoteCollectionWithIntId(parcel))
 
   override fun writeToParcel(parcel: Parcel, flags: Int) {
-    val v = info.value
+    val v = info.data
     parcel.run {
       writeInt(info.id)
       writeString(v.title)
@@ -389,9 +389,9 @@ class Diary(var info: WithIntId<CollectionInfo>) :
       else -> null
     }
 
-    fun parcelToRemoteCollectionWithIntId(parcel: Parcel): WithIntId<CollectionInfo> {
+    fun parcelToRemoteCollectionWithIntId(parcel: Parcel): IdCollectionInfo {
       val v = CollectionInfo()
-      val collection = WithIntId(parcel.readInt(), v)
+      val collection = IdCollectionInfo(parcel.readInt(), CollectionInfo())
       parcel.run {
         v.title = readString()
         v.text = readString()
@@ -407,8 +407,8 @@ class Diary(var info: WithIntId<CollectionInfo>) :
       return collection
     }
 
-    fun toRemotePictures(info: WithIntId<CollectionInfo>): List<RemotePicture> {
-      return info.value.previews!!.map(::RemotePicture)
+    fun toRemotePictures(info: IdCollectionInfo): List<RemotePicture> {
+      return info.data.previews!!.map(::RemotePicture)
     }
   }
   //endregion

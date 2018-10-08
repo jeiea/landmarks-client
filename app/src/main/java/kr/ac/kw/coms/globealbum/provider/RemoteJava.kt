@@ -23,14 +23,14 @@ public object RemoteJava {
   fun register(form: AccountForm, prom: Promise<Unit>): Job =
     prom.resolve { client.register(form.login!!, form.password!!, form.email!!, form.nick!!) }
 
-  fun login(ident: String, pass: String, prom: Promise<WithIntId<AccountForm>>): Job =
+  fun login(ident: String, pass: String, prom: Promise<IdAccountForm>): Job =
     prom.resolve { client.login(ident, pass) }
 
   fun uploadPicture(info: PictureInfo, file: File, prom: Promise<Unit>): Job =
     prom.resolve { client.uploadPicture(info, file) }
 
   fun getPicture(id: Int, prom: Promise<IPicture>): Job =
-    prom.resolve { RemotePicture(WithIntId(id, client.getPictureInfo(id))) }
+    prom.resolve { RemotePicture(IdPictureInfo(id, client.getPictureInfo(id))) }
 
   fun getRandomPictures(n: Int, promise: Promise<List<RemotePicture>>): Job =
     promise.resolve { client.getRandomProblems(n).map(::RemotePicture) }
@@ -41,12 +41,12 @@ public object RemoteJava {
   fun getMyPictures(prom: Promise<List<IPicture>>): Job =
     prom.resolve { client.getMyPictureInfos().map(::RemotePicture) }
 
-  fun uploadCollection(info: CollectionInfo, prom: Promise<Diary>): Job =
+  fun uploadCollection(info: ICollectionInfo, prom: Promise<Diary>): Job =
     prom.resolve { Diary(client.uploadCollection(info)) }
 
   fun getMyCollections(prom: Promise<List<Diary>>): Job =
     prom.resolve { client.getMyCollections().map(::Diary) }
 
-  fun modifyCollection(id: Int, info: CollectionInfo, prom: Promise<Diary>): Job =
+  fun modifyCollection(id: Int, info: ICollectionInfo, prom: Promise<Diary>): Job =
     prom.resolve { Diary(client.modifyCollection(id, info)) }
 }

@@ -12,18 +12,34 @@ data class ServerFault(
 
 data class ServerOK(val msg: String)
 
-data class WithIntId<T>(val id: Int, val value: T)
+interface IntIdentifiable {
+  var id: Int
+}
+
+interface IAccountForm {
+  val login: String?
+  val password: String?
+  val email: String?
+  val nick: String?
+}
 
 data class AccountForm(
-  val login: String? = null,
-  val password: String? = null,
-  val email: String? = null,
-  val nick: String? = null
-)
+  override val login: String? = null,
+  override val password: String? = null,
+  override val email: String? = null,
+  override val nick: String? = null
+) : IAccountForm
+
+data class IdAccountForm(
+  override var id: Int,
+  var data: AccountForm
+) : IntIdentifiable, IAccountForm by data
 
 interface IPictureInfo {
   var uid: Int?
   var author: String?
+  var width: Int?
+  var height: Int?
   var address: String?
   var lat: Float?
   var lon: Float?
@@ -34,6 +50,8 @@ interface IPictureInfo {
 data class PictureInfo(
   override var uid: Int? = null,
   override var author: String? = null,
+  override var width: Int? = null,
+  override var height: Int? = null,
   override var address: String? = null,
   override var lat: Float? = null,
   override var lon: Float? = null,
@@ -41,11 +59,16 @@ data class PictureInfo(
   override var isPublic: Boolean = true
 ) : IPictureInfo
 
+data class IdPictureInfo(
+  override var id: Int,
+  var data: PictureInfo
+) : IntIdentifiable, IPictureInfo by data
+
 interface ICollectionInfo {
   var title: String?
   var text: String?
   var images: ArrayList<Int>?
-  var previews: ArrayList<WithIntId<PictureInfo>>?
+  var previews: ArrayList<IdPictureInfo>?
   var likes: Int?
   var liking: Boolean?
   var isRoute: Boolean?
@@ -57,13 +80,18 @@ data class CollectionInfo(
   override var title: String? = null,
   override var text: String? = null,
   override var images: ArrayList<Int>? = null,
-  override var previews: ArrayList<WithIntId<PictureInfo>>? = null,
+  override var previews: ArrayList<IdPictureInfo>? = null,
   override var likes: Int? = null,
   override var liking: Boolean? = null,
   override var isRoute: Boolean? = null,
   override var isPublic: Boolean? = null,
   override var parent: Int? = null
 ) : ICollectionInfo
+
+data class IdCollectionInfo(
+  override var id: Int,
+  var data: CollectionInfo
+) : IntIdentifiable, ICollectionInfo by data
 
 /**
  * https://wiki.openstreetmap.org/wiki/Nominatim

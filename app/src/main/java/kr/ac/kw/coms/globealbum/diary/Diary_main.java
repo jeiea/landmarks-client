@@ -31,7 +31,6 @@ import java.util.List;
 import at.wirecube.additiveanimations.additive_animator.AdditiveAnimator;
 import kr.ac.kw.coms.globealbum.R;
 import kr.ac.kw.coms.globealbum.album.GroupDiaryView;
-import kr.ac.kw.coms.globealbum.album.GroupedPicAdapter;
 import kr.ac.kw.coms.globealbum.album.OnSwipeTouchListener;
 import kr.ac.kw.coms.globealbum.album.PictureGroup;
 import kr.ac.kw.coms.globealbum.common.RecyclerItemClickListener;
@@ -40,8 +39,7 @@ import kr.ac.kw.coms.globealbum.provider.Diary;
 import kr.ac.kw.coms.globealbum.provider.IPicture;
 import kr.ac.kw.coms.globealbum.provider.RemoteJava;
 import kr.ac.kw.coms.globealbum.provider.UIPromise;
-import kr.ac.kw.coms.landmarks.client.AccountForm;
-import kr.ac.kw.coms.landmarks.client.WithIntId;
+import kr.ac.kw.coms.landmarks.client.IdAccountForm;
 
 public class Diary_main extends AppCompatActivity {
 
@@ -144,9 +142,9 @@ public class Diary_main extends AppCompatActivity {
 
     public void PrepareData() {
         //서버에서 데이터 다운로드
-        RemoteJava.INSTANCE.login("login", "password", new UIPromise<WithIntId<AccountForm>>() {
+        RemoteJava.INSTANCE.login("login", "password", new UIPromise<IdAccountForm>() {
             @Override
-            public void success(WithIntId<AccountForm> result) {
+            public void success(IdAccountForm result) {
                 super.success(result);
                 RemoteJava.INSTANCE.getMyPictures(new UIPromise<List<IPicture>>() {
                     @Override
@@ -194,7 +192,7 @@ public class Diary_main extends AppCompatActivity {
                 if (view instanceof ImageView) {
                     ZoomIndex = position - 1;
                     Glide.with(view).load(DownloadedImageList.get(ZoomIndex)).into(((ImageView) findViewById(R.id.diary_main_ZoomImage)));
-                    ((TextView)findViewById(R.id.diary_main_ZoomName)).setText(DownloadedImageList.get(ZoomIndex).getMeta().getAddress());
+                    ((TextView) findViewById(R.id.diary_main_ZoomName)).setText(DownloadedImageList.get(ZoomIndex).getMeta().getAddress());
                     findViewById(R.id.diary_main_ZoomInRoot).setVisibility(View.VISIBLE);
                 }
             }
@@ -310,12 +308,9 @@ public class Diary_main extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        if (findViewById(R.id.diary_main_ZoomInRoot).getVisibility() == View.VISIBLE)
-        {
+        if (findViewById(R.id.diary_main_ZoomInRoot).getVisibility() == View.VISIBLE) {
             findViewById(R.id.diary_main_ZoomInRoot).setVisibility(View.GONE);
-        }
-        else
-        {
+        } else {
             super.onBackPressed();
         }
     }

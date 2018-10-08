@@ -50,14 +50,14 @@ class RemoteSpek : Spek({
 
     var profile: AccountForm? = null
     blit("does login") {
-      val p = client.login(ident, "pasowo").value
+      val p = client.login(ident, "pasowo").data
       p.login!! `should be equal to` ident
       p.email!! `should be equal to` email
       p.nick!! `should be equal to` ident
       profile = p
     }
 
-    val pics = mutableListOf<WithIntId<PictureInfo>>()
+    val pics = mutableListOf<IdPictureInfo>()
     blit("uploads picture") {
       for (i in 0..3) {
         val gps = i.toFloat()
@@ -73,7 +73,7 @@ class RemoteSpek : Spek({
 
     var replaced = PictureInfo()
     blit("modify picture info") {
-      replaced = pics[0].value.copy(address = "Manhatan?", lat = 110.0f, lon = 20.0f)
+      replaced = pics[0].data.copy(address = "Manhatan?", lat = 110.0f, lon = 20.0f)
       client.modifyPictureInfo(pics[0].id, replaced)
     }
 
@@ -90,13 +90,14 @@ class RemoteSpek : Spek({
     }
 
     blit("receives quiz info") {
-      val quizs = mutableListOf<WithIntId<PictureInfo>>()
+      val quizs = mutableListOf<IdPictureInfo>()
       quizs.addAll(client.getRandomProblems(2))
       quizs[0].id `should not be equal to` quizs[1].id
     }
 
     blit("query thumbnail") {
-      client.getThumbnail(pics[0].id).readBytes().size `should be greater than` 1000
+      val stream = client.getThumbnail(pics[0].id, 400, 200)
+      stream.readBytes().size `should be less than` 200000
     }
 
     // Deletion of picture is not yet implemented.
@@ -105,7 +106,7 @@ class RemoteSpek : Spek({
       title = "first diary",
       text = "just first"
     )
-    var realCollection: WithIntId<CollectionInfo>? = null
+    var realCollection: IdCollectionInfo? = null
     blit("upload collections") {
       realCollection = client.uploadCollection(collection)
     }
@@ -120,22 +121,22 @@ class RemoteSpek : Spek({
       val queried = client.getMyCollections()
       queried.size `should be equal to` 1
 
-      val collGot: CollectionInfo = queried[0].value
+      val collGot: CollectionInfo = queried[0].data
       collGot.images!! `should equal` collection.images!!
       collGot.previews!!.size `should be equal to`  collection.images!!.size
 
       createdCollId = queried[0].id
     }
 
+    blit("query collections by a picture") {
+      val colls = client.getCollectionsContainPicture(pics[0].id)
+      colls.size `should be equal to` 1
+    }
+
     blit("get random collections") {
       val queried = client.getRandomCollections()
       // it filters myself one
       queried.size `should be equal to` 0
-    }
-
-    blit("query collection picture info") {
-      val collPics = client.getCollectionPics(createdCollId)
-      collPics.size `should be equal to` pics.size
     }
 
     // Deletion of collection is not yet implemented
