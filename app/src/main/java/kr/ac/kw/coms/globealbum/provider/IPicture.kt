@@ -408,7 +408,7 @@ class Diary(var info: IdCollectionInfo) :
     }
 
     fun toRemotePictures(info: IdCollectionInfo): List<RemotePicture> {
-      return info.data.previews!!.map(::RemotePicture)
+      return info.data.previews?.map(::RemotePicture) ?: listOf()
     }
   }
   //endregion
