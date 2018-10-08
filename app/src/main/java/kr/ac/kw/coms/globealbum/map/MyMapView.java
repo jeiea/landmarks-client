@@ -194,7 +194,7 @@ public class MyMapView extends org.osmdroid.views.MapView implements ILandmarkMa
     public void setGroups(@NotNull List<? extends List<? extends IPicture>> list) {
         ArrayList<DiaryOverlays> g = new ArrayList<>();
         for (List<? extends IPicture> group : list) {
-            g.add(new DiaryOverlays(this, group));
+            g.add(new DiaryOverlays(this, group, false));
         }
         for (DiaryOverlays group : groups) {
             group.detach();
@@ -206,7 +206,7 @@ public class MyMapView extends org.osmdroid.views.MapView implements ILandmarkMa
     public void setChains(@NotNull List<? extends List<? extends IPicture>> list) {
         ArrayList<DiaryOverlays> g = new ArrayList<>();
         for (List<? extends IPicture> group : list) {
-            g.add(new DiaryOverlays(this, group));
+            g.add(new DiaryOverlays(this, group, true));
         }
         for (DiaryOverlays group : chains) {
             group.detach();
