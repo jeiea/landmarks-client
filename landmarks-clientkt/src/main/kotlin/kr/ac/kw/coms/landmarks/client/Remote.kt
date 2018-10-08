@@ -14,9 +14,11 @@ import io.ktor.client.request.forms.formData
 import io.ktor.client.response.HttpResponse
 import io.ktor.http.*
 import kotlinx.coroutines.experimental.channels.ArrayChannel
+import kotlinx.coroutines.experimental.channels.Channel
 import kotlinx.coroutines.experimental.channels.sendBlocking
 import kotlinx.coroutines.experimental.delay
 import kotlinx.coroutines.experimental.io.readUTF8LineTo
+import kotlinx.coroutines.experimental.launch
 import kotlinx.io.InputStream
 import kotlinx.io.core.writeFully
 import java.io.File
@@ -32,6 +34,15 @@ class Remote(base: HttpClient, val basePath: String = herokuUri) {
 
   val http: HttpClient
   private val nominatimLastRequestMs = ArrayChannel<Long>(1)
+  private val problemBuffer = Channel<IdPictureInfo>(10)
+  private val problemBuffering by lazy {
+    launch {
+      while (true) {
+        val pics: MutableList<IdPictureInfo> = get("$basePath/problem/random/10")
+        pics.forEach { problemBuffer.send(it) }
+      }
+    }
+  }
 
   companion object {
     const val herokuUri = "https://landmarks-coms.herokuapp.com"
@@ -159,7 +170,12 @@ class Remote(base: HttpClient, val basePath: String = herokuUri) {
   }
 
   suspend fun getRandomProblems(n: Int): MutableList<IdPictureInfo> {
-    return get("$basePath/problem/random/$n")
+    problemBuffering
+    val ret = mutableListOf<IdPictureInfo>()
+    for (i in 1..n) {
+      ret.add(problemBuffer.receive())
+    }
+    return ret
   }
 
   suspend fun modifyPictureInfo(id: Int, info: IPictureInfo) {
