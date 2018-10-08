@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import kr.ac.kw.coms.globealbum.R;
 import kr.ac.kw.coms.globealbum.common.GlideApp;
 import kr.ac.kw.coms.globealbum.common.RequestCodes;
+import kr.ac.kw.coms.globealbum.diary.Diary_mapNPictures;
 import kr.ac.kw.coms.globealbum.provider.IPicture;
 
 public class GalleryDetail extends AppCompatActivity {
@@ -41,20 +42,20 @@ public class GalleryDetail extends AppCompatActivity {
         //index: 선택한 이미지 번호 (int)
         //pictures: 사진들, ArrayList<IPicture>
         Intent intent = getIntent();
-        index = intent.getIntExtra("index", 0);
-        pictures = intent.getParcelableArrayListExtra("pictures");
-        reloadWithIndex();
-        try {
-            if (intent.getAction().equals(RequestCodes.ACTION_SELECT_PHOTO)) {
-                findViewById(R.id.gallerydetail_btn_Select).setVisibility(View.VISIBLE);
-            }
+        if (intent.getAction().equals(RequestCodes.ACTION_VIEW_PHOTO)) {
+            index = intent.getIntExtra("index", 0);
+            pictures = intent.getParcelableArrayListExtra("pictures");
+            reloadWithIndex();
+            //이미지 스와이프 시 이벤트 구현
+            findViewById(R.id.gallerydetail_Image).setOnTouchListener(swipeTouchListener);
         }
-        catch (Exception e)
+        else if (intent.getAction().equals(RequestCodes.ACTION_SELECT_PHOTO))
         {
-            //ignore
+            findViewById(R.id.gallerydetail_btn_Select).setVisibility(View.VISIBLE);
+            index = 0;
+            pictures = intent.getParcelableArrayListExtra("pictures");
+            reloadWithIndex();
         }
-        //이미지 스와이프 시 이벤트 구현
-        findViewById(R.id.gallerydetail_Image).setOnTouchListener(swipeTouchListener);
     }
 
     private void reloadWithIndex() {
@@ -66,7 +67,7 @@ public class GalleryDetail extends AppCompatActivity {
 
     public void galleryselect_onClick(View view) {
         //사진 선택
-        setResult(RESULT_OK, new Intent().putExtra("data", pictures.get(0)));
+        startActivity(new Intent(this, Diary_mapNPictures.class).putExtra("data", pictures.get(0)));
         finish();
     }
 

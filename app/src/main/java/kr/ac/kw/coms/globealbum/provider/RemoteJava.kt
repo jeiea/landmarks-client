@@ -9,13 +9,24 @@ public object RemoteJava {
 
   val client = Remote()
 
-  fun reverseGeocode(latitude: Double, longitude: Double, prom: Promise<ReverseGeocodeResult>): Job =
-    prom.resolve {
-      Log.d("RemoteJava", "before $latitude, $longitude")
-      val s = client.reverseGeocode(latitude, longitude)
-      Log.d("RemoteJava", "after $latitude, $longitude")
-      s
+  init {
+    client.logger = object : RemoteLoggable {
+      override fun onRequest(msg: String) {
+        Log.d("RemoteJava", "Request $msg")
+      }
+
+      override fun onResponseSuccess(msg: String) {
+        Log.d("RemoteJava", "Receive $msg")
+      }
+
+      override fun onResponseFailure(msg: String) {
+        Log.d("RemoteJava", "Error $msg")
+      }
     }
+  }
+
+  fun reverseGeocode(latitude: Double, longitude: Double, prom: Promise<ReverseGeocodeResult>): Job =
+    prom.resolve { client.reverseGeocode(latitude, longitude) }
 
   fun checkAlive(prom: Promise<Boolean>): Job =
     prom.resolve { client.checkAlive() }

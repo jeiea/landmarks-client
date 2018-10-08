@@ -13,6 +13,8 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 
+import org.osmdroid.util.GeoPoint;
+
 import java.util.ArrayList;
 
 import kr.ac.kw.coms.globealbum.R;
@@ -34,8 +36,7 @@ public class EditImageListAdapter extends RecyclerView.Adapter<ItemViewHolder> {
         notifyDataSetChanged();
     }
 
-    public ArrayList<IPicture> getItems()
-    {
+    public ArrayList<IPicture> getItems() {
         return mItems;
     }
 
@@ -65,7 +66,8 @@ public class EditImageListAdapter extends RecyclerView.Adapter<ItemViewHolder> {
         //목록의 내용 추가
         if (position < getItemCount() - 1) {
             Glide.with(holder.imageView).load(mItems.get(position)).into(holder.imageView);
-            holder.text_Title.setText(mItems.get(position).getMeta().getAddress() + "\n" + mItems.get(position).getMeta().getGeo().toIntString());
+            GeoPoint point = mItems.get(position).getMeta().getGeo();
+            holder.text_Title.setText(mItems.get(position).getMeta().getAddress() + "\n위도 " + Math.round(point.getLatitude()) + ", 경도 " + Math.round(point.getLongitude()));
             holder.btn_Delete.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -117,7 +119,8 @@ public class EditImageListAdapter extends RecyclerView.Adapter<ItemViewHolder> {
                 public void onClick(View v) {
                     Toast.makeText(RootActivity, "New Image!", Toast.LENGTH_SHORT).show();
                     Intent intent = new Intent(RootActivity.getBaseContext(), GalleryActivity.class);
-                    RootActivity.startActivityForResult(intent, RequestCodes.SelectNewPhoto);
+                    intent.setAction(RequestCodes.ACTION_SELECT_PHOTO);
+                    RootActivity.startActivity(intent);
                 }
             });
         }

@@ -51,6 +51,7 @@ public class Diary_mapNPictures extends AppCompatActivity {
     final ArrayList<Integer> PicturesArray = new ArrayList<>();
     GroupDiaryView picView = null;
     Diary diary;
+    Diary data;
     EditImageListAdapter adapter;
 
     //mapview에서 사용되는 멤버변수
@@ -344,17 +345,4 @@ public class Diary_mapNPictures extends AppCompatActivity {
             Toast.makeText(Diary_mapNPictures.this, cause.toString(), Toast.LENGTH_SHORT).show();
         }
     };
-
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == RequestCodes.SelectNewPhoto) {
-            if (data == null) {
-                Toast.makeText(this, "선택된 사진 없음", Toast.LENGTH_SHORT).show();
-                return;
-            }
-            IPicture returned_data = data.getParcelableExtra("data");
-            adapter.AddNewPicture(returned_data);
-        }
-    }
 }

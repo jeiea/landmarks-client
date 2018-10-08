@@ -34,7 +34,7 @@
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </activity>
-        <activity android:name=".album.GalleryActivity"/>
+        <activity android:name=".album.GalleryActivity" android:noHistory="true"/>
         <activity android:name=".album.activity_Navigator"/>
         <activity
                 android:name=".album.GalleryDetail"

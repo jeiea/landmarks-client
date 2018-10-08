@@ -33,6 +33,8 @@ class Remote(base: HttpClient, val basePath: String = herokuUri) {
    */
 
   val http: HttpClient
+  var logger: RemoteLoggable? = null
+
   private val nominatimLastRequestMs = ArrayChannel<Long>(1)
   private val problemBuffer = Channel<IdPictureInfo>(10)
   private val problemBuffering by lazy {
@@ -52,6 +54,7 @@ class Remote(base: HttpClient, val basePath: String = herokuUri) {
   var profile: IdAccountForm? = null
 
   private suspend inline fun <reified T> request(method: HttpMethod, url: String, builder: HttpRequestBuilder.() -> Unit = {}): T {
+    logger?.onRequest("${method.value} $url HTTP/1.1")
     val response: HttpResponse = http.request {
       this.method = method
       url(url)
@@ -59,9 +62,11 @@ class Remote(base: HttpClient, val basePath: String = herokuUri) {
       builder()
     }
     if (response.status.isSuccess()) {
+      logger?.onResponseSuccess("${method.value} $url HTTP/1.1")
       return response.call.receive()
     }
     if (response.status == HttpStatusCode.BadRequest) {
+      logger?.onResponseFailure("${method.value} $url HTTP/1.1")
       throw response.call.receive<ServerFault>()
     } else {
       val sb = StringBuilder()

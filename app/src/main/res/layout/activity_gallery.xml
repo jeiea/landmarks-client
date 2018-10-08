@@ -50,4 +50,9 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:spanCount="3" />
 
+    <include layout="@layout/layout_zoomin"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:visibility="invisible"/>
+
 </android.support.constraint.ConstraintLayout>
