@@ -63,7 +63,7 @@ public class MyMapView extends org.osmdroid.views.MapView implements ILandmarkMa
         double logZoom = getLogZoom(w, h);
         setMinZoomLevel(logZoom);   //최소 줌 조절
         setMaxZoomLevel(5.0);   //최대 줌 조절
-        getController().setZoom(logZoom);
+        //getController().setZoom(logZoom);
     }
 
     //맵 초기 설정
@@ -272,12 +272,12 @@ public class MyMapView extends org.osmdroid.views.MapView implements ILandmarkMa
         }
         if (markers.size() == 1) {
             Marker item = markers.get(0);
-            boundingBox = new BoundingBox(item.getPosition().getLatitude() + 10, item.getPosition().getLongitude() + 10, item.getPosition().getLatitude() - 5, item.getPosition().getLongitude() - 5);
+            boundingBox = new BoundingBox(Math.min(item.getPosition().getLatitude() + 10, 85.0f), Math.min(item.getPosition().getLongitude() + 10, 180.0f), Math.max(item.getPosition().getLatitude() - 5, -85.0f), Math.max(item.getPosition().getLongitude() - 5, -180.0f));
         } else {
-            double minLat = Double.MAX_VALUE;
-            double maxLat = Double.MIN_VALUE;
-            double minLong = Double.MAX_VALUE;
-            double maxLong = Double.MIN_VALUE;
+            double minLat = +85.0f;
+            double maxLat = -85.0f;
+            double minLong = +180.0f;
+            double maxLong = -180.0f;
             for (Marker item : markers) {
                 GeoPoint point = item.getPosition();
                 if (point.getLatitude() < minLat)
@@ -289,11 +289,11 @@ public class MyMapView extends org.osmdroid.views.MapView implements ILandmarkMa
                 if (point.getLongitude() > maxLong)
                     maxLong = point.getLongitude();
             }
-            boundingBox = new BoundingBox(maxLat + 20, maxLong + 15, minLat, minLong - 5);
+            boundingBox = new BoundingBox(Math.min(maxLat + 20, 85.0f), Math.min(maxLong + 15, 180.0f), minLat, Math.max(minLong - 5, -180.0f));
         }
         zoomToBoundingBox(boundingBox, false);
-        //myMapView.getController().zoomToSpan(boundingBox.getLatitudeSpan(),boundingBox.getLongitudeSpan());
-        //myMapView.getController().setCenter(boundingBox.getCenterWithDateLine());
+        getController().zoomToSpan(boundingBox.getCenterLatitude(),boundingBox.getCenterLongitude());
+     //   getController().setCenter(boundingBox.getCenterWithDateLine());
         invalidate();
     }
 

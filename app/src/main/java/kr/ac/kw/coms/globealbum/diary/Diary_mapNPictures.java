@@ -79,7 +79,8 @@ public class Diary_mapNPictures extends AppCompatActivity {
                 startActivity(intent);
             }
         }.getItemTouchListener());
-        //setMarkerToMapview();
+        setMarkerToMapview();
+
         ((TextView)findViewById(R.id.diary_mapNpics_Title)).setText(diary.getTitle());
         ((TextView)findViewById(R.id.diary_mapNpics_Description)).setText(diary.getText());
     }

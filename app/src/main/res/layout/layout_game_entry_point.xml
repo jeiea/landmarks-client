@@ -44,7 +44,7 @@
         android:text="next: "
         style="@style/CustomFontStyle"
         android:textColor="#FFFFFF"
-        app:layout_constraintBottom_toTopOf="@+id/textview_goal_score"
+        app:layout_constraintBottom_toTopOf="@+id/guide_mid_horizontal2"
         app:layout_constraintEnd_toStartOf="@id/textview_level"
         app:layout_constraintTop_toBottomOf="@id/guide_mid_horizontal1" />
 
@@ -52,7 +52,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textSize="35sp"
-        app:layout_constraintBottom_toTopOf="@+id/textview_goal_score"
+        app:layout_constraintBottom_toTopOf="@+id/guide_mid_horizontal2"
         app:layout_constraintTop_toBottomOf="@id/guide_mid_horizontal1"
         app:layout_constraintEnd_toEndOf="parent"
         android:id="@+id/textview_level"
@@ -67,12 +67,13 @@
         android:text="goal: "
         style="@style/CustomFontStyle"
         android:textColor="#FFFFFF"
-        app:layout_constraintBottom_toBottomOf="@+id/textview_goal_score"
+        app:layout_constraintBottom_toBottomOf="@+id/guide_mid_horizontal3"
         app:layout_constraintTop_toBottomOf="@id/guide_mid_horizontal2"
         app:layout_constraintEnd_toStartOf="@id/textview_goal_score" />
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="@+id/guide_mid_horizontal3"
         app:layout_constraintTop_toBottomOf="@id/guide_mid_horizontal2"
         app:layout_constraintEnd_toEndOf="parent"
         android:textSize="35sp"
@@ -85,25 +86,38 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.605"
+        app:layout_constraintGuide_percent="0.6"
         android:id="@+id/guide_mid_horizontal3"/>
-    <ImageView
-        android:id="@+id/game_start_stage_button"
+    <android.support.constraint.Guideline
         android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.71"
+        android:id="@+id/guide_mid_horizontal4"/>
+    <android.support.constraint.Guideline
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.82"
+        android:id="@+id/guide_mid_horizontal5"/>
+    <ImageButton
+        android:id="@+id/game_start_stage_button"
+        android:layout_width="0dp"
         android:layout_height="0dp"
         android:src="@drawable/game_start_start_btn"
-        android:scaleType="fitXY"
-        app:layout_constraintDimensionRatio="W,1:5"
+        android:background="#518AA8"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/guide_mid_horizontal3"/>
-
-    <ImageView
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/guide_mid_horizontal3"
+        app:layout_constraintBottom_toTopOf="@id/guide_mid_horizontal4" />
+    <ImageButton
         android:id="@+id/game_exit_button"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="0dp"
-        android:src="@drawable/game_start_exit_btn"
-        android:scaleType="fitXY"
-        app:layout_constraintDimensionRatio="W,1:5"
+        android:background="#518AA8"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/game_start_stage_button" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/guide_mid_horizontal4"
+        app:layout_constraintBottom_toTopOf="@id/guide_mid_horizontal5" />
+
 </android.support.constraint.ConstraintLayout>
