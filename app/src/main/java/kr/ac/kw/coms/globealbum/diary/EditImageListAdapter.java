@@ -65,7 +65,7 @@ public class EditImageListAdapter extends RecyclerView.Adapter<ItemViewHolder> {
         //목록의 내용 추가
         if (position < getItemCount() - 1) {
             Glide.with(holder.imageView).load(mItems.get(position)).into(holder.imageView);
-            holder.text_Title.setText(mItems.get(position).getMeta().getAddress());
+            holder.text_Title.setText(mItems.get(position).getMeta().getAddress() + "\n" + mItems.get(position).getMeta().getGeo().toIntString());
             holder.btn_Delete.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {

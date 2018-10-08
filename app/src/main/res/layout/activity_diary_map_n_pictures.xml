@@ -44,6 +44,7 @@
         android:id="@+id/diary_mapNpics_ViewLayout"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:padding="15dp"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toBottomOf="@id/diary_mapNpics_Toolbar"
         app:layout_constraintBottom_toBottomOf="parent">
@@ -52,16 +53,18 @@
             android:id="@+id/diary_mapNpics_TitleBox"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            app:layout_constraintHeight_percent="0.065"
+            app:layout_constraintHeight_percent="0.08"
             app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
-
+            app:layout_constraintTop_toTopOf="parent"
+            android:background="@drawable/rounded_rectangle">
             <TextView
                 android:id="@+id/diary_mapNpics_Title"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:hint="제목"
                 android:gravity="center_vertical"
+                android:textSize="20dp"
+                android:layout_margin="10dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toLeftOf="@id/diary_mapNpics_EditStart"
@@ -71,9 +74,8 @@
                 android:id="@+id/diary_mapNpics_EditStart"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:src="@drawable/pen"
-                android:padding="5dp"
-                android:scaleType="centerCrop"
+                android:src="@drawable/edit"
+                android:scaleType="fitXY"
                 android:background="#00000000"
                 android:visibility="visible"
                 android:onClick="diary_onEditClick"
@@ -87,16 +89,16 @@
             android:id="@+id/diary_mapNpics_Map"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:padding="10dp"
+            android:layout_marginVertical="15dp"
             app:layout_constraintDimensionRatio="16:9"
             app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/diary_mapNpics_TitleBox" />
+            app:layout_constraintTop_toBottomOf="@id/diary_mapNpics_TitleBox"/>
 
         <kr.ac.kw.coms.globealbum.album.GroupDiaryView
             android:id="@+id/diary_mapNpics_Pics"
             android:layout_width="match_parent"
-            android:layout_marginHorizontal="10dp"
             android:layout_height="0dp"
+            android:layout_marginVertical="15dp"
             app:layout_constraintHeight_percent="0.15"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
@@ -107,7 +109,10 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:hint="내용"
-            android:layout_margin="10dp"
+            android:layout_marginVertical="15dp"
+            android:padding="10dp"
+            android:textSize="20dp"
+            android:background="@drawable/rounded_rectangle"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintTop_toBottomOf="@id/diary_mapNpics_Pics" />

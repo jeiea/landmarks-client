@@ -5,6 +5,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import kr.ac.kw.coms.globealbum.R;
@@ -13,7 +14,7 @@ public class ItemViewHolder extends RecyclerView.ViewHolder {
     ConstraintLayout rootLayout;
     ImageView imageView;
     TextView text_Title;
-    Button btn_Delete;
+    ImageButton btn_Delete;
     Button btn_New;
     Button btn_MoveUp;
     Button btn_MoveDown;
@@ -24,7 +25,7 @@ public class ItemViewHolder extends RecyclerView.ViewHolder {
         imageView = (ImageView) rootLayout.getViewById(R.id.verticalList_Image);
         text_Title = (TextView) rootLayout.getViewById(R.id.verticalList_Title);
         if (rootLayout.getId() == R.id.verticalList_Root)
-            btn_Delete = (Button) rootLayout.getViewById(R.id.verticalList_Delete);
+            btn_Delete = (ImageButton) rootLayout.getViewById(R.id.verticalList_Delete);
         else
             btn_New = (Button) rootLayout.getViewById(R.id.verticalList_New);
         btn_MoveUp = (Button) rootLayout.getViewById(R.id.verticalList_MoveUp);

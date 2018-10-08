@@ -2,7 +2,9 @@
 <shape xmlns:android="http://schemas.android.com/apk/res/android"
     android:shape="rectangle">
     <!-- 모서리가 둥근 직사각형 -->
-    <solid android:color="@color/colorPrimary"/>
+    <stroke android:width="3dp"
+        android:color="@color/colorPrimary"/>
+    <solid android:color="#00000000"/>
     <corners
         android:bottomLeftRadius="10dp"
         android:bottomRightRadius="10dp"
