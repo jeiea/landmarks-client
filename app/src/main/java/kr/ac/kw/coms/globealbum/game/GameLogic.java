@@ -19,6 +19,7 @@ import org.osmdroid.views.overlay.Marker;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Objects;
 import java.util.Random;
 
@@ -60,7 +61,7 @@ class GameLogic implements IGameInputHandler {
 
     private int problem = 0;
     private int score = 0;
-    private int timeScore = 0;
+    private long msQuestionStart;
     private int stage = 0;
 
     private ArrayList<IPicture> questionPic = new ArrayList<>();
@@ -78,6 +79,7 @@ class GameLogic implements IGameInputHandler {
     private GameState state;
 
     private Random random = new Random(System.currentTimeMillis());
+    private final int MS_TIME_LIMIT = 14000;
 
     enum GameState {
         LOADING,
@@ -160,8 +162,8 @@ class GameLogic implements IGameInputHandler {
         chooseQuestionType();
 
         state = GameState.SOLVING;
-        int TIME_LIMIT_MS = 14000;
-        rui.startTimer(TIME_LIMIT_MS);
+        msQuestionStart = new Date().getTime();
+        rui.startTimer(MS_TIME_LIMIT);
     }
 
     /**
@@ -194,7 +196,7 @@ class GameLogic implements IGameInputHandler {
     }
 
     private void onProblemDone() {
-        int deltaScore = calcScore();
+        int deltaScore = reflectScoreAndGetDelta();
         double distance = calcDistance();
         if (gameType == GameType.POSITION) {
             rui.showPositionAnswer(questionPic.get(problem), deltaScore, distance);
@@ -203,39 +205,53 @@ class GameLogic implements IGameInputHandler {
         }
     }
 
+    private int calcTimeBonusScore() {
+        long elapsed = new Date().getTime() - msQuestionStart;
+        long remaining = Math.max(0, MS_TIME_LIMIT - elapsed);
+        return (int) remaining / 100;
+    }
+
     /**
-     * 점수를 계산
+     * 이번 문제의 점수를 계산
      *
      * @return 점수를 계산하여 리턴
      */
-    private int calcScore() {
-        int curScore = 0;
+    private int calcProblemScore() {
         if (gameType == GameType.POSITION) {
-            if (!rui.getUserMarker().isEnabled()) { //마커를 화면에 찍지 않고 정답을 확인하는 경우
-                curScore = -100;
+            // 마커를 화면에 찍지 않고 정답을 확인하는 경우
+            if (!rui.getUserMarker().isEnabled()) {
+                return -100;
             } else {
                 double distance = calcDistance();
                 if (distance >= 6000) {
-                    curScore = 0;
-                } else {
-                    int criteria = 300;
-                    curScore = criteria - (int) distance / 25;
-                    curScore += timeScore / 100;
+                    return 0;
                 }
+                int perfect = 300;
+                int distanceCut = (int) distance / 25;
+                int timeBonus = calcTimeBonusScore();
+                return perfect - distanceCut + timeBonus;
             }
         } else if (gameType == GameType.PICTURE) {
             if (!rightAnswerTypeB) {
-                curScore = -100;
+                return -100;
             } else {
-                curScore = 300;
-                curScore += timeScore / 100;
+                return 300 + calcTimeBonusScore();
             }
+        } else {
+            throw new AssertionError("What kind of problem?");
         }
-        score += curScore;
+    }
 
+    /**
+     * 점수 계산 후 UI에 반영, 증감점수 리턴
+     *
+     * @return 증감한 점수
+     */
+    private int reflectScoreAndGetDelta() {
+        int deltaScore = calcProblemScore();
+        score += deltaScore;
         rui.setScore(score);
-
-        return curScore;
+        return deltaScore;
     }
 
     /**
@@ -439,9 +455,7 @@ class GameLogic implements IGameInputHandler {
 
     @Override
     public void onSelectPictureCertainly(IPicture selected) {
-        if (selected == questionPic.get(problem)) {
-            rightAnswerTypeB = true;
-        }
+        rightAnswerTypeB = selected == questionPic.get(problem);
         rui.stopTimer();
         state = GameState.GRADING;
         onProblemDone();
