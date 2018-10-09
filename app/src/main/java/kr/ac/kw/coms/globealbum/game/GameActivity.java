@@ -13,7 +13,6 @@ public class GameActivity extends AppCompatActivity {
 
         gui = new GameUI(this);
         logic = new GameLogic(gui, this);
-        gui.input = logic;
         logic.initiateGame();
     }
 

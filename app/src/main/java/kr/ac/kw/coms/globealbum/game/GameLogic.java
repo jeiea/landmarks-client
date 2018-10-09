@@ -6,11 +6,9 @@ import android.graphics.Point;
 import android.os.Handler;
 import android.os.SystemClock;
 import android.util.Log;
-import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.Interpolator;
 import android.view.animation.LinearInterpolator;
-import android.widget.ImageView;
 
 import org.jetbrains.annotations.NotNull;
 import org.osmdroid.util.GeoPoint;
@@ -24,18 +22,40 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Objects;
 import java.util.Random;
-import java.util.Timer;
 
 import kr.ac.kw.coms.globealbum.R;
 import kr.ac.kw.coms.globealbum.map.DrawCircleOverlay;
 import kr.ac.kw.coms.globealbum.map.MyMapView;
 import kr.ac.kw.coms.globealbum.provider.IPicture;
+import kr.ac.kw.coms.globealbum.provider.PictureMeta;
 import kr.ac.kw.coms.globealbum.provider.RemoteJava;
 import kr.ac.kw.coms.globealbum.provider.ResourcePicture;
 import kr.ac.kw.coms.globealbum.provider.UIPromise;
 import kr.ac.kw.coms.landmarks.client.ReverseGeocodeResult;
 
+interface IGameInputHandler {
+    void onSelectPictureCertainly(IPicture selected);
+
+    void onSelectPosition(GeoPoint pos);
+
+    void onTimeout();
+
+    void onPressStart();
+
+    void onPressNext();
+
+    void onPressRetry();
+
+    void onPressExit();
+
+    @Deprecated
+    void onPressMarker(MyMapView myMapView, GeoPoint geoPoint);
+
+    void onTouchMap(GeoPoint pt);
+}
+
 class GameLogic implements IGameInputHandler {
+    private IGameUI rui;
     private GameUI ui;
     private Context context;
 
@@ -79,22 +99,20 @@ class GameLogic implements IGameInputHandler {
     private TimerState timerState;
 
     GameLogic(GameUI ui, Context context) {
-        this.ui = ui;
-        ui.input = this;
+        rui = this.ui = ui;
+        rui.setInputHandler(this);
         this.context = context;
     }
 
     //post delay 사용하기
     void initiateGame() {
-
-        ui.displayLoadingGif();
+        rui.showLoadingGif();
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
                 onGameEntryPoint();
             }
         }, 2000);
-
     }
 
     private void onGameEntryPoint() {
@@ -102,9 +120,9 @@ class GameLogic implements IGameInputHandler {
         boolean isFirstStage = stage == 1;
         boolean isNotEnd = stage - 1 > stageLimitScore.length && score >= stageLimitScore[stage - 2];
         if (isFirstStage || isNotEnd) {
-            ui.displayGameEntryPoint(stage, stageLimitScore[stage - 1], stageNumberOfGames[stage - 1]);
+            rui.showGameEntryPoint(stage, stageLimitScore[stage - 1], stageNumberOfGames[stage - 1]);
         } else {
-            ui.showGameOver(questionPic);
+            rui.showGameOver(questionPic);
         }
     }
 
@@ -139,7 +157,7 @@ class GameLogic implements IGameInputHandler {
     }
 
     private void onGameReady() {
-        ui.displayQuiz(stage, problem, stageNumberOfGames[stage - 1]);
+        rui.setQuizInfo(stage, problem, stageNumberOfGames[stage - 1]);
         chooseQuestionType();
 
         timerState = TimerState.Running;
@@ -151,7 +169,9 @@ class GameLogic implements IGameInputHandler {
      * 지명 문제, 사진 문제를 골라서 화면에 표시
      */
     private void chooseQuestionType() {
-        int randomNumber = random.nextInt(2);
+        // TODO: capsulize quiz type
+//        int randomNumber = random.nextInt(2);
+        int randomNumber = 1;
         if (randomNumber == 0) {
             enterPositionProblem();
         } else if (randomNumber == 1) {
@@ -161,19 +181,29 @@ class GameLogic implements IGameInputHandler {
 
     private void enterPositionProblem() {
         gameType = GameType.POSITION;
-        ui.bottomOnePicture(questionPic.get(problem));
-        answerMarker = ui.makeMarker("red", Objects.requireNonNull(questionPic.get(problem).getMeta().getGeo()));
+        rui.showPositionQuiz(questionPic.get(problem));
+        Marker here = rui.getSystemMarker();
+        GeoPoint rightPos = questionPic.get(problem).getMeta().getGeo();
+        here.setPosition(Objects.requireNonNull(rightPos));
+
+        answerMarker = rui.getSystemMarker();
     }
 
     private void enterPicChoiceProblem() {
         gameType = GameType.PICTURE;
-        ui.bottomFourPicture(questionPic);
-        answerMarker = ui.makeMarker("red", Objects.requireNonNull(questionPic.get(problem).getMeta().getGeo()), questionPic.get(problem).getMeta().getAddress());
+        rui.showPictureQuiz(questionPic);
+        Marker here = rui.getSystemMarker();
+        // TODO: this answer is predictable, set it randomly
+        PictureMeta meta = questionPic.get(problem).getMeta();
+        here.setPosition(Objects.requireNonNull(meta.getGeo()));
+        here.setTitle(meta.getAddress());
         answerImageviewIndex = problem;
+
+        answerMarker = rui.getSystemMarker();
     }
 
     private void onProblemDone() {
-        if(timerHandler == null)
+        if (timerHandler == null)
             return;
         timerHandler = null;
         int curScore = calcScore();
@@ -182,9 +212,6 @@ class GameLogic implements IGameInputHandler {
             isNull = true;
         }
         ui.displayAnswerLayout(gameType, curScore, distance, questionPic.get(problem), isNull);
-    }
-
-    void onNextProblem() {
     }
 
     /**
@@ -250,7 +277,7 @@ class GameLogic implements IGameInputHandler {
                     // 타임아웃 발생시 그 마커를 위치로 정답 확인
                     if (gameType == GameType.POSITION) {
                         if (currentMarker != null) {
-                            timeOutAddUserMarker();
+                            onTimeout();
                         } else {
                             //화면에 마커 생성 없이 타임아웃 발생시 정답 확인
                             //currentMarker = new Marker(myMapView);
@@ -273,13 +300,15 @@ class GameLogic implements IGameInputHandler {
     /**
      * 화면을 한번 클릭해 임시 마커 생성 후 타임아웃 발생시 정답 확인
      */
-    private void timeOutAddUserMarker() {
+    @Override
+    public void onTimeout() {
+        Marker user = rui.getUserMarker();
 
-        Marker tmpMarker = ui.makeMarker("blue", currentMarker.getPosition());
-        ui.addOverlay(tmpMarker);
-
-        distance = calcDistance(currentMarker.getPosition(), answerMarker.getPosition());
-        animateMarker(ui.getMyMapView(), tmpMarker, answerMarker.getPosition(), new GeoPointInterpolator.Spherical());
+        GeoPoint rightAns = questionPic.get(problem).getMeta().getGeo();
+        distance = calcDistance(user.getPosition(), rightAns);
+        Marker sys = rui.getSystemMarker();
+        sys.setEnabled(true);
+        animateMarker(ui.getMyMapView(), sys, rightAns, new GeoPointInterpolator.Spherical());
 
         ui.clearOverlay(currentMarker);
     }
@@ -379,7 +408,9 @@ class GameLogic implements IGameInputHandler {
         if (currentMarker != null) {
             ui.clearOverlay(currentMarker);
         }
-        Marker marker = ui.makeMarker("blue", finalGeoPosition);
+//        Marker marker = ui.makeMarker("blue", finalGeoPosition);
+        Marker marker = rui.getSystemMarker();
+        marker.setPosition(finalGeoPosition);
         currentMarker = marker;
 
 
@@ -416,7 +447,11 @@ class GameLogic implements IGameInputHandler {
                 t = elapsed / durationInMs;
                 v = interpolator.getInterpolation(t);
 
-                answerMarker.setAnchor(0.5f, 1.0f);
+//                answerMarker.setAnchor(0.5f, 1.0f);
+                answerMarker = rui.getSystemMarker();
+                answerMarker.closeInfoWindow();
+                answerMarker.setEnabled(true);
+
                 Point pixelPoint = interpolate(v, startPoint, finalPoint);
                 GeoPoint geoPoint = (GeoPoint) projection.fromPixels(pixelPoint.x, pixelPoint.y);
 
@@ -458,23 +493,14 @@ class GameLogic implements IGameInputHandler {
         });
     }
 
-    void finishTimerHandler(){
+    void finishTimerHandler() {
         timerState = TimerState.Stop;
-        timerHandler =null;
+        timerHandler = null;
     }
 
     @Override
-    public void onSelectPicFirst(ImageView picImageView, View view) {
-        if (picImageView == view) {
-            rightAnswerTypeB = true;
-        } else {
-            rightAnswerTypeB = false;
-        }
-    }
-
-    @Override
-    public void onSelectPicSecond(ImageView picImageView, View view) {
-        if (picImageView == view) {
+    public void onSelectPictureCertainly(IPicture selected) {
+        if (selected == questionPic.get(problem)) {
             rightAnswerTypeB = true;
         }
         timerState = GameLogic.TimerState.Stop;
@@ -530,13 +556,20 @@ class GameLogic implements IGameInputHandler {
 
     @Override
     public void onPressMarker(MyMapView myMapView, GeoPoint geoPoint) {
-        if (gameType == GameType.A && timerState == TimerState.Running && animateHandler == null)
+        if (gameType == GameType.POSITION && timerState == TimerState.Running && animateHandler == null)
             showMarker(myMapView, geoPoint);
     }
 
     @Override
+    public void onTouchMap(GeoPoint pt) {
+        if (gameType == GameType.POSITION && timerState == TimerState.Running && animateHandler == null) {
+            // showMarker(...).. not implemented
+        }
+    }
+
+    @Override
     public void onPressExit() {
-        ui.finishActivity();
+        rui.exitGame();
     }
 
     /**

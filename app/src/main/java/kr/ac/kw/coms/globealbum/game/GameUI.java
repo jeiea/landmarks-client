@@ -1,13 +1,14 @@
 package kr.ac.kw.coms.globealbum.game;
 
+import android.content.res.Resources;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.LayoutRes;
+import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -16,7 +17,6 @@ import android.widget.TextView;
 
 import org.osmdroid.events.MapEventsReceiver;
 import org.osmdroid.util.GeoPoint;
-import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.MapEventsOverlay;
 import org.osmdroid.views.overlay.Marker;
 import org.osmdroid.views.overlay.Overlay;
@@ -24,19 +24,44 @@ import org.osmdroid.views.overlay.infowindow.InfoWindow;
 import org.osmdroid.views.overlay.infowindow.MarkerInfoWindow;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
+import kotlin.NotImplementedError;
 import kr.ac.kw.coms.globealbum.R;
 import kr.ac.kw.coms.globealbum.common.GlideApp;
 import kr.ac.kw.coms.globealbum.common.PictureDialogFragment;
 import kr.ac.kw.coms.globealbum.map.MyMapView;
 import kr.ac.kw.coms.globealbum.provider.IPicture;
 
+interface IGameUI {
+    void setInputHandler(IGameInputHandler handler);
 
-class GameUI {
+    void showLoadingGif();
+
+    void showGameEntryPoint(int stage, int score, int games);
+
+    void showGameOver(List<IPicture> pictures);
+
+    void setQuizInfo(int stage, int curProblem, int allProblem);
+
+    void showPositionQuiz(IPicture picture);
+
+    void showPictureQuiz(List<IPicture> picture);
+
+    Marker getUserMarker();
+
+    Marker getSystemMarker();
+
+    void setScore();
+
+    void exitGame();
+}
+
+class GameUI implements IGameUI {
     private AppCompatActivity activity;
-    IGameInputHandler input;
+    private IGameInputHandler input;
 
     // screens
     private ReadyScreen readyScreen;
@@ -48,8 +73,8 @@ class GameUI {
     private TextView gameStageTextView;
     private TextView gameScoreTextView;
     private TextView gameTargetTextView;
-    private Drawable RED_MARKER_DRAWABLE;
-    private Drawable BLUE_MARKER_DRAWABLE;
+    private Marker userMarker;
+    private Marker systemMarker;
 
     // answer
     private TextView answerLandNameTextView, answerDistanceTextView, answerScoreTextView;
@@ -62,19 +87,13 @@ class GameUI {
     private Drawable redRect;
     private ImageView positionPicImageView;
     private ImageView[] choicePicImageViews = new ImageView[4];
+    private List<IPicture> choicePics;
 
 
     GameUI(AppCompatActivity activity) {
         this.activity = activity;
         readyScreen = new ReadyScreen();
         initQuiz();
-    }
-
-    void displayLoadingGif() {
-        activity.setContentView(R.layout.layout_game_loading_animation);
-        ImageView imgLoading = activity.findViewById(R.id.game_gif_loading);
-        imgLoading.setClickable(false);
-        GlideApp.with(imgLoading).load(R.drawable.game_loading_gif).into(imgLoading);
     }
 
     private void initQuiz() {
@@ -86,8 +105,6 @@ class GameUI {
         gameTargetTextView = quizView.findViewById(R.id.textview_target);
         gameScoreTextView = quizView.findViewById(R.id.textview_score);
         redRect = activity.getResources().getDrawable(R.drawable.rectangle_border, null);
-        RED_MARKER_DRAWABLE = quizView.getResources().getDrawable(R.drawable.game_red_marker, null);
-        BLUE_MARKER_DRAWABLE = quizView.getResources().getDrawable(R.drawable.game_blue_marker, null);
 
         //answer layout
         answerLayout = quizView.findViewById(R.id.layout_answer);
@@ -115,10 +132,65 @@ class GameUI {
 
         myMapView = quizView.findViewById(R.id.map);
         myMapView.setMaxZoomLevel(5.0);
-        addOverlay(onPressMarker);
+        addOverlay(onTouchMap);
+
+        Resources resources = quizView.getResources();
+        Drawable blueMarkerDrawable = resources.getDrawable(R.drawable.game_blue_marker, null);
+        userMarker = makeMarker(blueMarkerDrawable);
+        Drawable redMarkerDrawable = resources.getDrawable(R.drawable.game_red_marker, null);
+        systemMarker = makeMarker(redMarkerDrawable);
+        addBalloonToMarker(systemMarker);
     }
 
-    void displayGameEntryPoint(int stage, int score, int games) {
+    @NonNull
+    private Marker makeMarker(Drawable icon) {
+        Marker marker = new Marker(myMapView);
+        marker.setIcon(icon);
+        marker.setAnchor(0.5f, 1.0f);
+        marker.setEnabled(false);
+        myMapView.getOverlays().add(marker);
+        return marker;
+    }
+
+    /**
+     * @deprecated use {@link #getUserMarker()} or {@link #getSystemMarker()}
+     */
+    @Deprecated
+    public Marker makeMarker(String color, GeoPoint pos) {
+        Marker marker = new Marker(myMapView);
+        Resources resources = quizView.getResources();
+        if (color.equals("blue")) {
+            marker.setIcon(resources.getDrawable(R.drawable.game_blue_marker));
+        } else {
+            marker.setIcon(resources.getDrawable(R.drawable.game_red_marker));
+        }
+        marker.setPosition(pos);
+        marker.setAnchor(0.5f, 1.0f);
+        return marker;
+    }
+
+    private void addBalloonToMarker(Marker marker) {
+        marker.setTitle("");
+        MarkerInfoWindow miw = new MarkerInfoWindow(R.layout.game_infowindow_bubble, myMapView);
+        marker.setInfoWindow(miw);
+        marker.showInfoWindow();
+    }
+
+    @Override
+    public void showLoadingGif() {
+        activity.setContentView(R.layout.layout_game_loading_animation);
+        ImageView imgLoading = activity.findViewById(R.id.game_gif_loading);
+        imgLoading.setClickable(false);
+        GlideApp.with(imgLoading).load(R.drawable.game_loading_gif).into(imgLoading);
+    }
+
+    @Override
+    public void setInputHandler(IGameInputHandler input) {
+        this.input = input;
+    }
+
+    @Override
+    public void showGameEntryPoint(int stage, int score, int games) {
         readyScreen.setLabelAndChangeBackground(stage, score, games);
         activity.setContentView(readyScreen.getRootView());
     }
@@ -170,14 +242,81 @@ class GameUI {
     /**
      * 문제를 보임
      *
-     * @param stage   현재 스테이지
-     * @param problem 현 스테이지에서 푸는 문제 번째
-     * @param games   현 스테이지의 총 문제 수
+     * @param stage      현재 스테이지
+     * @param curProblem 현 스테이지에서 푸는 문제 번째
+     * @param allProblem 현 스테이지의 총 문제 수
      */
-    void displayQuiz(int stage, int problem, int games) {
+    @Override
+    public void setQuizInfo(int stage, int curProblem, int allProblem) {
         gameStageTextView.setText("STAGE " + stage);
-        gameTargetTextView.setText("TARGET " + (problem + 1) + "/" + games);
+        gameTargetTextView.setText("TARGET " + (curProblem + 1) + "/" + allProblem);
         activity.setContentView(quizView);
+    }
+
+    /**
+     * 사진을 보여주고 지명을 찾는 문제 형식
+     *
+     * @param picture 사진 정보를 가지고 있는 클래스
+     */
+    @Override
+    public void showPositionQuiz(IPicture picture) {
+        //레이아웃 설정
+        positionPicImageView.setClickable(true);
+        positionPicImageView.setVisibility(View.VISIBLE);
+        choicePicProblemLayout.setClickable(false);
+        choicePicProblemLayout.setVisibility(View.GONE);
+
+        myMapView.getController().setZoom(myMapView.getMinZoomLevel());
+
+        GlideApp.with(activity).load(picture).into(positionPicImageView);
+        positionProblemLayout.setVisibility(View.VISIBLE);
+    }
+
+    /**
+     * 지명을 보여주고 사진을 찾는 문제 형식
+     *
+     * @param pics 사진 정보를 가지고 있는 클래스
+     */
+    @Override
+    public void showPictureQuiz(List<IPicture> pics) {
+        choicePics = pics;
+
+        //레이아웃 설정
+        choicePicProblemLayout.setVisibility(View.VISIBLE);
+        choicePicProblemLayout.setClickable(true);
+        positionPicImageView.setClickable(false);
+        positionPicImageView.setVisibility(View.GONE);
+
+        //마커에 지명 설정하고 맵뷰에 표시
+
+        myMapView.getController().setZoom(myMapView.getMinZoomLevel());
+        myMapView.setClickable(false);
+
+        for (int i = 0; i < 4; i++) {
+            // TODO: why not use xml? inspection needed
+            choicePicImageViews[i].setScaleType(ImageView.ScaleType.CENTER_INSIDE);
+            GlideApp.with(activity).load(pics.get(i)).into(choicePicImageViews[i]);
+        }
+    }
+
+    @Override
+    public Marker getUserMarker() {
+        return userMarker;
+    }
+
+    @Override
+    public Marker getSystemMarker() {
+        return systemMarker;
+    }
+
+    @Override
+    public void setScore() {
+        throw new NotImplementedError();
+    }
+
+    @Override
+    public void exitGame() {
+        activity.finish();
     }
 
     void displayAnswerLayout(GameLogic.GameType gameType, int score, int distance, IPicture pic, boolean isNull) {
@@ -206,64 +345,6 @@ class GameUI {
         return myMapView;
     }
 
-
-    /**
-     * 지명 찾기 문제에서의 마커 생성
-     *
-     * @param strColor 마커 색상
-     * @param pt       위치
-     * @return 생성된 마커
-     */
-    Marker makeMarker(String strColor, GeoPoint pt) {
-        Marker marker = new Marker(myMapView);
-        if (strColor.equals("red")) {
-            marker.setIcon(RED_MARKER_DRAWABLE);
-        } else if (strColor.equals("blue")) {
-            marker.setIcon(BLUE_MARKER_DRAWABLE);
-        }
-        marker.setAnchor(0.5f, 1.0f);
-        marker.setPosition(pt);
-        marker.setOnMarkerClickListener(new Marker.OnMarkerClickListener() {
-            @Override
-            public boolean onMarkerClick(Marker marker, MapView mapView) {
-                return false;
-            }
-        });
-        return marker;
-    }
-
-    /**
-     * 사진 고르기 문제에서의 마커 생성
-     *
-     * @param strColor  마커 색상
-     * @param pt        위치
-     * @param placeName infowindow에 띄워질 지명 이름
-     * @return 생성된 마커
-     */
-    Marker makeMarker(String strColor, GeoPoint pt, String placeName) {
-        Marker marker = new Marker(myMapView);
-        if (strColor.equals("red")) {
-            marker.setIcon(RED_MARKER_DRAWABLE);
-        } else if (strColor.equals("blue")) {
-            marker.setIcon(BLUE_MARKER_DRAWABLE);
-        }
-        marker.setAnchor(0.5f, 1.0f);
-        marker.setPosition(pt);
-        marker.setTitle(placeName);
-        MarkerInfoWindow markerInfoWindow = new MarkerInfoWindow(R.layout.game_infowindow_bubble, myMapView);
-        View v = markerInfoWindow.getView();
-        v.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                return false;
-            }
-        });
-        marker.setInfoWindow(markerInfoWindow);
-        marker.showInfoWindow();
-
-        myMapView.getOverlays().add(marker);
-        return marker;
-    }
 
     void addOverlay(Overlay overlay) {
         myMapView.getOverlays().add(overlay);
@@ -336,10 +417,11 @@ class GameUI {
     };
 
 
-    MapEventsOverlay onPressMarker = new MapEventsOverlay(new MapEventsReceiver() {
+    private MapEventsOverlay onTouchMap = new MapEventsOverlay(new MapEventsReceiver() {
         @Override
         public boolean singleTapConfirmedHelper(GeoPoint p) {
             input.onPressMarker(myMapView, p);
+            input.onTouchMap(p);
             return true;
         }
 
@@ -379,7 +461,6 @@ class GameUI {
             v.getOverlay().add(redRect);
             v.setOnClickListener(onPressPicSecond);
             lastSelect = v;
-            input.onSelectPicFirst(choicePicImageViews[0], v);
 
         }
     };
@@ -387,7 +468,9 @@ class GameUI {
     View.OnClickListener onPressPicSecond = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            input.onSelectPicSecond(choicePicImageViews[0], v);
+            ImageView iv = (ImageView) v;
+            int idx = Arrays.asList(choicePicImageViews).indexOf(iv);
+            input.onSelectPictureCertainly(choicePics.get(idx));
             clearLastSelectIfExists();
             lastSelect = null;
 
@@ -396,51 +479,10 @@ class GameUI {
 
 
     /**
-     * 사진을 보여주고 지명을 찾는 문제 형식
-     *
-     * @param pic 사진 정보를 가지고 있는 클래스
-     */
-    void bottomOnePicture(IPicture pic) {
-        //레이아웃 설정
-        positionPicImageView.setClickable(true);
-        positionPicImageView.setVisibility(View.VISIBLE);
-        choicePicProblemLayout.setClickable(false);
-        choicePicProblemLayout.setVisibility(View.GONE);
-
-        myMapView.getController().setZoom(myMapView.getMinZoomLevel());
-
-        GlideApp.with(activity).load(pic).into(positionPicImageView);
-        positionProblemLayout.setVisibility(View.VISIBLE);
-    }
-
-    /**
-     * 지명을 보여주고 사진을 찾는 문제 형식
-     *
-     * @param pics 사진 정보를 가지고 있는 클래스
-     */
-    void bottomFourPicture(List<IPicture> pics) {
-        //레이아웃 설정
-        choicePicProblemLayout.setVisibility(View.VISIBLE);
-        choicePicProblemLayout.setClickable(true);
-        positionPicImageView.setClickable(false);
-        positionPicImageView.setVisibility(View.GONE);
-
-        //마커에 지명 설정하고 맵뷰에 표시
-
-        myMapView.getController().setZoom(myMapView.getMinZoomLevel());
-        myMapView.setClickable(false);
-
-        for (int i = 0; i < 4; i++) {
-            choicePicImageViews[i].setScaleType(ImageView.ScaleType.CENTER_INSIDE);
-            GlideApp.with(activity).load(pics.get(i)).into(choicePicImageViews[i]);
-        }
-    }
-
-
-    /**
      * 게임이 완료된 후 사진들을 모아서 보여주는 리사이클뷰 적용
      */
-    void showGameOver(List<IPicture> pics) {
+    @Override
+    public void showGameOver(List<IPicture> pics) {
         activity.setContentView(R.layout.layout_recycler_view);
         //after game
         RecyclerView recyclerView = activity.findViewById(R.id.after_game_recyclerview);
@@ -450,12 +492,5 @@ class GameUI {
         recyclerView.setLayoutManager(layoutManager);
         AfterGameAdapter adapter = new AfterGameAdapter(activity, pics);
         recyclerView.setAdapter(adapter);
-    }
-
-    void displaySolvedPictures(List<IPicture> pics) {
-    }
-
-    void finishActivity() {
-        activity.finish();
     }
 }
