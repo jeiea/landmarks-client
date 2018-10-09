@@ -20,6 +20,8 @@ import java.util.Date;
  */
 public class DrawCircleOverlay extends Overlay {
 
+    private final static int msDuration = 1000;
+    private final static int fps = 30;
     private Paint circlePainter;
     private Point userSelectedPoint;
     private Point answerPoint;      //정답 좌표를 화면의 좌표로 변경
@@ -55,10 +57,10 @@ public class DrawCircleOverlay extends Overlay {
             public void run() {
                 long nowTime = new Date().getTime();
                 long elapsed = nowTime - startTime;
-                ratio = Math.min(1000, elapsed) / 1000.f;
+                ratio = Math.min(1f, elapsed / (float) msDuration);
                 mapView.invalidate();
                 if (ratio < 1) {
-                    drawCircleHandler.postDelayed(this, 1000 / 60);
+                    drawCircleHandler.postDelayed(this, 1000 / fps);
                 }
             }
         });
@@ -77,33 +79,30 @@ public class DrawCircleOverlay extends Overlay {
         circlePainter.setAlpha(70);
     }
 
-
     /**
      * 맵뷰의 좌표를 화면의 좌표로 변환
      */
-    private void changeGeopointToPoint() {
+    private void changeGeoPointToPoint() {
         // Get projection from the mapView.
-        //맵뷰에서 좌표를 화면에서 x,y좌표로 구해주는 Projection 클래스
+        //맵뷰에서 좌표를 화면에서 x, y 좌표로 구해주는 Projection 클래스
         Projection projection = mapView.getProjection();
 
         //Project the gps coordinate to screen coordinate
         projection.toPixels(userSelectedGeopoint, userSelectedPoint);
         projection.toPixels(answerGeopoint, answerPoint);
 
-        radius = Math.sqrt(Math.pow(Math.abs(answerPoint.x - userSelectedPoint.x), 2) + Math.pow(Math.abs(answerPoint.y - userSelectedPoint.y), 2));
+        int xDiff = Math.abs(answerPoint.x - userSelectedPoint.x);
+        int yDiff = Math.abs(answerPoint.y - userSelectedPoint.y);
+        radius = Math.hypot(xDiff, yDiff);
     }
-
 
     /**
      * 원을 그림
-     * @param c
-     * @param mapView
-     * @param shadow
      */
     @Override
     public void draw(Canvas c, MapView mapView, boolean shadow) {
-        changeGeopointToPoint();
+        changeGeoPointToPoint();
 
-        c.drawCircle(userSelectedPoint.x, userSelectedPoint.y, (float) radius * ratio, circlePainter); //원 그리기
+        c.drawCircle(userSelectedPoint.x, userSelectedPoint.y, (float) radius * ratio, circlePainter);
     }
 }
