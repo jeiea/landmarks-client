@@ -76,8 +76,6 @@ class GameLogic implements IGameInputHandler {
     private Handler timerHandler = null;    //시간 진행시키는 핸들러
 
     private final int TIME_LIMIT_MS = 14000;
-    private Marker currentMarker;   //사용자가 찍은 마커
-    private Marker answerMarker;    //정답 마커
     private int answerImageviewIndex;
     DrawCircleOverlay drawCircleOverlay;
     DottedLineOverlay dottedLineOverlay;
@@ -170,8 +168,7 @@ class GameLogic implements IGameInputHandler {
      */
     private void chooseQuestionType() {
         // TODO: capsulize quiz type
-//        int randomNumber = random.nextInt(2);
-        int randomNumber = 1;
+        int randomNumber = random.nextInt(2);
         if (randomNumber == 0) {
             enterPositionProblem();
         } else if (randomNumber == 1) {
@@ -182,24 +179,18 @@ class GameLogic implements IGameInputHandler {
     private void enterPositionProblem() {
         gameType = GameType.POSITION;
         rui.showPositionQuiz(questionPic.get(problem));
-        Marker here = rui.getSystemMarker();
         GeoPoint rightPos = questionPic.get(problem).getMeta().getGeo();
-        here.setPosition(Objects.requireNonNull(rightPos));
-
-        answerMarker = rui.getSystemMarker();
+        rui.getSystemMarker().setPosition(Objects.requireNonNull(rightPos));
     }
 
     private void enterPicChoiceProblem() {
         gameType = GameType.PICTURE;
-        rui.showPictureQuiz(questionPic);
-        Marker here = rui.getSystemMarker();
-        // TODO: this answer is predictable, set it randomly
         PictureMeta meta = questionPic.get(problem).getMeta();
-        here.setPosition(Objects.requireNonNull(meta.getGeo()));
-        here.setTitle(meta.getAddress());
-        answerImageviewIndex = problem;
+        rui.showPictureQuiz(questionPic, meta.getAddress());
+        rui.getSystemMarker().setPosition(Objects.requireNonNull(meta.getGeo()));
 
-        answerMarker = rui.getSystemMarker();
+        // TODO: this answer is predictable, set it randomly
+        answerImageviewIndex = problem;
     }
 
     private void onProblemDone() {
@@ -208,7 +199,7 @@ class GameLogic implements IGameInputHandler {
         timerHandler = null;
         int curScore = calcScore();
         boolean isNull = false;
-        if (currentMarker == null) {
+        if (!rui.getUserMarker().isEnabled()) {
             isNull = true;
         }
         ui.displayAnswerLayout(gameType, curScore, distance, questionPic.get(problem), isNull);
@@ -222,7 +213,7 @@ class GameLogic implements IGameInputHandler {
     private int calcScore() {
         int curScore = 0;
         if (gameType == GameType.POSITION) {
-            if (currentMarker == null) { //마커를 화면에 찍지 않고 정답을 확인하는 경우
+            if (!rui.getUserMarker().isEnabled()) { //마커를 화면에 찍지 않고 정답을 확인하는 경우
                 curScore = -100;
             } else {
                 if (distance >= 6000) {
@@ -234,7 +225,7 @@ class GameLogic implements IGameInputHandler {
                 }
             }
         } else if (gameType == GameType.PICTURE) {
-            if (rightAnswerTypeB == false) {
+            if (!rightAnswerTypeB) {
                 curScore = -100;
             } else {
                 curScore = 300;
@@ -276,12 +267,11 @@ class GameLogic implements IGameInputHandler {
                     // 화면을 한번 터치해 마커를 생성하고 난 후
                     // 타임아웃 발생시 그 마커를 위치로 정답 확인
                     if (gameType == GameType.POSITION) {
-                        if (currentMarker != null) {
+                        if (rui.getUserMarker().isEnabled()) {
                             onTimeout();
                         } else {
                             //화면에 마커 생성 없이 타임아웃 발생시 정답 확인
-                            //currentMarker = new Marker(myMapView);
-                            ui.addOverlay(answerMarker);
+                            rui.getSystemMarker().setEnabled(true);
                         }
                     }   //지명 문제에서 한번 테두리가 있는 후 정답 확인과 테두리 없을 시 정답확인 구현하기
                     else if (gameType == GameType.PICTURE) {
@@ -309,8 +299,6 @@ class GameLogic implements IGameInputHandler {
         Marker sys = rui.getSystemMarker();
         sys.setEnabled(true);
         animateMarker(ui.getMyMapView(), sys, rightAns, new GeoPointInterpolator.Spherical());
-
-        ui.clearOverlay(currentMarker);
     }
 
     /**
@@ -366,12 +354,11 @@ class GameLogic implements IGameInputHandler {
                 if (t < 1) {
                     // 16ms 후 다시 시작
                     animateHandler.postDelayed(this, 1000 / 60);
-                } else {   //정답 마커 위치로 이동되면 정답 마커 추가
-
-                    ui.clearOverlay(marker);
-                    ui.addOverlay(answerMarker);
-                    ui.addLine(currentMarker.getPosition(), answerMarker.getPosition());
-                    dottedLineOverlay = new DottedLineOverlay(map, startPosition, answerMarker.getPosition());
+                } else {
+                    //정답 마커 위치로 이동되면 정답 마커 추가
+                    rui.getSystemMarker().setEnabled(true);
+                    ui.addLine(rui.getSystemMarker().getPosition(), rui.getUserMarker().getPosition());
+                    dottedLineOverlay = new DottedLineOverlay(map, startPosition, rui.getSystemMarker().getPosition());
                     ui.addOverlay(dottedLineOverlay);
                     drawDottedLineHandler = new Handler();
                     drawDottedLineHandler.post(new Runnable() { //반복 진행하면서 원 그리기
@@ -405,15 +392,6 @@ class GameLogic implements IGameInputHandler {
      * @param finalGeoPosition 화면에 선택한 곳의 좌표
      */
     private void showMarker(final MyMapView myMapView, final GeoPoint finalGeoPosition) {
-        if (currentMarker != null) {
-            ui.clearOverlay(currentMarker);
-        }
-//        Marker marker = ui.makeMarker("blue", finalGeoPosition);
-        Marker marker = rui.getSystemMarker();
-        marker.setPosition(finalGeoPosition);
-        currentMarker = marker;
-
-
         final Projection projection = myMapView.getProjection();
         final Point startPoint = new Point();
         projection.toPixels(finalGeoPosition, startPoint);
@@ -424,11 +402,6 @@ class GameLogic implements IGameInputHandler {
 
         startPoint.x += 40;
         startPoint.y -= 40;
-
-        GeoPoint startGeoPosition = (GeoPoint) projection.fromPixels(startPoint.x, startPoint.y);
-
-        final Marker tmpMarker = ui.makeMarker("blue", startGeoPosition);
-        ui.addOverlay(tmpMarker);
 
         final Handler showMarkerHandler = new Handler();
         final long start = SystemClock.uptimeMillis();
@@ -447,47 +420,36 @@ class GameLogic implements IGameInputHandler {
                 t = elapsed / durationInMs;
                 v = interpolator.getInterpolation(t);
 
-//                answerMarker.setAnchor(0.5f, 1.0f);
-                answerMarker = rui.getSystemMarker();
-                answerMarker.closeInfoWindow();
-                answerMarker.setEnabled(true);
-
                 Point pixelPoint = interpolate(v, startPoint, finalPoint);
                 GeoPoint geoPoint = (GeoPoint) projection.fromPixels(pixelPoint.x, pixelPoint.y);
 
-                tmpMarker.setPosition(geoPoint);
-                if (currentMarker != null) {
-                    ui.clearOverlay(currentMarker);
-                }
+                Marker anim = rui.getUserMarker();
+                anim.setPosition(geoPoint);
+                anim.setEnabled(true);
 
                 ui.mapviewInvalidate();
                 // Repeat till progress is complete.
                 if (t < 1) {
                     // 16ms 후 다시 시작
                     showMarkerHandler.postDelayed(this, 1000 / 60);
-                } else {   //정답 마커 위치로 이동되면 정답 마커 추가
-                    tmpMarker.setOnMarkerClickListener(new Marker.OnMarkerClickListener() {
+                } else {
+                    // 플레이어가 생성한 마커를 다시 터치하면 확정
+                    anim.setOnMarkerClickListener(new Marker.OnMarkerClickListener() {
                         @Override
-                        public boolean onMarkerClick(Marker marker, MapView mapView) {  //생성된 마커를 클릭하여 화면에 등록
+                        public boolean onMarkerClick(Marker marker, MapView mapView) {
                             timerState = TimerState.Stop;
-                            //유저가 선택한 위치의 마커에서 정답 마커까지 이동하는 애니메이션 동작을 하는 마커 생성
-                            Marker tmpMarker = ui.makeMarker("blue", marker.getPosition());
-                            ui.addOverlay(tmpMarker);
-
-                            distance = calcDistance(finalGeoPosition, answerMarker.getPosition());
-                            animateMarker(myMapView, tmpMarker, answerMarker.getPosition(), new GeoPointInterpolator.Linear());
-
-                            ui.clearOverlay(marker);
+                            // 유저가 선택한 위치의 마커에서 정답 마커까지 이동하는 애니메이션
+                            // 동작을 하는 마커 생성
+                            Marker sys = rui.getSystemMarker();
+                            GeoPoint rightPos = sys.getPosition();
+                            distance = calcDistance(finalGeoPosition, rightPos);
+                            sys.setPosition(rui.getUserMarker().getPosition());
+                            sys.setEnabled(true);
+                            animateMarker(myMapView, sys, rightPos, new GeoPointInterpolator.Linear());
                             ui.mapviewInvalidate();
-
                             return true;
                         }
                     });
-                    currentMarker = tmpMarker;
-                    if (timerState == TimerState.Stop) {           //정답 확인 직전 마커를 선택했을 때, 마커 지우기
-                        ui.clearOverlay(currentMarker);
-                    }
-
                 }
             }
         });
@@ -522,20 +484,12 @@ class GameLogic implements IGameInputHandler {
     @Override
     public void onPressNext() {
         if (gameType == GameType.POSITION) {
-            if (currentMarker != null) {
-                ui.clearOverlay(currentMarker);
-                currentMarker = null;
-            }
             if (drawDottedLineHandler != null) {
                 drawDottedLineHandler.removeMessages(0);
                 drawDottedLineHandler = null;
             }
-            ui.clearOverlay(answerMarker);
             ui.clearOverlay(drawCircleOverlay);
             ui.clearOverlay(dottedLineOverlay);
-
-        } else if (gameType == GameType.PICTURE) {
-            ui.clearOverlay(answerMarker);
         }
         problem++;
         ui.clearAnswerLayout(problem, stageNumberOfGames[stage - 1]);
@@ -573,10 +527,7 @@ class GameLogic implements IGameInputHandler {
     }
 
     /**
-     * ResourcePicture 시절 주소가 없는 걸 얻고자 만든 것.
-     * 쓰게 될지는 모름
-     *
-     * @param target
+     * ResourcePicture 시절 주소가 없는 걸 얻고자 만든 것. 쓰게 될지는 모름.
      */
     private void setReverseGeocodeRegionNameAsPictureTitle(final IPicture target) {
         RemoteJava client = RemoteJava.INSTANCE;

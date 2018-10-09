@@ -48,7 +48,7 @@ interface IGameUI {
 
     void showPositionQuiz(IPicture picture);
 
-    void showPictureQuiz(List<IPicture> picture);
+    void showPictureQuiz(List<IPicture> picture, String description);
 
     Marker getUserMarker();
 
@@ -135,10 +135,10 @@ class GameUI implements IGameUI {
         addOverlay(onTouchMap);
 
         Resources resources = quizView.getResources();
-        Drawable blueMarkerDrawable = resources.getDrawable(R.drawable.game_blue_marker, null);
-        userMarker = makeMarker(blueMarkerDrawable);
         Drawable redMarkerDrawable = resources.getDrawable(R.drawable.game_red_marker, null);
         systemMarker = makeMarker(redMarkerDrawable);
+        Drawable blueMarkerDrawable = resources.getDrawable(R.drawable.game_blue_marker, null);
+        userMarker = makeMarker(blueMarkerDrawable);
         addBalloonToMarker(systemMarker);
     }
 
@@ -266,6 +266,10 @@ class GameUI implements IGameUI {
         choicePicProblemLayout.setClickable(false);
         choicePicProblemLayout.setVisibility(View.GONE);
 
+        systemMarker.closeInfoWindow();
+        systemMarker.setEnabled(false);
+        userMarker.setEnabled(false);
+
         myMapView.getController().setZoom(myMapView.getMinZoomLevel());
 
         GlideApp.with(activity).load(picture).into(positionPicImageView);
@@ -276,9 +280,10 @@ class GameUI implements IGameUI {
      * 지명을 보여주고 사진을 찾는 문제 형식
      *
      * @param pics 사진 정보를 가지고 있는 클래스
+     * @param description 툴팁 텍스트
      */
     @Override
-    public void showPictureQuiz(List<IPicture> pics) {
+    public void showPictureQuiz(List<IPicture> pics, String description) {
         choicePics = pics;
 
         //레이아웃 설정
@@ -288,6 +293,9 @@ class GameUI implements IGameUI {
         positionPicImageView.setVisibility(View.GONE);
 
         //마커에 지명 설정하고 맵뷰에 표시
+        systemMarker.setTitle(description);
+        systemMarker.showInfoWindow();
+        systemMarker.setEnabled(true);
 
         myMapView.getController().setZoom(myMapView.getMinZoomLevel());
         myMapView.setClickable(false);
@@ -369,6 +377,9 @@ class GameUI implements IGameUI {
     void clearOverlay(Overlay overlay) {
         if (overlay instanceof Marker) {
             InfoWindow.closeAllInfoWindowsOn(myMapView);
+        }
+        if (overlay == systemMarker || overlay == userMarker) {
+            return;
         }
         myMapView.getOverlays().remove(overlay);
     }
