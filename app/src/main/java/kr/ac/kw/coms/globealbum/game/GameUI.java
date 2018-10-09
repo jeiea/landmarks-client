@@ -25,9 +25,9 @@ import org.osmdroid.views.overlay.infowindow.MarkerInfoWindow;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.Random;
 
-import kotlin.NotImplementedError;
 import kr.ac.kw.coms.globealbum.R;
 import kr.ac.kw.coms.globealbum.common.GlideApp;
 import kr.ac.kw.coms.globealbum.common.PictureDialogFragment;
@@ -49,11 +49,15 @@ interface IGameUI {
 
     void showPictureQuiz(List<IPicture> picture, String description);
 
+    void showPositionAnswer(IPicture correct, int deltaScore, Double distance);
+
+    void showPictureAnswer(IPicture correct, int deltaScore);
+
     Marker getUserMarker();
 
     Marker getSystemMarker();
 
-    void setScore();
+    void setScore(int score);
 
     void exitGame();
 }
@@ -318,8 +322,8 @@ class GameUI implements IGameUI {
     }
 
     @Override
-    public void setScore() {
-        throw new NotImplementedError();
+    public void setScore(int score) {
+        gameScoreTextView.setText("SCORE " + score);
     }
 
     @Override
@@ -327,27 +331,34 @@ class GameUI implements IGameUI {
         activity.finish();
     }
 
-    void displayAnswerLayout(GameLogic.GameType gameType, int score, int distance, IPicture pic, boolean isNull) {
-        if (gameType == GameLogic.GameType.POSITION) {
-            positionProblemLayout.setVisibility(View.GONE);
-        } else if (gameType == GameLogic.GameType.PICTURE) {
-            choicePicProblemLayout.setVisibility(View.GONE);
-            myMapView.getController().zoomTo(myMapView.getMinZoomLevel(), 1000L); //인자의 속도에 맞춰서 줌 아웃
-        }
-
+    private void showCommonAnswer(IPicture pic, int deltaScore) {
         answerLayout.setVisibility(View.VISIBLE);
         answerLayout.setClickable(true);
         answerLandNameTextView.setText(pic.getMeta().getAddress());
-        if (gameType == GameLogic.GameType.POSITION && !isNull) {
-            answerDistanceTextView.setVisibility(View.VISIBLE);
-            answerDistanceTextView.setText(distance + "KM");
-        } else {
-            answerDistanceTextView.setVisibility(View.INVISIBLE);
-        }
-        answerScoreTextView.setText("score " + score);
+        answerScoreTextView.setText("score " + deltaScore);
         GlideApp.with(activity).load(pic).into(answerCorrectImageView);
     }
 
+    @Override
+    public void showPositionAnswer(IPicture correct, int deltaScore, Double distance) {
+        showCommonAnswer(correct, deltaScore);
+        positionProblemLayout.setVisibility(View.GONE);
+        if (distance != null) {
+            answerDistanceTextView.setVisibility(View.VISIBLE);
+            String d = String.format(Locale.KOREAN, "%.1f km", distance);
+            answerDistanceTextView.setText(d);
+        } else {
+            answerDistanceTextView.setVisibility(View.INVISIBLE);
+        }
+    }
+
+    @Override
+    public void showPictureAnswer(IPicture correct, int deltaScore) {
+        showCommonAnswer(correct, deltaScore);
+        choicePicProblemLayout.setVisibility(View.GONE);
+        //인자의 속도에 맞춰서 줌 아웃
+        myMapView.getController().zoomTo(myMapView.getMinZoomLevel(), 1000L);
+    }
 
     MyMapView getMyMapView() {
         return myMapView;
@@ -356,10 +367,6 @@ class GameUI implements IGameUI {
 
     void addOverlay(Overlay overlay) {
         myMapView.getOverlays().add(overlay);
-    }
-
-    void setGameScoreTextView(int score) {
-        gameScoreTextView.setText("SCORE " + score);
     }
 
     void mapviewInvalidate() {

@@ -62,7 +62,6 @@ class GameLogic implements IGameInputHandler {
     private int problem = 0;
     private int score = 0;
     private int timeScore = 0;
-    private int distance = 0;
     private int stage = 0;
 
     private ArrayList<IPicture> questionPic = new ArrayList<>();
@@ -194,12 +193,17 @@ class GameLogic implements IGameInputHandler {
         if (timerHandler == null)
             return;
         timerHandler = null;
-        int curScore = calcScore();
+        int deltaScore = calcScore();
         boolean isNull = false;
         if (!rui.getUserMarker().isEnabled()) {
             isNull = true;
         }
-        ui.displayAnswerLayout(gameType, curScore, distance, questionPic.get(problem), isNull);
+        double distance = calcDistance();
+        if (gameType == GameType.POSITION) {
+            rui.showPositionAnswer(questionPic.get(problem), deltaScore, distance);
+        } else {
+            rui.showPictureAnswer(questionPic.get(problem), deltaScore);
+        }
     }
 
     /**
@@ -213,11 +217,12 @@ class GameLogic implements IGameInputHandler {
             if (!rui.getUserMarker().isEnabled()) { //마커를 화면에 찍지 않고 정답을 확인하는 경우
                 curScore = -100;
             } else {
+                double distance = calcDistance();
                 if (distance >= 6000) {
                     curScore = 0;
                 } else {
                     int criteria = 300;
-                    curScore = criteria - distance / 25;
+                    curScore = criteria - (int) distance / 25;
                     curScore += timeScore / 100;
                 }
             }
@@ -231,7 +236,7 @@ class GameLogic implements IGameInputHandler {
         }
         score += curScore;
 
-        ui.setGameScoreTextView(score);
+        rui.setScore(score);
 
         return curScore;
     }
@@ -293,7 +298,6 @@ class GameLogic implements IGameInputHandler {
         Marker user = rui.getUserMarker();
 
         GeoPoint rightAns = questionPic.get(problem).getMeta().getGeo();
-        distance = calcDistance(user.getPosition(), rightAns);
         Marker sys = rui.getSystemMarker();
         sys.setEnabled(true);
         animateMarker(ui.getMyMapView(), sys, rightAns, new GeoPointInterpolator.Spherical());
@@ -308,6 +312,12 @@ class GameLogic implements IGameInputHandler {
      */
     private int calcDistance(GeoPoint geoPoint1, GeoPoint geoPoint2) {
         return (int) (geoPoint1.distanceToAsDouble(geoPoint2) / 1000);
+    }
+
+    private double calcDistance() {
+        GeoPoint g1 = rui.getSystemMarker().getPosition();
+        GeoPoint g2 = rui.getUserMarker().getPosition();
+        return g1.distanceToAsDouble(g2) / 1000;
     }
 
 
@@ -439,7 +449,6 @@ class GameLogic implements IGameInputHandler {
                             // 동작을 하는 마커 생성
                             Marker sys = rui.getSystemMarker();
                             GeoPoint rightPos = sys.getPosition();
-                            distance = calcDistance(finalGeoPosition, rightPos);
                             sys.setPosition(rui.getUserMarker().getPosition());
                             sys.setEnabled(true);
                             animateMarker(myMapView, sys, rightPos, new GeoPointInterpolator.Linear());
