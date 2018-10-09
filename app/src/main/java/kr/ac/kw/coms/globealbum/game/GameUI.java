@@ -23,7 +23,6 @@ import org.osmdroid.views.overlay.Overlay;
 import org.osmdroid.views.overlay.infowindow.InfoWindow;
 import org.osmdroid.views.overlay.infowindow.MarkerInfoWindow;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
@@ -279,7 +278,7 @@ class GameUI implements IGameUI {
     /**
      * 지명을 보여주고 사진을 찾는 문제 형식
      *
-     * @param pics 사진 정보를 가지고 있는 클래스
+     * @param pics        사진 정보를 가지고 있는 클래스
      * @param description 툴팁 텍스트
      */
     @Override
@@ -296,6 +295,7 @@ class GameUI implements IGameUI {
         systemMarker.setTitle(description);
         systemMarker.showInfoWindow();
         systemMarker.setEnabled(true);
+        userMarker.setEnabled(false);
 
         myMapView.getController().setZoom(myMapView.getMinZoomLevel());
         myMapView.setClickable(false);
@@ -391,34 +391,21 @@ class GameUI implements IGameUI {
         gameTargetTextView.setText("TARGET " + (problem + 1) + "/" + games);
     }
 
-    /**
-     * 사용자가 정한 마커와 정답 마커 사이를 잇는 직선 생성
-     *
-     * @param startPosition 사용자 마커의 좌표
-     * @param destPosition  정답 마커의 좌표
-     */
-    void addLine(GeoPoint startPosition, GeoPoint destPosition) {
-        List<GeoPoint> geoPoints = new ArrayList<>();
-        geoPoints.add(startPosition);
-        geoPoints.add(destPosition);
-
-    }
-
-    View.OnClickListener onPressStart = new View.OnClickListener() {
+    private View.OnClickListener onPressStart = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
             input.onPressStart();
         }
     };
 
-    View.OnClickListener onPressExit = new View.OnClickListener() {
+    private View.OnClickListener onPressExit = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
             input.onPressExit();
         }
     };
 
-    View.OnClickListener onPressPicZoom = new View.OnClickListener() {
+    private View.OnClickListener onPressPicZoom = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
             ImageView imgv = (ImageView) v;
@@ -443,14 +430,14 @@ class GameUI implements IGameUI {
     });
 
 
-    View.OnClickListener onPressNext = new View.OnClickListener() {
+    private View.OnClickListener onPressNext = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
             input.onPressNext();
         }
     };
 
-    View lastSelect;
+    private View lastSelect;
 
 
     /**
@@ -464,7 +451,7 @@ class GameUI implements IGameUI {
         lastSelect.setOnClickListener(onPressPicFirst);
     }
 
-    View.OnClickListener onPressPicFirst = new View.OnClickListener() {
+    private View.OnClickListener onPressPicFirst = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
             clearLastSelectIfExists();
@@ -476,7 +463,7 @@ class GameUI implements IGameUI {
         }
     };
 
-    View.OnClickListener onPressPicSecond = new View.OnClickListener() {
+    private View.OnClickListener onPressPicSecond = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
             ImageView iv = (ImageView) v;

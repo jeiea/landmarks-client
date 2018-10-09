@@ -68,18 +68,16 @@ class GameLogic implements IGameInputHandler {
     private ArrayList<IPicture> questionPic = new ArrayList<>();
 
 
-    private int[] stageLimitScore = new int[]{400, 500}; //600,800,1100,1400,1650,2000,2700
-    private int[] stageNumberOfGames = new int[]{3, 3};
+    private int[] stageLimitScore = new int[]{400, 500, 600, 800}; //600,800,1100,1400,1650,2000,2700
+    private int[] stageNumberOfGames = new int[]{3, 3, 3, 3};
 
     private Handler animateHandler = null;  //마커 이동시키는 핸들러
     private Handler drawDottedLineHandler = null;  // 점선 그리는 핸들러
     private Handler timerHandler = null;    //시간 진행시키는 핸들러
 
-    private final int TIME_LIMIT_MS = 14000;
-    private int answerImageviewIndex;
-    DrawCircleOverlay drawCircleOverlay;
-    DottedLineOverlay dottedLineOverlay;
-    boolean rightAnswerTypeB = false;
+    private DrawCircleOverlay drawCircleOverlay;
+    private DottedLineOverlay dottedLineOverlay;
+    private boolean rightAnswerTypeB = false;
 
     private Random random = new Random(System.currentTimeMillis());
 
@@ -190,7 +188,6 @@ class GameLogic implements IGameInputHandler {
         rui.getSystemMarker().setPosition(Objects.requireNonNull(meta.getGeo()));
 
         // TODO: this answer is predictable, set it randomly
-        answerImageviewIndex = problem;
     }
 
     private void onProblemDone() {
@@ -243,6 +240,7 @@ class GameLogic implements IGameInputHandler {
      * 제한 시간 측정
      */
     private void timeThreadhandler() {
+        int TIME_LIMIT_MS = 14000;
         int stageTimeLimitMs = TIME_LIMIT_MS - problem * 1000;
         ui.setGameTimeProgressBarMax(stageTimeLimitMs);
 
@@ -357,7 +355,6 @@ class GameLogic implements IGameInputHandler {
                 } else {
                     //정답 마커 위치로 이동되면 정답 마커 추가
                     rui.getSystemMarker().setEnabled(true);
-                    ui.addLine(rui.getSystemMarker().getPosition(), rui.getUserMarker().getPosition());
                     dottedLineOverlay = new DottedLineOverlay(map, startPosition, rui.getSystemMarker().getPosition());
                     ui.addOverlay(dottedLineOverlay);
                     drawDottedLineHandler = new Handler();
