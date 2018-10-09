@@ -5,7 +5,6 @@ import android.content.res.Resources;
 import android.graphics.Point;
 import android.os.Handler;
 import android.os.SystemClock;
-import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
@@ -14,7 +13,6 @@ import android.view.animation.LinearInterpolator;
 import android.widget.ImageView;
 
 import org.jetbrains.annotations.NotNull;
-import org.osmdroid.config.Configuration;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.Projection;
@@ -65,6 +63,7 @@ class GameLogic implements IGameInputHandler {
     DottedLineOverlay dottedLineOverlay;
     boolean rightAnswerTypeB = false;
 
+    private Random random = new Random(System.currentTimeMillis());
 
     enum TimerState {
         Stop,
@@ -72,8 +71,8 @@ class GameLogic implements IGameInputHandler {
     }
 
     enum GameType {
-        A,
-        B
+        POSITION,
+        PICTURE
     }
 
     private GameType gameType;
@@ -112,13 +111,15 @@ class GameLogic implements IGameInputHandler {
     /**
      * 문제 세팅
      */
-    void onProblemReady() {
+    private void onProblemReady() {
         int numOfPicInStage = 4;
         int[] id = new int[numOfPicInStage];
-        for (int i = 0; i < numOfPicInStage; i++) { //사진 리소스 id 배열에 저장
+        //사진 리소스 id 배열에 저장
+        for (int i = 0; i < numOfPicInStage; i++) {
             id[i] = R.drawable.coord0 + i;
         }
-        for (int i = 0; i < 1000; i++) {    //반복하여 리소스 id 섞음
+        //반복하여 리소스 id 섞음
+        for (int i = 0; i < 1000; i++) {
             int random = (int) (Math.random() * numOfPicInStage);
             int tmp = id[0];
             id[0] = id[random];
@@ -137,57 +138,41 @@ class GameLogic implements IGameInputHandler {
         //displayQuiz();
     }
 
-    void onGameReady() {
-        Configuration.getInstance().load(context, PreferenceManager.getDefaultSharedPreferences(context));
-
-        Random random = new Random();
-        random.setSeed(System.currentTimeMillis());
-
-        //int randomNumber = random.nextInt(2);
-
+    private void onGameReady() {
         ui.displayQuiz(stage, problem, stageNumberOfGames[stage - 1]);
-
+        chooseQuestionType();
 
         timerState = TimerState.Running;
         timerHandler = new Handler();
         timeThreadhandler();
-
-        chooseQuestionType();
     }
 
-    private void setReverseGeocodeRegionNameAsPictureTitle(final IPicture target) {
-        RemoteJava client = RemoteJava.INSTANCE;
-        GeoPoint geo = Objects.requireNonNull(target.getMeta().getGeo());
-        client.reverseGeocode(geo.getLatitude(), geo.getLongitude(), new UIPromise<ReverseGeocodeResult>() {
-            @Override
-            public void failure(@NotNull Throwable cause) {
-                StringWriter sw = new StringWriter();
-                PrintWriter pw = new PrintWriter(sw);
-                cause.printStackTrace(pw);
-                Log.e("failfail", cause.toString() + sw.toString());
-            }
-
-            @Override
-            public void success(ReverseGeocodeResult result) {
-                String name = result.getCountry() + " " + result.getDetail();
-                target.getMeta().setAddress(name);
-
-                // 첫 문제 지역명 수신 시 문제 진행
-                if (questionPic.indexOf(target) == 0) {
-                    onGameReady();
-                }
-            }
-        });
+    /**
+     * 지명 문제, 사진 문제를 골라서 화면에 표시
+     */
+    private void chooseQuestionType() {
+        int randomNumber = random.nextInt(2);
+        if (randomNumber == 0) {
+            enterPositionProblem();
+        } else if (randomNumber == 1) {
+            enterPicChoiceProblem();
+        }
     }
 
-
-    void enterPositionProblem() {
+    private void enterPositionProblem() {
+        gameType = GameType.POSITION;
+        ui.bottomOnePicture(questionPic.get(problem));
+        answerMarker = ui.makeMarker("red", Objects.requireNonNull(questionPic.get(problem).getMeta().getGeo()));
     }
 
-    void enterPicChoiceProblem() {
+    private void enterPicChoiceProblem() {
+        gameType = GameType.PICTURE;
+        ui.bottomFourPicture(questionPic);
+        answerMarker = ui.makeMarker("red", Objects.requireNonNull(questionPic.get(problem).getMeta().getGeo()), questionPic.get(problem).getMeta().getAddress());
+        answerImageviewIndex = problem;
     }
 
-    void onProblemDone() {
+    private void onProblemDone() {
         if(timerHandler == null)
             return;
         timerHandler = null;
@@ -209,7 +194,7 @@ class GameLogic implements IGameInputHandler {
      */
     private int calcScore() {
         int curScore = 0;
-        if (gameType == GameType.A) {
+        if (gameType == GameType.POSITION) {
             if (currentMarker == null) { //마커를 화면에 찍지 않고 정답을 확인하는 경우
                 curScore = -100;
             } else {
@@ -221,7 +206,7 @@ class GameLogic implements IGameInputHandler {
                     curScore += timeScore / 100;
                 }
             }
-        } else if (gameType == GameType.B) {
+        } else if (gameType == GameType.PICTURE) {
             if (rightAnswerTypeB == false) {
                 curScore = -100;
             } else {
@@ -237,34 +222,11 @@ class GameLogic implements IGameInputHandler {
     }
 
     /**
-     * 지명 문제, 사진 문제를 골라서 화면에 표시
-     */
-    private void chooseQuestionType() {
-        Random random = new Random();
-        random.setSeed(System.currentTimeMillis());
-
-        //int randomNumber = random.nextInt(2);
-        int randomNumber = 0;
-        if (randomNumber == 0) {
-            gameType = GameType.A;
-            ui.bottomOnePicture(questionPic.get(problem));
-            answerMarker = ui.makeMarker("red", Objects.requireNonNull(questionPic.get(problem).getMeta().getGeo()));
-
-        } else if (randomNumber == 1) {
-            gameType = GameType.B;
-            ui.bottomFourPicture(questionPic);
-            answerMarker = ui.makeMarker("red", Objects.requireNonNull(questionPic.get(problem).getMeta().getGeo()), questionPic.get(problem).getMeta().getAddress());
-            answerImageviewIndex = problem;
-        }
-    }
-
-
-    /**
      * 제한 시간 측정
      */
     private void timeThreadhandler() {
         int stageTimeLimitMs = TIME_LIMIT_MS - problem * 1000;
-        ui.setGameTimeProgressBarMAx(stageTimeLimitMs);
+        ui.setGameTimeProgressBarMax(stageTimeLimitMs);
 
         final long deadlineMs = new Date().getTime() + stageTimeLimitMs;
         //final Handler ui = new Handler();
@@ -286,7 +248,7 @@ class GameLogic implements IGameInputHandler {
 
                     // 화면을 한번 터치해 마커를 생성하고 난 후
                     // 타임아웃 발생시 그 마커를 위치로 정답 확인
-                    if (gameType == GameType.A) {
+                    if (gameType == GameType.POSITION) {
                         if (currentMarker != null) {
                             timeOutAddUserMarker();
                         } else {
@@ -295,7 +257,7 @@ class GameLogic implements IGameInputHandler {
                             ui.addOverlay(answerMarker);
                         }
                     }   //지명 문제에서 한번 테두리가 있는 후 정답 확인과 테두리 없을 시 정답확인 구현하기
-                    else if (gameType == GameType.B) {
+                    else if (gameType == GameType.PICTURE) {
                         ui.clearLastSelectIfExists();
                     }
 
@@ -533,7 +495,7 @@ class GameLogic implements IGameInputHandler {
 
     @Override
     public void onPressNext() {
-        if (gameType == GameType.A) {
+        if (gameType == GameType.POSITION) {
             if (currentMarker != null) {
                 ui.clearOverlay(currentMarker);
                 currentMarker = null;
@@ -546,7 +508,7 @@ class GameLogic implements IGameInputHandler {
             ui.clearOverlay(drawCircleOverlay);
             ui.clearOverlay(dottedLineOverlay);
 
-        } else if (gameType == GameType.B) {
+        } else if (gameType == GameType.PICTURE) {
             ui.clearOverlay(answerMarker);
         }
         problem++;
@@ -577,4 +539,34 @@ class GameLogic implements IGameInputHandler {
         ui.finishActivity();
     }
 
+    /**
+     * ResourcePicture 시절 주소가 없는 걸 얻고자 만든 것.
+     * 쓰게 될지는 모름
+     *
+     * @param target
+     */
+    private void setReverseGeocodeRegionNameAsPictureTitle(final IPicture target) {
+        RemoteJava client = RemoteJava.INSTANCE;
+        GeoPoint geo = Objects.requireNonNull(target.getMeta().getGeo());
+        client.reverseGeocode(geo.getLatitude(), geo.getLongitude(), new UIPromise<ReverseGeocodeResult>() {
+            @Override
+            public void failure(@NotNull Throwable cause) {
+                StringWriter sw = new StringWriter();
+                PrintWriter pw = new PrintWriter(sw);
+                cause.printStackTrace(pw);
+                Log.e("failfail", cause.toString() + sw.toString());
+            }
+
+            @Override
+            public void success(ReverseGeocodeResult result) {
+                String name = result.getCountry() + " " + result.getDetail();
+                target.getMeta().setAddress(name);
+
+                // 첫 문제 지역명 수신 시 문제 진행
+                if (questionPic.indexOf(target) == 0) {
+                    onGameReady();
+                }
+            }
+        });
+    }
 }

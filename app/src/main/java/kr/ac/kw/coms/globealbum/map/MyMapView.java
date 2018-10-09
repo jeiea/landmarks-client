@@ -2,6 +2,7 @@ package kr.ac.kw.coms.globealbum.map;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
@@ -11,6 +12,7 @@ import com.bumptech.glide.request.target.CustomViewTarget;
 import com.bumptech.glide.request.transition.Transition;
 
 import org.jetbrains.annotations.NotNull;
+import org.osmdroid.config.Configuration;
 import org.osmdroid.events.MapListener;
 import org.osmdroid.events.ScrollEvent;
 import org.osmdroid.events.ZoomEvent;
@@ -38,10 +40,16 @@ public class MyMapView extends org.osmdroid.views.MapView implements ILandmarkMa
     ArrayList<MarkerTouchListener> markerListeners = new ArrayList<>(); //마커클릭 시 필요한 리스너를 모아둔다
     MyMarker markerLineFolderOverlay = null;  //마커 모아서 관리
 
+    private static boolean isConfigurationLoaded = false;
+
     // Constructor used by XML layout resource (uses default tile source).
     public MyMapView(final Context context, final AttributeSet attrs) {
         super(context, null, null, attrs);
         this.context = context;
+        if (!isConfigurationLoaded) {
+            Configuration.getInstance().load(context, PreferenceManager.getDefaultSharedPreferences(context));
+            isConfigurationLoaded = true;
+        }
         this.post(new Runnable() {
                       @Override
                       public void run() {
@@ -53,7 +61,7 @@ public class MyMapView extends org.osmdroid.views.MapView implements ILandmarkMa
     }
 
     public MyMapView(final Context context) {
-        super(context, null, null, null);
+        this(context, null);
     }
 
     @Override

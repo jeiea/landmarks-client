@@ -167,6 +167,13 @@ class GameUI {
         return activity.getLayoutInflater().inflate(layout, frame, false);
     }
 
+    /**
+     * 문제를 보임
+     *
+     * @param stage   현재 스테이지
+     * @param problem 현 스테이지에서 푸는 문제 번째
+     * @param games   현 스테이지의 총 문제 수
+     */
     void displayQuiz(int stage, int problem, int games) {
         gameStageTextView.setText("STAGE " + stage);
         gameTargetTextView.setText("TARGET " + (problem + 1) + "/" + games);
@@ -174,9 +181,9 @@ class GameUI {
     }
 
     void displayAnswerLayout(GameLogic.GameType gameType, int score, int distance, IPicture pic, boolean isNull) {
-        if (gameType == GameLogic.GameType.A) {
+        if (gameType == GameLogic.GameType.POSITION) {
             positionProblemLayout.setVisibility(View.GONE);
-        } else if (gameType == GameLogic.GameType.B) {
+        } else if (gameType == GameLogic.GameType.PICTURE) {
             choicePicProblemLayout.setVisibility(View.GONE);
             myMapView.getController().zoomTo(myMapView.getMinZoomLevel(), 1000L); //인자의 속도에 맞춰서 줌 아웃
         }
@@ -184,7 +191,7 @@ class GameUI {
         answerLayout.setVisibility(View.VISIBLE);
         answerLayout.setClickable(true);
         answerLandNameTextView.setText(pic.getMeta().getAddress());
-        if (gameType == GameLogic.GameType.A && !isNull) {
+        if (gameType == GameLogic.GameType.POSITION && !isNull) {
             answerDistanceTextView.setVisibility(View.VISIBLE);
             answerDistanceTextView.setText(distance + "KM");
         } else {
@@ -192,7 +199,6 @@ class GameUI {
         }
         answerScoreTextView.setText("score " + score);
         GlideApp.with(activity).load(pic).into(answerCorrectImageView);
-
     }
 
 
@@ -271,7 +277,7 @@ class GameUI {
         myMapView.invalidate();
     }
 
-    void setGameTimeProgressBarMAx(int max) {
+    void setGameTimeProgressBarMax(int max) {
         gameTimeProgressBar.setMax(max);
     }
 
@@ -413,7 +419,6 @@ class GameUI {
      * @param pics 사진 정보를 가지고 있는 클래스
      */
     void bottomFourPicture(List<IPicture> pics) {
-
         //레이아웃 설정
         choicePicProblemLayout.setVisibility(View.VISIBLE);
         choicePicProblemLayout.setClickable(true);
