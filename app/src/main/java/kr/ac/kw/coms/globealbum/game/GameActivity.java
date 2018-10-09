@@ -5,13 +5,21 @@ import android.support.v7.app.AppCompatActivity;
 
 
 public class GameActivity extends AppCompatActivity {
+    GameUI gui;
+    GameLogic logic;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        GameUI gui = new GameUI(this);
-        GameLogic logic = new GameLogic(gui, this);
+        gui = new GameUI(this);
+        logic = new GameLogic(gui, this);
         gui.input = logic;
         logic.initiateGame();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        logic.finishTimerHandler();
     }
 }

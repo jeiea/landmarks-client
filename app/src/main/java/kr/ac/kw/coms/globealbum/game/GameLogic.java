@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Objects;
 import java.util.Random;
+import java.util.Timer;
 
 import kr.ac.kw.coms.globealbum.R;
 import kr.ac.kw.coms.globealbum.map.DrawCircleOverlay;
@@ -187,6 +188,8 @@ class GameLogic implements IGameInputHandler {
     }
 
     void onProblemDone() {
+        if(timerHandler == null)
+            return;
         timerHandler = null;
         int curScore = calcScore();
         boolean isNull = false;
@@ -491,6 +494,11 @@ class GameLogic implements IGameInputHandler {
                 }
             }
         });
+    }
+
+    void finishTimerHandler(){
+        timerState = TimerState.Stop;
+        timerHandler =null;
     }
 
     @Override
