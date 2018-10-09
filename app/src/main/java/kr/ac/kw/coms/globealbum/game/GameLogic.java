@@ -3,7 +3,6 @@ package kr.ac.kw.coms.globealbum.game;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Point;
-import android.graphics.Rect;
 import android.os.Handler;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
@@ -13,15 +12,12 @@ import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.Interpolator;
 import android.view.animation.LinearInterpolator;
 import android.widget.ImageView;
-import android.widget.Toast;
 
 import org.jetbrains.annotations.NotNull;
 import org.osmdroid.config.Configuration;
-import org.osmdroid.events.MapEventsReceiver;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.Projection;
-import org.osmdroid.views.overlay.MapEventsOverlay;
 import org.osmdroid.views.overlay.Marker;
 
 import java.io.PrintWriter;
@@ -32,7 +28,6 @@ import java.util.Objects;
 import java.util.Random;
 
 import kr.ac.kw.coms.globealbum.R;
-import kr.ac.kw.coms.globealbum.common.GlideApp;
 import kr.ac.kw.coms.globealbum.map.DrawCircleOverlay;
 import kr.ac.kw.coms.globealbum.map.MyMapView;
 import kr.ac.kw.coms.globealbum.provider.IPicture;
@@ -61,14 +56,13 @@ class GameLogic implements IGameInputHandler {
     private Handler drawDottedLineHandler = null;  // 점선 그리는 핸들러
     private Handler timerHandler = null;    //시간 진행시키는 핸들러
 
-    final int TIME_LIMIT_MS = 14000;
+    private final int TIME_LIMIT_MS = 14000;
     private Marker currentMarker;   //사용자가 찍은 마커
     private Marker answerMarker;    //정답 마커
     private int answerImageviewIndex;
     DrawCircleOverlay drawCircleOverlay;
     DottedLineOverlay dottedLineOverlay;
     boolean rightAnswerTypeB = false;
-
 
 
     enum TimerState {
@@ -80,6 +74,7 @@ class GameLogic implements IGameInputHandler {
         A,
         B
     }
+
     private GameType gameType;
     private TimerState timerState;
 
@@ -92,23 +87,24 @@ class GameLogic implements IGameInputHandler {
     //post delay 사용하기
     void initiateGame() {
 
-        ui.displayLoadingGif(true);
+        ui.displayLoadingGif();
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
                 onGameEntryPoint();
             }
-        },2000);
+        }, 2000);
 
     }
 
-    void onGameEntryPoint() {
+    private void onGameEntryPoint() {
         stage++;
-        if (stage == 1 || (stage - 1 != stageLimitScore.length && score >= stageLimitScore[stage - 2])) {
-
+        boolean isFirstStage = stage == 1;
+        boolean isNotEnd = stage - 1 > stageLimitScore.length && score >= stageLimitScore[stage - 2];
+        if (isFirstStage || isNotEnd) {
             ui.displayGameEntryPoint(stage, stageLimitScore[stage - 1], stageNumberOfGames[stage - 1]);
         } else {
-            ui.setRecyclerView(questionPic);
+            ui.showGameOver(questionPic);
         }
     }
 
@@ -140,7 +136,7 @@ class GameLogic implements IGameInputHandler {
         //displayQuiz();
     }
 
-    void onGameReady(){
+    void onGameReady() {
         Configuration.getInstance().load(context, PreferenceManager.getDefaultSharedPreferences(context));
 
         Random random = new Random();
@@ -194,10 +190,10 @@ class GameLogic implements IGameInputHandler {
         timerHandler = null;
         int curScore = calcScore();
         boolean isNull = false;
-        if (currentMarker == null){
+        if (currentMarker == null) {
             isNull = true;
         }
-        ui.displayAnswerLayout(gameType,curScore,distance,questionPic.get(problem),isNull);
+        ui.displayAnswerLayout(gameType, curScore, distance, questionPic.get(problem), isNull);
     }
 
     void onNextProblem() {
@@ -214,10 +210,9 @@ class GameLogic implements IGameInputHandler {
             if (currentMarker == null) { //마커를 화면에 찍지 않고 정답을 확인하는 경우
                 curScore = -100;
             } else {
-                if( distance >= 6000){
-                    curScore=0;
-                }
-                else{
+                if (distance >= 6000) {
+                    curScore = 0;
+                } else {
                     int criteria = 300;
                     curScore = criteria - distance / 25;
                     curScore += timeScore / 100;
@@ -250,12 +245,12 @@ class GameLogic implements IGameInputHandler {
         if (randomNumber == 0) {
             gameType = GameType.A;
             ui.bottomOnePicture(questionPic.get(problem));
-            answerMarker = ui.makeMarker("red",Objects.requireNonNull(questionPic.get(problem).getMeta().getGeo()));
+            answerMarker = ui.makeMarker("red", Objects.requireNonNull(questionPic.get(problem).getMeta().getGeo()));
 
         } else if (randomNumber == 1) {
             gameType = GameType.B;
             ui.bottomFourPicture(questionPic);
-            answerMarker = ui.makeMarker("red",Objects.requireNonNull(questionPic.get(problem).getMeta().getGeo()),questionPic.get(problem).getMeta().getAddress());
+            answerMarker = ui.makeMarker("red", Objects.requireNonNull(questionPic.get(problem).getMeta().getGeo()), questionPic.get(problem).getMeta().getAddress());
             answerImageviewIndex = problem;
         }
     }
@@ -288,7 +283,7 @@ class GameLogic implements IGameInputHandler {
 
                     // 화면을 한번 터치해 마커를 생성하고 난 후
                     // 타임아웃 발생시 그 마커를 위치로 정답 확인
-                    if (gameType== GameType.A) {
+                    if (gameType == GameType.A) {
                         if (currentMarker != null) {
                             timeOutAddUserMarker();
                         } else {
@@ -309,12 +304,13 @@ class GameLogic implements IGameInputHandler {
         }
 
     }
+
     /**
      * 화면을 한번 클릭해 임시 마커 생성 후 타임아웃 발생시 정답 확인
      */
     private void timeOutAddUserMarker() {
 
-        Marker tmpMarker = ui.makeMarker("blue",currentMarker.getPosition());
+        Marker tmpMarker = ui.makeMarker("blue", currentMarker.getPosition());
         ui.addOverlay(tmpMarker);
 
         distance = calcDistance(currentMarker.getPosition(), answerMarker.getPosition());
@@ -333,7 +329,6 @@ class GameLogic implements IGameInputHandler {
     private int calcDistance(GeoPoint geoPoint1, GeoPoint geoPoint2) {
         return (int) (geoPoint1.distanceToAsDouble(geoPoint2) / 1000);
     }
-
 
 
     /**
@@ -412,14 +407,14 @@ class GameLogic implements IGameInputHandler {
     /**
      * 화면을 클릭해 마커를 생성했을 때 애니메이션을 주어서 좌표에 생성
      *
-     * @param myMapView              mapview
+     * @param myMapView        mapview
      * @param finalGeoPosition 화면에 선택한 곳의 좌표
      */
     private void showMarker(final MyMapView myMapView, final GeoPoint finalGeoPosition) {
         if (currentMarker != null) {
             ui.clearOverlay(currentMarker);
         }
-        Marker marker =ui.makeMarker("blue",finalGeoPosition);
+        Marker marker = ui.makeMarker("blue", finalGeoPosition);
         currentMarker = marker;
 
 
@@ -436,7 +431,7 @@ class GameLogic implements IGameInputHandler {
 
         GeoPoint startGeoPosition = (GeoPoint) projection.fromPixels(startPoint.x, startPoint.y);
 
-        final Marker tmpMarker = ui.makeMarker("blue",startGeoPosition);
+        final Marker tmpMarker = ui.makeMarker("blue", startGeoPosition);
         ui.addOverlay(tmpMarker);
 
         final Handler showMarkerHandler = new Handler();
@@ -476,7 +471,7 @@ class GameLogic implements IGameInputHandler {
                         public boolean onMarkerClick(Marker marker, MapView mapView) {  //생성된 마커를 클릭하여 화면에 등록
                             timerState = TimerState.Stop;
                             //유저가 선택한 위치의 마커에서 정답 마커까지 이동하는 애니메이션 동작을 하는 마커 생성
-                            Marker tmpMarker = ui.makeMarker("blue",marker.getPosition());
+                            Marker tmpMarker = ui.makeMarker("blue", marker.getPosition());
                             ui.addOverlay(tmpMarker);
 
                             distance = calcDistance(finalGeoPosition, answerMarker.getPosition());
@@ -489,7 +484,7 @@ class GameLogic implements IGameInputHandler {
                         }
                     });
                     currentMarker = tmpMarker;
-                    if(timerState == TimerState.Stop){           //정답 확인 직전 마커를 선택했을 때, 마커 지우기
+                    if (timerState == TimerState.Stop) {           //정답 확인 직전 마커를 선택했을 때, 마커 지우기
                         ui.clearOverlay(currentMarker);
                     }
 
@@ -521,7 +516,6 @@ class GameLogic implements IGameInputHandler {
     }
 
 
-
     @Override
     public void onPressStart() {
         score = 0;
@@ -548,7 +542,7 @@ class GameLogic implements IGameInputHandler {
             ui.clearOverlay(answerMarker);
         }
         problem++;
-        ui.clearAnswerLayout(problem,stageNumberOfGames[stage-1]);
+        ui.clearAnswerLayout(problem, stageNumberOfGames[stage - 1]);
 
         if (problem < stageNumberOfGames[stage - 1]) {
             chooseQuestionType();

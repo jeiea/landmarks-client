@@ -2,15 +2,14 @@ package kr.ac.kw.coms.globealbum.game;
 
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
-import android.os.Handler;
+import android.support.annotation.LayoutRes;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.Button;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -37,12 +36,13 @@ import kr.ac.kw.coms.globealbum.provider.IPicture;
 
 class GameUI {
     private AppCompatActivity activity;
-    public IGameInputHandler input;
+    IGameInputHandler input;
 
-    //game entry point
-    private ImageView gameStartNextStageButton, gameExitButton;
-    private TextView gameNextStageLevelTextview, gameNextStageGoalTextview;
-    //game
+    // screens
+    private ReadyScreen readyScreen;
+    private View quizView;
+
+    // game
     private MyMapView myMapView;
     private ProgressBar gameTimeProgressBar;
     private TextView gameStageTextView;
@@ -51,101 +51,128 @@ class GameUI {
     private Drawable RED_MARKER_DRAWABLE;
     private Drawable BLUE_MARKER_DRAWABLE;
 
-
-    //answer
-    private ImageView answerGoToNextStageButton;
-    private ImageView answerExitButton;
+    // answer
     private TextView answerLandNameTextView, answerDistanceTextView, answerScoreTextView;
     private ImageView answerCorrectImageView;
     private ConstraintLayout answerLayout;
-    //problem type
+
+    // problem type
     private ConstraintLayout positionProblemLayout;
     private ConstraintLayout choicePicProblemLayout;
     private Drawable redRect;
     private ImageView positionPicImageView;
     private ImageView[] choicePicImageViews = new ImageView[4];
 
-    //after game
-    private RecyclerView recyclerView;
-    private AfterGameAdapter adapter;
 
     GameUI(AppCompatActivity activity) {
         this.activity = activity;
-        redRect = activity.getResources().getDrawable(R.drawable.rectangle_border, null);
+        readyScreen = new ReadyScreen();
+        initQuiz();
     }
 
-    void displayLoadingGif(boolean show) {
+    void displayLoadingGif() {
         activity.setContentView(R.layout.layout_game_loading_animation);
         ImageView imgLoading = activity.findViewById(R.id.game_gif_loading);
         imgLoading.setClickable(false);
         GlideApp.with(imgLoading).load(R.drawable.game_loading_gif).into(imgLoading);
-
     }
 
-
-    void displayGameEntryPoint(int stage, int score, int games) {
-        int[] bgId = new int[]{R.drawable.game_start_bg1,R.drawable.game_start_bg2,R.drawable.game_start_bg3,R.drawable.game_start_bg4,R.drawable.game_start_bg5,R.drawable.game_start_bg6,R.drawable.game_start_bg7};
-        Random random = new Random();
-        random.setSeed(System.currentTimeMillis());
-        int randomNumber = random.nextInt(7);
-        activity.setContentView(R.layout.layout_game_entry_point);
-        View backgroundView = activity.findViewById(R.id.game_start_background);
-        backgroundView.setBackgroundResource(bgId[randomNumber]);
-        gameStartNextStageButton = activity.findViewById(R.id.game_start_stage_btn);
-        gameExitButton = activity.findViewById(R.id.game_start_exit_btn);
-        gameNextStageLevelTextview = activity.findViewById(R.id.textview_level);
-        gameNextStageGoalTextview = activity.findViewById(R.id.textview_goal_score);
-        gameNextStageLevelTextview.setText("Level " + stage);
-        gameNextStageGoalTextview.setText(score + "/" + games);
-        gameStartNextStageButton.setOnClickListener(onPressStart);
-        gameExitButton.setOnClickListener(onPressExit);
-    }
-
-
-
-    void displayQuiz(int stage, int problem, int games) {
-        activity.setContentView(R.layout.activity_game);
+    private void initQuiz() {
+        quizView = rootInflate(R.layout.activity_game);
 
         //game layout
-        gameTimeProgressBar = activity.findViewById(R.id.progressbar);
-        gameStageTextView = activity.findViewById(R.id.textview_stage);
-        gameTargetTextView = activity.findViewById(R.id.textview_target);
-        gameScoreTextView = activity.findViewById(R.id.textview_score);
-        RED_MARKER_DRAWABLE = activity.getResources().getDrawable(R.drawable.game_red_marker);
-        BLUE_MARKER_DRAWABLE = activity.getResources().getDrawable(R.drawable.game_blue_marker);
-
-        gameStageTextView.setText("STAGE " + stage);
-        gameTargetTextView.setText("TARGET " + (problem + 1) + "/" + games);
+        gameTimeProgressBar = quizView.findViewById(R.id.progressbar);
+        gameStageTextView = quizView.findViewById(R.id.textview_stage);
+        gameTargetTextView = quizView.findViewById(R.id.textview_target);
+        gameScoreTextView = quizView.findViewById(R.id.textview_score);
+        redRect = activity.getResources().getDrawable(R.drawable.rectangle_border, null);
+        RED_MARKER_DRAWABLE = quizView.getResources().getDrawable(R.drawable.game_red_marker, null);
+        BLUE_MARKER_DRAWABLE = quizView.getResources().getDrawable(R.drawable.game_blue_marker, null);
 
         //answer layout
-        answerLayout = activity.findViewById(R.id.layout_answer);
-        answerCorrectImageView = activity.findViewById(R.id.picture_answer);
-        answerExitButton = activity.findViewById(R.id.button_exit);
-        answerGoToNextStageButton = activity.findViewById(R.id.button_next);
-        answerDistanceTextView = activity.findViewById(R.id.textview_land_distance_answer);
-        answerLandNameTextView = activity.findViewById(R.id.textview_land_name_answer);
-        answerScoreTextView = activity.findViewById(R.id.textview_land_score_answer);
+        answerLayout = quizView.findViewById(R.id.layout_answer);
+        answerCorrectImageView = quizView.findViewById(R.id.picture_answer);
+        answerDistanceTextView = quizView.findViewById(R.id.textview_land_distance_answer);
+        answerLandNameTextView = quizView.findViewById(R.id.textview_land_name_answer);
+        answerScoreTextView = quizView.findViewById(R.id.textview_land_score_answer);
 
+        ImageView answerGoToNextStageButton = quizView.findViewById(R.id.button_next);
         answerGoToNextStageButton.setOnClickListener(onPressNext);
+        ImageView answerExitButton = quizView.findViewById(R.id.button_exit);
         answerExitButton.setOnClickListener(onPressExit);
 
         //game type layout
-        positionProblemLayout = activity.findViewById(R.id.position_problem);
-        choicePicProblemLayout = activity.findViewById(R.id.choice_pic);
-        positionPicImageView = activity.findViewById(R.id.picture);
+        positionProblemLayout = quizView.findViewById(R.id.position_problem);
+        choicePicProblemLayout = quizView.findViewById(R.id.choice_pic);
         int[] imgViewIds = new int[]{R.id.picture1, R.id.picture2, R.id.picture3, R.id.picture4};
         for (int i = 0; i < imgViewIds.length; i++) {
-            choicePicImageViews[i] = activity.findViewById(imgViewIds[i]);
+            choicePicImageViews[i] = quizView.findViewById(imgViewIds[i]);
             choicePicImageViews[i].setOnClickListener(onPressPicFirst);
         }
 
+        positionPicImageView = quizView.findViewById(R.id.picture);
         positionPicImageView.setOnClickListener(onPressPicZoom);
 
-        myMapView = activity.findViewById(R.id.map);
+        myMapView = quizView.findViewById(R.id.map);
         addOverlay(onPressMarker);
     }
 
-    void displayAnswerLayout(GameLogic.GameType gameType,int score,int distance,IPicture pic,boolean isNull){
+    void displayGameEntryPoint(int stage, int score, int games) {
+        readyScreen.setLabelAndChangeBackground(stage, score, games);
+        activity.setContentView(readyScreen.getRootView());
+    }
+
+    class ReadyScreen {
+        private TextView gameNextStageLevelTextview;
+        private TextView gameNextStageGoalTextview;
+        private View backgroundView;
+        private View rootView;
+        private Random random = new Random(System.currentTimeMillis());
+
+        ReadyScreen() {
+            rootView = rootInflate(R.layout.layout_game_entry_point);
+            backgroundView = rootView.findViewById(R.id.game_start_background);
+            gameNextStageLevelTextview = rootView.findViewById(R.id.textview_level);
+            gameNextStageGoalTextview = rootView.findViewById(R.id.textview_goal_score);
+            ImageView gameStartNextStageButton = rootView.findViewById(R.id.game_start_stage_btn);
+            gameStartNextStageButton.setOnClickListener(onPressStart);
+            ImageView gameExitButton = rootView.findViewById(R.id.game_start_exit_btn);
+            gameExitButton.setOnClickListener(onPressExit);
+        }
+
+        void setLabelAndChangeBackground(int stage, int score, int games) {
+            int[] bgId = new int[]{
+                    R.drawable.game_start_bg1,
+                    R.drawable.game_start_bg2,
+                    R.drawable.game_start_bg3,
+                    R.drawable.game_start_bg4,
+                    R.drawable.game_start_bg5,
+                    R.drawable.game_start_bg6,
+                    R.drawable.game_start_bg7
+            };
+            int randomNumber = random.nextInt(7);
+            backgroundView.setBackgroundResource(bgId[randomNumber]);
+            gameNextStageLevelTextview.setText("Level " + stage);
+            gameNextStageGoalTextview.setText(score + "/" + games);
+        }
+
+        View getRootView() {
+            return rootView;
+        }
+    }
+
+    private View rootInflate(@LayoutRes int layout) {
+        ViewGroup frame = (ViewGroup) activity.getWindow().getDecorView();
+        return activity.getLayoutInflater().inflate(layout, frame, false);
+    }
+
+    void displayQuiz(int stage, int problem, int games) {
+        gameStageTextView.setText("STAGE " + stage);
+        gameTargetTextView.setText("TARGET " + (problem + 1) + "/" + games);
+        activity.setContentView(quizView);
+    }
+
+    void displayAnswerLayout(GameLogic.GameType gameType, int score, int distance, IPicture pic, boolean isNull) {
         if (gameType == GameLogic.GameType.A) {
             positionProblemLayout.setVisibility(View.GONE);
         } else if (gameType == GameLogic.GameType.B) {
@@ -168,7 +195,7 @@ class GameUI {
     }
 
 
-    MyMapView getMyMapView(){
+    MyMapView getMyMapView() {
         return myMapView;
     }
 
@@ -208,7 +235,7 @@ class GameUI {
      */
     Marker makeMarker(String strColor, GeoPoint pt, String placeName) {
         Marker marker = new Marker(myMapView);
-        if (strColor.equals("red") ) {
+        if (strColor.equals("red")) {
             marker.setIcon(RED_MARKER_DRAWABLE);
         } else if (strColor.equals("blue")) {
             marker.setIcon(BLUE_MARKER_DRAWABLE);
@@ -285,7 +312,7 @@ class GameUI {
         }
     };
 
-    View.OnClickListener onPressExit= new View.OnClickListener() {
+    View.OnClickListener onPressExit = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
             input.onPressExit();
@@ -295,7 +322,7 @@ class GameUI {
     View.OnClickListener onPressPicZoom = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            ImageView imgv = (ImageView)v;
+            ImageView imgv = (ImageView) v;
             PictureDialogFragment pdf = PictureDialogFragment.Companion.newInstance(imgv.getDrawable());
             pdf.show(activity.getSupportFragmentManager(), "wow");
         }
@@ -305,7 +332,7 @@ class GameUI {
     MapEventsOverlay onPressMarker = new MapEventsOverlay(new MapEventsReceiver() {
         @Override
         public boolean singleTapConfirmedHelper(GeoPoint p) {
-            input.onPressMarker(myMapView,p);
+            input.onPressMarker(myMapView, p);
             return true;
         }
 
@@ -324,7 +351,6 @@ class GameUI {
     };
 
     View lastSelect;
-
 
 
     /**
@@ -346,7 +372,7 @@ class GameUI {
             v.getOverlay().add(redRect);
             v.setOnClickListener(onPressPicSecond);
             lastSelect = v;
-            input.onSelectPicFirst(choicePicImageViews[0],v);
+            input.onSelectPicFirst(choicePicImageViews[0], v);
 
         }
     };
@@ -354,7 +380,7 @@ class GameUI {
     View.OnClickListener onPressPicSecond = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            input.onSelectPicSecond(choicePicImageViews[0],v);
+            input.onSelectPicSecond(choicePicImageViews[0], v);
             clearLastSelectIfExists();
             lastSelect = null;
 
@@ -408,14 +434,15 @@ class GameUI {
     /**
      * 게임이 완료된 후 사진들을 모아서 보여주는 리사이클뷰 적용
      */
-    void setRecyclerView(List<IPicture> pics) {
+    void showGameOver(List<IPicture> pics) {
         activity.setContentView(R.layout.layout_recycler_view);
-        recyclerView = activity.findViewById(R.id.after_game_recyclerview);
+        //after game
+        RecyclerView recyclerView = activity.findViewById(R.id.after_game_recyclerview);
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(activity);
         layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         recyclerView.setLayoutManager(layoutManager);
-        adapter = new AfterGameAdapter(activity, pics);
+        AfterGameAdapter adapter = new AfterGameAdapter(activity, pics);
         recyclerView.setAdapter(adapter);
     }
 
