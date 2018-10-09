@@ -17,6 +17,7 @@ import java.util.Map;
 
 import kr.ac.kw.coms.globealbum.album.GalleryActivity;
 import kr.ac.kw.coms.globealbum.album.activity_Navigator;
+import kr.ac.kw.coms.globealbum.common.RequestCodes;
 import kr.ac.kw.coms.globealbum.diary.Diary_main;
 import kr.ac.kw.coms.globealbum.game.GameActivity;
 import kr.ac.kw.coms.globealbum.provider.EXIFinfo;
@@ -59,10 +60,10 @@ public class MainActivity extends AppCompatActivity {
                 startActivityForResult(new Intent(this, activity_Navigator.class), 3);
                 break;
             case R.id.imageview_game_my_diary:
-                startActivityForResult(new Intent(this, Diary_main.class), 4);
+                startActivityForResult(new Intent(this, Diary_main.class).setAction(RequestCodes.ACTION_DIARY_MINE), 4);
                 break;
             case R.id.imageview_game_other_diary:
-                startActivityForResult(new Intent(this, Diary_main.class), 4);
+                startActivityForResult(new Intent(this, Diary_main.class).setAction(RequestCodes.ACTION_DIARY_OTHERS), 4);
                 break;
             default:
         }

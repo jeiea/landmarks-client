@@ -278,6 +278,7 @@ public class Diary_main extends AppCompatActivity {
                 public void onClick(View v) {
                     Intent intent = new Intent(Diary_main.this, Diary_mapNPictures.class);
                     intent.putExtra(Diary_mapNPictures.PARCEL_DIARY, diaryToShow);
+                    intent.setAction(getIntent().getAction());
                     startActivity(intent);
                 }
             });
