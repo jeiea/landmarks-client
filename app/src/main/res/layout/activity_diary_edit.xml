@@ -10,7 +10,7 @@
         android:id="@+id/diary_edit_topbar"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:background="@drawable/upper_bar"
+        android:background="#FFFFFF"
         app:layout_constraintHeight_percent="0.065"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toTopOf="parent">

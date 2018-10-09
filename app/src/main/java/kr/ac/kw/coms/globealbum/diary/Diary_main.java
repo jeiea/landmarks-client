@@ -67,7 +67,7 @@ public class Diary_main extends AppCompatActivity {
         PrepareData();
     }
 
-    public void diary_onBackClick(View view) {
+    public void Common_Back_Click(View view) {
         finish();
     }
 

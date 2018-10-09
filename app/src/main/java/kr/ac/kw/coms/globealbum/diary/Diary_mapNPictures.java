@@ -2,20 +2,29 @@ package kr.ac.kw.coms.globealbum.diary;
 
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.constraint.ConstraintLayout;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.google.android.flexbox.FlexDirection;
 
 import org.jetbrains.annotations.NotNull;
@@ -31,6 +40,7 @@ import java.util.List;
 import java.util.Objects;
 
 import kr.ac.kw.coms.globealbum.R;
+import kr.ac.kw.coms.globealbum.album.GalleryActivity;
 import kr.ac.kw.coms.globealbum.album.GalleryDetail;
 import kr.ac.kw.coms.globealbum.album.GroupDiaryView;
 import kr.ac.kw.coms.globealbum.album.PictureGroup;
@@ -51,12 +61,11 @@ public class Diary_mapNPictures extends AppCompatActivity {
     final ArrayList<Integer> PicturesArray = new ArrayList<>();
     GroupDiaryView picView = null;
     Diary diary;
-    Diary data;
+    Diary diary_onEdit;
     EditImageListAdapter adapter;
 
     //mapview에서 사용되는 멤버변수
     MyMapView myMapView = null;   //맵뷰 인스턴스
-    MapEventsOverlay mapviewClickEventOverlay; //맵 이벤트를 등록하는 오버레이
     List<Marker> markerList = new ArrayList<>();
     List<Polyline> polylineList = new ArrayList<>();
     int selectedMarkerIndex = -1;
@@ -104,11 +113,6 @@ public class Diary_mapNPictures extends AppCompatActivity {
         } catch (NullPointerException e) {
             //Ignore
         }
-
-        //맵뷰 클릭 시 이벤트 등록
-        //mapviewClickEventOverlay = mapviewClickEventDisplay();
-        //myMapView.getOverlays().add(mapviewClickEventOverlay);
-
         Diary data = getIntent().getParcelableExtra(PARCEL_DIARY);
         setDiary(data);
 
@@ -345,4 +349,139 @@ public class Diary_mapNPictures extends AppCompatActivity {
             Toast.makeText(Diary_mapNPictures.this, cause.toString(), Toast.LENGTH_SHORT).show();
         }
     };
+
+
+    public class EditImageListAdapter extends RecyclerView.Adapter<ItemViewHolder> {
+        final ArrayList<IPicture> mItems = new ArrayList<>();
+
+        public EditImageListAdapter(AppCompatActivity RootActivity, ArrayList<IPicture> Items) {
+            mItems.addAll(Items);
+        }
+
+        public void AddNewPicture(IPicture newPicture) {
+            mItems.add(newPicture);
+            notifyDataSetChanged();
+        }
+
+        public ArrayList<IPicture> getItems() {
+            return mItems;
+        }
+
+        @Override
+        public int getItemViewType(int position) {
+            if (position < getItemCount() - 1) {
+                return 0;
+            } else {
+                return 1;
+            }
+        }
+
+        @NonNull
+        @Override
+        public ItemViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            View view = null;
+            if (viewType == 0) {
+                view = LayoutInflater.from(parent.getContext()).inflate(R.layout.layout_map_n_pictures_verticallist, parent, false);
+            } else {
+                view = LayoutInflater.from(parent.getContext()).inflate(R.layout.layout_map_n_pictures_verticallist_new, parent, false);
+            }
+            return new ItemViewHolder(view);
+        }
+
+        @Override
+        public void onBindViewHolder(@NonNull ItemViewHolder holder, final int position) {
+            //목록의 내용 추가
+            if (position < getItemCount() - 1) {
+                Glide.with(holder.imageView).load(mItems.get(position)).into(holder.imageView);
+                GeoPoint point = mItems.get(position).getMeta().getGeo();
+                holder.text_Title.setText(mItems.get(position).getMeta().getAddress() + "\n위도 " + Math.round(point.getLatitude()) + ", 경도 " + Math.round(point.getLongitude()));
+                holder.btn_Delete.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        AlertDialog.Builder alert = new AlertDialog.Builder(Diary_mapNPictures.this);
+                        alert.setTitle("삭제 확인");
+                        alert.setMessage("사진을 삭제합니다.");
+                        alert.setPositiveButton("확인", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                mItems.remove(position);
+                                notifyDataSetChanged();
+                                dialog.dismiss();
+                            }
+                        });
+                        alert.setNegativeButton("취소", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                            }
+                        });
+                        alert.show();
+                    }
+                });
+                holder.btn_MoveUp.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (position == 0)
+                            return;
+                        IPicture swap = mItems.get(position);
+                        mItems.set(position, mItems.get(position - 1));
+                        mItems.set(position - 1, swap);
+                        notifyDataSetChanged();
+                    }
+                });
+                holder.btn_MoveDown.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (position > getItemCount() - 2)
+                            return;
+                        IPicture swap = mItems.get(position);
+                        mItems.set(position, mItems.get(position + 1));
+                        mItems.set(position + 1, swap);
+                        notifyDataSetChanged();
+                    }
+                });
+            } else {
+                holder.btn_New.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Toast.makeText(Diary_mapNPictures.this, "New Image!", Toast.LENGTH_SHORT).show();
+                        Intent intent = new Intent(Diary_mapNPictures.this.getBaseContext(), GalleryActivity.class);
+                        intent.setAction(RequestCodes.ACTION_SELECT_PHOTO);
+                        startActivity(intent);
+                    }
+                });
+            }
+        }
+
+        @Override
+        public int getItemCount() {
+            return mItems.size() + 1;
+        }
+    }
+
+    public class ItemViewHolder extends RecyclerView.ViewHolder {
+        ConstraintLayout rootLayout;
+        ConstraintLayout updownBox;
+        ImageView imageView;
+        TextView text_Title;
+        ImageButton btn_Delete;
+        ImageButton btn_New;
+        ImageButton btn_MoveUp;
+        ImageButton btn_MoveDown;
+
+        public ItemViewHolder(View itemView) {
+            super(itemView);
+            rootLayout = (ConstraintLayout) itemView;
+            imageView = (ImageView) rootLayout.getViewById(R.id.verticalList_Image);
+            text_Title = (TextView) rootLayout.getViewById(R.id.verticalList_Title);
+            if (rootLayout.getId() == R.id.verticalList_Root) {
+                btn_Delete = (ImageButton) rootLayout.getViewById(R.id.verticalList_Delete);
+                updownBox = (ConstraintLayout)rootLayout.getViewById(R.id.verticalList_UpDownBox);
+                btn_MoveUp = (ImageButton) updownBox.getViewById(R.id.verticalList_MoveUp);
+                btn_MoveDown = (ImageButton) updownBox.getViewById(R.id.verticalList_MoveDown);
+            } else
+                btn_New = (ImageButton) rootLayout.getViewById(R.id.verticalList_New);
+
+        }
+    }
 }
