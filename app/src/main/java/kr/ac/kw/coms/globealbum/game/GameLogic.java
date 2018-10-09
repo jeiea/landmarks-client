@@ -19,7 +19,6 @@ import org.osmdroid.views.overlay.Marker;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.Objects;
 import java.util.Random;
 
@@ -72,17 +71,20 @@ class GameLogic implements IGameInputHandler {
 
     private Handler animateHandler = null;  //마커 이동시키는 핸들러
     private Handler drawDottedLineHandler = null;  // 점선 그리는 핸들러
-    private Handler timerHandler = null;    //시간 진행시키는 핸들러
 
     private DrawCircleOverlay drawCircleOverlay;
     private DottedLineOverlay dottedLineOverlay;
     private boolean rightAnswerTypeB = false;
+    private GameState state;
 
     private Random random = new Random(System.currentTimeMillis());
 
-    enum TimerState {
-        Stop,
-        Running
+    enum GameState {
+        LOADING,
+        STAGE_READY,
+        SOLVING,
+        GRADING,
+        GAME_OVER,
     }
 
     enum GameType {
@@ -91,7 +93,6 @@ class GameLogic implements IGameInputHandler {
     }
 
     private GameType gameType;
-    private TimerState timerState;
 
     GameLogic(GameUI ui, Context context) {
         rui = this.ui = ui;
@@ -101,6 +102,7 @@ class GameLogic implements IGameInputHandler {
 
     //post delay 사용하기
     void initiateGame() {
+        state = GameState.LOADING;
         rui.showLoadingGif();
         new Handler().postDelayed(new Runnable() {
             @Override
@@ -115,8 +117,10 @@ class GameLogic implements IGameInputHandler {
         boolean isFirstStage = stage == 1;
         boolean isNotEnd = stage - 1 > stageLimitScore.length && score >= stageLimitScore[stage - 2];
         if (isFirstStage || isNotEnd) {
+            state = GameState.STAGE_READY;
             rui.showGameEntryPoint(stage, stageLimitScore[stage - 1], stageNumberOfGames[stage - 1]);
         } else {
+            state = GameState.GAME_OVER;
             rui.showGameOver(questionPic);
         }
     }
@@ -155,9 +159,9 @@ class GameLogic implements IGameInputHandler {
         rui.setQuizInfo(stage, problem, stageNumberOfGames[stage - 1]);
         chooseQuestionType();
 
-        timerState = TimerState.Running;
-        timerHandler = new Handler();
-        timeThreadhandler();
+        state = GameState.SOLVING;
+        int TIME_LIMIT_MS = 14000;
+        rui.startTimer(TIME_LIMIT_MS);
     }
 
     /**
@@ -190,14 +194,7 @@ class GameLogic implements IGameInputHandler {
     }
 
     private void onProblemDone() {
-        if (timerHandler == null)
-            return;
-        timerHandler = null;
         int deltaScore = calcScore();
-        boolean isNull = false;
-        if (!rui.getUserMarker().isEnabled()) {
-            isNull = true;
-        }
         double distance = calcDistance();
         if (gameType == GameType.POSITION) {
             rui.showPositionAnswer(questionPic.get(problem), deltaScore, distance);
@@ -242,59 +239,33 @@ class GameLogic implements IGameInputHandler {
     }
 
     /**
-     * 제한 시간 측정
-     */
-    private void timeThreadhandler() {
-        int TIME_LIMIT_MS = 14000;
-        int stageTimeLimitMs = TIME_LIMIT_MS - problem * 1000;
-        ui.setGameTimeProgressBarMax(stageTimeLimitMs);
-
-        final long deadlineMs = new Date().getTime() + stageTimeLimitMs;
-        //final Handler ui = new Handler();
-        if (timerHandler != null) {
-            timerHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    long timeLeft = deadlineMs - new Date().getTime();
-                    ui.setGameTimeProgressBarProgress((int) timeLeft);
-                    timeScore = (int) timeLeft;
-
-                    if (timeLeft > 0 && timerState == TimerState.Running) {
-                        timerHandler.postDelayed(this, 35); // about 30fps
-                        return;
-                    } else if (timerState == TimerState.Stop) {
-                        return;
-                    }
-                    timerState = TimerState.Stop;
-
-                    // 화면을 한번 터치해 마커를 생성하고 난 후
-                    // 타임아웃 발생시 그 마커를 위치로 정답 확인
-                    if (gameType == GameType.POSITION) {
-                        if (rui.getUserMarker().isEnabled()) {
-                            onTimeout();
-                        } else {
-                            //화면에 마커 생성 없이 타임아웃 발생시 정답 확인
-                            rui.getSystemMarker().setEnabled(true);
-                        }
-                    }   //지명 문제에서 한번 테두리가 있는 후 정답 확인과 테두리 없을 시 정답확인 구현하기
-                    else if (gameType == GameType.PICTURE) {
-                        ui.clearLastSelectIfExists();
-                    }
-
-                    onProblemDone();
-
-                    ui.mapviewInvalidate();
-                }
-            });
-        }
-
-    }
-
-    /**
      * 화면을 한번 클릭해 임시 마커 생성 후 타임아웃 발생시 정답 확인
      */
     @Override
     public void onTimeout() {
+        rui.stopTimer();
+        state = GameState.GRADING;
+
+        // 화면을 한번 터치해 마커를 생성하고 난 후
+        // 타임아웃 발생시 그 마커를 위치로 정답 확인
+        if (gameType == GameType.POSITION) {
+            if (rui.getUserMarker().isEnabled()) {
+                processProvisional();
+            } else {
+                //화면에 마커 생성 없이 타임아웃 발생시 정답 확인
+                rui.getSystemMarker().setEnabled(true);
+            }
+        }   //지명 문제에서 한번 테두리가 있는 후 정답 확인과 테두리 없을 시 정답확인 구현하기
+        else if (gameType == GameType.PICTURE) {
+            ui.clearLastSelectIfExists();
+        }
+
+        onProblemDone();
+
+        ui.mapviewInvalidate();
+    }
+
+    private void processProvisional() {
         Marker user = rui.getUserMarker();
 
         GeoPoint rightAns = questionPic.get(problem).getMeta().getGeo();
@@ -444,7 +415,8 @@ class GameLogic implements IGameInputHandler {
                     anim.setOnMarkerClickListener(new Marker.OnMarkerClickListener() {
                         @Override
                         public boolean onMarkerClick(Marker marker, MapView mapView) {
-                            timerState = TimerState.Stop;
+                            state = GameState.GRADING;
+                            rui.stopTimer();
                             // 유저가 선택한 위치의 마커에서 정답 마커까지 이동하는 애니메이션
                             // 동작을 하는 마커 생성
                             Marker sys = rui.getSystemMarker();
@@ -462,8 +434,7 @@ class GameLogic implements IGameInputHandler {
     }
 
     void finishTimerHandler() {
-        timerState = TimerState.Stop;
-        timerHandler = null;
+        rui.stopTimer();
     }
 
     @Override
@@ -471,7 +442,8 @@ class GameLogic implements IGameInputHandler {
         if (selected == questionPic.get(problem)) {
             rightAnswerTypeB = true;
         }
-        timerState = GameLogic.TimerState.Stop;
+        rui.stopTimer();
+        state = GameState.GRADING;
         onProblemDone();
     }
 
@@ -502,9 +474,8 @@ class GameLogic implements IGameInputHandler {
 
         if (problem < stageNumberOfGames[stage - 1]) {
             chooseQuestionType();
-            timerState = TimerState.Running;
-            timerHandler = new Handler();
-            timeThreadhandler();
+            state = GameState.SOLVING;
+            rui.startTimer(14000);
         } else {
             onGameEntryPoint();
         }
@@ -516,13 +487,14 @@ class GameLogic implements IGameInputHandler {
 
     @Override
     public void onPressMarker(MyMapView myMapView, GeoPoint geoPoint) {
-        if (gameType == GameType.POSITION && timerState == TimerState.Running && animateHandler == null)
+        if (gameType == GameType.POSITION && state == GameState.SOLVING && animateHandler == null) {
             showMarker(myMapView, geoPoint);
+        }
     }
 
     @Override
     public void onTouchMap(GeoPoint pt) {
-        if (gameType == GameType.POSITION && timerState == TimerState.Running && animateHandler == null) {
+        if (gameType == GameType.POSITION && state == GameState.SOLVING && animateHandler == null) {
             // showMarker(...).. not implemented
         }
     }

@@ -3,6 +3,7 @@ package kr.ac.kw.coms.globealbum.game;
 import android.content.res.Resources;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
+import android.os.Handler;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
@@ -24,6 +25,7 @@ import org.osmdroid.views.overlay.infowindow.InfoWindow;
 import org.osmdroid.views.overlay.infowindow.MarkerInfoWindow;
 
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Random;
@@ -59,6 +61,10 @@ interface IGameUI {
 
     void setScore(int score);
 
+    void startTimer(int msDuration);
+
+    void stopTimer();
+
     void exitGame();
 }
 
@@ -79,6 +85,9 @@ class GameUI implements IGameUI {
     private Marker userMarker;
     private Marker systemMarker;
 
+    private Handler handler = new Handler();
+    private TimerProgressBar timer;
+
     // answer
     private TextView answerLandNameTextView, answerDistanceTextView, answerScoreTextView;
     private ImageView answerCorrectImageView;
@@ -91,7 +100,6 @@ class GameUI implements IGameUI {
     private ImageView positionPicImageView;
     private ImageView[] choicePicImageViews = new ImageView[4];
     private List<IPicture> choicePics;
-
 
     GameUI(AppCompatActivity activity) {
         this.activity = activity;
@@ -324,6 +332,43 @@ class GameUI implements IGameUI {
     @Override
     public void setScore(int score) {
         gameScoreTextView.setText("SCORE " + score);
+    }
+
+    @Override
+    public void startTimer(int msDuration) {
+        timer = new TimerProgressBar(msDuration);
+    }
+
+    @Override
+    public void stopTimer() {
+        if (timer != null) {
+            handler.removeCallbacks(timer);
+            timer = null;
+        }
+    }
+
+    class TimerProgressBar implements Runnable {
+        long msDeadline;
+
+        TimerProgressBar(int msDuration) {
+            gameTimeProgressBar.setMax(msDuration);
+            msDeadline = new Date().getTime() + msDuration;
+            handler.post(this);
+        }
+
+        @Override
+        public void run() {
+            long timeLeft = msDeadline - new Date().getTime();
+            gameTimeProgressBar.setProgress((int) timeLeft);
+
+            if (timeLeft > 0) {
+                // about 30fps
+                handler.postDelayed(this, 35);
+            } else {
+                input.onTimeout();
+                // ontimeout
+            }
+        }
     }
 
     @Override
