@@ -363,7 +363,9 @@ class GameUI implements IGameUI {
 
             if (timeLeft > 0) {
                 // about 30fps
-                handler.postDelayed(this, 35);
+                if (handler != null) {
+                    handler.postDelayed(this, 35);
+                }
             } else {
                 input.onTimeout();
                 // ontimeout
@@ -373,7 +375,11 @@ class GameUI implements IGameUI {
 
     @Override
     public void exitGame() {
-        activity.finish();
+        handler.removeCallbacksAndMessages(null);
+        handler = null;
+        if (activity != null && !activity.isFinishing()) {
+            activity.finish();
+        }
     }
 
     private void showCommonAnswer(IPicture pic, int deltaScore) {
@@ -416,14 +422,6 @@ class GameUI implements IGameUI {
 
     void mapviewInvalidate() {
         myMapView.invalidate();
-    }
-
-    void setGameTimeProgressBarMax(int max) {
-        gameTimeProgressBar.setMax(max);
-    }
-
-    void setGameTimeProgressBarProgress(int timeLeft) {
-        gameTimeProgressBar.setProgress(timeLeft);
     }
 
     void clearOverlay(Overlay overlay) {
@@ -495,7 +493,7 @@ class GameUI implements IGameUI {
     /**
      * 예비 선택을 지우고 테두리 없는 상태로 바꿈
      */
-    void clearLastSelectIfExists() {
+    private void clearLastSelectIfExists() {
         if (lastSelect == null) {
             return;
         }

@@ -197,7 +197,7 @@ class GameLogic implements IGameInputHandler {
 
     private void onProblemDone() {
         int deltaScore = reflectScoreAndGetDelta();
-        double distance = calcDistance();
+        double distance = calcDistanceKm();
         if (gameType == GameType.POSITION) {
             rui.showPositionAnswer(questionPic.get(problem), deltaScore, distance);
         } else {
@@ -222,7 +222,7 @@ class GameLogic implements IGameInputHandler {
             if (!rui.getUserMarker().isEnabled()) {
                 return -100;
             } else {
-                double distance = calcDistance();
+                double distance = calcDistanceKm();
                 if (distance >= 6000) {
                     return 0;
                 }
@@ -271,9 +271,6 @@ class GameLogic implements IGameInputHandler {
                 //화면에 마커 생성 없이 타임아웃 발생시 정답 확인
                 rui.getSystemMarker().setEnabled(true);
             }
-        }   //지명 문제에서 한번 테두리가 있는 후 정답 확인과 테두리 없을 시 정답확인 구현하기
-        else if (gameType == GameType.PICTURE) {
-            ui.clearLastSelectIfExists();
         }
 
         onProblemDone();
@@ -291,22 +288,15 @@ class GameLogic implements IGameInputHandler {
     }
 
     /**
-     * 두 좌표 사이의 거리를 구해서 리턴
+     * 사용자가 찍은 점과 정답 사이의 km 거리를 빈환
      *
-     * @param geoPoint1 좌표1
-     * @param geoPoint2 좌표2
-     * @return 좌표 사이의 거리를 구해 정수형 Km로 반환
+     * @return km 단위 거리
      */
-    private int calcDistance(GeoPoint geoPoint1, GeoPoint geoPoint2) {
-        return (int) (geoPoint1.distanceToAsDouble(geoPoint2) / 1000);
-    }
-
-    private double calcDistance() {
+    private double calcDistanceKm() {
         GeoPoint g1 = rui.getSystemMarker().getPosition();
         GeoPoint g2 = rui.getUserMarker().getPosition();
         return g1.distanceToAsDouble(g2) / 1000;
     }
-
 
     /**
      * 사용자가 찍은 마커가 위치에서 시작하여 정답마커까지 이동하는 애니메이션
@@ -449,8 +439,8 @@ class GameLogic implements IGameInputHandler {
         });
     }
 
-    void finishTimerHandler() {
-        rui.stopTimer();
+    void releaseResources() {
+        rui.exitGame();
     }
 
     @Override
@@ -489,7 +479,7 @@ class GameLogic implements IGameInputHandler {
         if (problem < stageNumberOfGames[stage - 1]) {
             chooseQuestionType();
             state = GameState.SOLVING;
-            rui.startTimer(14000);
+            rui.startTimer(MS_TIME_LIMIT);
         } else {
             onGameEntryPoint();
         }

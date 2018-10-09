@@ -19,6 +19,6 @@ public class GameActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        logic.finishTimerHandler();
+        logic.releaseResources();
     }
 }
