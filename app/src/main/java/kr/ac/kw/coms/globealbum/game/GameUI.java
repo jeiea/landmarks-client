@@ -114,6 +114,7 @@ class GameUI {
         positionPicImageView.setOnClickListener(onPressPicZoom);
 
         myMapView = quizView.findViewById(R.id.map);
+        myMapView.setMaxZoomLevel(5.0);
         addOverlay(onPressMarker);
     }
 

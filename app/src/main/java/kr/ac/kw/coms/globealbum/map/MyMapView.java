@@ -62,8 +62,8 @@ public class MyMapView extends org.osmdroid.views.MapView implements ILandmarkMa
 
         double logZoom = getLogZoom(w, h);
         setMinZoomLevel(logZoom);   //최소 줌 조절
-        setMaxZoomLevel(5.0);   //최대 줌 조절
-        //getController().setZoom(logZoom);
+        //setMaxZoomLevel(5.0);   //최대 줌 조절
+        getController().setZoom(logZoom);
     }
 
     //맵 초기 설정
@@ -263,58 +263,49 @@ public class MyMapView extends org.osmdroid.views.MapView implements ILandmarkMa
 
     @Override
     public void fitZoomToMarkers() {
-        BoundingBox boundingBox;
         ArrayList<Marker> markers = new ArrayList<>();
+
         for (Overlay o : getOverlays()) {
             if (o instanceof DiaryOverlays.PictureMarker) {
                 markers.add((DiaryOverlays.PictureMarker) o);
             }
         }
-
-
-        Marker m1 = new Marker(this);
-        m1.setPosition(new GeoPoint(41.895466,12.482323));
+        Marker m1= new Marker(getMapView());
+        m1.setPosition(new GeoPoint(2f,40f));
         getOverlays().add(m1);
         markers.add(m1);
-        Marker m3 = new Marker(this);
-        m3.setPosition(new GeoPoint(48.856558,2.350966));
-        //getOverlays().add(m3);
-        //markers.add(m3);
-        /*
 
-        Marker m2 = new Marker(this);
-        m2.setPosition(new GeoPoint(41.895466,12.482323));
-        //getOverlays().add(m2);
-        */
-        if (markers.size() == 1) {
+        BoundingBox boundingBox1 = getBoundingBox();
+        if(markers.size() == 1){
             Marker item = markers.get(0);
-            boundingBox = new BoundingBox(10,10,-10,-10);
-//            boundingBox = new BoundingBox(item.getPosition().getLatitude(),item.getPosition().getLongitude(),item.getPosition().getLatitude(),item.getPosition().getLongitude());
-            //boundingBox = new BoundingBox(Math.min(item.getPosition().getLatitude() + 10, 85.0f), Math.min(item.getPosition().getLongitude() + 10, 180.0f), Math.max(item.getPosition().getLatitude() - 5, -85.0f), Math.max(item.getPosition().getLongitude() - 5, -180.0f));
-        } else {
+            double lat = item.getPosition().getLatitude();
+            double lon = item.getPosition().getLongitude();
+            boundingBox1.set(lat+5, lon+5, lat-5, lon-5);
+        }
+        else{
             double minLat = +85.0f;
             double maxLat = -85.0f;
-            double minLong = +180.0f;
-            double maxLong = -180.0f;
+            double minLon = +180.0f;
+            double maxLon = -180.0f;
             for (Marker item : markers) {
                 GeoPoint point = item.getPosition();
-                if (point.getLatitude() < minLat)
-                    minLat = point.getLatitude();
-                if (point.getLatitude() > maxLat)
-                    maxLat = point.getLatitude();
-                if (point.getLongitude() < minLong)
-                    minLong = point.getLongitude();
-                if (point.getLongitude() > maxLong)
-                    maxLong = point.getLongitude();
+                double lat = point.getLatitude();
+                double lon = point.getLongitude();
+
+                maxLat = Math.max(lat, maxLat);
+                minLat = Math.min(lat, minLat);
+                maxLon = Math.max(lon, maxLon);
+                minLon = Math.min(lon, minLon);
+
             }
-            boundingBox = new BoundingBox(Math.min(maxLat + 20, 85.0f), Math.min(maxLong + 15, 180.0f), minLat, Math.max(minLong - 5, -180.0f));
+            boundingBox1.set(maxLat, maxLon, minLat, minLon);
         }
-        Toast.makeText(context, boundingBox.getLatitudeSpan()+ " "+ boundingBox.getLongitudeSpan(), Toast.LENGTH_SHORT).show();
-        Toast.makeText(context, boundingBox.getCenterLatitude()+ " "+ boundingBox.getCenterLongitude(), Toast.LENGTH_SHORT).show();
-        zoomToBoundingBox(boundingBox, false);
-        //getController().zoomToSpan(boundingBox.getLatitudeSpan(),boundingBox.getLongitudeSpan());
-        //getController().zoomToSpan(boundingBox.getCenterLatitude(),boundingBox.getCenterLongitude());
-        //getController().setCenter(boundingBox.getCenterWithDateLine());
+        zoomToBoundingBox(boundingBox1,false);
+
+        //getController().zoomToSpan(boundingBox1.getLatitudeSpan(), boundingBox1.getLongitudeSpan());
+        //getController().setCenter(boundingBox1.getCenterWithDateLine());
+
+        getController().zoomOut();
         invalidate();
     }
 

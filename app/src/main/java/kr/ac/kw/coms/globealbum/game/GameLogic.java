@@ -568,4 +568,5 @@ class GameLogic implements IGameInputHandler {
     public void onPressExit() {
         ui.finishActivity();
     }
+
 }

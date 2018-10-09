@@ -12,6 +12,7 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AlertDialog;
@@ -107,7 +108,6 @@ public class Diary_mapNPictures extends AppCompatActivity {
         setContentView(R.layout.activity_diary_map_n_pictures);
 
         myMapView = findViewById(R.id.diary_mapNpics_Map);
-        myMapView.setMaxZoomLevel(15.0);
         picView = findViewById(R.id.diary_mapNpics_Pics);
         picView.getPicAdapter().setPadding(20);
         picView.setDirection(FlexDirection.COLUMN);
@@ -144,7 +144,12 @@ public class Diary_mapNPictures extends AppCompatActivity {
         ppics.add(diary_toShow.toArrayList());
         myMapView.setChains(ppics);
 
-        myMapView.fitZoomToMarkers();
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                myMapView.fitZoomToMarkers();
+            }
+        }, 100);
     }
 
     public static Uri resourceToUri(Context context, int resID) {
