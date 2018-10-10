@@ -6,7 +6,6 @@ import android.graphics.Point;
 import android.os.Handler;
 import android.os.SystemClock;
 import android.util.Log;
-import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.Interpolator;
 import android.view.animation.LinearInterpolator;
 
@@ -307,60 +306,13 @@ class GameLogic implements IGameInputHandler {
      * @param GeoPointInterpolator 마커 이동 방식
      */
     private void animateMarker(final MyMapView map, final Marker marker, final GeoPoint finalPosition, final GeoPointInterpolator GeoPointInterpolator) {
-        final GeoPoint startPosition = marker.getPosition();
-        animateHandler = new Handler();
-        final long start = SystemClock.uptimeMillis();
-        final Interpolator interpolator = new AccelerateDecelerateInterpolator();
-        final float durationInMs = 1000;
-
-        map.getController().animateTo(finalPosition, map.getMinZoomLevel(), 1000L);
-
-        drawCircleOverlay = new DrawCircleOverlay(marker.getPosition(), finalPosition, map);
-        ui.addOverlay(drawCircleOverlay);
-
-        animateHandler.post(new Runnable() {
-            long elapsed;
-            float t;
-            float v;
-
+        ui.animateMarker(marker, finalPosition, GeoPointInterpolator);
+        new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-                // Calculate progress using interpolator
-                elapsed = SystemClock.uptimeMillis() - start;
-                t = elapsed / durationInMs;
-                v = interpolator.getInterpolation(t);
-
-                marker.setPosition(GeoPointInterpolator.interpolate(v, startPosition, finalPosition)); //보간법 이용, 시작 위치에서 끝 위치까지 가는 구 모양의 경로 도출
-
-
-                //map.getController().zoomOut(2000L);          //인자의 속도에 맞춰서 줌 아웃
-                map.invalidate();
-                // Repeat till progress is complete.
-                if (t < 1) {
-                    // 16ms 후 다시 시작
-                    animateHandler.postDelayed(this, 1000 / 60);
-                } else {
-                    //정답 마커 위치로 이동되면 정답 마커 추가
-                    rui.getSystemMarker().setEnabled(true);
-                    dottedLineOverlay = new DottedLineOverlay(map, startPosition, rui.getSystemMarker().getPosition());
-                    ui.addOverlay(dottedLineOverlay);
-                    drawDottedLineHandler = new Handler();
-                    drawDottedLineHandler.post(new Runnable() { //반복 진행하면서 원 그리기
-                        @Override
-                        public void run() {
-                            ui.mapviewInvalidate();
-                            drawDottedLineHandler.postDelayed(this, 1000 / 60);
-                        }
-                    });
-                    onProblemDone();
-
-
-                    animateHandler = null;
-
-                    map.invalidate();
-                }
+                onProblemDone();
             }
-        });
+        }, 1000);
     }
 
     private Point interpolate(float fraction, Point a, Point b) {

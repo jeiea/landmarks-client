@@ -4,6 +4,7 @@ import android.content.res.Resources;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
+import android.os.SystemClock;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
@@ -12,6 +13,8 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.animation.Interpolator;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -33,6 +36,7 @@ import java.util.Random;
 import kr.ac.kw.coms.globealbum.R;
 import kr.ac.kw.coms.globealbum.common.GlideApp;
 import kr.ac.kw.coms.globealbum.common.PictureDialogFragment;
+import kr.ac.kw.coms.globealbum.map.DrawCircleOverlay;
 import kr.ac.kw.coms.globealbum.map.MyMapView;
 import kr.ac.kw.coms.globealbum.provider.IPicture;
 
@@ -87,6 +91,7 @@ class GameUI implements IGameUI {
 
     private Handler handler = new Handler();
     private TimerProgressBar timer;
+    private InvalidationHelper mapInvalidator;
 
     // answer
     private TextView answerLandNameTextView, answerDistanceTextView, answerScoreTextView;
@@ -100,6 +105,8 @@ class GameUI implements IGameUI {
     private ImageView positionPicImageView;
     private ImageView[] choicePicImageViews = new ImageView[4];
     private List<IPicture> choicePics;
+    private DottedLineOverlay dotLineAnimation;
+    private DrawCircleOverlay circleAnimation;
 
     GameUI(AppCompatActivity activity) {
         this.activity = activity;
@@ -144,13 +151,21 @@ class GameUI implements IGameUI {
         myMapView = quizView.findViewById(R.id.map);
         myMapView.setMaxZoomLevel(5.0);
         addOverlay(onTouchMap);
+        mapInvalidator = new InvalidationHelper(handler, myMapView, 1000 / 60);
+
+        circleAnimation = new DrawCircleOverlay();
+        myMapView.getOverlays().add(circleAnimation);
+
+        dotLineAnimation = new DottedLineOverlay();
+        myMapView.getOverlays().add(dotLineAnimation);
 
         Resources resources = quizView.getResources();
         Drawable redMarkerDrawable = resources.getDrawable(R.drawable.game_red_marker, null);
         systemMarker = makeMarker(redMarkerDrawable);
+        addBalloonToMarker(systemMarker);
+
         Drawable blueMarkerDrawable = resources.getDrawable(R.drawable.game_blue_marker, null);
         userMarker = makeMarker(blueMarkerDrawable);
-        addBalloonToMarker(systemMarker);
     }
 
     @NonNull
@@ -202,6 +217,7 @@ class GameUI implements IGameUI {
 
     @Override
     public void showGameEntryPoint(int stage, int score, int games) {
+        handler.removeCallbacksAndMessages(null);
         readyScreen.setLabelAndChangeBackground(stage, score, games);
         activity.setContentView(readyScreen.getRootView());
     }
@@ -278,13 +294,19 @@ class GameUI implements IGameUI {
         choicePicProblemLayout.setVisibility(View.GONE);
 
         systemMarker.closeInfoWindow();
-        systemMarker.setEnabled(false);
-        userMarker.setEnabled(false);
+        hideDrawingOverlays();
 
         myMapView.getController().setZoom(myMapView.getMinZoomLevel());
 
         GlideApp.with(activity).load(picture).into(positionPicImageView);
         positionProblemLayout.setVisibility(View.VISIBLE);
+    }
+
+    private void hideDrawingOverlays() {
+        circleAnimation.setEnabled(false);
+        dotLineAnimation.setEnabled(false);
+        systemMarker.setEnabled(false);
+        userMarker.setEnabled(false);
     }
 
     /**
@@ -303,11 +325,11 @@ class GameUI implements IGameUI {
         positionPicImageView.setClickable(false);
         positionPicImageView.setVisibility(View.GONE);
 
+        hideDrawingOverlays();
         //마커에 지명 설정하고 맵뷰에 표시
         systemMarker.setTitle(description);
         systemMarker.showInfoWindow();
         systemMarker.setEnabled(true);
-        userMarker.setEnabled(false);
 
         myMapView.getController().setZoom(myMapView.getMinZoomLevel());
         myMapView.setClickable(false);
@@ -362,10 +384,8 @@ class GameUI implements IGameUI {
             gameTimeProgressBar.setProgress((int) timeLeft);
 
             if (timeLeft > 0) {
-                // about 30fps
-                if (handler != null) {
-                    handler.postDelayed(this, 35);
-                }
+                // 30fps
+                postIfNotNull(this, 1000 / 30);
             } else {
                 input.onTimeout();
                 // ontimeout
@@ -403,6 +423,77 @@ class GameUI implements IGameUI {
         }
     }
 
+    @Deprecated
+    void animateMarker(Marker marker, final GeoPoint destination, GeoPointInterpolator geoPolator) {
+        final GeoPoint start = marker.getPosition();
+        myMapView.getController().animateTo(destination, myMapView.getMinZoomLevel(), 1000L);
+
+        MarkerAnimation anim = new MarkerAnimation(marker, destination, 1000);
+        anim.geoInterpolator = geoPolator;
+        anim.afterRun = new Runnable() {
+            @Override
+            public void run() {
+                dotLineAnimation.reset(start, destination);
+                dotLineAnimation.setEnabled(true);
+                handler.post(fps30Forever);
+            }
+        };
+        handler.post(anim);
+
+        circleAnimation.resetCircle(start, destination);
+        circleAnimation.setEnabled(true);
+    }
+
+    private Runnable fps30Forever = new Runnable() {
+        @Override
+        public void run() {
+            mapInvalidator.postInvalidate();
+            handler.postDelayed(this, 1000 / 30);
+        }
+    };
+
+    class MarkerAnimation implements Runnable {
+        Marker marker;
+        long msStart;
+        long msDuration;
+        GeoPoint startPosition;
+        GeoPoint finalPosition;
+        private Interpolator timeInterpolator = new AccelerateDecelerateInterpolator();
+        GeoPointInterpolator geoInterpolator = new GeoPointInterpolator.Linear();
+        Runnable afterRun;
+
+        MarkerAnimation(Marker marker, GeoPoint finalPosition, int msDuration) {
+            this.marker = marker;
+            this.msDuration = msDuration;
+            this.startPosition = marker.getPosition();
+            this.finalPosition = finalPosition;
+            msStart = SystemClock.uptimeMillis();
+        }
+
+        @Override
+        public void run() {
+            long elapsed = SystemClock.uptimeMillis() - msStart;
+            float t = (float) elapsed / msDuration;
+
+            if (t < 1) {
+                // 보간법 이용, 시작 위치에서 끝 위치까지 가는 구 모양의 경로 도출
+                float v = timeInterpolator.getInterpolation(t);
+                marker.setPosition(geoInterpolator.interpolate(v, startPosition, finalPosition));
+                mapInvalidator.postInvalidate();
+
+                postIfNotNull(this, 1000 / 60);
+            } else if (afterRun != null) {
+                afterRun.run();
+            }
+        }
+    }
+
+    private void postIfNotNull(Runnable r, long msDelay) {
+        if (handler != null) {
+            handler.postDelayed(r, msDelay);
+        }
+    }
+
     @Override
     public void showPictureAnswer(IPicture correct, int deltaScore) {
         showCommonAnswer(correct, deltaScore);
@@ -421,7 +512,7 @@ class GameUI implements IGameUI {
     }
 
     void mapviewInvalidate() {
-        myMapView.invalidate();
+        mapInvalidator.postInvalidate();
     }
 
     void clearOverlay(Overlay overlay) {
@@ -531,6 +622,7 @@ class GameUI implements IGameUI {
      */
     @Override
     public void showGameOver(List<IPicture> pics) {
+        handler.removeCallbacksAndMessages(null);
         activity.setContentView(R.layout.layout_recycler_view);
         //after game
         RecyclerView recyclerView = activity.findViewById(R.id.after_game_recyclerview);
