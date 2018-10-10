@@ -11,8 +11,8 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.os.Handler;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AlertDialog;
@@ -45,7 +45,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import io.ktor.http.Url;
+import kotlin.NotImplementedError;
 import kr.ac.kw.coms.globealbum.R;
 import kr.ac.kw.coms.globealbum.album.GalleryDetail;
 import kr.ac.kw.coms.globealbum.album.GroupDiaryView;
@@ -576,7 +576,8 @@ public class Diary_mapNPictures extends AppCompatActivity {
                         @Override
                         public boolean onTouch(View v, MotionEvent event) {
                             IPicture newPicture = new LocalPicture(url);
-                            //diary_onEdit.add(newPicture);
+                            if (true) throw new NotImplementedError();
+//                            diary_onEdit.add(newPicture);
                             editImageListAdapter.AddNewPicture(newPicture);
                             diary_Switch(EDIT_MODE);
                             return true;

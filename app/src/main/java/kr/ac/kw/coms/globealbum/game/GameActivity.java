@@ -13,13 +13,12 @@ public class GameActivity extends AppCompatActivity {
 
         gui = new GameUI(this);
         logic = new GameLogic(gui, this);
-        gui.input = logic;
         logic.initiateGame();
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        logic.finishTimerHandler();
+        logic.releaseResources();
     }
 }
