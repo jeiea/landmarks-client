@@ -61,6 +61,7 @@ import kr.ac.kw.coms.globealbum.provider.LocalPicture;
 import kr.ac.kw.coms.globealbum.provider.Promise;
 import kr.ac.kw.coms.globealbum.provider.RemoteJava;
 import kr.ac.kw.coms.globealbum.provider.RemotePicture;
+import kr.ac.kw.coms.globealbum.provider.UIPromise;
 import kr.ac.kw.coms.landmarks.client.IdCollectionInfo;
 
 public class Diary_mapNPictures extends AppCompatActivity {
@@ -83,6 +84,7 @@ public class Diary_mapNPictures extends AppCompatActivity {
         ArrayList<IPicture> pics = new ArrayList<IPicture>(data);
         ArrayList<PictureGroup> elementList = new ArrayList<>();
         elementList.add(new PictureGroup("", pics));
+        picView.clearAllItems();
         picView.setGroups(elementList);
         picView.addOnItemTouchListener(new kr.ac.kw.coms.globealbum.common.RecyclerItemClickListener(picView) {
             @Override
@@ -362,7 +364,7 @@ public class Diary_mapNPictures extends AppCompatActivity {
         }
     }
 
-    Promise<Diary> afterModify = new Promise<Diary>() {
+    Promise<Diary> afterModify = new UIPromise<Diary>() {
         @Override
         public void success(Diary result) {
             diary_toShow = result;
@@ -568,7 +570,7 @@ public class Diary_mapNPictures extends AppCompatActivity {
             holder.imageView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Glide.with(findViewById(R.id.diary_ZoomIn_Root)).load(url).into((ImageView) findViewById(R.id.diary_ZoomIn_ZoomImage));
+                    Glide.with(Diary_mapNPictures.this).load(url).into((ImageView) findViewById(R.id.diary_ZoomIn_ZoomImage));
                     findViewById(R.id.diary_ZoomIn_ZoomName).setVisibility(View.GONE);
                     findViewById(R.id.diary_ZoomIn_Confirm).setVisibility(View.VISIBLE);
                     diary_Switch(ZOOMIN_MODE);
@@ -576,8 +578,7 @@ public class Diary_mapNPictures extends AppCompatActivity {
                         @Override
                         public boolean onTouch(View v, MotionEvent event) {
                             IPicture newPicture = new LocalPicture(url);
-                            if (true) throw new NotImplementedError();
-//                            diary_onEdit.add(newPicture);
+                            //diary_onEdit.add((RemotePicture) newPicture);
                             editImageListAdapter.AddNewPicture(newPicture);
                             diary_Switch(EDIT_MODE);
                             return true;
