@@ -27,7 +27,6 @@ import org.osmdroid.views.Projection;
 import org.osmdroid.views.overlay.MapEventsOverlay;
 import org.osmdroid.views.overlay.Marker;
 import org.osmdroid.views.overlay.Overlay;
-import org.osmdroid.views.overlay.infowindow.InfoWindow;
 import org.osmdroid.views.overlay.infowindow.MarkerInfoWindow;
 
 import java.util.Arrays;
@@ -403,10 +402,12 @@ class GameUI implements IGameUI {
 
     @Override
     public void exitGame() {
-        handler.removeCallbacksAndMessages(null);
-        handler = null;
-        if (activity != null && !activity.isFinishing()) {
-            activity.finish();
+        if (handler != null) {
+            handler.removeCallbacksAndMessages(null);
+            handler = null;
+            if (activity != null && !activity.isFinishing()) {
+                activity.finish();
+            }
         }
     }
 
