@@ -15,6 +15,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.animation.AccelerateInterpolator;
 import android.view.animation.Interpolator;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -464,7 +465,8 @@ class GameUI implements IGameUI {
         Point disp = proj.toPixels(pt, null);
         GeoPoint start = (GeoPoint) proj.fromPixels(disp.x, disp.y - 130);
         marker.setPosition(start);
-        MarkerAnimation anim = new MarkerAnimation(marker, pt, 400);
+        MarkerAnimation anim = new MarkerAnimation(marker, pt, 150);
+        anim.setTimeInterpolator(new AccelerateInterpolator());
         handler.post(anim);
     }
 
@@ -493,6 +495,10 @@ class GameUI implements IGameUI {
             this.finalPosition = finalPosition;
             msStart = SystemClock.uptimeMillis();
             marker.setEnabled(true);
+        }
+
+        public void setTimeInterpolator(Interpolator timeInterpolator) {
+            this.timeInterpolator = timeInterpolator;
         }
 
         @Override
