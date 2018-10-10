@@ -558,7 +558,7 @@ public class Diary_mapNPictures extends AppCompatActivity {
         }
 
         @Override
-        public void onBindViewHolder(@NonNull ViewHolder holder, int position, @NonNull List<Object> payloads) {
+        public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
             final String url = urlList.get(position);
             Glide.with(holder.imageView).load(url).into(holder.imageView);
             ViewGroup.LayoutParams params = holder.imageView.getLayoutParams();
@@ -576,7 +576,7 @@ public class Diary_mapNPictures extends AppCompatActivity {
                         @Override
                         public boolean onTouch(View v, MotionEvent event) {
                             IPicture newPicture = new LocalPicture(url);
-                            diary_onEdit.add(newPicture);
+                            //diary_onEdit.add(newPicture);
                             editImageListAdapter.AddNewPicture(newPicture);
                             diary_Switch(EDIT_MODE);
                             return true;
@@ -584,6 +584,11 @@ public class Diary_mapNPictures extends AppCompatActivity {
                     });
                 }
             });
+        }
+
+        @Override
+        public int getItemCount() {
+            return urlList.size();
         }
     }
 }
