@@ -29,7 +29,7 @@ import kr.ac.kw.coms.landmarks.client.ReverseGeocodeResult;
 interface IGameInputHandler {
     void onSelectPictureCertainly(IPicture selected);
 
-    void onSelectPosition(GeoPoint pos);
+    void onTouchMap(GeoPoint pt);
 
     void onTimeout();
 
@@ -40,8 +40,6 @@ interface IGameInputHandler {
     void onPressRetry();
 
     void onPressExit();
-
-    void onTouchMap(GeoPoint pt);
 }
 
 class GameLogic implements IGameInputHandler {
@@ -266,8 +264,6 @@ class GameLogic implements IGameInputHandler {
         }
 
         onProblemDone();
-
-        ui.mapviewInvalidate();
     }
 
     /**
@@ -317,11 +313,6 @@ class GameLogic implements IGameInputHandler {
     }
 
     @Override
-    public void onSelectPosition(GeoPoint pos) {
-    }
-
-
-    @Override
     public void onPressStart() {
         score = 0;
         problem = 0;
@@ -330,18 +321,9 @@ class GameLogic implements IGameInputHandler {
 
     @Override
     public void onPressNext() {
-        if (gameType == GameType.POSITION) {
-            if (drawDottedLineHandler != null) {
-                drawDottedLineHandler.removeMessages(0);
-                drawDottedLineHandler = null;
-            }
-            ui.clearOverlay(drawCircleOverlay);
-            ui.clearOverlay(dottedLineOverlay);
-        }
         problem++;
-        ui.clearAnswerLayout(problem, stageNumberOfGames[stage - 1]);
-
         if (problem < stageNumberOfGames[stage - 1]) {
+            rui.setQuizInfo(stage, problem, stageNumberOfGames[stage - 1]);
             chooseQuestionType();
             state = GameState.SOLVING;
             rui.startTimer(MS_TIME_LIMIT);

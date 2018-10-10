@@ -284,7 +284,12 @@ class GameUI implements IGameUI {
     public void setQuizInfo(int stage, int curProblem, int allProblem) {
         gameStageTextView.setText("STAGE " + stage);
         gameTargetTextView.setText("TARGET " + (curProblem + 1) + "/" + allProblem);
-        activity.setContentView(quizView);
+        answerLayout.setVisibility(View.GONE);
+        answerLayout.setClickable(false);
+
+        if (activity.findViewById(R.id.textview_target) == null) {
+            activity.setContentView(quizView);
+        }
     }
 
     /**
@@ -522,34 +527,8 @@ class GameUI implements IGameUI {
         myMapView.getController().zoomTo(myMapView.getMinZoomLevel(), 1000L);
     }
 
-    MyMapView getMyMapView() {
-        return myMapView;
-    }
-
-
     void addOverlay(Overlay overlay) {
         myMapView.getOverlays().add(overlay);
-    }
-
-    void mapviewInvalidate() {
-        mapInvalidator.postInvalidate();
-    }
-
-    void clearOverlay(Overlay overlay) {
-        if (overlay instanceof Marker) {
-            InfoWindow.closeAllInfoWindowsOn(myMapView);
-        }
-        if (overlay == systemMarker || overlay == userMarker) {
-            return;
-        }
-        myMapView.getOverlays().remove(overlay);
-    }
-
-    void clearAnswerLayout(int problem, int games) {
-        answerLayout.setVisibility(View.GONE);
-        answerLayout.setClickable(false);
-
-        gameTargetTextView.setText("TARGET " + (problem + 1) + "/" + games);
     }
 
     private View.OnClickListener onPressStart = new View.OnClickListener() {
