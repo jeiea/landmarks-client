@@ -50,17 +50,9 @@ public class AfterGameAdapter extends RecyclerView.Adapter<AfterGameAdapter.View
     class ViewHolder extends RecyclerView.ViewHolder {
         ImageView imageViewPicture;
         TextView textViewPlace;
-        Button buttonQuit;
 
         ViewHolder(final View itemView) {
             super(itemView);
-            buttonQuit = itemView.findViewById(R.id.after_game_quit_button);
-            buttonQuit.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    gameActivity.finish();      //GameActivity 종료
-                }
-            });
             imageViewPicture = itemView.findViewById(R.id.after_game_place_imageview);
             //imageViewPicture.setOnClickListener(new GameUI.PictureClickZoomingListener());      //사진 클릭 시 사진 확대
             textViewPlace = itemView.findViewById(R.id.after_game_show_place_name);
