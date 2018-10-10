@@ -1,6 +1,7 @@
 package kr.ac.kw.coms.globealbum.game;
 
 import android.content.res.Resources;
+import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
@@ -21,6 +22,7 @@ import android.widget.TextView;
 
 import org.osmdroid.events.MapEventsReceiver;
 import org.osmdroid.util.GeoPoint;
+import org.osmdroid.views.Projection;
 import org.osmdroid.views.overlay.MapEventsOverlay;
 import org.osmdroid.views.overlay.Marker;
 import org.osmdroid.views.overlay.Overlay;
@@ -62,6 +64,10 @@ interface IGameUI {
     Marker getUserMarker();
 
     Marker getSystemMarker();
+
+    void pointMarker(Marker marker, GeoPoint pt);
+
+    void animateMarker(Marker marker, GeoPoint destination, GeoPointInterpolator geopolator);
 
     void setScore(int score);
 
@@ -375,7 +381,7 @@ class GameUI implements IGameUI {
         TimerProgressBar(int msDuration) {
             gameTimeProgressBar.setMax(msDuration);
             msDeadline = new Date().getTime() + msDuration;
-            handler.post(this);
+            postIfNotNull(this, 0);
         }
 
         @Override
@@ -423,13 +429,13 @@ class GameUI implements IGameUI {
         }
     }
 
-    @Deprecated
-    void animateMarker(Marker marker, final GeoPoint destination, GeoPointInterpolator geoPolator) {
+    @Override
+    public void animateMarker(Marker marker, final GeoPoint destination, GeoPointInterpolator geopolator) {
         final GeoPoint start = marker.getPosition();
         myMapView.getController().animateTo(destination, myMapView.getMinZoomLevel(), 1000L);
 
         MarkerAnimation anim = new MarkerAnimation(marker, destination, 1000);
-        anim.geoInterpolator = geoPolator;
+        anim.geoInterpolator = geopolator;
         anim.afterRun = new Runnable() {
             @Override
             public void run() {
@@ -442,6 +448,16 @@ class GameUI implements IGameUI {
 
         circleAnimation.resetCircle(start, destination);
         circleAnimation.setEnabled(true);
+    }
+
+    @Override
+    public void pointMarker(Marker marker, GeoPoint pt) {
+        Projection proj = myMapView.getProjection();
+        Point disp = proj.toPixels(pt, null);
+        GeoPoint start = (GeoPoint) proj.fromPixels(disp.x, disp.y - 130);
+        marker.setPosition(start);
+        MarkerAnimation anim = new MarkerAnimation(marker, pt, 400);
+        handler.post(anim);
     }
 
     private Runnable fps30Forever = new Runnable() {
@@ -468,6 +484,7 @@ class GameUI implements IGameUI {
             this.startPosition = marker.getPosition();
             this.finalPosition = finalPosition;
             msStart = SystemClock.uptimeMillis();
+            marker.setEnabled(true);
         }
 
         @Override
@@ -559,7 +576,6 @@ class GameUI implements IGameUI {
     private MapEventsOverlay onTouchMap = new MapEventsOverlay(new MapEventsReceiver() {
         @Override
         public boolean singleTapConfirmedHelper(GeoPoint p) {
-            input.onPressMarker(myMapView, p);
             input.onTouchMap(p);
             return true;
         }

@@ -2,17 +2,12 @@ package kr.ac.kw.coms.globealbum.game;
 
 import android.content.Context;
 import android.content.res.Resources;
-import android.graphics.Point;
 import android.os.Handler;
-import android.os.SystemClock;
 import android.util.Log;
-import android.view.animation.Interpolator;
-import android.view.animation.LinearInterpolator;
 
 import org.jetbrains.annotations.NotNull;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
-import org.osmdroid.views.Projection;
 import org.osmdroid.views.overlay.Marker;
 
 import java.io.PrintWriter;
@@ -24,7 +19,6 @@ import java.util.Random;
 
 import kr.ac.kw.coms.globealbum.R;
 import kr.ac.kw.coms.globealbum.map.DrawCircleOverlay;
-import kr.ac.kw.coms.globealbum.map.MyMapView;
 import kr.ac.kw.coms.globealbum.provider.IPicture;
 import kr.ac.kw.coms.globealbum.provider.PictureMeta;
 import kr.ac.kw.coms.globealbum.provider.RemoteJava;
@@ -46,9 +40,6 @@ interface IGameInputHandler {
     void onPressRetry();
 
     void onPressExit();
-
-    @Deprecated
-    void onPressMarker(MyMapView myMapView, GeoPoint geoPoint);
 
     void onTouchMap(GeoPoint pt);
 }
@@ -265,10 +256,12 @@ class GameLogic implements IGameInputHandler {
         // 타임아웃 발생시 그 마커를 위치로 정답 확인
         if (gameType == GameType.POSITION) {
             if (rui.getUserMarker().isEnabled()) {
-                processProvisional();
+                showDifferenceAnimAndScore(new GeoPointInterpolator.Spherical());
             } else {
                 //화면에 마커 생성 없이 타임아웃 발생시 정답 확인
-                rui.getSystemMarker().setEnabled(true);
+                Marker sys = rui.getSystemMarker();
+                sys.showInfoWindow();
+                sys.setEnabled(true);
             }
         }
 
@@ -277,13 +270,27 @@ class GameLogic implements IGameInputHandler {
         ui.mapviewInvalidate();
     }
 
-    private void processProvisional() {
-        Marker user = rui.getUserMarker();
+    /**
+     * animateMarker를 대신함. 타이머를 멈추고, 애니메이션을 보여주고, 1초 후에
+     * 점수를 보여줌.
+     */
+    private void showDifferenceAnimAndScore(GeoPointInterpolator geopolator) {
+        rui.getUserMarker().setOnMarkerClickListener(null);
+        state = GameState.GRADING;
+        rui.stopTimer();
 
-        GeoPoint rightAns = questionPic.get(problem).getMeta().getGeo();
         Marker sys = rui.getSystemMarker();
-        sys.setEnabled(true);
-        animateMarker(ui.getMyMapView(), sys, rightAns, new GeoPointInterpolator.Spherical());
+        sys.setPosition(rui.getUserMarker().getPosition());
+        GeoPoint rightPos = questionPic.get(problem).getMeta().getGeo();
+        rui.animateMarker(sys, rightPos, geopolator);
+
+        // Display score
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                onProblemDone();
+            }
+        }, 1000);
     }
 
     /**
@@ -295,100 +302,6 @@ class GameLogic implements IGameInputHandler {
         GeoPoint g1 = rui.getSystemMarker().getPosition();
         GeoPoint g2 = rui.getUserMarker().getPosition();
         return g1.distanceToAsDouble(g2) / 1000;
-    }
-
-    /**
-     * 사용자가 찍은 마커가 위치에서 시작하여 정답마커까지 이동하는 애니메이션
-     *
-     * @param map                  mapview
-     * @param marker               사용자가자 찍은 마커
-     * @param finalPosition        정답 마커의 좌표
-     * @param GeoPointInterpolator 마커 이동 방식
-     */
-    private void animateMarker(final MyMapView map, final Marker marker, final GeoPoint finalPosition, final GeoPointInterpolator GeoPointInterpolator) {
-        ui.animateMarker(marker, finalPosition, GeoPointInterpolator);
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                onProblemDone();
-            }
-        }, 1000);
-    }
-
-    private Point interpolate(float fraction, Point a, Point b) {
-        double lat = (b.x - a.x) * fraction + a.x;
-        double lng = (b.y - a.y) * fraction + a.y;
-        return new Point((int) lat, (int) lng);
-    }
-
-    /**
-     * 화면을 클릭해 마커를 생성했을 때 애니메이션을 주어서 좌표에 생성
-     *
-     * @param myMapView        mapview
-     * @param finalGeoPosition 화면에 선택한 곳의 좌표
-     */
-    private void showMarker(final MyMapView myMapView, final GeoPoint finalGeoPosition) {
-        final Projection projection = myMapView.getProjection();
-        final Point startPoint = new Point();
-        projection.toPixels(finalGeoPosition, startPoint);
-        final Point finalPoint = new Point();
-
-        finalPoint.x = startPoint.x;
-        finalPoint.y = startPoint.y;
-
-        startPoint.x += 40;
-        startPoint.y -= 40;
-
-        final Handler showMarkerHandler = new Handler();
-        final long start = SystemClock.uptimeMillis();
-        final Interpolator interpolator = new LinearInterpolator();
-        final float durationInMs = 175;
-
-        showMarkerHandler.post(new Runnable() {
-            long elapsed;
-            float t;
-            float v;
-
-            @Override
-            public void run() {
-                // Calculate progress using interpolator
-                elapsed = SystemClock.uptimeMillis() - start;
-                t = elapsed / durationInMs;
-                v = interpolator.getInterpolation(t);
-
-                Point pixelPoint = interpolate(v, startPoint, finalPoint);
-                GeoPoint geoPoint = (GeoPoint) projection.fromPixels(pixelPoint.x, pixelPoint.y);
-
-                Marker anim = rui.getUserMarker();
-                anim.setPosition(geoPoint);
-                anim.setEnabled(true);
-
-                ui.mapviewInvalidate();
-                // Repeat till progress is complete.
-                if (t < 1) {
-                    // 16ms 후 다시 시작
-                    showMarkerHandler.postDelayed(this, 1000 / 60);
-                } else {
-                    // 플레이어가 생성한 마커를 다시 터치하면 확정
-                    anim.setOnMarkerClickListener(new Marker.OnMarkerClickListener() {
-                        @Override
-                        public boolean onMarkerClick(Marker marker, MapView mapView) {
-                            state = GameState.GRADING;
-                            rui.stopTimer();
-                            // 유저가 선택한 위치의 마커에서 정답 마커까지 이동하는 애니메이션
-                            // 동작을 하는 마커 생성
-                            Marker sys = rui.getSystemMarker();
-                            GeoPoint rightPos = sys.getPosition();
-                            sys.setPosition(rui.getUserMarker().getPosition());
-                            sys.setEnabled(true);
-                            animateMarker(myMapView, sys, rightPos, new GeoPointInterpolator.Linear());
-                            ui.mapviewInvalidate();
-                            return true;
-                        }
-                    });
-                }
-            }
-        });
     }
 
     void releaseResources() {
@@ -442,17 +355,22 @@ class GameLogic implements IGameInputHandler {
     }
 
     @Override
-    public void onPressMarker(MyMapView myMapView, GeoPoint geoPoint) {
-        if (gameType == GameType.POSITION && state == GameState.SOLVING && animateHandler == null) {
-            showMarker(myMapView, geoPoint);
+    public void onTouchMap(GeoPoint pt) {
+        if (gameType == GameType.POSITION && state == GameState.SOLVING) {
+            pointMarker(pt);
         }
     }
 
-    @Override
-    public void onTouchMap(GeoPoint pt) {
-        if (gameType == GameType.POSITION && state == GameState.SOLVING && animateHandler == null) {
-            // showMarker(...).. not implemented
-        }
+    private void pointMarker(GeoPoint pt) {
+        final Marker user = rui.getUserMarker();
+        rui.pointMarker(user, pt);
+        user.setOnMarkerClickListener(new Marker.OnMarkerClickListener() {
+            @Override
+            public boolean onMarkerClick(Marker marker, MapView mapView) {
+                showDifferenceAnimAndScore(new GeoPointInterpolator.Linear());
+                return true;
+            }
+        });
     }
 
     @Override
