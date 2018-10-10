@@ -278,11 +278,6 @@ public class MyMapView extends org.osmdroid.views.MapView implements ILandmarkMa
                 markers.add((DiaryOverlays.PictureMarker) o);
             }
         }
-        Marker m1= new Marker(getMapView());
-        m1.setPosition(new GeoPoint(2f,40f));
-        getOverlays().add(m1);
-        markers.add(m1);
-
         BoundingBox boundingBox1 = getBoundingBox();
         if(markers.size() == 1){
             Marker item = markers.get(0);
