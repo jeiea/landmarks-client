@@ -21,6 +21,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import org.osmdroid.events.MapEventsReceiver;
+import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.Projection;
 import org.osmdroid.views.overlay.MapEventsOverlay;
@@ -155,6 +156,7 @@ class GameUI implements IGameUI {
         positionPicImageView.setOnClickListener(onPressPicZoom);
 
         myMapView = quizView.findViewById(R.id.map);
+        myMapView.setTileSource(TileSourceFactory.BASE_OVERLAY_NL);    //맵 렌더링 설정
         myMapView.setMaxZoomLevel(5.0);
         addOverlay(onTouchMap);
         mapInvalidator = new InvalidationHelper(handler, myMapView, 1000 / 60);

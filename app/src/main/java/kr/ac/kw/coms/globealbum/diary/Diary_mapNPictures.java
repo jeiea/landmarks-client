@@ -35,6 +35,7 @@ import com.google.android.flexbox.FlexDirection;
 
 import org.jetbrains.annotations.NotNull;
 import org.osmdroid.events.MapEventsReceiver;
+import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.MapEventsOverlay;
@@ -108,6 +109,8 @@ public class Diary_mapNPictures extends AppCompatActivity {
         setContentView(R.layout.activity_diary_map_n_pictures);
 
         myMapView = findViewById(R.id.diary_mapNpics_Map);
+        myMapView.setTileSource(TileSourceFactory.MAPNIK);    //맵 렌더링 설정
+
         picView = findViewById(R.id.diary_mapNpics_Pics);
         picView.getPicAdapter().setPadding(20);
         picView.setDirection(FlexDirection.COLUMN);
