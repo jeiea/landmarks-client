@@ -50,15 +50,6 @@ public class MainActivity extends AppCompatActivity {
             case R.id.imageview_game_start:
                 startActivity(new Intent(this, GameActivity.class));
                 break;
-            case R.id.btn_start_web_gallery:
-                startActivityForResult(new Intent(this, GalleryActivity.class), 1);
-                break;
-            case R.id.btn_start_storage:
-                startActivityForResult(new Intent(this, GalleryActivity.class), 2);
-                break;
-            case R.id.btn_start_navigator:
-                startActivityForResult(new Intent(this, activity_Navigator.class), 3);
-                break;
             case R.id.imageview_game_my_diary:
                 startActivityForResult(new Intent(this, Diary_main.class).setAction(RequestCodes.ACTION_DIARY_MINE), 4);
                 break;

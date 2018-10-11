@@ -7,70 +7,76 @@
     android:layout_height="match_parent"
     tools:context=".diary.Diary_main">
 
-    <include android:id="@+id/diary_main_Topbar"
+    <include
+        android:id="@+id/diary_main_Topbar"
         layout="@layout/layout_common_topbar"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toTopOf="parent"/>
+        app:layout_constraintTop_toTopOf="parent" />
 
 
     <android.support.constraint.ConstraintLayout
         android:id="@+id/diary_main_TabBar"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        app:layout_constraintTop_toBottomOf="@id/diary_main_Topbar"
+        app:layout_constraintHeight_percent="0.065"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintHeight_percent="0.065">
+        app:layout_constraintTop_toBottomOf="@id/diary_main_Topbar">
+
         <android.support.constraint.ConstraintLayout
             android:id="@+id/diary_main_TabBar_Left"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            app:layout_constraintWidth_percent="0.5"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
             android:background="@color/black_overlay"
             android:clickable="true"
-            android:onClick="diary_main_SwitchToLeft">
+            android:onClick="diary_main_SwitchToLeft"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintWidth_percent="0.5">
+
             <TextView
+                style="@style/CustomFontStyle"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:background="#FFFFFF"
                 android:layout_margin="1px"
                 android:text="My Image"
                 android:textAlignment="center"
-                android:gravity="center"
-                style="@style/CustomFontStyle"/>
+                android:gravity="center" />
 
         </android.support.constraint.ConstraintLayout>
+
         <android.support.constraint.ConstraintLayout
             android:id="@+id/diary_main_TabBar_Right"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            app:layout_constraintWidth_percent="0.5"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
             android:background="@color/black_overlay"
             android:clickable="true"
-            android:onClick="diary_main_SwitchToRight">
+            android:onClick="diary_main_SwitchToRight"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintWidth_percent="0.5">
+
             <TextView
+                style="@style/CustomFontStyle"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:background="#FFFFFF"
                 android:layout_margin="1px"
                 android:text="My Diary"
                 android:textAlignment="center"
-                android:gravity="center"
-                style="@style/CustomFontStyle"/>
+                android:gravity="center" />
 
         </android.support.constraint.ConstraintLayout>
+
         <View
             android:id="@+id/diary_main_TabBar_HighLight"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            app:layout_constraintWidth_percent="0.5"
-            app:layout_constraintHeight_percent="0.1"
             android:background="@color/colorPrimary"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintHeight_percent="0.1"
             app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"/>
+            app:layout_constraintWidth_percent="0.5" />
     </android.support.constraint.ConstraintLayout>
 
     <kr.ac.kw.coms.globealbum.album.GroupDiaryView
@@ -80,8 +86,7 @@
         android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/diary_main_TabBar">
-    </kr.ac.kw.coms.globealbum.album.GroupDiaryView>
+        app:layout_constraintTop_toBottomOf="@id/diary_main_TabBar" />
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/diary_main_JourneyList"
@@ -98,15 +103,15 @@
         android:layout_height="0dp"
         android:translationZ="1px"
         android:src="@drawable/add"
-        android:scaleType="fitXY"
+        android:scaleType="centerInside"
         android:background="#00000000"
-        android:layout_marginBottom="50dp"
+        android:layout_marginBottom="20dp"
+        android:layout_marginRight="20dp"
         android:visibility="invisible"
         android:onClick="diary_main_AddNewDiary"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintDimensionRatio="1:1"
         app:layout_constraintHeight_percent="0.1"
-        app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent" />
 
     <android.support.constraint.ConstraintLayout
@@ -162,8 +167,9 @@
         </android.support.constraint.ConstraintLayout>
     </android.support.constraint.ConstraintLayout>
 
-    <include layout="@layout/layout_zoomin"
+    <include
+        layout="@layout/layout_zoomin"
+        android:visibility="invisible"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:visibility="invisible"/>
+        app:layout_constraintTop_toTopOf="parent" />
 </android.support.constraint.ConstraintLayout>

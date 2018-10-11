@@ -106,41 +106,12 @@
         app:layout_constraintTop_toBottomOf="@id/down_space"
         android:onClick="startOnClick"/>
 
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:orientation="vertical"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/main_upper_guideline">
-
-        <Button
-            android:id="@+id/btn_start_web_gallery"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="start web gallery"
-            android:onClick="startOnClick" />
-
-        <Button
-            android:id="@+id/btn_start_storage"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="start storage"
-            android:onClick="startOnClick"
-            android:enabled="false" />
-
-        <Button
-            android:id="@+id/btn_start_navigator"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Open Navigator"
-            android:onClick="startOnClick"
-            android:enabled="false" />
         <Button
             android:id="@+id/btn_start_login"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="start Login"
-            android:onClick="startLogin" />
-    </LinearLayout>
+            android:onClick="startLogin"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/main_upper_guideline"/>
 </android.support.constraint.ConstraintLayout>
