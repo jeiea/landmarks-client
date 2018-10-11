@@ -663,8 +663,8 @@ class GameUI implements IGameUI {
         handler.removeCallbacksAndMessages(null);
         activity.setContentView(R.layout.layout_after_game_recycler_view);
         //after game
-        Button afterGameExitButton = activity.findViewById(R.id.after_game_exit_button);
-        Button afterGameRetryButton = activity.findViewById(R.id.after_game_retry_button);
+        ImageView afterGameExitButton = activity.findViewById(R.id.after_game_exit_button);
+        ImageView afterGameRetryButton = activity.findViewById(R.id.after_game_retry_button);
 
         afterGameExitButton.setOnClickListener(onPressExit);
         afterGameRetryButton.setOnClickListener(onPressRetry);
