@@ -114,7 +114,8 @@ public class Diary_mapNPictures extends AppCompatActivity {
         myMapView.setTileSource(TileSourceFactory.MAPNIK);    //맵 렌더링 설정
 
         picView = findViewById(R.id.diary_mapNpics_Pics);
-        picView.getPicAdapter().setPadding(20);
+        picView.getPicAdapter().setLeftPadding(10);
+        picView.getPicAdapter().setRightPadding(10);
         picView.setDirection(FlexDirection.COLUMN);
 
         if (getIntent().getAction() == null);

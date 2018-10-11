@@ -38,6 +38,7 @@ import kr.ac.kw.coms.globealbum.common.RequestCodes;
 import kr.ac.kw.coms.globealbum.provider.Diary;
 import kr.ac.kw.coms.globealbum.provider.IPicture;
 import kr.ac.kw.coms.globealbum.provider.RemoteJava;
+import kr.ac.kw.coms.globealbum.provider.ResourcePicture;
 import kr.ac.kw.coms.globealbum.provider.UIPromise;
 import kr.ac.kw.coms.landmarks.client.IdAccountForm;
 
@@ -119,6 +120,7 @@ public class Diary_main extends AppCompatActivity {
         AdditiveAnimator.animate(bar).setDuration(200).translationX(0).start();
         ImageList.setVisibility(View.VISIBLE);
         JourneyList.setVisibility(View.GONE);
+        findViewById(R.id.diary_main_NewDiary).setVisibility(View.GONE);
         isTabLeft = true;
     }
 
@@ -130,6 +132,7 @@ public class Diary_main extends AppCompatActivity {
         AdditiveAnimator.animate(bar).setDuration(200).translationX(bar.getWidth()).start();
         JourneyList.setVisibility(View.VISIBLE);
         ImageList.setVisibility(View.GONE);
+        findViewById(R.id.diary_main_NewDiary).setVisibility(View.VISIBLE);
         isTabLeft = false;
     }
 
@@ -182,45 +185,55 @@ public class Diary_main extends AppCompatActivity {
 
     public void ShowImageData() {
         //준비된 Image 데이터를 화면에 표시
-        PictureGroup PictureRow = new PictureGroup("", (ArrayList<IPicture>) DownloadedImageList);
-        List<PictureGroup> PictureList = new ArrayList<>();
-        PictureList.add(PictureRow);
-        ImageList.setGroups(PictureList);
-        ImageList.addOnItemTouchListener(new RecyclerItemClickListener(ImageList) {
-            @Override
-            public void onItemClick(@NotNull View view, int position) {
-                if (view instanceof ImageView) {
-                    ZoomIndex = position - 1;
-                    Glide.with(view).load(DownloadedImageList.get(ZoomIndex)).into(((ImageView) findViewById(R.id.diary_ZoomIn_ZoomImage)));
-                    ((TextView) findViewById(R.id.diary_ZoomIn_ZoomName)).setText(DownloadedImageList.get(ZoomIndex).getMeta().getAddress());
-                    findViewById(R.id.diary_ZoomIn_Root).setVisibility(View.VISIBLE);
+        if (DownloadedImageList.size() == 0)
+        {
+            DownloadedImageList.add(new ResourcePicture(R.drawable.imagenotfoundbordered));
+            PictureGroup PictureRow = new PictureGroup("", (ArrayList<IPicture>) DownloadedImageList);
+            List<PictureGroup> PictureList = new ArrayList<>();
+            PictureList.add(PictureRow);
+            ImageList.setGroups(PictureList);
+        }
+        else {
+            PictureGroup PictureRow = new PictureGroup("", (ArrayList<IPicture>) DownloadedImageList);
+            List<PictureGroup> PictureList = new ArrayList<>();
+            PictureList.add(PictureRow);
+            ImageList.setGroups(PictureList);
+            ImageList.addOnItemTouchListener(new RecyclerItemClickListener(ImageList) {
+                @Override
+                public void onItemClick(@NotNull View view, int position) {
+                    if (view instanceof ImageView) {
+                        ZoomIndex = position - 1;
+                        Glide.with(view).load(DownloadedImageList.get(ZoomIndex)).into(((ImageView) findViewById(R.id.diary_ZoomIn_ZoomImage)));
+                        ((TextView) findViewById(R.id.diary_ZoomIn_ZoomName)).setText(DownloadedImageList.get(ZoomIndex).getMeta().getAddress());
+                        findViewById(R.id.diary_ZoomIn_Root).setVisibility(View.VISIBLE);
+                    }
                 }
-            }
 
-            @Override
-            public void onLongItemClick(@NotNull View view, int position) {
-                super.onLongItemClick(view, position);
-            }
-        }.getItemTouchListener());
-        swipeTouchListener = new OnSwipeTouchListener(this.getBaseContext()) {
-            @Override
-            public void onSwipeRight() {
-                if (--ZoomIndex < 0)
-                    ZoomIndex += DownloadedImageList.size();
-                Glide.with(findViewById(R.id.diary_ZoomIn_ZoomImage)).load(DownloadedImageList.get(ZoomIndex)).into((ImageView) findViewById(R.id.diary_ZoomIn_ZoomImage));
-                ((TextView) findViewById(R.id.diary_ZoomIn_ZoomName)).setText(DownloadedImageList.get(ZoomIndex).getMeta().getAddress());
-            }
+                @Override
+                public void onLongItemClick(@NotNull View view, int position) {
+                    super.onLongItemClick(view, position);
+                }
+            }.getItemTouchListener());
+            swipeTouchListener = new OnSwipeTouchListener(this.getBaseContext()) {
+                @Override
+                public void onSwipeRight() {
+                    if (--ZoomIndex < 0)
+                        ZoomIndex += DownloadedImageList.size();
+                    Glide.with(findViewById(R.id.diary_ZoomIn_ZoomImage)).load(DownloadedImageList.get(ZoomIndex)).into((ImageView) findViewById(R.id.diary_ZoomIn_ZoomImage));
+                    ((TextView) findViewById(R.id.diary_ZoomIn_ZoomName)).setText(DownloadedImageList.get(ZoomIndex).getMeta().getAddress());
+                }
 
-            @Override
-            public void onSwipeLeft() {
-                if (++ZoomIndex == DownloadedImageList.size())
-                    ZoomIndex = 0;
-                Glide.with(findViewById(R.id.diary_ZoomIn_ZoomImage)).load(DownloadedImageList.get(ZoomIndex)).into((ImageView) findViewById(R.id.diary_ZoomIn_ZoomImage));
-                ((TextView) findViewById(R.id.diary_ZoomIn_ZoomName)).setText(DownloadedImageList.get(ZoomIndex).getMeta().getAddress());
+                @Override
+                public void onSwipeLeft() {
+                    if (++ZoomIndex == DownloadedImageList.size())
+                        ZoomIndex = 0;
+                    Glide.with(findViewById(R.id.diary_ZoomIn_ZoomImage)).load(DownloadedImageList.get(ZoomIndex)).into((ImageView) findViewById(R.id.diary_ZoomIn_ZoomImage));
+                    ((TextView) findViewById(R.id.diary_ZoomIn_ZoomName)).setText(DownloadedImageList.get(ZoomIndex).getMeta().getAddress());
 
-            }
-        };
-        findViewById(R.id.diary_ZoomIn_ZoomImage).setOnTouchListener(swipeTouchListener);
+                }
+            };
+            findViewById(R.id.diary_ZoomIn_ZoomImage).setOnTouchListener(swipeTouchListener);
+        }
     }
 
     public void ShowDiaryData() {
@@ -255,6 +268,12 @@ public class Diary_main extends AppCompatActivity {
 
         @Override
         public void onBindViewHolder(@NonNull DiaryListViewHolder holder, int position) {
+            if (items == null)
+            {
+                Glide.with(holder.image_Thumbnail).load(R.drawable.diarynotfoundbordered).into(holder.image_Thumbnail);
+                holder.NameTag.setVisibility(View.GONE);
+                return;
+            }
             final Diary diaryToShow = items.get(position);
             Glide.with(holder.image_Thumbnail).load(diaryToShow.get(0)).into(holder.image_Thumbnail);
             holder.text_Name.setText(diaryToShow.getTitle());
@@ -286,6 +305,13 @@ public class Diary_main extends AppCompatActivity {
 
         @Override
         public int getItemCount() {
+            if (items == null)
+                return 1;
+            if (items.size() == 0 || items.get(0).size() == 0)
+            {
+                items = null;
+                return 1;
+            }
             return items.size();
         }
     }
