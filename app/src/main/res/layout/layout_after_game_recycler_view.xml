@@ -4,33 +4,59 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <Button
+    <ImageView
         android:id="@+id/after_game_exit_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         android:text="exit"
-        app:layout_constraintRight_toLeftOf="@id/after_game_retry_button"
-        app:layout_constraintLeft_toLeftOf="parent"
+        android:src="@drawable/game_exit_btn"
+        app:layout_constraintDimensionRatio="W,1:1"
+        app:layout_constraintRight_toRightOf="@id/after_game_recyclerview_right_vertical_guideline"
         app:layout_constraintBottom_toTopOf="@id/after_game_recyclerview_guideline"
         app:layout_constraintTop_toTopOf="parent"/>
-    <Button
+    <ImageView
         android:id="@+id/after_game_retry_button"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:text="retry"
+        android:src="@drawable/game_after_retry_btn"
+        android:layout_marginRight="10dp"
+        app:layout_constraintDimensionRatio="W,1:1"
+        app:layout_constraintRight_toLeftOf="@id/after_game_exit_button"
+        app:layout_constraintBottom_toTopOf="@id/after_game_recyclerview_guideline"
+        app:layout_constraintTop_toTopOf="parent"
+        />
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#000000"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintBottom_toBottomOf="@id/after_game_recyclerview_guideline"/>
+
+    <android.support.constraint.Guideline
+        android:id="@+id/after_game_recyclerview_right_vertical_guideline"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="retry"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintLeft_toRightOf="@id/after_game_exit_button"
-        app:layout_constraintBottom_toTopOf="@id/after_game_recyclerview_guideline"
-        app:layout_constraintTop_toTopOf="parent"/>
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.95"/>
+    <android.support.constraint.Guideline
+        android:id="@+id/after_game_recyclerview_left_vertical_guideline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.05"/>
     <android.support.constraint.Guideline
         android:id="@+id/after_game_recyclerview_guideline"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.1"/>
+        app:layout_constraintGuide_percent="0.065"/>
     <android.support.v7.widget.RecyclerView
         app:layout_constraintTop_toTopOf="@id/after_game_recyclerview_guideline"
-        android:layout_width="match_parent"
+        app:layout_constraintLeft_toRightOf="@id/after_game_recyclerview_left_vertical_guideline"
+        app:layout_constraintRight_toLeftOf="@id/after_game_recyclerview_right_vertical_guideline"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:id="@+id/after_game_recyclerview">
     </android.support.v7.widget.RecyclerView>
