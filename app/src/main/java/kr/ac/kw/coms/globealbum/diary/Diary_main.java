@@ -10,6 +10,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -185,18 +186,24 @@ public class Diary_main extends AppCompatActivity {
 
     public void ShowImageData() {
         //준비된 Image 데이터를 화면에 표시
+        float px = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10f, getResources().getDisplayMetrics());
         if (DownloadedImageList.size() == 0)
         {
             DownloadedImageList.add(new ResourcePicture(R.drawable.imagenotfoundbordered));
             PictureGroup PictureRow = new PictureGroup("", (ArrayList<IPicture>) DownloadedImageList);
             List<PictureGroup> PictureList = new ArrayList<>();
             PictureList.add(PictureRow);
+            ImageList.getPicAdapter().setSpan(1);
+            ImageList.getPicAdapter().setVerticalPadding((int)px);
+            ImageList.getPicAdapter().setHorizontalPadding((int)px);
             ImageList.setGroups(PictureList);
         }
         else {
             PictureGroup PictureRow = new PictureGroup("", (ArrayList<IPicture>) DownloadedImageList);
             List<PictureGroup> PictureList = new ArrayList<>();
             PictureList.add(PictureRow);
+            ImageList.getPicAdapter().setVerticalPadding(0);
+            ImageList.getPicAdapter().setHorizontalPadding(0);
             ImageList.setGroups(PictureList);
             ImageList.addOnItemTouchListener(new RecyclerItemClickListener(ImageList) {
                 @Override

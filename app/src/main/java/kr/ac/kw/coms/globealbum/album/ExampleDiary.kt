@@ -141,10 +141,25 @@ class GroupedPicAdapter : RecyclerView.Adapter<GroupedPicAdapter.ElementViewHold
     topPadding = value
     bottomPadding = value
   }
+
+  var horizontalPadding: Int = 0
+  set(value) {
+    leftPadding = value
+    rightPadding = value
+  }
+
+  var verticalPadding: Int = 0
+  set(value) {
+    topPadding = value
+    bottomPadding = value
+  }
+
   var leftPadding: Int = 0
   var rightPadding: Int = 0
   var topPadding: Int = 0
   var bottomPadding: Int = 0
+
+  var span: Int = 3
 
   var nameTextSize: Int = 20
   var nameBackgroundColor: Long = 0xFFFFFFFF
@@ -176,7 +191,7 @@ class GroupedPicAdapter : RecyclerView.Adapter<GroupedPicAdapter.ElementViewHold
         val pic: IPicture = holder.boundItem as IPicture
         val iv: ImageView = holder.imageView
         GlideApp.with(iv).load(pic).placeholder(R.drawable.nowloading).into(iv)
-        iv.scaleType = ImageView.ScaleType.CENTER_INSIDE
+        iv.scaleType = ImageView.ScaleType.CENTER_CROP
         iv.setPadding(leftPadding, topPadding, rightPadding, bottomPadding)
       }
     }
@@ -195,8 +210,13 @@ class GroupedPicAdapter : RecyclerView.Adapter<GroupedPicAdapter.ElementViewHold
   private fun createPicture(parent: View): PictureHolder {
     return PictureHolder(ImageView(parent.context).apply {
       val metrics = parent.resources.displayMetrics
-      val mw = metrics.widthPixels
-      val mh = metrics.widthPixels / 2
+      var mw = metrics.widthPixels / span
+      var mh = metrics.widthPixels / span
+      if (span == 1)
+      {
+        mw = metrics.widthPixels
+        mh = metrics.widthPixels / 2
+      }
       scaleType = ImageView.ScaleType.CENTER_CROP
       layoutParams = FlexboxLayoutManager.LayoutParams(mw, mh).apply {
         flexGrow = 1f
