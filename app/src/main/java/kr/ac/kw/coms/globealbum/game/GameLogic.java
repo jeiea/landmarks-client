@@ -18,7 +18,6 @@ import java.util.Objects;
 import java.util.Random;
 
 import kr.ac.kw.coms.globealbum.R;
-import kr.ac.kw.coms.globealbum.map.DrawCircleOverlay;
 import kr.ac.kw.coms.globealbum.provider.IPicture;
 import kr.ac.kw.coms.globealbum.provider.PictureMeta;
 import kr.ac.kw.coms.globealbum.provider.RemoteJava;
@@ -43,8 +42,7 @@ interface IGameInputHandler {
 }
 
 class GameLogic implements IGameInputHandler {
-    private IGameUI rui;
-    private GameUI ui;
+    private IGameUI ui;
     private Context context;
 
     private int problem = 0;
@@ -58,11 +56,6 @@ class GameLogic implements IGameInputHandler {
     private int[] stageLimitScore = new int[]{400, 500, 600, 800}; //600,800,1100,1400,1650,2000,2700
     private int[] stageNumberOfGames = new int[]{3, 3, 3, 3};
 
-    private Handler animateHandler = null;  //마커 이동시키는 핸들러
-    private Handler drawDottedLineHandler = null;  // 점선 그리는 핸들러
-
-    private DrawCircleOverlay drawCircleOverlay;
-    private DottedLineOverlay dottedLineOverlay;
     private boolean rightAnswerTypeB = false;
     private GameState state;
 
@@ -85,15 +78,15 @@ class GameLogic implements IGameInputHandler {
     private GameType gameType;
 
     GameLogic(GameUI ui, Context context) {
-        rui = this.ui = ui;
-        rui.setInputHandler(this);
+        this.ui = ui;
+        this.ui.setInputHandler(this);
         this.context = context;
     }
 
     //post delay 사용하기
     void initiateGame() {
         state = GameState.LOADING;
-        rui.showLoadingGif();
+        ui.showLoadingGif();
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
@@ -108,10 +101,10 @@ class GameLogic implements IGameInputHandler {
         boolean isNotEnd = stage - 1 > stageLimitScore.length && score >= stageLimitScore[stage - 2];
         if (isFirstStage || isNotEnd) {
             state = GameState.STAGE_READY;
-            rui.showGameEntryPoint(stage, stageLimitScore[stage - 1], stageNumberOfGames[stage - 1]);
+            ui.showGameEntryPoint(stage, stageLimitScore[stage - 1], stageNumberOfGames[stage - 1]);
         } else {
             state = GameState.GAME_OVER;
-            rui.showGameOver(questionPic);
+            ui.showGameOver(questionPic);
         }
     }
 
@@ -146,12 +139,12 @@ class GameLogic implements IGameInputHandler {
     }
 
     private void onGameReady() {
-        rui.setQuizInfo(stage, problem, stageNumberOfGames[stage - 1]);
+        ui.setQuizInfo(stage, problem, stageNumberOfGames[stage - 1]);
         chooseQuestionType();
 
         state = GameState.SOLVING;
         msQuestionStart = new Date().getTime();
-        rui.startTimer(MS_TIME_LIMIT);
+        ui.startTimer(MS_TIME_LIMIT);
     }
 
     /**
@@ -169,16 +162,16 @@ class GameLogic implements IGameInputHandler {
 
     private void enterPositionProblem() {
         gameType = GameType.POSITION;
-        rui.showPositionQuiz(questionPic.get(problem));
+        ui.showPositionQuiz(questionPic.get(problem));
         GeoPoint rightPos = questionPic.get(problem).getMeta().getGeo();
-        rui.getSystemMarker().setPosition(Objects.requireNonNull(rightPos));
+        ui.getSystemMarker().setPosition(Objects.requireNonNull(rightPos));
     }
 
     private void enterPicChoiceProblem() {
         gameType = GameType.PICTURE;
         PictureMeta meta = questionPic.get(problem).getMeta();
-        rui.showPictureQuiz(questionPic, meta.getAddress());
-        rui.getSystemMarker().setPosition(Objects.requireNonNull(meta.getGeo()));
+        ui.showPictureQuiz(questionPic, meta.getAddress());
+        ui.getSystemMarker().setPosition(Objects.requireNonNull(meta.getGeo()));
 
         // TODO: this answer is predictable, set it randomly
     }
@@ -187,9 +180,9 @@ class GameLogic implements IGameInputHandler {
         int deltaScore = reflectScoreAndGetDelta();
         double distance = calcDistanceKm();
         if (gameType == GameType.POSITION) {
-            rui.showPositionAnswer(questionPic.get(problem), deltaScore, distance);
+            ui.showPositionAnswer(questionPic.get(problem), deltaScore, distance);
         } else {
-            rui.showPictureAnswer(questionPic.get(problem), deltaScore);
+            ui.showPictureAnswer(questionPic.get(problem), deltaScore);
         }
     }
 
@@ -207,7 +200,7 @@ class GameLogic implements IGameInputHandler {
     private int calcProblemScore() {
         if (gameType == GameType.POSITION) {
             // 마커를 화면에 찍지 않고 정답을 확인하는 경우
-            if (!rui.getUserMarker().isEnabled()) {
+            if (!ui.getUserMarker().isEnabled()) {
                 return -100;
             } else {
                 double distance = calcDistanceKm();
@@ -238,7 +231,7 @@ class GameLogic implements IGameInputHandler {
     private int reflectScoreAndGetDelta() {
         int deltaScore = calcProblemScore();
         score += deltaScore;
-        rui.setScore(score);
+        ui.setScore(score);
         return deltaScore;
     }
 
@@ -247,17 +240,17 @@ class GameLogic implements IGameInputHandler {
      */
     @Override
     public void onTimeout() {
-        rui.stopTimer();
+        ui.stopTimer();
         state = GameState.GRADING;
 
         // 화면을 한번 터치해 마커를 생성하고 난 후
         // 타임아웃 발생시 그 마커를 위치로 정답 확인
         if (gameType == GameType.POSITION) {
-            if (rui.getUserMarker().isEnabled()) {
+            if (ui.getUserMarker().isEnabled()) {
                 showDifferenceAnimAndScore(new GeoPointInterpolator.Spherical());
             } else {
                 //화면에 마커 생성 없이 타임아웃 발생시 정답 확인
-                Marker sys = rui.getSystemMarker();
+                Marker sys = ui.getSystemMarker();
                 sys.showInfoWindow();
                 sys.setEnabled(true);
             }
@@ -271,14 +264,14 @@ class GameLogic implements IGameInputHandler {
      * 점수를 보여줌.
      */
     private void showDifferenceAnimAndScore(GeoPointInterpolator geopolator) {
-        rui.getUserMarker().setOnMarkerClickListener(null);
+        ui.getUserMarker().setOnMarkerClickListener(null);
         state = GameState.GRADING;
-        rui.stopTimer();
+        ui.stopTimer();
 
-        Marker sys = rui.getSystemMarker();
-        sys.setPosition(rui.getUserMarker().getPosition());
+        Marker sys = ui.getSystemMarker();
+        sys.setPosition(ui.getUserMarker().getPosition());
         GeoPoint rightPos = questionPic.get(problem).getMeta().getGeo();
-        rui.animateMarker(sys, rightPos, geopolator);
+        ui.animateMarker(sys, rightPos, geopolator);
 
         // Display score
         new Handler().postDelayed(new Runnable() {
@@ -295,19 +288,19 @@ class GameLogic implements IGameInputHandler {
      * @return km 단위 거리
      */
     private double calcDistanceKm() {
-        GeoPoint g1 = rui.getSystemMarker().getPosition();
-        GeoPoint g2 = rui.getUserMarker().getPosition();
+        GeoPoint g1 = ui.getSystemMarker().getPosition();
+        GeoPoint g2 = ui.getUserMarker().getPosition();
         return g1.distanceToAsDouble(g2) / 1000;
     }
 
     void releaseResources() {
-        rui.exitGame();
+        ui.exitGame();
     }
 
     @Override
     public void onSelectPictureCertainly(IPicture selected) {
         rightAnswerTypeB = selected == questionPic.get(problem);
-        rui.stopTimer();
+        ui.stopTimer();
         state = GameState.GRADING;
         onProblemDone();
     }
@@ -323,10 +316,10 @@ class GameLogic implements IGameInputHandler {
     public void onPressNext() {
         problem++;
         if (problem < stageNumberOfGames[stage - 1]) {
-            rui.setQuizInfo(stage, problem, stageNumberOfGames[stage - 1]);
+            ui.setQuizInfo(stage, problem, stageNumberOfGames[stage - 1]);
             chooseQuestionType();
             state = GameState.SOLVING;
-            rui.startTimer(MS_TIME_LIMIT);
+            ui.startTimer(MS_TIME_LIMIT);
         } else {
             onGameEntryPoint();
         }
@@ -344,8 +337,8 @@ class GameLogic implements IGameInputHandler {
     }
 
     private void pointMarker(GeoPoint pt) {
-        final Marker user = rui.getUserMarker();
-        rui.pointMarker(user, pt);
+        final Marker user = ui.getUserMarker();
+        ui.pointMarker(user, pt);
         user.setOnMarkerClickListener(new Marker.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(Marker marker, MapView mapView) {
@@ -357,7 +350,7 @@ class GameLogic implements IGameInputHandler {
 
     @Override
     public void onPressExit() {
-        rui.exitGame();
+        ui.exitGame();
     }
 
     /**
