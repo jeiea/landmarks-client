@@ -80,7 +80,6 @@
 
     <TextView
         android:id="@+id/textView"
-        style="@style/CustomFontStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="── Sign in with ──"
@@ -113,7 +112,6 @@
 
     <EditText
         android:id="@+id/et_login"
-        style="@style/CustomFontStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:ems="10"
@@ -125,7 +123,6 @@
 
     <EditText
         android:id="@+id/et_password"
-        style="@style/CustomFontStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:ems="10"

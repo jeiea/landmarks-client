@@ -34,7 +34,6 @@
             app:layout_constraintWidth_percent="0.5">
 
             <TextView
-                style="@style/CustomFontStyle"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:background="#FFFFFF"
@@ -57,7 +56,6 @@
             app:layout_constraintWidth_percent="0.5">
 
             <TextView
-                style="@style/CustomFontStyle"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:background="#FFFFFF"
