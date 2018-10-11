@@ -259,7 +259,6 @@ class GameLogic implements IGameInputHandler {
             } else {
                 //화면에 마커 생성 없이 타임아웃 발생시 정답 확인
                 Marker sys = ui.getSystemMarker();
-                sys.showInfoWindow();
                 sys.setEnabled(true);
             }
         }
