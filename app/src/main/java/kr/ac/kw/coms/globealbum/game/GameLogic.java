@@ -100,6 +100,7 @@ class GameLogic implements IGameInputHandler {
         problem = 0;
         score = 0;
         stage = 0;
+        ui.setScore(score);
     }
 
     private void onGameEntryPoint() {
@@ -314,7 +315,6 @@ class GameLogic implements IGameInputHandler {
 
     @Override
     public void onPressStart() {
-        score = 0;
         problem = 0;
         onProblemReady();
     }

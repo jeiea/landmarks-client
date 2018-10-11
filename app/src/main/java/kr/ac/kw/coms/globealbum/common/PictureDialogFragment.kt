@@ -15,7 +15,7 @@ import org.jetbrains.anko.constraint.layout.constraintLayout
 import org.jetbrains.anko.image
 import org.jetbrains.anko.imageView
 import org.jetbrains.anko.matchParent
-import org.jetbrains.anko.sdk25.coroutines.onTouch
+import org.jetbrains.anko.sdk27.coroutines.onTouch
 import org.jetbrains.anko.wrapContent
 
 
