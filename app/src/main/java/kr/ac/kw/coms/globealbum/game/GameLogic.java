@@ -307,15 +307,15 @@ class GameLogic implements IGameInputHandler {
     @Override
     public void onSelectPictureCertainly(IPicture selected) {
         rightAnswerTypeB = selected == questionPic.get(problem);
+        ui.stopTimer();
+        state = GameState.GRADING;
+        onProblemDone();
     }
 
     @Override
     public void onPressStart() {
         score = 0;
         problem = 0;
-        ui.stopTimer();
-        state = GameState.GRADING;
-        onProblemDone();
         onProblemReady();
     }
 

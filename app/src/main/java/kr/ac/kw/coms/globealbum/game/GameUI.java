@@ -12,6 +12,7 @@ import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
@@ -25,6 +26,7 @@ import android.widget.TextView;
 import org.osmdroid.events.MapEventsReceiver;
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
 import org.osmdroid.util.GeoPoint;
+import org.osmdroid.views.MapView;
 import org.osmdroid.views.Projection;
 import org.osmdroid.views.overlay.MapEventsOverlay;
 import org.osmdroid.views.overlay.Marker;
@@ -209,6 +211,12 @@ class GameUI implements IGameUI {
     private void addBalloonToMarker(Marker marker) {
         marker.setTitle("");
         MarkerInfoWindow miw = new MarkerInfoWindow(R.layout.game_infowindow_bubble, myMapView);
+        miw.getView().setOnTouchListener(new View.OnTouchListener() {   //infowindow 터치시 사라지는 것 방지
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                return false;
+            }
+        });
         marker.setInfoWindow(miw);
         marker.showInfoWindow();
     }
@@ -430,6 +438,9 @@ class GameUI implements IGameUI {
 
     @Override
     public void showPositionAnswer(IPicture correct, int deltaScore, Double distance) {
+        systemMarker.setOnMarkerClickListener(onMarkerClickDoingNothing);
+        userMarker.setOnMarkerClickListener(onMarkerClickDoingNothing);
+
         showCommonAnswer(correct, deltaScore);
         positionProblemLayout.setVisibility(View.GONE);
         if (distance != null) {
@@ -583,6 +594,16 @@ class GameUI implements IGameUI {
             return false;
         }
     });
+
+    /**
+     * 정답화면에서 마커 클릭시 infowindow 띄우는 것 방지 하는 리스너
+     */
+    private Marker.OnMarkerClickListener onMarkerClickDoingNothing = new Marker.OnMarkerClickListener() {
+        @Override
+        public boolean onMarkerClick(Marker marker, MapView mapView) {
+            return false;
+        }
+    };
 
 
     private View.OnClickListener onPressNext = new View.OnClickListener() {
