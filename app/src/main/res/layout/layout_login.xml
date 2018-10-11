@@ -24,22 +24,22 @@
 
     <android.support.constraint.Guideline
         android:id="@+id/guide_login_vertical_left"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         android:orientation="vertical"
         app:layout_constraintGuide_percent="0.2" />
 
     <android.support.constraint.Guideline
         android:id="@+id/guide_login_vertical_right"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         android:orientation="vertical"
         app:layout_constraintGuide_percent="0.8" />
 
     <android.support.constraint.Guideline
         android:id="@+id/guide_login_vertical_left_pic"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         android:orientation="vertical"
         app:layout_constraintGuide_percent="0.3" />
 
@@ -76,7 +76,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.45" />
+        app:layout_constraintGuide_percent="0.5" />
 
     <TextView
         android:id="@+id/textView"
@@ -90,76 +90,102 @@
         app:layout_constraintRight_toRightOf="parent" />
 
 
+    <CheckBox
+        android:id="@+id/cb_remember_id"
+        style="@style/CustomFontStyle"
+        android:layout_width="0dp"
+        android:layout_height="18sp"
+        android:text="Remember ID"
+        android:textSize="12sp"
+        android:layout_marginStart="0dp"
+        app:layout_constraintBottom_toTopOf="@id/btn_login"
+        app:layout_constraintStart_toStartOf="@id/btn_login"
+        app:layout_constraintWidth_percent="0.35" />
+
+    <CheckBox
+        android:id="@+id/cb_auto_login"
+        style="@style/CustomFontStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="18sp"
+        android:textSize="12sp"
+        android:text="Auto login"
+        app:layout_constraintBottom_toTopOf="@id/btn_login"
+        app:layout_constraintEnd_toEndOf="@id/btn_login" />
+
     <ImageView
         android:id="@+id/imageview_login_id_icon"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:src="@drawable/login_id_icon"
-        app:layout_constraintDimensionRatio="W,1:1"
-        app:layout_constraintLeft_toLeftOf="@id/guide_login_vertical_left"
-        app:layout_constraintRight_toRightOf="@id/guide_login_vertical_left_pic"
-        app:layout_constraintTop_toBottomOf="@id/guide_login_horizontal_edit_text" />
+        app:layout_constraintDimensionRatio="H,1:1"
+        app:layout_constraintStart_toStartOf="@id/guide_login_vertical_left"
+        app:layout_constraintTop_toBottomOf="@id/guide_login_horizontal_edit_text"
+        app:layout_constraintWidth_percent="0.1" />
 
     <ImageView
         android:id="@+id/imageview_login_pw_icon"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:src="@drawable/login_pw_icon"
-        app:layout_constraintDimensionRatio="W,1:1"
-        app:layout_constraintLeft_toLeftOf="@id/guide_login_vertical_left"
-        app:layout_constraintRight_toRightOf="@id/guide_login_vertical_left_pic"
-        app:layout_constraintTop_toBottomOf="@id/imageview_login_id_icon" />
+        android:layout_marginTop="10dp"
+        app:layout_constraintDimensionRatio="H,1:1"
+        app:layout_constraintEnd_toEndOf="@id/guide_login_vertical_left_pic"
+        app:layout_constraintStart_toStartOf="@id/guide_login_vertical_left"
+        app:layout_constraintTop_toBottomOf="@id/imageview_login_id_icon"
+        app:layout_constraintWidth_percent="0.1" />
 
     <EditText
         android:id="@+id/et_login"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:ems="10"
-        android:inputType="textEmailAddress"
+        style="@style/CustomFontStyle"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:inputType="text"
         android:hint="ID"
-        app:layout_constraintLeft_toRightOf="@id/imageview_login_id_icon"
-        app:layout_constraintRight_toRightOf="@id/guide_login_vertical_right"
-        app:layout_constraintTop_toBottomOf="@id/guide_login_horizontal_edit_text" />
+        app:layout_constraintBottom_toBottomOf="@id/imageview_login_id_icon"
+        app:layout_constraintEnd_toStartOf="@id/guide_login_vertical_right"
+        app:layout_constraintStart_toEndOf="@id/imageview_login_id_icon"
+        app:layout_constraintTop_toTopOf="@id/imageview_login_id_icon" />
 
     <EditText
         android:id="@+id/et_password"
-        android:layout_width="wrap_content"
+        style="@style/CustomFontStyle"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:ems="10"
         android:inputType="textPassword"
         android:hint="password"
-        app:layout_constraintLeft_toRightOf="@id/imageview_login_pw_icon"
-        app:layout_constraintRight_toRightOf="@id/guide_login_vertical_right"
-        app:layout_constraintTop_toBottomOf="@id/et_login" />
+        app:layout_constraintBottom_toBottomOf="@id/imageview_login_pw_icon"
+        app:layout_constraintEnd_toStartOf="@id/guide_login_vertical_right"
+        app:layout_constraintStart_toEndOf="@id/imageview_login_pw_icon"
+        app:layout_constraintTop_toTopOf="@id/imageview_login_pw_icon" />
 
-    <ImageView
+    <ImageButton
         android:id="@+id/btn_login"
+        android:contentDescription="Log in"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:src="@drawable/login_login_btn"
-        android:clickable="true"
         app:layout_constraintDimensionRatio="W,1:4"
         app:layout_constraintLeft_toLeftOf="@id/guide_login_vertical_left"
         app:layout_constraintRight_toRightOf="@id/guide_login_vertical_right"
         app:layout_constraintTop_toBottomOf="@id/guide_login_horizontal_mid" />
 
-    <ImageView
+    <ImageButton
         android:id="@+id/btn_account"
+        android:contentDescription="Register now"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:src="@drawable/login_register_btn"
-        android:clickable="true"
         app:layout_constraintDimensionRatio="W,1:4"
         app:layout_constraintLeft_toLeftOf="@id/guide_login_vertical_left"
         app:layout_constraintRight_toRightOf="@id/guide_login_vertical_right"
         app:layout_constraintTop_toBottomOf="@id/btn_login" />
 
-    <ImageView
+    <ImageButton
         android:id="@+id/btn_forgot"
+        android:contentDescription="Forgot your password?"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:src="@drawable/login_forget_btn"
-        android:clickable="true"
         app:layout_constraintDimensionRatio="W,1:4"
         app:layout_constraintLeft_toLeftOf="@id/guide_login_vertical_left"
         app:layout_constraintRight_toRightOf="@id/guide_login_vertical_right"
