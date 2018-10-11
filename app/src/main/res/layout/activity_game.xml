@@ -241,6 +241,7 @@
     <!--문제를 풀고 정답을 확인할 때 필요한 레이아웃-->
     <android.support.constraint.ConstraintLayout
         android:id="@+id/layout_answer"
+        android:visibility="gone"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginStart="20dp"
@@ -271,7 +272,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@id/guide_answer_v"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/textview_land_name_answer"
             tools:src="@drawable/sample6" />
 
         <TextView
@@ -321,7 +322,6 @@
             android:layout_height="0dp"
             android:text="NEXT"
             android:src="@drawable/game_next_btn"
-            android:layout_marginTop="15dp"
             app:layout_constraintDimensionRatio="W,2:1"
             app:layout_constraintEnd_toEndOf="@id/guide_btn_right"
             app:layout_constraintStart_toEndOf="@id/guide_btn_left"

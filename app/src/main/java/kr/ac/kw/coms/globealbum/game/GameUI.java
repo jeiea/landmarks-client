@@ -463,10 +463,10 @@ class GameUI implements IGameUI {
     public void pointMarker(Marker marker, GeoPoint pt) {
         Projection proj = myMapView.getProjection();
         Point disp = proj.toPixels(pt, null);
-        GeoPoint start = (GeoPoint) proj.fromPixels(disp.x, disp.y - 130);
+        GeoPoint start = (GeoPoint) proj.fromPixels(disp.x, disp.y - 50);
         marker.setPosition(start);
-        MarkerAnimation anim = new MarkerAnimation(marker, pt, 150);
-        anim.setTimeInterpolator(new AccelerateInterpolator());
+        MarkerAnimation anim = new MarkerAnimation(marker, pt, 250);
+        anim.setTimeInterpolator(new AccelerateInterpolator(0.3f));
         handler.post(anim);
     }
 
