@@ -443,6 +443,9 @@ class GameUI implements IGameUI {
 
         showCommonAnswer(correct, deltaScore);
         positionProblemLayout.setVisibility(View.GONE);
+
+        myMapView.getController().zoomTo(myMapView.getMinZoomLevel(), 1000L);
+
         if (distance != null) {
             answerDistanceTextView.setVisibility(View.VISIBLE);
             String d = String.format(Locale.KOREAN, "%.1f km", distance);
