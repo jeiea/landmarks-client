@@ -7,7 +7,7 @@ import kotlinx.android.synthetic.main.layout_login.*
 import kr.ac.kw.coms.globealbum.MainActivity
 import kr.ac.kw.coms.globealbum.R
 import org.jetbrains.anko.contentView
-import org.jetbrains.anko.sdk25.coroutines.onClick
+import org.jetbrains.anko.sdk27.coroutines.onClick
 import org.jetbrains.anko.toast
 
 class LoginActivity : AppCompatActivity() {

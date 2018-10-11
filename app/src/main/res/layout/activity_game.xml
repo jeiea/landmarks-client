@@ -272,7 +272,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@id/guide_answer_v"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/textview_land_name_answer"
             tools:src="@drawable/sample6" />
 
         <TextView
@@ -322,21 +322,22 @@
             android:layout_height="0dp"
             android:text="NEXT"
             android:src="@drawable/game_next_btn"
-            android:layout_marginTop="15dp"
-            app:layout_constraintDimensionRatio="W,1:2"
+            app:layout_constraintDimensionRatio="W,2:1"
             app:layout_constraintEnd_toEndOf="@id/guide_btn_right"
             app:layout_constraintStart_toEndOf="@id/guide_btn_left"
-            app:layout_constraintTop_toBottomOf="@id/textview_land_score_answer" />
+            app:layout_constraintTop_toBottomOf="@id/textview_land_score_answer"
+            app:layout_constraintBottom_toTopOf="@id/button_exit"/>
         <ImageView
             android:id="@+id/button_exit"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:text="EXIT"
             android:src="@drawable/game_exit_btn"
-            app:layout_constraintDimensionRatio="W,1:2"
+            app:layout_constraintDimensionRatio="W,2:1"
             app:layout_constraintEnd_toEndOf="@id/guide_btn_right"
             app:layout_constraintStart_toEndOf="@id/guide_btn_left"
-            app:layout_constraintTop_toBottomOf="@id/button_next" />
+            app:layout_constraintTop_toBottomOf="@id/button_next"
+            app:layout_constraintBottom_toBottomOf="parent"/>
 
     </android.support.constraint.ConstraintLayout>
 </android.support.constraint.ConstraintLayout>

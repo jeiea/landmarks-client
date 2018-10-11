@@ -12,10 +12,13 @@ import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.animation.AccelerateInterpolator;
 import android.view.animation.Interpolator;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -23,6 +26,7 @@ import android.widget.TextView;
 import org.osmdroid.events.MapEventsReceiver;
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
 import org.osmdroid.util.GeoPoint;
+import org.osmdroid.views.MapView;
 import org.osmdroid.views.Projection;
 import org.osmdroid.views.overlay.MapEventsOverlay;
 import org.osmdroid.views.overlay.Marker;
@@ -113,6 +117,8 @@ class GameUI implements IGameUI {
     private List<IPicture> choicePics;
     private DottedLineOverlay dotLineAnimation;
     private DrawCircleOverlay circleAnimation;
+
+
 
     GameUI(AppCompatActivity activity) {
         this.activity = activity;
@@ -205,6 +211,12 @@ class GameUI implements IGameUI {
     private void addBalloonToMarker(Marker marker) {
         marker.setTitle("");
         MarkerInfoWindow miw = new MarkerInfoWindow(R.layout.game_infowindow_bubble, myMapView);
+        miw.getView().setOnTouchListener(new View.OnTouchListener() {   //infowindow 터치시 사라지는 것 방지
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                return false;
+            }
+        });
         marker.setInfoWindow(miw);
         marker.showInfoWindow();
     }
@@ -284,7 +296,12 @@ class GameUI implements IGameUI {
     public void setQuizInfo(int stage, int curProblem, int allProblem) {
         gameStageTextView.setText("STAGE " + stage);
         gameTargetTextView.setText("TARGET " + (curProblem + 1) + "/" + allProblem);
-        activity.setContentView(quizView);
+        answerLayout.setVisibility(View.GONE);
+        answerLayout.setClickable(false);
+
+        if (activity.findViewById(R.id.textview_target) == null) {
+            activity.setContentView(quizView);
+        }
     }
 
     /**
@@ -421,6 +438,9 @@ class GameUI implements IGameUI {
 
     @Override
     public void showPositionAnswer(IPicture correct, int deltaScore, Double distance) {
+        systemMarker.setOnMarkerClickListener(onMarkerClickDoingNothing);
+        userMarker.setOnMarkerClickListener(onMarkerClickDoingNothing);
+
         showCommonAnswer(correct, deltaScore);
         positionProblemLayout.setVisibility(View.GONE);
         if (distance != null) {
@@ -457,9 +477,10 @@ class GameUI implements IGameUI {
     public void pointMarker(Marker marker, GeoPoint pt) {
         Projection proj = myMapView.getProjection();
         Point disp = proj.toPixels(pt, null);
-        GeoPoint start = (GeoPoint) proj.fromPixels(disp.x, disp.y - 130);
+        GeoPoint start = (GeoPoint) proj.fromPixels(disp.x, disp.y - 50);
         marker.setPosition(start);
-        MarkerAnimation anim = new MarkerAnimation(marker, pt, 400);
+        MarkerAnimation anim = new MarkerAnimation(marker, pt, 250);
+        anim.setTimeInterpolator(new AccelerateInterpolator(0.3f));
         handler.post(anim);
     }
 
@@ -488,6 +509,10 @@ class GameUI implements IGameUI {
             this.finalPosition = finalPosition;
             msStart = SystemClock.uptimeMillis();
             marker.setEnabled(true);
+        }
+
+        public void setTimeInterpolator(Interpolator timeInterpolator) {
+            this.timeInterpolator = timeInterpolator;
         }
 
         @Override
@@ -522,34 +547,8 @@ class GameUI implements IGameUI {
         myMapView.getController().zoomTo(myMapView.getMinZoomLevel(), 1000L);
     }
 
-    MyMapView getMyMapView() {
-        return myMapView;
-    }
-
-
     void addOverlay(Overlay overlay) {
         myMapView.getOverlays().add(overlay);
-    }
-
-    void mapviewInvalidate() {
-        mapInvalidator.postInvalidate();
-    }
-
-    void clearOverlay(Overlay overlay) {
-        if (overlay instanceof Marker) {
-            InfoWindow.closeAllInfoWindowsOn(myMapView);
-        }
-        if (overlay == systemMarker || overlay == userMarker) {
-            return;
-        }
-        myMapView.getOverlays().remove(overlay);
-    }
-
-    void clearAnswerLayout(int problem, int games) {
-        answerLayout.setVisibility(View.GONE);
-        answerLayout.setClickable(false);
-
-        gameTargetTextView.setText("TARGET " + (problem + 1) + "/" + games);
     }
 
     private View.OnClickListener onPressStart = new View.OnClickListener() {
@@ -563,6 +562,13 @@ class GameUI implements IGameUI {
         @Override
         public void onClick(View v) {
             input.onPressExit();
+        }
+    };
+
+    private View.OnClickListener onPressRetry = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            input.onPressRetry();
         }
     };
 
@@ -588,6 +594,16 @@ class GameUI implements IGameUI {
             return false;
         }
     });
+
+    /**
+     * 정답화면에서 마커 클릭시 infowindow 띄우는 것 방지 하는 리스너
+     */
+    private Marker.OnMarkerClickListener onMarkerClickDoingNothing = new Marker.OnMarkerClickListener() {
+        @Override
+        public boolean onMarkerClick(Marker marker, MapView mapView) {
+            return false;
+        }
+    };
 
 
     private View.OnClickListener onPressNext = new View.OnClickListener() {
@@ -642,7 +658,13 @@ class GameUI implements IGameUI {
     @Override
     public void showGameOver(List<IPicture> pics) {
         handler.removeCallbacksAndMessages(null);
-        activity.setContentView(R.layout.layout_recycler_view);
+        activity.setContentView(R.layout.layout_after_game_recycler_view);
+        //after game
+        Button afterGameExitButton = activity.findViewById(R.id.after_game_exit_button);
+        Button afterGameRetryButton = activity.findViewById(R.id.after_game_retry_button);
+
+        afterGameExitButton.setOnClickListener(onPressExit);
+        afterGameRetryButton.setOnClickListener(onPressRetry);
         //after game
         RecyclerView recyclerView = activity.findViewById(R.id.after_game_recyclerview);
 

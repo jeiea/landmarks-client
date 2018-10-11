@@ -6,16 +6,12 @@
     android:layout_height="match_parent"
     tools:context="kr.ac.kw.coms.globealbum.MainActivity">
 
-    <View
-        android:id="@+id/main_upper_view"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        app:layout_constraintHeight_percent="0.065"
-        android:background="@drawable/upper_bar"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
+    <android.support.constraint.Guideline
+        android:id="@+id/main_upper_guideline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintGuide_percent="0.065"
+        android:orientation="horizontal"/>
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -23,19 +19,25 @@
         android:layout_marginRight="20dp"
         android:text="Profile"
         style="@style/CustomFontStyle"
-        app:layout_constraintBottom_toBottomOf="@id/main_upper_view"
+        app:layout_constraintBottom_toBottomOf="@id/main_upper_guideline"
         app:layout_constraintRight_toRightOf="parent" />
 
     <ImageView
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:src="@drawable/logo"
-        android:layout_marginLeft="15dp"
-        app:layout_constraintDimensionRatio="W,1:1"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintBottom_toBottomOf="@id/main_upper_view"
-
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/main_upper_guideline"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#000000"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintBottom_toBottomOf="@id/main_upper_guideline"/>
 
     <TextView
         android:layout_width="wrap_content"
@@ -55,7 +57,7 @@
         app:layout_constraintDimensionRatio="1.822"
         android:src="@drawable/main_game_btn"
         android:onClick="startOnClick"
-        app:layout_constraintTop_toBottomOf="@id/main_upper_view"
+        app:layout_constraintTop_toBottomOf="@id/main_upper_guideline"
         app:layout_constraintBottom_toTopOf="@id/up_space"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
@@ -110,7 +112,7 @@
         android:layout_height="0dp"
         android:orientation="vertical"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/main_upper_view">
+        app:layout_constraintTop_toBottomOf="@id/main_upper_guideline">
 
         <Button
             android:id="@+id/btn_start_web_gallery"
