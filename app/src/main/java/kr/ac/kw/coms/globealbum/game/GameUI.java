@@ -17,6 +17,7 @@ import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.Interpolator;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -114,6 +115,8 @@ class GameUI implements IGameUI {
     private List<IPicture> choicePics;
     private DottedLineOverlay dotLineAnimation;
     private DrawCircleOverlay circleAnimation;
+
+
 
     GameUI(AppCompatActivity activity) {
         this.activity = activity;
@@ -551,6 +554,13 @@ class GameUI implements IGameUI {
         }
     };
 
+    private View.OnClickListener onPressRetry = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            input.onPressRetry();
+        }
+    };
+
     private View.OnClickListener onPressPicZoom = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
@@ -627,7 +637,13 @@ class GameUI implements IGameUI {
     @Override
     public void showGameOver(List<IPicture> pics) {
         handler.removeCallbacksAndMessages(null);
-        activity.setContentView(R.layout.layout_recycler_view);
+        activity.setContentView(R.layout.layout_after_game_recycler_view);
+        //after game
+        Button afterGameExitButton = activity.findViewById(R.id.after_game_exit_button);
+        Button afterGameRetryButton = activity.findViewById(R.id.after_game_retry_button);
+
+        afterGameExitButton.setOnClickListener(onPressExit);
+        afterGameRetryButton.setOnClickListener(onPressRetry);
         //after game
         RecyclerView recyclerView = activity.findViewById(R.id.after_game_recyclerview);
 

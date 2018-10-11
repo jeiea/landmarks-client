@@ -45,10 +45,10 @@ class GameLogic implements IGameInputHandler {
     private IGameUI ui;
     private Context context;
 
-    private int problem = 0;
-    private int score = 0;
+    private int problem;
+    private int score;
     private long msQuestionStart;
-    private int stage = 0;
+    private int stage;
 
     private ArrayList<IPicture> questionPic = new ArrayList<>();
 
@@ -56,7 +56,7 @@ class GameLogic implements IGameInputHandler {
     private int[] stageLimitScore = new int[]{400, 500, 600, 800}; //600,800,1100,1400,1650,2000,2700
     private int[] stageNumberOfGames = new int[]{3, 3, 3, 3};
 
-    private boolean rightAnswerTypeB = false;
+    private boolean rightAnswerTypeB;
     private GameState state;
 
     private Random random = new Random(System.currentTimeMillis());
@@ -85,14 +85,21 @@ class GameLogic implements IGameInputHandler {
 
     //post delay 사용하기
     void initiateGame() {
-        state = GameState.LOADING;
         ui.showLoadingGif();
+        resetGameStatus();
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
                 onGameEntryPoint();
             }
         }, 2000);
+    }
+
+    private void resetGameStatus() {
+        state = GameState.LOADING;
+        problem = 0;
+        score = 0;
+        stage = 0;
     }
 
     private void onGameEntryPoint() {
@@ -300,15 +307,15 @@ class GameLogic implements IGameInputHandler {
     @Override
     public void onSelectPictureCertainly(IPicture selected) {
         rightAnswerTypeB = selected == questionPic.get(problem);
-        ui.stopTimer();
-        state = GameState.GRADING;
-        onProblemDone();
     }
 
     @Override
     public void onPressStart() {
         score = 0;
         problem = 0;
+        ui.stopTimer();
+        state = GameState.GRADING;
+        onProblemDone();
         onProblemReady();
     }
 
@@ -323,10 +330,6 @@ class GameLogic implements IGameInputHandler {
         } else {
             onGameEntryPoint();
         }
-    }
-
-    @Override
-    public void onPressRetry() {
     }
 
     @Override
@@ -346,6 +349,11 @@ class GameLogic implements IGameInputHandler {
                 return true;
             }
         });
+    }
+    @Override
+    public void onPressRetry() {
+        resetGameStatus();
+        onGameEntryPoint();
     }
 
     @Override
