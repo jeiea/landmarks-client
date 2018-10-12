@@ -14,6 +14,7 @@ import com.bumptech.glide.load.model.ModelLoaderFactory
 import com.bumptech.glide.load.model.MultiModelLoaderFactory
 import com.bumptech.glide.module.AppGlideModule
 import com.bumptech.glide.signature.ObjectKey
+import kotlinx.coroutines.experimental.GlobalScope
 import kotlinx.coroutines.experimental.Job
 import kotlinx.coroutines.experimental.launch
 import kr.ac.kw.coms.globealbum.provider.IPicture
@@ -81,7 +82,7 @@ class PictureDataFetcher(val model: IPicture) : DataFetcher<InputStream> {
   override fun getDataSource(): DataSource = model.dataSource
 
   override fun loadData(priority: Priority, callback: DataFetcher.DataCallback<in InputStream>) {
-    fetch = launch {
+    fetch = GlobalScope.launch {
       try {
         callback.onDataReady(model.stream())
       } catch (e: Exception) {

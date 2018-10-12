@@ -10,7 +10,9 @@ import android.os.Parcel
 import android.os.Parcelable
 import android.support.annotation.DrawableRes
 import com.bumptech.glide.load.DataSource
+import kotlinx.coroutines.experimental.GlobalScope
 import kotlinx.coroutines.experimental.Job
+import kotlinx.coroutines.experimental.launch
 import kr.ac.kw.coms.landmarks.client.*
 import org.osmdroid.util.GeoPoint
 import java.io.File
@@ -43,11 +45,13 @@ data class PictureMeta(
    */
   var geo: GeoPoint? = null
 ) : Parcelable {
+
   constructor(parcel: Parcel) : this(
     parcel.readString(),
     parcel.readString(),
     if (parcel.readInt() == 1) Date(parcel.readLong()) else null,
-    parcel.readParcelable(GeoPoint::class.java.classLoader)) {
+    parcel.readParcelable(GeoPoint::class.java.classLoader)
+  ) {
   }
 
   override fun writeToParcel(parcel: Parcel, flags: Int) {
@@ -95,8 +99,10 @@ interface IPicture : Parcelable {
    * 비트맵
    */
   fun drawable(resources: Resources, promise: Promise<Drawable>): Job {
-    return promise.resolve {
-      BitmapDrawable(resources, stream())
+    return GlobalScope.launch {
+      promise.resolve {
+        BitmapDrawable(resources, stream())
+      }
     }
   }
 
@@ -104,8 +110,8 @@ interface IPicture : Parcelable {
    * 바이너리 데이터
    */
   fun stream(promise: Promise<InputStream>): Job {
-    return promise.resolve {
-      stream()
+    return GlobalScope.launch {
+      promise.resolve { stream() }
     }
   }
 
@@ -162,7 +168,7 @@ class RemotePicture(val info: IdPictureInfo) :
       v.lat = readDouble().takeIf { it != 999.0 }?.toFloat()
       v.lon = readDouble().takeIf { it != 999.0 }?.toFloat()
       v.time = readLong().takeIf { it != -1L }?.let { Date(it) }
-      v.isPublic = if (readByte() == 1.toByte()) true else false
+      v.isPublic = readByte() == 1.toByte()
     }
   }
 
@@ -423,7 +429,8 @@ fun resourceToUri(resources: Resources, resId: Int): Uri {
     ContentResolver.SCHEME_ANDROID_RESOURCE + "://" +
       resources.getResourcePackageName(resId) + '/' +
       resources.getResourceTypeName(resId) + '/' +
-      resources.getResourceEntryName(resId));
+      resources.getResourceEntryName(resId)
+  );
 }
 
 fun uriToResourceId(context: Context, uri: String): Int {
