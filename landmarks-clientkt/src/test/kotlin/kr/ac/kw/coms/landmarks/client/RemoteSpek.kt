@@ -24,7 +24,7 @@ import java.util.*
 @RunWith(JUnitPlatform::class)
 class RemoteSpek : Spek({
   describe("landmarks server single user") {
-//    val client = Remote(getTestClient(), "https://landmarks-coms.herokuapp.com/")
+    //    val client = Remote(getTestClient(), "http://landmarks-coms.herokuapp.com/")
     val client = Remote(getTestClient(), "http://localhost:8080")
 
     xblit("does reverse geocoding") {
@@ -59,10 +59,11 @@ class RemoteSpek : Spek({
 
     val pics = mutableListOf<IdPictureInfo>()
     blit("uploads picture") {
-      for (i in 0..3) {
-        val gps = i.toFloat()
-        val info = PictureInfo(lat = gps, lon = gps, address = "address$i")
-        val pic = client.uploadPicture(info, File("../data/coord$i.jpg"))
+      val jpgs = File("../../landmarks-data/archive0").listFiles()
+      for ((idx, f) in jpgs.withIndex()) {
+        val gps = idx.toFloat() * 3
+        val info = PictureInfo(lat = gps, lon = gps, address = f.nameWithoutExtension)
+        val pic = client.uploadPicture(info, f)
         pics.add(pic)
       }
     }
@@ -73,7 +74,7 @@ class RemoteSpek : Spek({
 
     var replaced = PictureInfo()
     blit("modify picture info") {
-      replaced = pics[0].data.copy(address = "Manhatan?", lat = 110.0f, lon = 20.0f)
+      replaced = pics[0].data.copy(address = "Manhatan?", lat = 20.0f, lon = 110.0f)
       client.modifyPictureInfo(pics[0].id, replaced)
     }
 
@@ -86,7 +87,7 @@ class RemoteSpek : Spek({
     }
 
     blit("query my pictures") {
-      client.getMyPictureInfos().size `should be equal to` 4
+      client.getMyPictureInfos().size `should be equal to` 3
     }
 
     blit("receives quiz info") {
@@ -100,20 +101,29 @@ class RemoteSpek : Spek({
       stream.readBytes().size `should be less than` 200000
     }
 
+    blit("query around pictures") {
+      val ps = client.getAroundPictures(21.0, 111.0, 300.0)
+      ps.size `should be greater than` 0
+    }
+
     // Deletion of picture is not yet implemented.
 
     val collection = CollectionInfo(
       title = "first diary",
       text = "just first"
     )
-    var realCollection: IdCollectionInfo? = null
+    var coll: IdCollectionInfo? = null
     blit("upload collections") {
-      realCollection = client.uploadCollection(collection)
+      coll = client.uploadCollection(collection)
     }
 
     blit("modify collections") {
       collection.images = ArrayList(pics.map { it.id })
-      client.modifyCollection(realCollection!!.id, collection)
+      coll = client.modifyCollection(coll!!.id, collection)
+      coll!!.data.previews!!.size `should be equal to` collection.images!!.size
+      collection.images!!.remove(0)
+      coll = client.modifyCollection(coll!!.id, collection)
+      coll!!.data.images!!.size `should be equal to` collection.images!!.size
     }
 
     var createdCollId = 0
