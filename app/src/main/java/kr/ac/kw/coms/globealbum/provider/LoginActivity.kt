@@ -8,9 +8,10 @@ import android.view.KeyEvent
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import kotlinx.android.synthetic.main.layout_login.*
+import kotlinx.coroutines.experimental.*
 import kotlinx.coroutines.experimental.android.UI
-import kotlinx.coroutines.experimental.delay
-import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.experimental.sync.Mutex
+import kotlinx.coroutines.experimental.sync.withLock
 import kr.ac.kw.coms.globealbum.MainActivity
 import kr.ac.kw.coms.globealbum.R
 import kr.ac.kw.coms.globealbum.common.app
@@ -20,16 +21,22 @@ import org.jetbrains.anko.sdk27.coroutines.onKey
 import org.jetbrains.anko.toast
 
 
-class LoginActivity : AppCompatActivity() {
+class LoginActivity : AppCompatActivity(), CoroutineScope {
+  protected val life = SupervisorJob()
+  override val coroutineContext = Dispatchers.Main.immediate + life
+
+  private val loginMutex = Mutex()
+  private var loggingIn: Job? = null
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
-    setContentView(R.layout.layout_start_loading)
+    setContentView(R.layout.layout_splash)
+    contentView?.postDelayed(::displayLoginOrPass, 1000)
   }
 
-  override fun onResume() {
-    super.onResume()
-    contentView?.postDelayed(::displayLoginOrPass, 1000)
+  override fun onDestroy() {
+    super.onDestroy()
+    life.cancel()
   }
 
   private fun displayLoginOrPass() {
@@ -39,11 +46,14 @@ class LoginActivity : AppCompatActivity() {
 
   private fun displayLogin() {
     setContentView(R.layout.layout_login)
-    btn_login.onClick { tryLoginByUI() }
+    btn_login.onClick { loginByUI() }
     et_password.onKey { _, keyCode, event ->
       if (event?.action == KeyEvent.ACTION_DOWN && keyCode == KeyEvent.KEYCODE_ENTER) {
-        tryLoginByUI()
+        loginByUI()
       }
+    }
+    loggingIn?.also {
+      launch(it) { rotateLoading() }
     }
   }
 
@@ -55,16 +65,16 @@ class LoginActivity : AppCompatActivity() {
       et_password.setText(it)
     }
     if (id != null && pw != null) {
-      launch(UI) { tryLogin(id, pw) }
+      launch(UI) { loginSolely(id, pw) }
     }
   }
 
-  private suspend fun tryLoginByUI() {
+  private suspend fun loginByUI() {
     hideKeyboard()
 
     val id = et_login.text.toString()
     val pass = et_password.text.toString()
-    tryLogin(id, pass)
+    loginSolely(id, pass)
   }
 
   private fun hideKeyboard() {
@@ -72,21 +82,34 @@ class LoginActivity : AppCompatActivity() {
     imm.hideSoftInputFromWindow(currentFocus.windowToken, 0)
   }
 
-  private suspend fun tryLogin(id: String, pass: String) {
-    val animation = rotateLoading()
+  private suspend fun loginSolely(id: String, pass: String) {
+    loginMutex.withLock {
+      loggingIn?.cancelAndJoin()
+      loggingIn = coroutineContext[Job]
+    }
+
+    // If login fails, this child also will be cancelled.
+    launch { rotateLoading() }
+    login(id, pass)
+  }
+
+  private suspend fun login(id: String, pass: String) {
     try {
       RemoteJava.client.login(id, pass)
       saveAutoLoginInfo(id, pass)
 
       val intent = Intent(this@LoginActivity, MainActivity::class.java)
       startActivity(intent)
+      finish()
     } catch (e: Throwable) {
-      animation.cancel()
       toast(e.toString())
     }
   }
 
-  private suspend fun rotateLoading() = launch(UI) {
+  private suspend fun rotateLoading() {
+    if (iv_loading == null) {
+      return
+    }
     try {
       iv_loading.visibility = View.VISIBLE
       while (true) {
