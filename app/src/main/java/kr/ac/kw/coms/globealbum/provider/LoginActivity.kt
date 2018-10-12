@@ -9,7 +9,6 @@ import android.view.View
 import android.view.inputmethod.InputMethodManager
 import kotlinx.android.synthetic.main.layout_login.*
 import kotlinx.coroutines.experimental.*
-import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.sync.Mutex
 import kotlinx.coroutines.experimental.sync.withLock
 import kr.ac.kw.coms.globealbum.MainActivity
@@ -31,17 +30,13 @@ class LoginActivity : AppCompatActivity(), CoroutineScope {
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     setContentView(R.layout.layout_splash)
-    contentView?.postDelayed(::displayLoginOrPass, 1000)
+    contentView?.postDelayed(::displayLogin, 1000)
+    tryAutoLogin()
   }
 
   override fun onDestroy() {
     super.onDestroy()
     life.cancel()
-  }
-
-  private fun displayLoginOrPass() {
-    displayLogin()
-    tryAutoLogin()
   }
 
   private fun displayLogin() {
@@ -52,58 +47,65 @@ class LoginActivity : AppCompatActivity(), CoroutineScope {
         loginByUI()
       }
     }
+    app.login?.also {
+      cb_remember_id.isChecked = true
+      et_login.setText(it)
+    }
+    app.password?.also {
+      cb_auto_login.isChecked = true
+      et_password.setText(it)
+    }
     loggingIn?.also {
       launch(it) { rotateLoading() }
     }
   }
 
   private fun tryAutoLogin() {
-    val id = app.login?.also {
-      et_login.setText(it)
-    }
-    val pw = app.password?.also {
-      et_password.setText(it)
-    }
+    val id = app.login
+    val pw = app.password
     if (id != null && pw != null) {
-      launch(UI) { loginSolely(id, pw) }
+      loginSolely(id, pw)
     }
   }
 
-  private suspend fun loginByUI() {
+  private fun loginByUI() {
     hideKeyboard()
 
     val id = et_login.text.toString()
     val pass = et_password.text.toString()
-    loginSolely(id, pass)
+    if (!id.isBlank() && !pass.isBlank()) {
+      loginSolely(id, pass)
+    }
   }
 
   private fun hideKeyboard() {
     val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-    imm.hideSoftInputFromWindow(currentFocus.windowToken, 0)
+    currentFocus?.windowToken?.also { imm.hideSoftInputFromWindow(it, 0) }
   }
 
-  private suspend fun loginSolely(id: String, pass: String) {
+  private fun loginSolely(id: String, pass: String) = launch(Dispatchers.Main) {
     loginMutex.withLock {
       loggingIn?.cancelAndJoin()
       loggingIn = coroutineContext[Job]
     }
 
-    // If login fails, this child also will be cancelled.
-    launch { rotateLoading() }
-    login(id, pass)
+    val animation = launch { rotateLoading() }
+    try {
+      login(id, pass)
+    }
+    catch (e: Throwable) {
+      toast("$e")
+    }
+    animation.cancelAndJoin()
   }
 
   private suspend fun login(id: String, pass: String) {
-    try {
-      RemoteJava.client.login(id, pass)
-      saveAutoLoginInfo(id, pass)
+    RemoteJava.client.login(id, pass)
+    saveAutoLoginInfo(id, pass)
 
-      val intent = Intent(this@LoginActivity, MainActivity::class.java)
-      startActivity(intent)
-      finish()
-    } catch (e: Throwable) {
-      toast(e.toString())
-    }
+    val intent = Intent(this@LoginActivity, MainActivity::class.java)
+    startActivity(intent)
+    finish()
   }
 
   private suspend fun rotateLoading() {
@@ -116,14 +118,15 @@ class LoginActivity : AppCompatActivity(), CoroutineScope {
         iv_loading.rotation += 17f
         delay(1000 / 30)
       }
-    } finally {
+    }
+    finally {
       iv_loading.visibility = View.GONE
     }
   }
 
   private fun saveAutoLoginInfo(id: String, pass: String) {
-    val autologin = cb_auto_login.isChecked
-    val rememberId = cb_remember_id.isChecked
+    val autologin = cb_auto_login?.isChecked ?: true
+    val rememberId = cb_remember_id?.isChecked ?: true
     app.login = if (autologin || rememberId) id else null
     app.password = if (autologin) pass else null
   }

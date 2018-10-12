@@ -1,8 +1,10 @@
 package kr.ac.kw.coms.globealbum.provider
 
 import android.util.Log
+import kotlinx.coroutines.experimental.Dispatchers
 import kotlinx.coroutines.experimental.GlobalScope
 import kotlinx.coroutines.experimental.Job
+import kotlinx.coroutines.experimental.plus
 import kr.ac.kw.coms.landmarks.client.*
 import java.io.File
 
@@ -27,7 +29,7 @@ object RemoteJava {
   }
 
   fun <T> resolve(promise: Promise<T>, block: suspend () -> T): Job =
-    promise.resolve(GlobalScope) { block() }
+    promise.resolve(GlobalScope + Dispatchers.IO) { block() }
 
   fun reverseGeocode(
     latitude: Double,

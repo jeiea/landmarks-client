@@ -10,9 +10,8 @@ import android.os.Parcel
 import android.os.Parcelable
 import android.support.annotation.DrawableRes
 import com.bumptech.glide.load.DataSource
-import kotlinx.coroutines.experimental.GlobalScope
 import kotlinx.coroutines.experimental.Job
-import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.experimental.runBlocking
 import kr.ac.kw.coms.landmarks.client.*
 import org.osmdroid.util.GeoPoint
 import java.io.File
@@ -99,7 +98,7 @@ interface IPicture : Parcelable {
    * 비트맵
    */
   fun drawable(resources: Resources, promise: Promise<Drawable>): Job {
-    return GlobalScope.launch {
+    return runBlocking {
       promise.resolve {
         BitmapDrawable(resources, stream())
       }
@@ -110,7 +109,7 @@ interface IPicture : Parcelable {
    * 바이너리 데이터
    */
   fun stream(promise: Promise<InputStream>): Job {
-    return GlobalScope.launch {
+    return runBlocking {
       promise.resolve { stream() }
     }
   }
