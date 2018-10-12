@@ -1,6 +1,7 @@
 package kr.ac.kw.coms.globealbum.map;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
@@ -16,7 +17,6 @@ import org.osmdroid.config.Configuration;
 import org.osmdroid.events.MapListener;
 import org.osmdroid.events.ScrollEvent;
 import org.osmdroid.events.ZoomEvent;
-import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
 import org.osmdroid.util.BoundingBox;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.util.TileSystem;
@@ -47,7 +47,12 @@ public class MyMapView extends org.osmdroid.views.MapView implements ILandmarkMa
         super(context, null, null, attrs);
         this.context = context;
         if (!isConfigurationLoaded) {
-            Configuration.getInstance().load(context, PreferenceManager.getDefaultSharedPreferences(context));
+            // https://github.com/jeiea/globe-album/issues/9
+            SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
+            String cfgExpirationExtend = "osmdroid.ExpirationExtendedDuration";
+            long eightDays = 8 * 24 * 60 * 60 * 1000;
+            pref.edit().putLong(cfgExpirationExtend, eightDays).apply();
+            Configuration.getInstance().load(context, pref);
             isConfigurationLoaded = true;
         }
         this.post(new Runnable() {
@@ -279,13 +284,12 @@ public class MyMapView extends org.osmdroid.views.MapView implements ILandmarkMa
             }
         }
         BoundingBox boundingBox1 = getBoundingBox();
-        if(markers.size() == 1){
+        if (markers.size() == 1) {
             Marker item = markers.get(0);
             double lat = item.getPosition().getLatitude();
             double lon = item.getPosition().getLongitude();
-            boundingBox1.set(lat+5, lon+5, lat-5, lon-5);
-        }
-        else{
+            boundingBox1.set(lat + 5, lon + 5, lat - 5, lon - 5);
+        } else {
             double minLat = +85.0f;
             double maxLat = -85.0f;
             double minLon = +180.0f;
@@ -303,7 +307,7 @@ public class MyMapView extends org.osmdroid.views.MapView implements ILandmarkMa
             }
             boundingBox1.set(maxLat, maxLon, minLat, minLon);
         }
-        zoomToBoundingBox(boundingBox1,false);
+        zoomToBoundingBox(boundingBox1, false);
 
         //getController().zoomToSpan(boundingBox1.getLatitudeSpan(), boundingBox1.getLongitudeSpan());
         //getController().setCenter(boundingBox1.getCenterWithDateLine());
