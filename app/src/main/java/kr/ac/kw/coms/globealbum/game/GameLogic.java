@@ -3,6 +3,7 @@ package kr.ac.kw.coms.globealbum.game;
 import android.content.Context;
 import android.content.res.Resources;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.widget.Toast;
 
 import org.jetbrains.annotations.NotNull;
@@ -102,7 +103,7 @@ class GameLogic implements IGameInputHandler {
     void initiateGame() {
         ui.showLoadingGif();
         resetGameStatus();
-        dummyLoading();
+        realLoading();
     }
 
     private void dummyLoading() {
@@ -199,14 +200,14 @@ class GameLogic implements IGameInputHandler {
     }
 
     private void enterNewQuiz() {
-//        receiveQuizRemote();
-        receiveQuizResources();
+        receiveQuizRemote();
+//        receiveQuizResources();
         ui.setQuizInfo(stage, problem, stageNumberOfGames[stage - 1]);
     }
 
     private Promise<List<RemotePicture>> onReceivePictures = new ErrorToastPromise() {
         @Override
-        public void success(List<RemotePicture> result) {
+        public void success(@NonNull List<RemotePicture> result) {
             if (result.size() == 1) {
                 PositionQuiz quiz = new PositionQuiz(result.get(0));
                 enterPositionQuiz(quiz);
@@ -217,7 +218,7 @@ class GameLogic implements IGameInputHandler {
         }
     };
 
-    private void enterPositionQuiz(PositionQuiz quiz) {
+    private void enterPositionQuiz(@NonNull PositionQuiz quiz) {
         gameType = GameType.POSITION;
         ui.showPositionQuiz(quiz.picture);
         GeoPoint rightPos = quiz.picture.getMeta().getGeo();
@@ -226,7 +227,7 @@ class GameLogic implements IGameInputHandler {
         enterQuizCommon(quiz);
     }
 
-    private void enterPicChoiceQuiz(PicChoiceQuiz quiz) {
+    private void enterPicChoiceQuiz(@NonNull PicChoiceQuiz quiz) {
         gameType = GameType.PICTURE;
         PictureMeta meta = quiz.getCorrectPicture().getMeta();
         ui.showPictureQuiz(quiz.pictures, meta.getAddress());
@@ -245,7 +246,11 @@ class GameLogic implements IGameInputHandler {
     private void onProblemDone() {
         int deltaScore = reflectScoreAndGetDelta();
         double distance = calcDistanceKm();
-        shownPictures.addAll(currentQuiz.getUsedPictures());
+        for (IPicture pic : currentQuiz.getUsedPictures()) {
+            if (!shownPictures.contains(pic)) {
+                shownPictures.add(pic);
+            }
+        }
         if (currentQuiz instanceof PositionQuiz) {
             ui.showPositionAnswer(((PositionQuiz) currentQuiz).picture, deltaScore, distance);
         } else {

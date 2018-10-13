@@ -8,7 +8,7 @@ import java.util.*
 data class ServerFault(
   val error: String,
   val stacktrace: String? = null
-) : Throwable(error)
+) : Exception(error)
 
 data class ServerOK(val msg: String)
 
@@ -33,7 +33,16 @@ data class AccountForm(
 data class IdAccountForm(
   override var id: Int,
   var data: AccountForm
-) : IntIdentifiable, IAccountForm by data
+) : IntIdentifiable, IAccountForm by data {
+
+  override fun equals(other: Any?): Boolean {
+    return other is IdPictureInfo && id == other.id
+  }
+
+  override fun hashCode(): Int {
+    return id * 10
+  }
+}
 
 interface IPictureInfo {
   var uid: Int?
@@ -62,7 +71,16 @@ data class PictureInfo(
 data class IdPictureInfo(
   override var id: Int,
   var data: PictureInfo
-) : IntIdentifiable, IPictureInfo by data
+) : IntIdentifiable, IPictureInfo by data {
+
+  override fun equals(other: Any?): Boolean {
+    return other is IdPictureInfo && id == other.id
+  }
+
+  override fun hashCode(): Int {
+    return id * 10
+  }
+}
 
 interface ICollectionInfo {
   var title: String?
@@ -91,7 +109,16 @@ data class CollectionInfo(
 data class IdCollectionInfo(
   override var id: Int,
   var data: CollectionInfo
-) : IntIdentifiable, ICollectionInfo by data
+) : IntIdentifiable, ICollectionInfo by data {
+
+  override fun equals(other: Any?): Boolean {
+    return other is IdPictureInfo && id == other.id
+  }
+
+  override fun hashCode(): Int {
+    return id * 10
+  }
+}
 
 /**
  * https://wiki.openstreetmap.org/wiki/Nominatim

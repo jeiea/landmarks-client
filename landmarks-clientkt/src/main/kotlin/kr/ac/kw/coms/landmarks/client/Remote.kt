@@ -13,6 +13,7 @@ import io.ktor.client.request.forms.MultiPartFormDataContent
 import io.ktor.client.request.forms.formData
 import io.ktor.client.response.HttpResponse
 import io.ktor.http.*
+import kotlinx.coroutines.experimental.Dispatchers
 import kotlinx.coroutines.experimental.GlobalScope
 import kotlinx.coroutines.experimental.channels.*
 import kotlinx.coroutines.experimental.delay
@@ -34,8 +35,10 @@ class Remote(base: HttpClient, private val basePath: String = herokuUri) {
   var logger: RemoteLoggable? = null
 
   private val nominatimLastRequestMs = Channel<Long>(1)
-  private val problemBuffer by lazy {
-    GlobalScope.produce(capacity = 4) {
+  private var problemBuffer: ReceiveChannel<IdPictureInfo>? = null
+
+  private fun problemBuffering(): ReceiveChannel<IdPictureInfo> {
+    return GlobalScope.produce(Dispatchers.IO) {
       while (true) {
         val pics: MutableList<IdPictureInfo> = get("$basePath/problem/random/12")
         pics.forEach { send(it) }
@@ -190,7 +193,12 @@ class Remote(base: HttpClient, private val basePath: String = herokuUri) {
   }
 
   suspend fun getRandomProblems(n: Int): List<IdPictureInfo> {
-    return problemBuffer.distinctBy { it.id }.take(n).toList()
+    val reuseIfPossible = problemBuffer?.takeIf { !it.isClosedForReceive } ?: {
+      val new = problemBuffering()
+      problemBuffer = new
+      new
+    }()
+    return reuseIfPossible.distinctBy { it.id }.take(n).toList()
   }
 
   suspend fun modifyPictureInfo(id: Int, info: IPictureInfo) {
