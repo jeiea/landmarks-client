@@ -43,7 +43,7 @@ public class MyMapView extends org.osmdroid.views.MapView implements ILandmarkMa
     private static boolean isConfigurationLoaded = false;
 
     // Constructor used by XML layout resource (uses default tile source).
-    public MyMapView(final Context context, final AttributeSet attrs) {
+    public MyMapView(Context context, AttributeSet attrs) {
         super(context, null, null, attrs);
         this.context = context;
         if (!isConfigurationLoaded) {
@@ -55,14 +55,7 @@ public class MyMapView extends org.osmdroid.views.MapView implements ILandmarkMa
             Configuration.getInstance().load(context, pref);
             isConfigurationLoaded = true;
         }
-        this.post(new Runnable() {
-                      @Override
-                      public void run() {
-                          mapConfiguration();
-
-                      }
-                  }
-        );
+        mapConfiguration();
     }
 
     public MyMapView(final Context context) {
@@ -105,6 +98,31 @@ public class MyMapView extends org.osmdroid.views.MapView implements ILandmarkMa
         return Math.log(zoom) / Math.log(2);
     }
 
+    @Override
+    protected void onDetachedFromWindow() {
+        if (!hasTransientState()) {
+            super.onDetachedFromWindow();
+        }
+    }
+
+    /**
+     * 맵뷰를 재사용할 수 있게 함. 관련 이슈를 확인해볼 것.
+     *
+     * @see <a href="https://github.com/jeiea/globe-album/issues/10">related issue</a>
+     */
+    public void preventDispose() {
+        setHasTransientState(true);
+    }
+
+    /**
+     * 맵뷰를 완전히 삭제함.
+     *
+     * @see <a href="https://github.com/jeiea/globe-album/issues/10">related issue</a>
+     */
+    public void dispose() {
+        setHasTransientState(false);
+        onDetachedFromWindow();
+    }
 
     //마커, 경로를 가지고 있는 markerLineFolderOverlay 객체를 반환
     public MyMarker getRoute() {

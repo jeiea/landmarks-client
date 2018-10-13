@@ -22,6 +22,7 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import org.jetbrains.annotations.Contract;
 import org.osmdroid.events.MapEventsReceiver;
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
 import org.osmdroid.util.GeoPoint;
@@ -29,7 +30,6 @@ import org.osmdroid.views.MapView;
 import org.osmdroid.views.Projection;
 import org.osmdroid.views.overlay.MapEventsOverlay;
 import org.osmdroid.views.overlay.Marker;
-import org.osmdroid.views.overlay.Overlay;
 import org.osmdroid.views.overlay.infowindow.MarkerInfoWindow;
 
 import java.util.Arrays;
@@ -159,9 +159,10 @@ class GameUI implements IGameUI {
         positionPicImageView.setOnClickListener(onPressPicZoom);
 
         myMapView = quizView.findViewById(R.id.map);
+        myMapView.preventDispose();
         myMapView.setTileSource(TileSourceFactory.BASE_OVERLAY_NL);    //맵 렌더링 설정
         myMapView.setMaxZoomLevel(5.0);
-        addOverlay(onTouchMap);
+        myMapView.getOverlays().add(onTouchMap);
         mapInvalidator = new InvalidationHelper(handler, myMapView, 1000 / 60);
 
         circleAnimation = new DrawCircleOverlay();
@@ -189,28 +190,13 @@ class GameUI implements IGameUI {
         return marker;
     }
 
-    /**
-     * @deprecated use {@link #getUserMarker()} or {@link #getSystemMarker()}
-     */
-    @Deprecated
-    public Marker makeMarker(String color, GeoPoint pos) {
-        Marker marker = new Marker(myMapView);
-        Resources resources = quizView.getResources();
-        if (color.equals("blue")) {
-            marker.setIcon(resources.getDrawable(R.drawable.game_blue_marker));
-        } else {
-            marker.setIcon(resources.getDrawable(R.drawable.game_red_marker));
-        }
-        marker.setPosition(pos);
-        marker.setAnchor(0.5f, 1.0f);
-        return marker;
-    }
-
-    private void addBalloonToMarker(Marker marker) {
+    private void addBalloonToMarker(@NonNull Marker marker) {
         marker.setTitle("");
         MarkerInfoWindow miw = new MarkerInfoWindow(R.layout.game_infowindow_bubble, myMapView);
-        miw.getView().setOnTouchListener(new View.OnTouchListener() {   //infowindow 터치시 사라지는 것 방지
+        // infowindow 터치 시 사라지는 것 방지
+        miw.getView().setOnTouchListener(new View.OnTouchListener() {
             @Override
+            @SuppressWarnings("ClickableViewAccessibility")
             public boolean onTouch(View v, MotionEvent event) {
                 return false;
             }
@@ -417,6 +403,8 @@ class GameUI implements IGameUI {
 
     @Override
     public void exitGame() {
+        myMapView.dispose();
+
         if (handler != null) {
             handler.removeCallbacksAndMessages(null);
             handler = null;
@@ -512,7 +500,7 @@ class GameUI implements IGameUI {
             marker.setEnabled(true);
         }
 
-        public void setTimeInterpolator(Interpolator timeInterpolator) {
+        void setTimeInterpolator(Interpolator timeInterpolator) {
             this.timeInterpolator = timeInterpolator;
         }
 
@@ -546,10 +534,6 @@ class GameUI implements IGameUI {
         choicePicProblemLayout.setVisibility(View.GONE);
         //인자의 속도에 맞춰서 줌 아웃
         myMapView.getController().zoomTo(myMapView.getMinZoomLevel(), 1000L);
-    }
-
-    void addOverlay(Overlay overlay) {
-        myMapView.getOverlays().add(overlay);
     }
 
     private View.OnClickListener onPressStart = new View.OnClickListener() {
@@ -600,6 +584,7 @@ class GameUI implements IGameUI {
      * 정답화면에서 마커 클릭시 infowindow 띄우는 것 방지 하는 리스너
      */
     private Marker.OnMarkerClickListener onMarkerClickDoingNothing = new Marker.OnMarkerClickListener() {
+        @Contract(pure = true)
         @Override
         public boolean onMarkerClick(Marker marker, MapView mapView) {
             return false;
@@ -630,7 +615,7 @@ class GameUI implements IGameUI {
 
     private View.OnClickListener onPressPicFirst = new View.OnClickListener() {
         @Override
-        public void onClick(View v) {
+        public void onClick(@NonNull View v) {
             clearLastSelectIfExists();
             redRect.setBounds(new Rect(0, 0, v.getWidth(), v.getHeight()));
             v.getOverlay().add(redRect);
