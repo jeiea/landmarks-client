@@ -93,6 +93,8 @@ class LoginActivity : AppCompatActivity(), CoroutineScope {
     try {
       login(id, pass)
     }
+    catch (e: CancellationException) {
+    }
     catch (e: Throwable) {
       toast("$e")
     }
