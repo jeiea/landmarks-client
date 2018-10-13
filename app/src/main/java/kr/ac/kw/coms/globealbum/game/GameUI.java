@@ -18,7 +18,6 @@ import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.Interpolator;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -63,7 +62,7 @@ interface IGameUI {
 
     void showPositionAnswer(IPicture correct, int deltaScore, Double distance);
 
-    void showPictureAnswer(IPicture correct, int deltaScore);
+    void showPicChoiceAnswer(IPicture correct, int deltaScore);
 
     Marker getUserMarker();
 
@@ -117,7 +116,6 @@ class GameUI implements IGameUI {
     private List<IPicture> choicePics;
     private DottedLineOverlay dotLineAnimation;
     private DrawCircleOverlay circleAnimation;
-
 
 
     GameUI(AppCompatActivity activity) {
@@ -543,7 +541,7 @@ class GameUI implements IGameUI {
     }
 
     @Override
-    public void showPictureAnswer(IPicture correct, int deltaScore) {
+    public void showPicChoiceAnswer(IPicture correct, int deltaScore) {
         showCommonAnswer(correct, deltaScore);
         choicePicProblemLayout.setVisibility(View.GONE);
         //인자의 속도에 맞춰서 줌 아웃
