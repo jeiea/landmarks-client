@@ -15,6 +15,7 @@
         app:layout_constraintStart_toStartOf="parent" />
 
     <View
+        android:id="@+id/bottom_gradient"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:background="@drawable/login_bottom_gradient"
@@ -42,13 +43,6 @@
         android:layout_height="0dp"
         android:orientation="vertical"
         app:layout_constraintGuide_percent="0.3" />
-
-    <android.support.constraint.Guideline
-        android:id="@+id/guide_login_horizontal_bottom"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.85" />
 
     <android.support.constraint.Guideline
         android:id="@+id/guide_login_horizontal_boundary"
@@ -91,11 +85,11 @@
 
     <ImageView
         android:id="@+id/iv_loading"
-        android:visibility="gone"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:src="@drawable/loading_circle"
         android:scaleType="fitCenter"
+        android:src="@drawable/loading_circle"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHeight_percent="0.1"
@@ -109,9 +103,9 @@
         style="@style/CustomFontStyle"
         android:layout_width="0dp"
         android:layout_height="18sp"
+        android:layout_marginStart="0dp"
         android:text="Remember ID"
         android:textSize="12sp"
-        android:layout_marginStart="0dp"
         app:layout_constraintBottom_toTopOf="@id/btn_login"
         app:layout_constraintStart_toStartOf="@id/btn_login"
         app:layout_constraintWidth_percent="0.35" />
@@ -121,8 +115,8 @@
         style="@style/CustomFontStyle"
         android:layout_width="wrap_content"
         android:layout_height="18sp"
-        android:textSize="12sp"
         android:text="Auto login"
+        android:textSize="12sp"
         app:layout_constraintBottom_toTopOf="@id/btn_login"
         app:layout_constraintEnd_toEndOf="@id/btn_login" />
 
@@ -140,8 +134,8 @@
         android:id="@+id/imageview_login_pw_icon"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:src="@drawable/login_pw_icon"
         android:layout_marginTop="10dp"
+        android:src="@drawable/login_pw_icon"
         app:layout_constraintDimensionRatio="H,1:1"
         app:layout_constraintEnd_toEndOf="@id/guide_login_vertical_left_pic"
         app:layout_constraintStart_toStartOf="@id/guide_login_vertical_left"
@@ -153,8 +147,8 @@
         style="@style/CustomFontStyle"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:inputType="text"
         android:hint="ID"
+        android:inputType="text"
         app:layout_constraintBottom_toBottomOf="@id/imageview_login_id_icon"
         app:layout_constraintEnd_toStartOf="@id/guide_login_vertical_right"
         app:layout_constraintStart_toEndOf="@id/imageview_login_id_icon"
@@ -165,8 +159,8 @@
         style="@style/CustomFontStyle"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:inputType="textPassword"
         android:hint="password"
+        android:inputType="textPassword"
         app:layout_constraintBottom_toBottomOf="@id/imageview_login_pw_icon"
         app:layout_constraintEnd_toStartOf="@id/guide_login_vertical_right"
         app:layout_constraintStart_toEndOf="@id/imageview_login_pw_icon"
@@ -174,9 +168,9 @@
 
     <ImageButton
         android:id="@+id/btn_login"
-        android:contentDescription="Log in"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:contentDescription="Log in"
         android:src="@drawable/login_login_btn"
         app:layout_constraintDimensionRatio="W,1:4"
         app:layout_constraintLeft_toLeftOf="@id/guide_login_vertical_left"
@@ -185,24 +179,27 @@
 
     <ImageButton
         android:id="@+id/btn_account"
-        android:contentDescription="Register now"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:contentDescription="Register now"
         android:src="@drawable/login_register_btn"
         app:layout_constraintDimensionRatio="W,1:4"
         app:layout_constraintLeft_toLeftOf="@id/guide_login_vertical_left"
         app:layout_constraintRight_toRightOf="@id/guide_login_vertical_right"
         app:layout_constraintTop_toBottomOf="@id/btn_login" />
 
-    <ImageButton
+    <Button
         android:id="@+id/btn_forgot"
-        android:contentDescription="Forgot your password?"
+        style="@style/CustomFontStyle"
         android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:src="@drawable/login_forget_btn"
-        app:layout_constraintDimensionRatio="W,1:4"
+        android:layout_height="33sp"
+        android:background="#0d2758"
+        android:text="Forgot your password?"
+        android:textColor="#fff"
+        android:textSize="17sp"
+        app:layout_constraintBottom_toBottomOf="@id/bottom_gradient"
         app:layout_constraintLeft_toLeftOf="@id/guide_login_vertical_left"
         app:layout_constraintRight_toRightOf="@id/guide_login_vertical_right"
-        app:layout_constraintTop_toBottomOf="@id/guide_login_horizontal_bottom" />
+        app:layout_constraintTop_toTopOf="@id/bottom_gradient" />
 
 </android.support.constraint.ConstraintLayout>
