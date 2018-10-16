@@ -167,7 +167,6 @@ class GameLogic implements IGameInputHandler {
 
     private void enterNewQuiz() {
         receiveQuizRemote();
-//        receiveQuizResources();
         ui.setQuizInfo(stage, problem, score, stageNumberOfGames[stage - 1]);
     }
 
@@ -271,6 +270,7 @@ class GameLogic implements IGameInputHandler {
         int deltaScore = calcProblemScore();
         score += deltaScore;
         ui.setScore(score);
+
         return deltaScore;
     }
 
@@ -286,16 +286,18 @@ class GameLogic implements IGameInputHandler {
         // 타임아웃 발생시 그 마커를 위치로 정답 확인
         if (gameType == GameType.POSITION) {
             if (ui.getUserMarker().isEnabled()) {
-                showDifferenceAnimAndScore(new GeoPointInterpolator.Spherical());
+                showDifferenceAnimAndScore(new GeoPointInterpolator.Linear());
             } else {
                 //화면에 마커 생성 없이 타임아웃 발생시 정답 확인
                 Marker sys = ui.getSystemMarker();
                 sys.setEnabled(true);
+                onProblemDone();
             }
-        } else if (gameType == GameType.PICTURE) {
-            //ui.clearSelectedRectangle();
         }
-        onProblemDone();
+        else{
+            onProblemDone();
+        }
+
     }
 
     /**

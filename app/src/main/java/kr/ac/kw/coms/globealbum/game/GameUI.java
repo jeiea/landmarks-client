@@ -284,6 +284,9 @@ class GameUI implements IGameUI {
         answerDistanceTextView.setVisibility(View.INVISIBLE);
         answerLayout.setVisibility(View.GONE);
         answerLayout.setClickable(false);
+        myMapView.getController().setZoom(myMapView.getMinZoomLevel());
+
+        hideDrawingOverlays();
 
         if (activity.findViewById(R.id.textview_target) == null) {
             activity.setContentView(quizView);
@@ -303,11 +306,6 @@ class GameUI implements IGameUI {
         choicePicProblemLayout.setClickable(false);
         choicePicProblemLayout.setVisibility(View.GONE);
 
-        systemMarker.closeInfoWindow();
-        hideDrawingOverlays();
-
-        myMapView.getController().setZoom(myMapView.getMinZoomLevel());
-
         GlideApp.with(activity).load(picture).into(positionPicImageView);
         positionProblemLayout.setVisibility(View.VISIBLE);
     }
@@ -315,8 +313,11 @@ class GameUI implements IGameUI {
     private void hideDrawingOverlays() {
         circleAnimation.setEnabled(false);
         dotLineAnimation.setEnabled(false);
+        systemMarker.closeInfoWindow();
         systemMarker.setEnabled(false);
         userMarker.setEnabled(false);
+
+        gameTimeProgressBar.setProgress(gameTimeProgressBar.getMax());
     }
 
     /**
@@ -327,6 +328,7 @@ class GameUI implements IGameUI {
      */
     @Override
     public void showPictureQuiz(List<IPicture> pics, String description) {
+
         choicePics = pics;
 
         //레이아웃 설정
@@ -335,13 +337,12 @@ class GameUI implements IGameUI {
         positionPicImageView.setClickable(false);
         positionPicImageView.setVisibility(View.GONE);
 
-        hideDrawingOverlays();
+
         //마커에 지명 설정하고 맵뷰에 표시
         systemMarker.setTitle(description);
         systemMarker.showInfoWindow();
         systemMarker.setEnabled(true);
 
-        myMapView.getController().setZoom(myMapView.getMinZoomLevel());
         myMapView.setClickable(false);
 
         for (int i = 0; i < 4; i++) {
