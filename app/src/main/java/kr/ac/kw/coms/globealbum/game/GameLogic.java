@@ -139,7 +139,7 @@ class GameLogic implements IGameInputHandler {
     private void enterStageEntry() {
         stage++;
         boolean isFirstStage = stage == 1;
-        boolean isNotEnd = stage - 1 > stageLimitScore.length && score >= stageLimitScore[stage - 2];
+        boolean isNotEnd = isFirstStage|| stage - 1 < stageLimitScore.length && score >= stageLimitScore[stage - 2];
         if (isFirstStage || isNotEnd) {
             state = GameState.STAGE_READY;
             ui.showGameEntryPoint(stage, stageLimitScore[stage - 1], stageNumberOfGames[stage - 1]);
@@ -152,46 +152,13 @@ class GameLogic implements IGameInputHandler {
     @Override
     public void onPressStart() {
         problem = 0;
+        score=0;
         enterNewQuiz();
     }
 
     @Override
     public void onPressExit() {
         ui.exitGame();
-    }
-
-    /**
-     * 앱 리소스로 문제 세팅
-     */
-    private void receiveQuizResources() {
-        int numOfPicInStage = 4;
-        int[] id = new int[numOfPicInStage];
-        //사진 리소스 id 배열에 저장
-        for (int i = 0; i < numOfPicInStage; i++) {
-            id[i] = R.drawable.coord0 + i;
-        }
-        //반복하여 리소스 id 섞음
-        for (int i = 0; i < 1000; i++) {
-            int random = (int) (Math.random() * numOfPicInStage);
-            int tmp = id[0];
-            id[0] = id[random];
-            id[random] = tmp;
-        }
-
-        // 문제 진입
-        Resources resources = context.getResources();
-        if (random.nextBoolean()) {
-            ResourcePicture pic = new ResourcePicture(id[0], resources);
-            PositionQuiz quiz = new PositionQuiz(pic);
-            enterPositionQuiz(quiz);
-        } else {
-            ArrayList<ResourcePicture> pics = new ArrayList<>();
-            for (int i = 0; i < 4; i++) {
-                pics.add(new ResourcePicture(id[i], resources));
-            }
-            PicChoiceQuiz quiz = new PicChoiceQuiz(pics, random);
-            enterPicChoiceQuiz(quiz);
-        }
     }
 
     private void receiveQuizRemote() {
@@ -202,7 +169,7 @@ class GameLogic implements IGameInputHandler {
     private void enterNewQuiz() {
         receiveQuizRemote();
 //        receiveQuizResources();
-        ui.setQuizInfo(stage, problem, stageNumberOfGames[stage - 1]);
+        ui.setQuizInfo(stage, problem, score,stageNumberOfGames[stage - 1]);
     }
 
     private Promise<List<RemotePicture>> onReceivePictures = new ErrorToastPromise() {

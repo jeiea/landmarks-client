@@ -54,7 +54,7 @@ interface IGameUI {
 
     void showGameOver(List<IPicture> pictures);
 
-    void setQuizInfo(int stage, int curProblem, int allProblem);
+    void setQuizInfo(int stage, int curProblem, int curScore, int allProblem);
 
     void showPositionQuiz(IPicture picture);
 
@@ -277,8 +277,9 @@ class GameUI implements IGameUI {
      * @param allProblem 현 스테이지의 총 문제 수
      */
     @Override
-    public void setQuizInfo(int stage, int curProblem, int allProblem) {
+    public void setQuizInfo(int stage, int curProblem, int curScore, int allProblem) {
         gameStageTextView.setText("STAGE " + stage);
+        gameScoreTextView.setText("SCORE " + curScore);
         gameTargetTextView.setText("TARGET " + (curProblem + 1) + "/" + allProblem);
         answerLayout.setVisibility(View.GONE);
         answerLayout.setClickable(false);
@@ -415,6 +416,7 @@ class GameUI implements IGameUI {
     }
 
     private void showCommonAnswer(IPicture pic, int deltaScore) {
+        mapInvalidator.postInvalidate();
         answerLayout.setVisibility(View.VISIBLE);
         answerLayout.setClickable(true);
         answerLandNameTextView.setText(pic.getMeta().getAddress());
@@ -477,7 +479,7 @@ class GameUI implements IGameUI {
         @Override
         public void run() {
             mapInvalidator.postInvalidate();
-            handler.postDelayed(this, 1000 / 30);
+            postIfNotNull(this, 1000 / 30);
         }
     };
 
@@ -643,6 +645,7 @@ class GameUI implements IGameUI {
      */
     @Override
     public void showGameOver(List<IPicture> pics) {
+        hideDrawingOverlays();
         handler.removeCallbacksAndMessages(null);
         activity.setContentView(R.layout.layout_after_game_recycler_view);
         //after game

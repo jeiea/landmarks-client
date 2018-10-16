@@ -166,24 +166,30 @@
         app:layout_constraintStart_toEndOf="@id/imageview_login_pw_icon"
         app:layout_constraintTop_toTopOf="@id/imageview_login_pw_icon" />
 
-    <ImageButton
+    <Button
         android:id="@+id/btn_login"
+        style="@style/CustomFontStyle"
         android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:contentDescription="Log in"
-        android:src="@drawable/login_login_btn"
-        app:layout_constraintDimensionRatio="W,1:4"
+        android:layout_height="33sp"
+        android:background="#0d2758"
+        android:text="Log in"
+        android:textColor="#fff"
+        android:textSize="17sp"
+
         app:layout_constraintLeft_toLeftOf="@id/guide_login_vertical_left"
         app:layout_constraintRight_toRightOf="@id/guide_login_vertical_right"
         app:layout_constraintTop_toBottomOf="@id/guide_login_horizontal_mid" />
 
-    <ImageButton
+    <Button
         android:id="@+id/btn_account"
+        style="@style/CustomFontStyle"
         android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:contentDescription="Register now"
-        android:src="@drawable/login_register_btn"
-        app:layout_constraintDimensionRatio="W,1:4"
+        android:layout_height="33sp"
+        android:background="#0d2758"
+        android:text="Register now"
+        android:textColor="#fff"
+        android:textSize="17sp"
+        android:layout_marginTop="15sp"
         app:layout_constraintLeft_toLeftOf="@id/guide_login_vertical_left"
         app:layout_constraintRight_toRightOf="@id/guide_login_vertical_right"
         app:layout_constraintTop_toBottomOf="@id/btn_login" />
