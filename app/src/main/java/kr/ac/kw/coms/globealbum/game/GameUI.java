@@ -103,7 +103,7 @@ class GameUI implements IGameUI {
     private InvalidationHelper mapInvalidator;
 
     // answer
-    private TextView answerLandNameTextView, answerDistanceTextView, answerScoreTextView;
+    private TextView answerLandPlaceNameTextView,answerLandCountryTextView, answerDistanceTextView, answerScoreTextView;
     private ImageView answerCorrectImageView;
     private ConstraintLayout answerLayout;
 
@@ -138,7 +138,8 @@ class GameUI implements IGameUI {
         answerLayout = quizView.findViewById(R.id.layout_answer);
         answerCorrectImageView = quizView.findViewById(R.id.picture_answer);
         answerDistanceTextView = quizView.findViewById(R.id.textview_land_distance_answer);
-        answerLandNameTextView = quizView.findViewById(R.id.textview_land_name_answer);
+        answerLandPlaceNameTextView = quizView.findViewById(R.id.textview_land_place_name_answer);
+        answerLandCountryTextView = quizView.findViewById(R.id.textview_land_country_name_answer);
         answerScoreTextView = quizView.findViewById(R.id.textview_land_score_answer);
 
         ImageView answerGoToNextStageButton = quizView.findViewById(R.id.button_next);
@@ -281,6 +282,7 @@ class GameUI implements IGameUI {
         gameStageTextView.setText("STAGE " + stage);
         gameScoreTextView.setText("SCORE " + curScore);
         gameTargetTextView.setText("TARGET " + (curProblem + 1) + "/" + allProblem);
+        answerDistanceTextView.setVisibility(View.INVISIBLE);
         answerLayout.setVisibility(View.GONE);
         answerLayout.setClickable(false);
 
@@ -419,9 +421,21 @@ class GameUI implements IGameUI {
         mapInvalidator.postInvalidate();
         answerLayout.setVisibility(View.VISIBLE);
         answerLayout.setClickable(true);
-        answerLandNameTextView.setText(pic.getMeta().getAddress());
+        divideAddress(pic.getMeta().getAddress());
         answerScoreTextView.setText("score " + deltaScore);
         GlideApp.with(activity).load(pic).into(answerCorrectImageView);
+    }
+    private void divideAddress(String string){
+        int start = 0;
+        int end = string.length();
+        int firstSpace =  string.indexOf(" ");
+        if (firstSpace == -1) {
+            answerLandPlaceNameTextView.setText(string);
+        }
+        else{
+            answerLandCountryTextView.setText(string.substring(start,firstSpace));
+            answerLandPlaceNameTextView.setText(string.substring(firstSpace+1,end));
+        }
     }
 
     @Override

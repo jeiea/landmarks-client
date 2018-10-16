@@ -139,7 +139,7 @@ class GameLogic implements IGameInputHandler {
     private void enterStageEntry() {
         stage++;
         boolean isFirstStage = stage == 1;
-        boolean isNotEnd = isFirstStage|| stage - 1 < stageLimitScore.length && score >= stageLimitScore[stage - 2];
+        boolean isNotEnd = isFirstStage || stage - 1 < stageLimitScore.length && score >= stageLimitScore[stage - 2];
         if (isFirstStage || isNotEnd) {
             state = GameState.STAGE_READY;
             ui.showGameEntryPoint(stage, stageLimitScore[stage - 1], stageNumberOfGames[stage - 1]);
@@ -152,7 +152,7 @@ class GameLogic implements IGameInputHandler {
     @Override
     public void onPressStart() {
         problem = 0;
-        score=0;
+        score = 0;
         enterNewQuiz();
     }
 
@@ -169,7 +169,7 @@ class GameLogic implements IGameInputHandler {
     private void enterNewQuiz() {
         receiveQuizRemote();
 //        receiveQuizResources();
-        ui.setQuizInfo(stage, problem, score,stageNumberOfGames[stage - 1]);
+        ui.setQuizInfo(stage, problem, score, stageNumberOfGames[stage - 1]);
     }
 
     private Promise<List<RemotePicture>> onReceivePictures = new ErrorToastPromise() {
@@ -212,13 +212,13 @@ class GameLogic implements IGameInputHandler {
 
     private void onProblemDone() {
         int deltaScore = reflectScoreAndGetDelta();
-        double distance = calcDistanceKm();
         for (IPicture pic : currentQuiz.getUsedPictures()) {
             if (!shownPictures.contains(pic)) {
                 shownPictures.add(pic);
             }
         }
         if (currentQuiz instanceof PositionQuiz) {
+            Double distance = calcDistanceKm();
             ui.showPositionAnswer(((PositionQuiz) currentQuiz).picture, deltaScore, distance);
         } else {
             ui.showPicChoiceAnswer(((PicChoiceQuiz) currentQuiz).getCorrectPicture(), deltaScore);
@@ -326,10 +326,15 @@ class GameLogic implements IGameInputHandler {
      *
      * @return km 단위 거리
      */
-    private double calcDistanceKm() {
+    private Double calcDistanceKm() {
         GeoPoint g1 = ui.getSystemMarker().getPosition();
         GeoPoint g2 = ui.getUserMarker().getPosition();
-        return g1.distanceToAsDouble(g2) / 1000;
+        if (g2.getLatitude() == 0 && g2.getLongitude() == 0) {
+            return null;
+        }
+        else{
+            return g1.distanceToAsDouble(g2) / 1000;
+        }
     }
 
     void releaseResources() {

@@ -267,11 +267,20 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@id/guide_answer_v"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/textview_land_name_answer"
+            app:layout_constraintTop_toBottomOf="@id/textview_land_place_name_answer"
             tools:src="@drawable/sample6" />
 
         <TextView
-            android:id="@+id/textview_land_name_answer"
+            android:id="@+id/textview_land_country_name_answer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/guide_answer_v"
+            app:layout_constraintBottom_toTopOf="@id/textview_land_place_name_answer"
+            tools:text="australia" />
+
+        <TextView
+            android:id="@+id/textview_land_place_name_answer"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:layout_constraintStart_toStartOf="parent"
