@@ -1,7 +1,6 @@
 package kr.ac.kw.coms.globealbum.game;
 
 import android.content.Context;
-import android.content.res.Resources;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.widget.Toast;
@@ -17,16 +16,16 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Random;
 
-import kr.ac.kw.coms.globealbum.R;
 import kr.ac.kw.coms.globealbum.provider.IPicture;
 import kr.ac.kw.coms.globealbum.provider.PictureMeta;
 import kr.ac.kw.coms.globealbum.provider.Promise;
 import kr.ac.kw.coms.globealbum.provider.RemoteJava;
 import kr.ac.kw.coms.globealbum.provider.RemotePicture;
-import kr.ac.kw.coms.globealbum.provider.ResourcePicture;
 import kr.ac.kw.coms.globealbum.provider.UIPromise;
 
 interface IGameInputHandler {
+    void onSelectPictureFirst(IPicture selected);
+
     void onSelectPictureCertainly(IPicture selected);
 
     void onTouchMap(GeoPoint pt);
@@ -65,11 +64,11 @@ class GameLogic implements IGameInputHandler {
     private int[] stageLimitScore = new int[]{400, 500, 600, 800}; //600,800,1100,1400,1650,2000,2700
     private int[] stageNumberOfGames = new int[]{3, 3, 3, 3};
 
-    private boolean rightAnswerTypeB;
+    private boolean rightAnswerTypePic;
     private GameState state;
 
     private Random random = new Random(System.currentTimeMillis());
-    private final int MS_TIME_LIMIT = 14000;
+    private final int MS_TIME_LIMIT = 4000;
 
     enum GameState {
         LOADING,
@@ -222,6 +221,7 @@ class GameLogic implements IGameInputHandler {
             ui.showPositionAnswer(((PositionQuiz) currentQuiz).picture, deltaScore, distance);
         } else {
             ui.showPicChoiceAnswer(((PicChoiceQuiz) currentQuiz).getCorrectPicture(), deltaScore);
+            rightAnswerTypePic = false;
         }
     }
 
@@ -252,7 +252,7 @@ class GameLogic implements IGameInputHandler {
                 return perfect - distanceCut + timeBonus;
             }
         } else if (gameType == GameType.PICTURE) {
-            if (!rightAnswerTypeB) {
+            if (!rightAnswerTypePic) {
                 return -100;
             } else {
                 return 300 + calcTimeBonusScore();
@@ -292,8 +292,9 @@ class GameLogic implements IGameInputHandler {
                 Marker sys = ui.getSystemMarker();
                 sys.setEnabled(true);
             }
+        } else if (gameType == GameType.PICTURE) {
+            //ui.clearSelectedRectangle();
         }
-
         onProblemDone();
     }
 
@@ -327,14 +328,12 @@ class GameLogic implements IGameInputHandler {
      * @return km 단위 거리
      */
     private Double calcDistanceKm() {
-        GeoPoint g1 = ui.getSystemMarker().getPosition();
-        GeoPoint g2 = ui.getUserMarker().getPosition();
-        if (g2.getLatitude() == 0 && g2.getLongitude() == 0) {
+        if (!ui.getUserMarker().isEnabled()) {
             return null;
         }
-        else{
-            return g1.distanceToAsDouble(g2) / 1000;
-        }
+        GeoPoint g1 = ui.getSystemMarker().getPosition();
+        GeoPoint g2 = ui.getUserMarker().getPosition();
+        return g1.distanceToAsDouble(g2) / 1000;
     }
 
     void releaseResources() {
@@ -342,8 +341,13 @@ class GameLogic implements IGameInputHandler {
     }
 
     @Override
+    public void onSelectPictureFirst(IPicture selected) {
+        rightAnswerTypePic = selected == ((PicChoiceQuiz) currentQuiz).getCorrectPicture();
+    }
+
+    @Override
     public void onSelectPictureCertainly(IPicture selected) {
-        rightAnswerTypeB = selected == ((PicChoiceQuiz) currentQuiz).getCorrectPicture();
+        rightAnswerTypePic = selected == ((PicChoiceQuiz) currentQuiz).getCorrectPicture();
         ui.stopTimer();
         state = GameState.GRADING;
         onProblemDone();

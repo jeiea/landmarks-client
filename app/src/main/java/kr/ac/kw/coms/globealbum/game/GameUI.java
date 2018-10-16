@@ -203,7 +203,6 @@ class GameUI implements IGameUI {
             }
         });
         marker.setInfoWindow(miw);
-        marker.showInfoWindow();
     }
 
     @Override
@@ -546,6 +545,7 @@ class GameUI implements IGameUI {
 
     @Override
     public void showPicChoiceAnswer(IPicture correct, int deltaScore) {
+        clearSelectedRectangle();
         showCommonAnswer(correct, deltaScore);
         choicePicProblemLayout.setVisibility(View.GONE);
         //인자의 속도에 맞춰서 줌 아웃
@@ -618,6 +618,15 @@ class GameUI implements IGameUI {
     private View lastSelect;
 
 
+    private void clearSelectedRectangle() {
+        if (lastSelect == null) {
+            return;
+        }
+        lastSelect.getOverlay().clear();
+        lastSelect.setOnClickListener(onPressPicFirst);
+        lastSelect = null;
+    }
+
     /**
      * 예비 선택을 지우고 테두리 없는 상태로 바꿈
      */
@@ -638,6 +647,9 @@ class GameUI implements IGameUI {
             v.setOnClickListener(onPressPicSecond);
             lastSelect = v;
 
+            ImageView iv = (ImageView) v;
+            int idx = Arrays.asList(choicePicImageViews).indexOf(iv);
+            input.onSelectPictureFirst(choicePics.get(idx));
         }
     };
 
