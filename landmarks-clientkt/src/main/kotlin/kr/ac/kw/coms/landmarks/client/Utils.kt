@@ -30,3 +30,20 @@ suspend fun InputStream.copyToSuspend(
     return@withContext bytesCopied
   }
 }
+
+fun getThumbnailLevel(
+  picWidth: Int, picHeight: Int,
+  desireWidth: Int, desireHeight: Int
+): Int {
+
+  var width = picWidth
+  var height = picHeight
+  for (i in 0..3) {
+    width /= 2
+    height /= 2
+    if (width < desireWidth || height < desireHeight) {
+      return i
+    }
+  }
+  return 4
+}

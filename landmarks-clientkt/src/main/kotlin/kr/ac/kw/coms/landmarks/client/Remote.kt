@@ -15,7 +15,10 @@ import io.ktor.client.response.HttpResponse
 import io.ktor.http.*
 import kotlinx.coroutines.experimental.Dispatchers
 import kotlinx.coroutines.experimental.GlobalScope
-import kotlinx.coroutines.experimental.channels.*
+import kotlinx.coroutines.experimental.channels.Channel
+import kotlinx.coroutines.experimental.channels.ReceiveChannel
+import kotlinx.coroutines.experimental.channels.produce
+import kotlinx.coroutines.experimental.channels.sendBlocking
 import kotlinx.coroutines.experimental.delay
 import kotlinx.coroutines.experimental.io.readUTF8LineTo
 import kotlinx.io.InputStream
@@ -73,7 +76,8 @@ class Remote(base: HttpClient, private val basePath: String = herokuUri) {
     if (response.status == HttpStatusCode.BadRequest) {
       logger?.onResponseFailure("${method.value} $url HTTP/1.1")
       throw response.call.receive<ServerFault>()
-    } else {
+    }
+    else {
       val sb = StringBuilder()
       while (response.content.readUTF8LineTo(sb));
       val msg = "${response.status}: $sb"
@@ -193,12 +197,20 @@ class Remote(base: HttpClient, private val basePath: String = herokuUri) {
   }
 
   suspend fun getRandomProblems(n: Int): List<IdPictureInfo> {
-    val reuseIfPossible = problemBuffer?.takeIf { !it.isClosedForReceive } ?: {
+    // sucks. Sequence extensions always cancel upstream channel.
+    val reuseIfPossible = (problemBuffer ?: {
       val new = problemBuffering()
       problemBuffer = new
       new
-    }()
-    return reuseIfPossible.distinctBy { it.id }.take(n).toList()
+    }())
+    val ret = mutableListOf<IdPictureInfo>()
+    while (ret.size < n) {
+      val p = reuseIfPossible.receive()
+      if (!ret.contains(p)) {
+        ret.add(p)
+      }
+    }
+    return ret
   }
 
   suspend fun modifyPictureInfo(id: Int, info: IPictureInfo) {

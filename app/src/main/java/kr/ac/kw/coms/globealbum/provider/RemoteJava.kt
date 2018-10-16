@@ -1,29 +1,43 @@
 package kr.ac.kw.coms.globealbum.provider
 
+import android.content.Context
 import android.util.Log
+import com.bumptech.glide.Glide
 import kotlinx.coroutines.experimental.Dispatchers
 import kotlinx.coroutines.experimental.GlobalScope
 import kotlinx.coroutines.experimental.Job
+import kotlinx.coroutines.experimental.channels.ReceiveChannel
+import kotlinx.coroutines.experimental.channels.produce
 import kotlinx.coroutines.experimental.plus
 import kr.ac.kw.coms.landmarks.client.*
 import java.io.File
+import java.util.*
 
 object RemoteJava {
 
   val client = Remote()
+  var picBuffer: ReceiveChannel<RemotePicture>? = null
+  fun picBuffering(view: Context) = GlobalScope.produce(Dispatchers.Main) {
+    while (true) {
+      val p = client.getRandomProblems(1)[0]
+      val pic = RemotePicture(p)
+      Glide.with(view).download(pic).preload()
+      send(pic)
+    }
+  }
 
   init {
     client.logger = object : RemoteLoggable {
       override fun onRequest(msg: String) {
-        Log.d("RemoteJava", "Request $msg")
+        Log.d("RemoteJava", "${Date()} Request $msg")
       }
 
       override fun onResponseSuccess(msg: String) {
-        Log.d("RemoteJava", "Receive $msg")
+        Log.d("RemoteJava", "${Date()} Receive $msg")
       }
 
       override fun onResponseFailure(msg: String) {
-        Log.d("RemoteJava", "Error $msg")
+        Log.d("RemoteJava", "${Date()} Error $msg")
       }
     }
   }
@@ -53,8 +67,18 @@ object RemoteJava {
   fun getPicture(id: Int, prom: Promise<IPicture>): Job =
     resolve(prom) { RemotePicture(IdPictureInfo(id, client.getPictureInfo(id))) }
 
-  fun getRandomPictures(n: Int, prom: Promise<List<RemotePicture>>): Job =
-    resolve(prom) { client.getRandomProblems(n).map(::RemotePicture) }
+  fun getRandomPictures(
+    n: Int, context: Context, prom: Promise<List<RemotePicture>>
+  ): Job = resolve(prom) {
+    val buf = (picBuffer ?: {
+      val b = picBuffering(context)
+      picBuffer = b
+      b
+    }())
+    val ret = mutableListOf<RemotePicture>()
+    repeat(n) { ret.add(buf.receive()) }
+    ret
+  }
 
   fun modifyPictureInfo(id: Int, info: PictureInfo, prom: Promise<Unit>): Job =
     resolve(prom) { client.modifyPictureInfo(id, info) }

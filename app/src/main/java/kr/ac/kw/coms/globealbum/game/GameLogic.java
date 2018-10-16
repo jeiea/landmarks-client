@@ -116,7 +116,7 @@ class GameLogic implements IGameInputHandler {
 
     private void realLoading() {
         // getRandomPictures에서 하나를 일단 가져와야 미래에도 버퍼링이 보장됨.
-        RemoteJava.INSTANCE.getRandomPictures(1, onReadyBuffer);
+        RemoteJava.INSTANCE.getRandomPictures(1, context, onReadyBuffer);
     }
 
     class ErrorToastPromise extends UIPromise<List<RemotePicture>> {
@@ -162,7 +162,7 @@ class GameLogic implements IGameInputHandler {
 
     private void receiveQuizRemote() {
         int n = random.nextBoolean() ? 1 : 4;
-        RemoteJava.INSTANCE.getRandomPictures(n, onReceivePictures);
+        RemoteJava.INSTANCE.getRandomPictures(n, context, onReceivePictures);
     }
 
     private void enterNewQuiz() {
