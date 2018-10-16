@@ -60,7 +60,15 @@
         app:layout_constraintRight_toRightOf="@id/after_game_vertical_mid_guideline"
         app:layout_constraintTop_toTopOf="@id/after_game_horizontal_up_guideline"
         app:layout_constraintBottom_toBottomOf="parent"/>
-
+    <TextView
+        android:id="@+id/after_game_show_country_name"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:gravity="right"
+        android:layout_marginRight="10dp"
+        app:layout_constraintBottom_toTopOf="@id/after_game_show_place_name"
+        app:layout_constraintLeft_toRightOf="@id/after_game_vertical_mid_guideline"
+        app:layout_constraintRight_toRightOf="parent"/>
     <TextView
         android:id="@+id/after_game_show_place_name"
         android:layout_width="0dp"
