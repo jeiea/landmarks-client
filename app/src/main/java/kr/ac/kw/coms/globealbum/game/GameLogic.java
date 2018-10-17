@@ -124,7 +124,6 @@ class GameLogic implements IGameInputHandler {
         public void failure(@NotNull Throwable cause) {
             String msg = String.format("서버 연결에 실패했습니다: %s", cause.toString());
             Toast.makeText(context, msg, Toast.LENGTH_SHORT).show();
-            ui.exitGame();
         }
     }
 

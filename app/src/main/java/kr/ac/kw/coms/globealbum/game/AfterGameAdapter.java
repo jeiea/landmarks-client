@@ -8,12 +8,18 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
 import kr.ac.kw.coms.globealbum.R;
 import kr.ac.kw.coms.globealbum.common.GlideApp;
 import kr.ac.kw.coms.globealbum.provider.IPicture;
+import kr.ac.kw.coms.globealbum.provider.RemoteJava;
+import kr.ac.kw.coms.globealbum.provider.RemotePicture;
+import kr.ac.kw.coms.globealbum.provider.UIPromise;
 
 
 public class AfterGameAdapter extends RecyclerView.Adapter<AfterGameAdapter.ViewHolder> {
@@ -62,7 +68,6 @@ public class AfterGameAdapter extends RecyclerView.Adapter<AfterGameAdapter.View
         ViewHolder(final View itemView) {
             super(itemView);
             afterGamePictureImageView = itemView.findViewById(R.id.after_game_place_imageview);
-            //afterGamePictureImageView.setOnClickListener(new GameUI.PictureClickZoomingListener());      //사진 클릭 시 사진 확대
             afterGameSeeRelatedDiary = itemView.findViewById(R.id.after_game_see_diary_btn);
             afterGameSeeRelatedPicture = itemView.findViewById(R.id.after_game_see_picture_btn);
             afterGameCountryTextView = itemView.findViewById(R.id.after_game_show_country_name);
@@ -71,14 +76,15 @@ public class AfterGameAdapter extends RecyclerView.Adapter<AfterGameAdapter.View
             afterGameSeeRelatedDiary.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-
+                    //TODO(상훈) 사진을 찍은 나라를 방문한 다이어리 보여주기
+                    //RemoteJava.INSTANCE.getCollectionsContainPicture();
                 }
             });
-
             afterGameSeeRelatedPicture.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-
+                    //TODO(상훈) 사진을 찍은 나라를 같은 사진들 보여주기
+                    //RemoteJava.INSTANCE.getAroundPictures();
                 }
             });
         }
