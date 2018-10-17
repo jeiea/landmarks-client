@@ -284,6 +284,7 @@ class GameUI implements IGameUI {
         answerDistanceTextView.setVisibility(View.INVISIBLE);
         answerLayout.setVisibility(View.GONE);
         answerLayout.setClickable(false);
+        myMapView.getController().setCenter(new GeoPoint(70f,40f));
         myMapView.getController().setZoom(myMapView.getMinZoomLevel());
 
         hideDrawingOverlays();
@@ -445,7 +446,7 @@ class GameUI implements IGameUI {
 
         showCommonAnswer(correct, deltaScore);
         positionProblemLayout.setVisibility(View.GONE);
-
+        myMapView.getController().setCenter(new GeoPoint(70f,40f));
         myMapView.getController().zoomTo(myMapView.getMinZoomLevel(), 1000L);
 
         if (distance != null) {
@@ -460,7 +461,7 @@ class GameUI implements IGameUI {
     @Override
     public void animateMarker(Marker marker, final GeoPoint destination, GeoPointInterpolator geopolator) {
         final GeoPoint start = marker.getPosition();
-        myMapView.getController().animateTo(destination, myMapView.getMinZoomLevel(), 1000L);
+        myMapView.getController().animateTo(new GeoPoint(70f,40f), myMapView.getMinZoomLevel(), 1000L);
 
         MarkerAnimation anim = new MarkerAnimation(marker, destination, 1000);
         anim.geoInterpolator = geopolator;
@@ -550,6 +551,7 @@ class GameUI implements IGameUI {
         showCommonAnswer(correct, deltaScore);
         choicePicProblemLayout.setVisibility(View.GONE);
         //인자의 속도에 맞춰서 줌 아웃
+        myMapView.getController().setCenter(new GeoPoint(70f,40f));
         myMapView.getController().zoomTo(myMapView.getMinZoomLevel(), 1000L);
     }
 

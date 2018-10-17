@@ -65,7 +65,6 @@ public class MyMapView extends org.osmdroid.views.MapView implements ILandmarkMa
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
-
         double logZoom = getLogZoom(w, h);
         setMinZoomLevel(logZoom);   //최소 줌 조절
         //setMaxZoomLevel(5.0);   //최대 줌 조절
@@ -79,7 +78,7 @@ public class MyMapView extends org.osmdroid.views.MapView implements ILandmarkMa
         setBuiltInZoomControls(false);
         setMultiTouchControls(true);
         TileSystem tileSystem = new TileSystemWebMercator();
-        setScrollableAreaLimitLatitude(tileSystem.getMaxLatitude(), tileSystem.getMinLatitude() + 30, 0);
+        setScrollableAreaLimitLatitude(tileSystem.getMaxLatitude(), tileSystem.getMinLatitude(), 0);
         setScrollableAreaLimitLongitude(tileSystem.getMinLongitude(), tileSystem.getMaxLongitude(), 0);
         //맵 반복 방지
         setHorizontalMapRepetitionEnabled(false);
