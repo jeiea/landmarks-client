@@ -86,12 +86,21 @@ object RemoteJava {
   fun getMyPictures(prom: Promise<List<IPicture>>): Job =
     resolve(prom) { client.getMyPictureInfos().map(::RemotePicture) }
 
+  fun getAroundPictures(
+    lat: Double, lon: Double, km: Double, prom: Promise<MutableList<IdPictureInfo>>
+  ): Job =
+    resolve(prom) { client.getAroundPictures(lat, lon, km) }
+
   fun uploadCollection(info: ICollectionInfo, prom: Promise<Diary>): Job =
     resolve(prom) { Diary(client.uploadCollection(info)) }
 
   fun getMyCollections(prom: Promise<List<Diary>>): Job =
     resolve(prom) { client.getMyCollections().map(::Diary) }
 
+  fun getCollectionsContainPicture(picId: Int, prom: Promise<MutableList<IdCollectionInfo>>): Job =
+    resolve(prom) { client.getCollectionsContainPicture(picId) }
+
   fun modifyCollection(id: Int, info: ICollectionInfo, prom: Promise<Diary>): Job =
     resolve(prom) { Diary(client.modifyCollection(id, info)) }
+
 }
