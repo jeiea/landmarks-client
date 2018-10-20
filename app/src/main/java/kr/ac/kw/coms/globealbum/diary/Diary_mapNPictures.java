@@ -46,7 +46,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import kotlin.NotImplementedError;
 import kr.ac.kw.coms.globealbum.R;
 import kr.ac.kw.coms.globealbum.album.GalleryDetail;
 import kr.ac.kw.coms.globealbum.album.GroupDiaryView;
@@ -148,7 +147,7 @@ public class Diary_mapNPictures extends AppCompatActivity {
         final Drawable[] drawables = new Drawable[cntImgs];
         ArrayList<ArrayList<IPicture>> ppics = new ArrayList<>();
         ppics.add(diary_toShow.toArrayList());
-        myMapView.setChains(ppics);
+        myMapView.getDiaryOverlay().setChains(ppics);
 
         new Handler().postDelayed(new Runnable() {
             @Override
