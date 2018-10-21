@@ -18,8 +18,58 @@ import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.DefaultOverlayManager
 import org.osmdroid.views.overlay.Overlay
 import org.osmdroid.views.overlay.Polyline
+import kotlin.math.sqrt
+
+private const val mmThumbDiameter = 10f
 
 class DiaryOverlayFolder(private val mapView: MapView) : Overlay(), IDiaryOverlay {
+
+  private val badgeOffset: Float
+  private val px2: Int
+  private val fontPaint: Paint
+
+  private var journeyGroups = listOf<Journey>()
+  private var journeyChains = listOf<Journey>()
+
+  override var onThumbnailClick: ((IPicture) -> Boolean)? = null
+
+  // Use cache
+  override var groups
+    get() = journeyGroups.map { g -> g.pictures }
+    set(value) {
+      val j = journeyGroups
+      journeyGroups = value.map {
+        Journey(mapView, it, false).apply { onClick = onThumbnailClick }
+      }
+      j.forEach(Journey::detach)
+    }
+  override var chains
+    get() = journeyChains.map { g -> g.pictures }
+    set(value) {
+      val j = journeyChains
+      journeyChains = value.map {
+        Journey(mapView, it, true).apply { onClick = onThumbnailClick }
+      }
+      j.forEach(Journey::detach)
+    }
+
+  init {
+    val metrics = mapView.resources.displayMetrics
+    val px = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_MM, mmThumbDiameter, metrics).toInt()
+    badgeOffset = px * sqrt(2f) / 4
+    px2 = px * px
+    fontPaint = Paint().apply {
+      textSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 15f, metrics)
+      color = (0xffff0000).toInt()
+      typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+    }
+  }
+
+  private fun forAllCircles(action: (Journey, CircleMarker) -> Boolean) {
+    journeyGroups.forAllCircles(action)
+    journeyChains.forAllCircles(action)
+  }
+
   override fun addToSelection(picture: IPicture) {
     forAllCircles { _, marker ->
       if (marker.target.picture == picture) {
@@ -48,35 +98,6 @@ class DiaryOverlayFolder(private val mapView: MapView) : Overlay(), IDiaryOverla
     forAllCircles { _, marker -> marker.setColor(Color.WHITE); false }
   }
 
-  override var onThumbnailClick: ((IPicture) -> Boolean)? = null
-
-  // Use cache
-  override var groups
-    get() = journeyGroups.map { g -> g.pictures }
-    set(value) {
-      val j = journeyGroups
-      journeyGroups = value.map {
-        Journey(mapView, it, false).apply { onClick = onThumbnailClick }
-      }
-      j.forEach(Journey::detach)
-    }
-  override var chains
-    get() = journeyChains.map { g -> g.pictures }
-    set(value) {
-      val j = journeyChains
-      journeyChains = value.map {
-        Journey(mapView, it, true).apply { onClick = onThumbnailClick }
-      }
-      j.forEach(Journey::detach)
-    }
-  private var journeyGroups = listOf<Journey>()
-  private var journeyChains = listOf<Journey>()
-
-  private fun forAllCircles(action: (Journey, CircleMarker) -> Boolean) {
-    journeyGroups.forAllCircles(action)
-    journeyChains.forAllCircles(action)
-  }
-
   private fun List<Journey>.forAllCircles(action: (Journey, CircleMarker) -> Boolean) {
     forEach { group ->
       group.manager.forEach { overlay ->
@@ -88,11 +109,48 @@ class DiaryOverlayFolder(private val mapView: MapView) : Overlay(), IDiaryOverla
   }
 
   override fun draw(c: Canvas, osmv: MapView, shadow: Boolean) {
-    val (circles, routes) = (journeyChains + journeyGroups)
-      .flatMap { it.manager.overlays() }
-      .partition { it is CircleMarker }
-    routes.forEach { it.draw(c, osmv, shadow) }
-    circles.forEach { it.draw(c, osmv, shadow) }
+    val overlays = (journeyChains + journeyGroups).flatMap { it.manager.overlays() }
+    drawRoutes(overlays, c, osmv)
+    drawCircles(overlays, c, osmv)
+  }
+
+  private fun drawRoutes(overlays: List<Overlay>, c: Canvas, osmv: MapView) {
+    val routes = overlays.filterIsInstance<Polyline>()
+    routes.forEach { it.draw(c, osmv, false) }
+  }
+
+  private fun drawCircles(overlays: List<Overlay>, c: Canvas, osmv: MapView) {
+    val circles = overlays.filterIsInstance<CircleMarker>()
+    renewMarkerDisplayPositions(osmv, circles)
+    drawCirclesWithOverlaps(circles, c, osmv)
+  }
+
+  private fun renewMarkerDisplayPositions(osmv: MapView, circles: List<CircleMarker>) {
+    val pj = osmv.projection
+    circles.forEach { m -> pj.toPixels(m.target.position, m.point) }
+  }
+
+  private fun drawCirclesWithOverlaps(circles: List<CircleMarker>, c: Canvas, osmv: MapView) {
+    val overlaps = hashMapOf<Point, Int>()
+    circles.forEach { m ->
+      val near = overlaps.keys.firstOrNull { p -> distanceSquare(p, m.point) < px2 }
+      if (near == null) {
+        m.draw(c, osmv, false)
+        overlaps[m.point] = 1
+      }
+      else {
+        overlaps[near] = overlaps[near]!! + 1
+      }
+    }
+    overlaps.entries.filter { it.value > 1 }.forEach { (point, cnt) ->
+      c.drawText("$cnt", point.x + badgeOffset, point.y - badgeOffset, fontPaint)
+    }
+  }
+
+  private fun distanceSquare(p1: Point, p2: Point): Int {
+    val xDiff = p1.x - p2.x
+    val yDiff = p1.y - p2.y
+    return xDiff * xDiff + yDiff * yDiff
   }
 
   override fun getBoundingBox(): BoundingBox {
@@ -126,7 +184,7 @@ internal class Journey(
 
   init {
     val metrics = mapView.resources.displayMetrics
-    val px = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_MM, 10f, metrics).toInt()
+    val px = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_MM, mmThumbDiameter, metrics).toInt()
     targets = pictures.mapNotNull { pic ->
       if (pic.meta.geo == null) null
       else {
@@ -232,7 +290,8 @@ internal class CircleMarker(val target: IMarkerTarget) : Overlay() {
     paint.color = Color.WHITE
     paint.style = Paint.Style.STROKE
   }
-  private var point = Point()
+  var point = Point()
+    private set
   var onClick: (() -> Boolean)? = null
   private var icon: Drawable? = null
 
