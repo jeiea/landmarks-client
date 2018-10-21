@@ -88,8 +88,11 @@ class DiaryOverlayFolder(private val mapView: MapView) : Overlay(), IDiaryOverla
   }
 
   override fun draw(c: Canvas, osmv: MapView, shadow: Boolean) {
-    journeyChains.forEach { it.draw(c, osmv, shadow) }
-    journeyGroups.forEach { it.draw(c, osmv, shadow) }
+    val (circles, routes) = (journeyChains + journeyGroups)
+      .flatMap { it.manager.overlays() }
+      .partition { it is CircleMarker }
+    routes.forEach { it.draw(c, osmv, shadow) }
+    circles.forEach { it.draw(c, osmv, shadow) }
   }
 
   override fun getBoundingBox(): BoundingBox {
