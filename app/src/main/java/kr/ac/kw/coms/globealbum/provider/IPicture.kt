@@ -250,8 +250,10 @@ class LocalPicture(val path: String) : IPicture, Deletable {
   override var meta: PictureMeta
     get() {
       val filename = File(path).nameWithoutExtension
-      val time = Date(EXIFinfo(path).timeTaken)
-      return PictureMeta(filename, "You", time, null)
+      val metadata = EXIFinfo(path)
+      val time = Date(metadata.timeTaken)
+      val geo = metadata.locationGeopoint
+      return PictureMeta(filename, "You", time, geo)
     }
     set(_) {}
 

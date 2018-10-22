@@ -1,16 +1,51 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".diary.diary_new">
+
+    <include
+        android:id="@+id/diary_new_EditLayout"
+        layout="@layout/activity_diary_edit"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".diary.diary_new">
-    <include
-            android:id="@+id/diary_mapNpics_EditLayout"
-            layout="@layout/activity_diary_edit"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <android.support.constraint.ConstraintLayout
+        android:id="@+id/diary_new_AddLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#FFFFFF"
+        android:visibility="gone">
+
+        <include
+            android:id="@+id/diary_new_Topbar"
+            layout="@layout/layout_common_topbar"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="0dp"
+            android:background="#FFFFFF"
+            app:layout_constraintHeight_percent="0.065"
             app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintTop_toTopOf="parent"/>
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/diary_new_AddImageList"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:scrollbars="vertical"
+            app:layoutManager="android.support.v7.widget.GridLayoutManager"
+            app:layout_constraintTop_toBottomOf="@id/diary_new_Topbar"
+            app:spanCount="4" />
+
+    </android.support.constraint.ConstraintLayout>
+
+    <include
+        android:id="@+id/diary_new_ZoomInLayout"
+        layout="@layout/layout_zoomin"
+        android:visibility="gone"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 </android.support.constraint.ConstraintLayout>
