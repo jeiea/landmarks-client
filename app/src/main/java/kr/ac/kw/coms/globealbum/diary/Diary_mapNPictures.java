@@ -117,16 +117,15 @@ public class Diary_mapNPictures extends AppCompatActivity {
         picView.getPicAdapter().setRightPadding(10);
         picView.setDirection(FlexDirection.COLUMN);
 
+        diary_toShow = getIntent().getParcelableExtra(PARCEL_DIARY);
         if (getIntent().getAction() == null);
             //ignore
         else if (getIntent().getAction().equals(RequestCodes.ACTION_DIARY_OTHERS))
             findViewById(R.id.diary_mapNpics_EditStart).setVisibility(View.GONE);
-        else if (getIntent().getAction().equals(RequestCodes.ACTION_EDIT_DIARY))
-            diary_onEditClick(null);
 
-        diary_toShow = getIntent().getParcelableExtra(PARCEL_DIARY);
         setDiary(diary_toShow);
-
+        if (getIntent().hasExtra(RequestCodes.ACTION_EDIT_DIARY) && getIntent().getStringExtra(RequestCodes.ACTION_EDIT_DIARY).equals(RequestCodes.ACTION_EDIT_DIARY))
+            diary_onEditClick(null);
     }
 
     /**
@@ -296,7 +295,7 @@ public class Diary_mapNPictures extends AppCompatActivity {
         IdCollectionInfo editData = diary_onEdit.getInfo();
         Edit_Title.setText(editData.getTitle());
         Edit_Description.setText(editData.getText());
-        ArrayList<IPicture> pics = new ArrayList<IPicture>(diary_onEdit);
+        ArrayList<IPicture> pics = diary_onEdit.toArrayList();
         editImageListAdapter = new EditImageListAdapter(this, pics);
         Edit_ImageList.setLayoutManager(new LinearLayoutManager(getBaseContext()));
         Edit_ImageList.setAdapter(editImageListAdapter);
