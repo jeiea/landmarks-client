@@ -156,11 +156,11 @@ public class Diary_main extends AppCompatActivity {
                 switch (which) {
                     case DialogInterface.BUTTON_POSITIVE:
                         //예
-                        Toast.makeText(Diary_main.this, "DELETE", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(Diary_main.this, "삭제", Toast.LENGTH_SHORT).show();
                         break;
                     case DialogInterface.BUTTON_NEGATIVE:
                         //아니오
-                        Toast.makeText(Diary_main.this, "CANCEL", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(Diary_main.this, "삭제 취소", Toast.LENGTH_SHORT).show();
                         break;
                 }
             }
@@ -227,7 +227,7 @@ public class Diary_main extends AppCompatActivity {
 
                     @Override
                     public void failure(@NotNull Throwable cause) {
-                        Toast.makeText(Diary_main.this, "Image 데이터 다운로드 실패", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(Diary_main.this, "이미지 데이터 다운로드 실패", Toast.LENGTH_SHORT).show();
                         findViewById(R.id.diary_main_ImageNowLoading).setVisibility(View.GONE);
                         findViewById(R.id.diary_main_ImageList).setVisibility(View.VISIBLE);
                     }
@@ -244,7 +244,7 @@ public class Diary_main extends AppCompatActivity {
 
                     @Override
                     public void failure(@NotNull Throwable cause) {
-                        Toast.makeText(Diary_main.this, "Diary 데이터 다운로드 실패", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(Diary_main.this, "다이어리 데이터 다운로드 실패", Toast.LENGTH_SHORT).show();
                         findViewById(R.id.diary_main_JourneyNowLoading).setVisibility(View.GONE);
                         findViewById(R.id.diary_main_JourneyList).setVisibility(View.VISIBLE);
                     }
