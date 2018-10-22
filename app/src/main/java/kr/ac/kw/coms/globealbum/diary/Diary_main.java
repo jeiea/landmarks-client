@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Locale;
 
 import at.wirecube.additiveanimations.additive_animator.AdditiveAnimator;
+import kr.ac.kw.coms.globealbum.ProfileActivity;
 import kr.ac.kw.coms.globealbum.R;
 import kr.ac.kw.coms.globealbum.album.GroupDiaryView;
 import kr.ac.kw.coms.globealbum.album.OnSwipeTouchListener;
@@ -75,6 +76,9 @@ public class Diary_main extends AppCompatActivity {
 
     public void Common_Back_Click(View view) {
         finish();
+    }
+    public void Common_Profile_Click(View view){
+        startActivity(new Intent(this, ProfileActivity.class));
     }
 
     public void diary_main_CloseMenu(View view) {

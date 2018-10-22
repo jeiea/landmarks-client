@@ -20,6 +20,7 @@ import com.bumptech.glide.Glide;
 
 import java.util.ArrayList;
 
+import kr.ac.kw.coms.globealbum.ProfileActivity;
 import kr.ac.kw.coms.globealbum.R;
 import kr.ac.kw.coms.globealbum.common.MediaScannerKt;
 import kr.ac.kw.coms.globealbum.common.RequestCodes;
@@ -143,5 +144,9 @@ public class GalleryActivity extends AppCompatActivity {
     public void Common_Back_Click(View v)
     {
         finish();
+    }
+
+    public void Common_Profile_Click(View view){
+        startActivity(new Intent(this, ProfileActivity.class));
     }
 }

@@ -46,6 +46,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import kr.ac.kw.coms.globealbum.ProfileActivity;
 import kr.ac.kw.coms.globealbum.R;
 import kr.ac.kw.coms.globealbum.album.GalleryDetail;
 import kr.ac.kw.coms.globealbum.album.GroupDiaryView;
@@ -532,6 +533,14 @@ public class Diary_mapNPictures extends AppCompatActivity {
         }
         return listOfAllImages;
     }
+
+    public void Common_Back_Click(View view) {
+        finish();
+    }
+    public void Common_Profile_Click(View view){
+        startActivity(new Intent(this, ProfileActivity.class));
+    }
+
 
     class NewImageAdapter extends RecyclerView.Adapter<NewImageAdapter.ViewHolder>
     {
