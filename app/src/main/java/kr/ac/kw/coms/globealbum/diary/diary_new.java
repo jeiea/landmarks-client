@@ -27,8 +27,10 @@ import com.bumptech.glide.Glide;
 import org.jetbrains.annotations.NotNull;
 import org.osmdroid.util.GeoPoint;
 
+import java.io.File;
 import java.util.ArrayList;
 
+import kotlin.Unit;
 import kr.ac.kw.coms.globealbum.R;
 import kr.ac.kw.coms.globealbum.common.MediaScannerKt;
 import kr.ac.kw.coms.globealbum.provider.Diary;
@@ -41,6 +43,8 @@ import kr.ac.kw.coms.globealbum.provider.RemoteJava;
 import kr.ac.kw.coms.globealbum.provider.RemotePicture;
 import kr.ac.kw.coms.globealbum.provider.UIPromise;
 import kr.ac.kw.coms.landmarks.client.CollectionInfo;
+import kr.ac.kw.coms.landmarks.client.PictureInfo;
+import kr.ac.kw.coms.landmarks.client.Remote;
 
 //새로 작성하는 화면. 여행지 목록에 플로팅 버튼을 통해 진입할 예정.
 public class diary_new extends AppCompatActivity {
@@ -85,6 +89,14 @@ public class diary_new extends AppCompatActivity {
                 diary.setText(((TextView) findViewById(R.id.diary_edit_DescriptionText)).getText().toString());
                 ArrayList<Integer> imgIds = new ArrayList<>();
                 for (IPicture p : newImageListAdapter.getItems()) {
+                    //IPicture -> RemotePicture
+                    RemoteJava.INSTANCE.uploadPicture(new PictureInfo(), new File(p.toString()), new Promise<Unit>()
+                    {
+                        @Override
+                        public void success(Unit result) {
+                            super.success(result);
+                        }
+                    });
                     imgIds.add(((RemotePicture) p).getInfo().getId());
                 }
                 diary.setImages(imgIds);
@@ -319,18 +331,16 @@ public class diary_new extends AppCompatActivity {
                         @Override
                         public void onClick(View v) {
                             EXIFinfo exifInfo = new EXIFinfo(url);
-                            double[] location = exifInfo.getLocation();
-                            if (location == null) {
+                            try {
+                                double[] location = exifInfo.getLocation();
+                            } catch (NullPointerException e) {
                                 Toast.makeText(diary_new.this, "위치 정보를 확인할 수 없습니다.", Toast.LENGTH_SHORT).show();
-                            } else {
-                                IPicture newPicture = new LocalPicture(url);
-                                PictureMeta newMeta = newPicture.getMeta();
-                                newMeta.setAddress("New Image");
-                                newMeta.setGeo(new GeoPoint(location[0], location[1]));
-                                newPicture.setMeta(newMeta);
-                                //diary_onEdit.add((RemotePicture) newPicture);
-                                newImageListAdapter.AddNewPicture(newPicture);
+                                return;
                             }
+                            IPicture newPicture = new LocalPicture(url);
+                            //diary_onEdit.add((RemotePicture) newPicture);
+                            newImageListAdapter.AddNewPicture(newPicture);
+
                             findViewById(R.id.diary_new_ZoomInLayout).setVisibility(View.GONE);
                             findViewById(R.id.diary_new_AddLayout).setVisibility(View.GONE);
                             findViewById(R.id.diary_new_EditLayout).setVisibility(View.VISIBLE);
