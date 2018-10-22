@@ -56,6 +56,9 @@ public class MainActivity extends AppCompatActivity {
             case R.id.imageview_game_other_diary:
                 startActivityForResult(new Intent(this, Diary_main.class).setAction(RequestCodes.ACTION_DIARY_OTHERS), 4);
                 break;
+            case R.id.main_activity_profile_textview:
+                startActivity(new Intent(this, ProfileActivity.class));
+                break;
             default:
         }
     }

@@ -1,5 +1,6 @@
 package kr.ac.kw.coms.globealbum.game
 
+import android.content.Context
 import android.content.res.Resources
 import kr.ac.kw.coms.globealbum.R
 import kr.ac.kw.coms.globealbum.provider.*
@@ -8,9 +9,9 @@ interface IPictureExaminer<T : IPicture> {
   fun getRandomPictures(n: Int, prom: Promise<List<T>>)
 }
 
-class RemoteExaminer : IPictureExaminer<RemotePicture> {
+class RemoteExaminer(val context: Context) : IPictureExaminer<RemotePicture> {
   override fun getRandomPictures(n: Int, prom: Promise<List<RemotePicture>>) {
-    RemoteJava.getRandomPictures(n, prom)
+    RemoteJava.getRandomPictures(n, context, prom)
   }
 }
 

@@ -1,6 +1,7 @@
 package kr.ac.kw.coms.globealbum.map
 
 import kr.ac.kw.coms.globealbum.provider.IPicture
+import org.osmdroid.util.BoundingBox
 import org.osmdroid.views.MapView
 
 /**
@@ -11,6 +12,16 @@ interface ILandmarkMapView {
    * 가급적 쓰지 말 것. 내부 사용 용도.
    */
   val mapView: MapView
+  /**
+   * 다이어리 전용 인터페이스
+   */
+  val diaryOverlay: IDiaryOverlay
+}
+
+/**
+ * 동그라미 섬네일을 다루는 인터페이스
+ */
+interface IDiaryOverlay {
   /**
    * 선 연결이 필요하지 않은 사진 묶음
    */
@@ -24,7 +35,7 @@ interface ILandmarkMapView {
   /**
    * 터치 이벤트 리스너
    */
-  var onTouchThumbnail: (@JvmSuppressWildcards IPicture) -> Void
+  var onThumbnailClick: ((IPicture) -> Boolean)?
 
   /**
    * 선택 효과 내기
@@ -42,7 +53,7 @@ interface ILandmarkMapView {
   fun clearSelection()
 
   /**
-   *  마커 영역으로 줌인
+   * 섬네일 지역 가져오기
    */
-  fun fitZoomToMarkers()
+  fun getBoundingBox(): BoundingBox
 }

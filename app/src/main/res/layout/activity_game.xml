@@ -67,7 +67,6 @@
         android:text="stage 1"
         android:textSize="20sp"
         android:layout_marginTop="5dp"
-        style="@style/CustomFontStyle"
         app:layout_constraintEnd_toStartOf="@id/textview_target"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/map" />
@@ -80,7 +79,6 @@
         android:text="target 3/3"
         android:layout_marginTop="5dp"
         android:layout_below="@id/textview_stage"
-        style="@style/CustomFontStyle"
         app:layout_constraintEnd_toStartOf="@id/textview_score"
         app:layout_constraintStart_toEndOf="@id/textview_stage"
         app:layout_constraintTop_toBottomOf="@id/map" />
@@ -91,7 +89,6 @@
         android:textSize="20sp"
         android:text="score : 0"
         android:layout_marginTop="5dp"
-        style="@style/CustomFontStyle"
         android:layout_below="@id/textview_stage"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/textview_target"
@@ -139,7 +136,6 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_margin="15dp"
-            style="@style/CustomFontStyle"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
@@ -231,7 +227,6 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_margin="15dp"
-            style="@style/CustomFontStyle"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
@@ -272,14 +267,22 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@id/guide_answer_v"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/textview_land_name_answer"
+            app:layout_constraintTop_toBottomOf="@id/textview_land_place_name_answer"
             tools:src="@drawable/sample6" />
 
         <TextView
-            android:id="@+id/textview_land_name_answer"
+            android:id="@+id/textview_land_country_name_answer"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            style="@style/CustomFontStyle"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/guide_answer_v"
+            app:layout_constraintBottom_toTopOf="@id/textview_land_place_name_answer"
+            tools:text="australia" />
+
+        <TextView
+            android:id="@+id/textview_land_place_name_answer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toStartOf="@id/guide_answer_v"
             app:layout_constraintTop_toTopOf="@id/guide_answer_h"
@@ -289,7 +292,6 @@
             android:id="@+id/textview_land_distance_answer"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            style="@style/CustomFontStyle"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/guide_answer_v"
             app:layout_constraintTop_toTopOf="@id/guide_answer_h"
@@ -299,7 +301,6 @@
             android:id="@+id/textview_land_score_answer"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            style="@style/CustomFontStyle"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/guide_answer_v"
             app:layout_constraintTop_toBottomOf="@id/textview_land_distance_answer"

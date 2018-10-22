@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".provider.LoginActivity">
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:background="@drawable/login_mid_gradient"
+        app:layout_constraintBottom_toTopOf="@id/guide_login_horizontal_boundary"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <View
+        android:id="@+id/bottom_gradient"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:background="@drawable/login_bottom_gradient"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="@id/guide_login_horizontal_boundary" />
+
+    <android.support.constraint.Guideline
+        android:id="@+id/guide_login_vertical_left"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.2" />
+
+    <android.support.constraint.Guideline
+        android:id="@+id/guide_login_vertical_right"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.8" />
+
+
+    <android.support.constraint.Guideline
+        android:id="@+id/guide_login_horizontal_boundary"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.80" />
+
+    <android.support.constraint.Guideline
+        android:id="@+id/guide_login_horizontal_top"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.2" />
+
+    <android.support.constraint.Guideline
+        android:id="@+id/guide_login_horizontal_mid"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.5" />
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="── Profile ──"
+        android:textAlignment="center"
+        android:textSize="40sp"
+        app:layout_constraintBottom_toTopOf="@id/guide_login_horizontal_top"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent" />
+
+    <ImageView
+        android:id="@+id/iv_loading"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:scaleType="fitCenter"
+        android:src="@drawable/loading_circle"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHeight_percent="0.1"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.42"
+        app:layout_constraintWidth_percent="0.15" />
+
+    <ImageView
+        android:id="@+id/profile_id_imageview"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:src="@drawable/login_id_icon"
+        app:layout_constraintDimensionRatio="H,1:1"
+        app:layout_constraintStart_toStartOf="@id/guide_login_vertical_left"
+        app:layout_constraintBottom_toTopOf="@id/guide_login_horizontal_mid"
+        app:layout_constraintWidth_percent="0.16" />
+    <TextView
+        android:id="@+id/profile_id_textview"
+        style="@style/CustomFontStyle"
+        android:layout_width="0dp"
+        android:layout_height="45sp"
+        android:text="ID"
+        android:layout_marginLeft="10sp"
+        app:layout_constraintBottom_toTopOf="@id/guide_login_horizontal_mid"
+        app:layout_constraintEnd_toStartOf="@id/guide_login_vertical_right"
+        app:layout_constraintStart_toEndOf="@id/profile_id_imageview"/>
+    <Button
+        android:id="@+id/profile_logout_button"
+        style="@style/CustomFontStyle"
+        android:layout_width="0dp"
+        android:layout_height="60sp"
+        android:background="#0d2758"
+        android:text="Logout"
+        android:textColor="#fff"
+        android:textSize="25sp"
+        app:layout_constraintBottom_toBottomOf="@id/bottom_gradient"
+        app:layout_constraintLeft_toLeftOf="@id/guide_login_vertical_left"
+        app:layout_constraintRight_toRightOf="@id/guide_login_vertical_right"
+        app:layout_constraintTop_toTopOf="@id/bottom_gradient" />
+
+</android.support.constraint.ConstraintLayout>

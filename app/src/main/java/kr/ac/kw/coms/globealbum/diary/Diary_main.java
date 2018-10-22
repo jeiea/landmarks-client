@@ -2,6 +2,7 @@ package kr.ac.kw.coms.globealbum.diary;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
@@ -38,6 +39,7 @@ import kr.ac.kw.coms.globealbum.common.RecyclerItemClickListener;
 import kr.ac.kw.coms.globealbum.common.RequestCodes;
 import kr.ac.kw.coms.globealbum.provider.Diary;
 import kr.ac.kw.coms.globealbum.provider.IPicture;
+import kr.ac.kw.coms.globealbum.provider.Promise;
 import kr.ac.kw.coms.globealbum.provider.RemoteJava;
 import kr.ac.kw.coms.globealbum.provider.ResourcePicture;
 import kr.ac.kw.coms.globealbum.provider.UIPromise;
@@ -55,6 +57,8 @@ public class Diary_main extends AppCompatActivity {
     List<IPicture> DownloadedImageList;
     int ZoomIndex;
     OnSwipeTouchListener swipeTouchListener;
+    IPicture ImageToSend;
+    Diary DiaryToSend;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,9 +82,28 @@ public class Diary_main extends AppCompatActivity {
     }
 
     public void diary_main_EditStart(View view) {
+        //(앨범 전용) 수정
         findViewById(R.id.diary_main_menuRoot).setVisibility(View.GONE);
-        Intent intent = new Intent(getBaseContext(), Diary_mapNPictures.class).setAction(RequestCodes.ACTION_EDIT_DIARY);
+
+        Intent intent = new Intent(Diary_main.this, Diary_mapNPictures.class);
+        intent.putExtra(Diary_mapNPictures.PARCEL_DIARY, DiaryToSend);
+        intent.putExtra(RequestCodes.ACTION_EDIT_DIARY, RequestCodes.ACTION_EDIT_DIARY);
+        intent.setAction(getIntent().getAction());
         startActivity(intent);
+    }
+
+    public void diary_main_SharePicture(View view) {
+        //(사진 전용) 공유
+        findViewById(R.id.diary_main_menuRoot).setVisibility(View.GONE);
+        final Intent intent = new Intent(Intent.ACTION_SEND);
+        intent.setType("image/*");
+        ImageToSend.drawable(getResources(), new Promise<Drawable>(){
+            @Override
+            public void success(Drawable result) {
+                //intent.putExtra(Intent.EXTRA_STREAM, result.);
+                Toast.makeText(Diary_main.this, "(공유 시도)", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     public void diary_main_Delete(View view) {
@@ -187,18 +210,16 @@ public class Diary_main extends AppCompatActivity {
     public void ShowImageData() {
         //준비된 Image 데이터를 화면에 표시
         float px = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10f, getResources().getDisplayMetrics());
-        if (DownloadedImageList.size() == 0)
-        {
+        if (DownloadedImageList.size() == 0) {
             DownloadedImageList.add(new ResourcePicture(R.drawable.imagenotfoundbordered));
             PictureGroup PictureRow = new PictureGroup("", (ArrayList<IPicture>) DownloadedImageList);
             List<PictureGroup> PictureList = new ArrayList<>();
             PictureList.add(PictureRow);
             ImageList.getPicAdapter().setSpan(1);
-            ImageList.getPicAdapter().setVerticalPadding((int)px);
-            ImageList.getPicAdapter().setHorizontalPadding((int)px);
+            ImageList.getPicAdapter().setVerticalPadding((int) px);
+            ImageList.getPicAdapter().setHorizontalPadding((int) px);
             ImageList.setGroups(PictureList);
-        }
-        else {
+        } else {
             PictureGroup PictureRow = new PictureGroup("", (ArrayList<IPicture>) DownloadedImageList);
             List<PictureGroup> PictureList = new ArrayList<>();
             PictureList.add(PictureRow);
@@ -206,6 +227,7 @@ public class Diary_main extends AppCompatActivity {
             ImageList.getPicAdapter().setHorizontalPadding(0);
             ImageList.setGroups(PictureList);
             ImageList.addOnItemTouchListener(new RecyclerItemClickListener(ImageList) {
+                //사진 클릭 이벤트
                 @Override
                 public void onItemClick(@NotNull View view, int position) {
                     if (view instanceof ImageView) {
@@ -218,7 +240,11 @@ public class Diary_main extends AppCompatActivity {
 
                 @Override
                 public void onLongItemClick(@NotNull View view, int position) {
-                    super.onLongItemClick(view, position);
+                    //롱클릭 이벤트
+                    ImageToSend = DownloadedImageList.get(ZoomIndex);
+                    findViewById(R.id.diary_main_menuRoot).setVisibility(View.VISIBLE);
+                    findViewById(R.id.diary_main_menuEdit).setVisibility(View.INVISIBLE);
+                    findViewById(R.id.diary_main_menuShare).setVisibility(View.VISIBLE);
                 }
             }.getItemTouchListener());
             swipeTouchListener = new OnSwipeTouchListener(this.getBaseContext()) {
@@ -275,8 +301,7 @@ public class Diary_main extends AppCompatActivity {
 
         @Override
         public void onBindViewHolder(@NonNull DiaryListViewHolder holder, int position) {
-            if (items == null)
-            {
+            if (items == null) {
                 Glide.with(holder.image_Thumbnail).load(R.drawable.diarynotfoundbordered).into(holder.image_Thumbnail);
                 holder.NameTag.setVisibility(View.GONE);
                 return;
@@ -308,14 +333,24 @@ public class Diary_main extends AppCompatActivity {
                     startActivity(intent);
                 }
             });
+            holder.image_Thumbnail.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View view) {
+                    //앨범 롱클릭
+                    DiaryToSend = diaryToShow;
+                    findViewById(R.id.diary_main_menuRoot).setVisibility(View.VISIBLE);
+                    findViewById(R.id.diary_main_menuEdit).setVisibility(View.VISIBLE);
+                    findViewById(R.id.diary_main_menuShare).setVisibility(View.INVISIBLE);
+                    return true;
+                }
+            });
         }
 
         @Override
         public int getItemCount() {
             if (items == null)
                 return 1;
-            if (items.size() == 0 || items.get(0).size() == 0)
-            {
+            if (items.size() == 0 || items.get(0).size() == 0) {
                 items = null;
                 return 1;
             }

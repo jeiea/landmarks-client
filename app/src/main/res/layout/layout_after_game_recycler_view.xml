@@ -56,8 +56,9 @@
         app:layout_constraintTop_toTopOf="@id/after_game_recyclerview_guideline"
         app:layout_constraintLeft_toRightOf="@id/after_game_recyclerview_left_vertical_guideline"
         app:layout_constraintRight_toLeftOf="@id/after_game_recyclerview_right_vertical_guideline"
+        app:layout_constraintBottom_toBottomOf="parent"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
         android:id="@+id/after_game_recyclerview">
     </android.support.v7.widget.RecyclerView>
 </android.support.constraint.ConstraintLayout>

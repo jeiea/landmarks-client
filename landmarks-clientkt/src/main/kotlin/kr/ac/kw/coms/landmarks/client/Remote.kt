@@ -13,12 +13,14 @@ import io.ktor.client.request.forms.MultiPartFormDataContent
 import io.ktor.client.request.forms.formData
 import io.ktor.client.response.HttpResponse
 import io.ktor.http.*
-import kotlinx.coroutines.experimental.channels.ArrayChannel
+import kotlinx.coroutines.experimental.Dispatchers
+import kotlinx.coroutines.experimental.GlobalScope
 import kotlinx.coroutines.experimental.channels.Channel
+import kotlinx.coroutines.experimental.channels.ReceiveChannel
+import kotlinx.coroutines.experimental.channels.produce
 import kotlinx.coroutines.experimental.channels.sendBlocking
 import kotlinx.coroutines.experimental.delay
 import kotlinx.coroutines.experimental.io.readUTF8LineTo
-import kotlinx.coroutines.experimental.launch
 import kotlinx.io.InputStream
 import kotlinx.io.core.writeFully
 import java.io.File
@@ -26,7 +28,7 @@ import java.net.URLEncoder
 import java.util.*
 import kotlin.math.max
 
-class Remote(base: HttpClient, val basePath: String = herokuUri) {
+class Remote(base: HttpClient, private val basePath: String = herokuUri) {
   /*
   Implementation details: method's signature MutableList should be kept.
   Gson can't aware List<> in deserialization type detection.
@@ -35,25 +37,31 @@ class Remote(base: HttpClient, val basePath: String = herokuUri) {
   val http: HttpClient
   var logger: RemoteLoggable? = null
 
-  private val nominatimLastRequestMs = ArrayChannel<Long>(1)
-  private val problemBuffer = Channel<IdPictureInfo>(10)
-  private val problemBuffering by lazy {
-    launch {
+  private val nominatimLastRequestMs = Channel<Long>(1)
+  private var problemBuffer: ReceiveChannel<IdPictureInfo>? = null
+
+  private fun problemBuffering(): ReceiveChannel<IdPictureInfo> {
+    return GlobalScope.produce(Dispatchers.IO) {
       while (true) {
-        val pics: MutableList<IdPictureInfo> = get("$basePath/problem/random/10")
-        pics.forEach { problemBuffer.send(it) }
+        val pics: MutableList<IdPictureInfo> = get("$basePath/problem/random/12")
+        pics.forEach { send(it) }
       }
     }
   }
 
   companion object {
     const val herokuUri = "http://landmarks-coms.herokuapp.com"
-    private const val chromeAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.59 Safari/537.36"
+    private const val chromeAgent =
+      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.59 Safari/537.36"
   }
 
   var profile: IdAccountForm? = null
 
-  private suspend inline fun <reified T> request(method: HttpMethod, url: String, builder: HttpRequestBuilder.() -> Unit = {}): T {
+  private suspend inline fun <reified T> request(
+    method: HttpMethod,
+    url: String,
+    builder: HttpRequestBuilder.() -> Unit = {}
+  ): T {
     logger?.onRequest("${method.value} $url HTTP/1.1")
     val response: HttpResponse = http.request {
       this.method = method
@@ -68,7 +76,8 @@ class Remote(base: HttpClient, val basePath: String = herokuUri) {
     if (response.status == HttpStatusCode.BadRequest) {
       logger?.onResponseFailure("${method.value} $url HTTP/1.1")
       throw response.call.receive<ServerFault>()
-    } else {
+    }
+    else {
       val sb = StringBuilder()
       while (response.content.readUTF8LineTo(sb));
       val msg = "${response.status}: $sb"
@@ -76,13 +85,22 @@ class Remote(base: HttpClient, val basePath: String = herokuUri) {
     }
   }
 
-  private suspend inline fun <reified T> get(url: String, builder: HttpRequestBuilder.() -> Unit = {}): T =
+  private suspend inline fun <reified T> get(
+    url: String,
+    builder: HttpRequestBuilder.() -> Unit = {}
+  ): T =
     request(HttpMethod.Get, url, builder)
 
-  private suspend inline fun <reified T> post(url: String, builder: HttpRequestBuilder.() -> Unit = {}): T =
+  private suspend inline fun <reified T> post(
+    url: String,
+    builder: HttpRequestBuilder.() -> Unit = {}
+  ): T =
     request(HttpMethod.Post, url, builder)
 
-  private suspend inline fun <reified T> put(url: String, builder: HttpRequestBuilder.() -> Unit = {}): T =
+  private suspend inline fun <reified T> put(
+    url: String,
+    builder: HttpRequestBuilder.() -> Unit = {}
+  ): T =
     request(HttpMethod.Put, url, builder)
 
   init {
@@ -115,7 +133,10 @@ class Remote(base: HttpClient, val basePath: String = herokuUri) {
     return ret
   }
 
-  private suspend fun reverseGeocodeUnsafe(latitude: Double, longitude: Double): ReverseGeocodeResult {
+  private suspend fun reverseGeocodeUnsafe(
+    latitude: Double,
+    longitude: Double
+  ): ReverseGeocodeResult {
     val json: String = get("https://nominatim.openstreetmap.org/reverse") {
       parameter("format", "json")
       parameter("accept-language", "ko,en")
@@ -131,7 +152,8 @@ class Remote(base: HttpClient, val basePath: String = herokuUri) {
     return try {
       get<Unit>("$basePath/")
       true
-    } catch (e: Throwable) {
+    }
+    catch (e: Throwable) {
       false
     }
   }
@@ -174,11 +196,19 @@ class Remote(base: HttpClient, val basePath: String = herokuUri) {
     }
   }
 
-  suspend fun getRandomProblems(n: Int): MutableList<IdPictureInfo> {
-    problemBuffering
+  suspend fun getRandomProblems(n: Int): List<IdPictureInfo> {
+    // sucks. Sequence extensions always cancel upstream channel.
+    val reuseIfPossible = (problemBuffer ?: {
+      val new = problemBuffering()
+      problemBuffer = new
+      new
+    }())
     val ret = mutableListOf<IdPictureInfo>()
-    for (i in 1..n) {
-      ret.add(problemBuffer.receive())
+    while (ret.size < n) {
+      val p = reuseIfPossible.receive()
+      if (!ret.contains(p)) {
+        ret.add(p)
+      }
     }
     return ret
   }
@@ -201,7 +231,11 @@ class Remote(base: HttpClient, val basePath: String = herokuUri) {
     return get("$basePath/picture/$id")
   }
 
-  suspend fun getThumbnail(id: Int, desiredWidth: Int = 640, desiredHeight: Int = 480): InputStream {
+  suspend fun getThumbnail(
+    id: Int,
+    desiredWidth: Int = 640,
+    desiredHeight: Int = 480
+  ): InputStream {
     return get("$basePath/picture/thumbnail/$id?width=$desiredWidth&height=$desiredHeight")
   }
 
@@ -213,6 +247,10 @@ class Remote(base: HttpClient, val basePath: String = herokuUri) {
     return getPictureInfos(profile!!.id)
   }
 
+  suspend fun getAroundPictures(lat: Double, lon: Double, km: Double):
+    MutableList<IdPictureInfo> {
+    return get("$basePath/picture/near?lat=$lat&lon=$lon&km=$km")
+  }
 
   suspend fun uploadCollection(collection: ICollectionInfo): IdCollectionInfo {
     return put("$basePath/collection") {

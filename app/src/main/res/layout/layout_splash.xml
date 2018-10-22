@@ -42,7 +42,6 @@
         android:layout_height="wrap_content"
         android:textSize="30dp"
         android:text="LANDMARKS"
-        style="@style/CustomFontStyle"
         app:layout_constraintLeft_toRightOf="@id/start_logo_icon"
         app:layout_constraintBottom_toTopOf="@id/guide_start_horizontal"/>
 

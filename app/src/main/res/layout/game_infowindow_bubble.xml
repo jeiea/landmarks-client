@@ -16,11 +16,11 @@
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_gravity="center"
             android:orientation="horizontal" >
             <TextView android:id="@+id/bubble_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                style="@style/CustomFontStyle"
                 android:maxEms="17"
                 android:layout_gravity="left"
                 android:layout_weight="1"
@@ -29,14 +29,12 @@
         <TextView android:id="@+id/bubble_description"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            style="@style/CustomFontStyle"
             android:textSize="12dp"
             android:maxEms="17"
             android:text="Description" />
         <TextView android:id="@+id/bubble_subdescription"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            style="@style/CustomFontStyle"
             android:textSize="10dp"
             android:maxEms="17"
             android:text="Address"

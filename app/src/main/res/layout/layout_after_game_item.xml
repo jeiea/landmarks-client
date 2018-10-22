@@ -16,20 +16,26 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         app:layout_constraintGuide_percent="0.5" />
-
     <android.support.constraint.Guideline
-        android:id="@+id/after_game_vertical_right_guideline"
+        android:id="@+id/after_game_vertical_right_guideline1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        app:layout_constraintGuide_percent="0.9" />
+        app:layout_constraintGuide_percent="0.72" />
+
+    <android.support.constraint.Guideline
+        android:id="@+id/after_game_vertical_right_guideline2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.97" />
 
     <android.support.constraint.Guideline
         android:id="@+id/after_game_horizontal_up_guideline"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.2" />
+        app:layout_constraintGuide_percent="0.15" />
 
     <android.support.constraint.Guideline
         android:id="@+id/after_game_horizontal_mid_guideline"
@@ -54,11 +60,21 @@
         app:layout_constraintRight_toRightOf="@id/after_game_vertical_mid_guideline"
         app:layout_constraintTop_toTopOf="@id/after_game_horizontal_up_guideline"
         app:layout_constraintBottom_toBottomOf="parent"/>
-
+    <TextView
+        android:id="@+id/after_game_show_country_name"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:gravity="right"
+        android:layout_marginRight="10dp"
+        app:layout_constraintBottom_toTopOf="@id/after_game_show_place_name"
+        app:layout_constraintLeft_toRightOf="@id/after_game_vertical_mid_guideline"
+        app:layout_constraintRight_toRightOf="parent"/>
     <TextView
         android:id="@+id/after_game_show_place_name"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:gravity="right"
+        android:layout_marginRight="10dp"
         app:layout_constraintBottom_toTopOf="@id/after_game_horizontal_mid_guideline"
         app:layout_constraintLeft_toRightOf="@id/after_game_vertical_mid_guideline"
         app:layout_constraintRight_toRightOf="parent" />
@@ -68,8 +84,9 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:src="@drawable/game_after_see_picture_btn"
+        android:layout_marginRight="10dp"
         app:layout_constraintBottom_toTopOf="@id/after_game_horizontal_down_guideline"
-        app:layout_constraintLeft_toRightOf="@id/after_game_vertical_mid_guideline"
+        app:layout_constraintLeft_toRightOf="@id/after_game_vertical_right_guideline1"
         app:layout_constraintRight_toLeftOf="@id/after_game_see_diary_btn"
         app:layout_constraintTop_toBottomOf="@id/after_game_horizontal_mid_guideline" />
 
@@ -80,6 +97,6 @@
         android:src="@drawable/game_after_see_diary_btn"
         app:layout_constraintBottom_toTopOf="@id/after_game_horizontal_down_guideline"
         app:layout_constraintLeft_toRightOf="@id/after_game_see_picture_btn"
-        app:layout_constraintRight_toLeftOf="@id/after_game_vertical_right_guideline"
+        app:layout_constraintRight_toLeftOf="@id/after_game_vertical_right_guideline2"
         app:layout_constraintTop_toBottomOf="@id/after_game_horizontal_mid_guideline" />
 </android.support.constraint.ConstraintLayout>

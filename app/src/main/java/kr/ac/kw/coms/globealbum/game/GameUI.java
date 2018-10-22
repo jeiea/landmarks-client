@@ -18,11 +18,11 @@ import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.Interpolator;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import org.jetbrains.annotations.Contract;
 import org.osmdroid.events.MapEventsReceiver;
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
 import org.osmdroid.util.GeoPoint;
@@ -30,7 +30,6 @@ import org.osmdroid.views.MapView;
 import org.osmdroid.views.Projection;
 import org.osmdroid.views.overlay.MapEventsOverlay;
 import org.osmdroid.views.overlay.Marker;
-import org.osmdroid.views.overlay.Overlay;
 import org.osmdroid.views.overlay.infowindow.MarkerInfoWindow;
 
 import java.util.Arrays;
@@ -55,7 +54,7 @@ interface IGameUI {
 
     void showGameOver(List<IPicture> pictures);
 
-    void setQuizInfo(int stage, int curProblem, int allProblem);
+    void setQuizInfo(int stage, int curProblem, int curScore, int allProblem);
 
     void showPositionQuiz(IPicture picture);
 
@@ -63,7 +62,7 @@ interface IGameUI {
 
     void showPositionAnswer(IPicture correct, int deltaScore, Double distance);
 
-    void showPictureAnswer(IPicture correct, int deltaScore);
+    void showPicChoiceAnswer(IPicture correct, int deltaScore);
 
     Marker getUserMarker();
 
@@ -104,7 +103,7 @@ class GameUI implements IGameUI {
     private InvalidationHelper mapInvalidator;
 
     // answer
-    private TextView answerLandNameTextView, answerDistanceTextView, answerScoreTextView;
+    private TextView answerLandPlaceNameTextView,answerLandCountryTextView, answerDistanceTextView, answerScoreTextView;
     private ImageView answerCorrectImageView;
     private ConstraintLayout answerLayout;
 
@@ -117,7 +116,6 @@ class GameUI implements IGameUI {
     private List<IPicture> choicePics;
     private DottedLineOverlay dotLineAnimation;
     private DrawCircleOverlay circleAnimation;
-
 
 
     GameUI(AppCompatActivity activity) {
@@ -140,7 +138,8 @@ class GameUI implements IGameUI {
         answerLayout = quizView.findViewById(R.id.layout_answer);
         answerCorrectImageView = quizView.findViewById(R.id.picture_answer);
         answerDistanceTextView = quizView.findViewById(R.id.textview_land_distance_answer);
-        answerLandNameTextView = quizView.findViewById(R.id.textview_land_name_answer);
+        answerLandPlaceNameTextView = quizView.findViewById(R.id.textview_land_place_name_answer);
+        answerLandCountryTextView = quizView.findViewById(R.id.textview_land_country_name_answer);
         answerScoreTextView = quizView.findViewById(R.id.textview_land_score_answer);
 
         ImageView answerGoToNextStageButton = quizView.findViewById(R.id.button_next);
@@ -161,9 +160,10 @@ class GameUI implements IGameUI {
         positionPicImageView.setOnClickListener(onPressPicZoom);
 
         myMapView = quizView.findViewById(R.id.map);
+        myMapView.preventDispose();
         myMapView.setTileSource(TileSourceFactory.BASE_OVERLAY_NL);    //맵 렌더링 설정
         myMapView.setMaxZoomLevel(5.0);
-        addOverlay(onTouchMap);
+        myMapView.getOverlays().add(onTouchMap);
         mapInvalidator = new InvalidationHelper(handler, myMapView, 1000 / 60);
 
         circleAnimation = new DrawCircleOverlay();
@@ -191,34 +191,18 @@ class GameUI implements IGameUI {
         return marker;
     }
 
-    /**
-     * @deprecated use {@link #getUserMarker()} or {@link #getSystemMarker()}
-     */
-    @Deprecated
-    public Marker makeMarker(String color, GeoPoint pos) {
-        Marker marker = new Marker(myMapView);
-        Resources resources = quizView.getResources();
-        if (color.equals("blue")) {
-            marker.setIcon(resources.getDrawable(R.drawable.game_blue_marker));
-        } else {
-            marker.setIcon(resources.getDrawable(R.drawable.game_red_marker));
-        }
-        marker.setPosition(pos);
-        marker.setAnchor(0.5f, 1.0f);
-        return marker;
-    }
-
-    private void addBalloonToMarker(Marker marker) {
+    private void addBalloonToMarker(@NonNull Marker marker) {
         marker.setTitle("");
         MarkerInfoWindow miw = new MarkerInfoWindow(R.layout.game_infowindow_bubble, myMapView);
-        miw.getView().setOnTouchListener(new View.OnTouchListener() {   //infowindow 터치시 사라지는 것 방지
+        // infowindow 터치 시 사라지는 것 방지
+        miw.getView().setOnTouchListener(new View.OnTouchListener() {
             @Override
+            @SuppressWarnings("ClickableViewAccessibility")
             public boolean onTouch(View v, MotionEvent event) {
                 return false;
             }
         });
         marker.setInfoWindow(miw);
-        marker.showInfoWindow();
     }
 
     @Override
@@ -293,11 +277,17 @@ class GameUI implements IGameUI {
      * @param allProblem 현 스테이지의 총 문제 수
      */
     @Override
-    public void setQuizInfo(int stage, int curProblem, int allProblem) {
+    public void setQuizInfo(int stage, int curProblem, int curScore, int allProblem) {
         gameStageTextView.setText("STAGE " + stage);
+        gameScoreTextView.setText("SCORE " + curScore);
         gameTargetTextView.setText("TARGET " + (curProblem + 1) + "/" + allProblem);
+        answerDistanceTextView.setVisibility(View.INVISIBLE);
         answerLayout.setVisibility(View.GONE);
         answerLayout.setClickable(false);
+        myMapView.getController().setCenter(new GeoPoint(70f,40f));
+        myMapView.getController().setZoom(myMapView.getMinZoomLevel());
+
+        hideDrawingOverlays();
 
         if (activity.findViewById(R.id.textview_target) == null) {
             activity.setContentView(quizView);
@@ -317,11 +307,6 @@ class GameUI implements IGameUI {
         choicePicProblemLayout.setClickable(false);
         choicePicProblemLayout.setVisibility(View.GONE);
 
-        systemMarker.closeInfoWindow();
-        hideDrawingOverlays();
-
-        myMapView.getController().setZoom(myMapView.getMinZoomLevel());
-
         GlideApp.with(activity).load(picture).into(positionPicImageView);
         positionProblemLayout.setVisibility(View.VISIBLE);
     }
@@ -329,8 +314,11 @@ class GameUI implements IGameUI {
     private void hideDrawingOverlays() {
         circleAnimation.setEnabled(false);
         dotLineAnimation.setEnabled(false);
+        systemMarker.closeInfoWindow();
         systemMarker.setEnabled(false);
         userMarker.setEnabled(false);
+
+        gameTimeProgressBar.setProgress(gameTimeProgressBar.getMax());
     }
 
     /**
@@ -341,6 +329,7 @@ class GameUI implements IGameUI {
      */
     @Override
     public void showPictureQuiz(List<IPicture> pics, String description) {
+
         choicePics = pics;
 
         //레이아웃 설정
@@ -349,13 +338,12 @@ class GameUI implements IGameUI {
         positionPicImageView.setClickable(false);
         positionPicImageView.setVisibility(View.GONE);
 
-        hideDrawingOverlays();
+
         //마커에 지명 설정하고 맵뷰에 표시
         systemMarker.setTitle(description);
         systemMarker.showInfoWindow();
         systemMarker.setEnabled(true);
 
-        myMapView.getController().setZoom(myMapView.getMinZoomLevel());
         myMapView.setClickable(false);
 
         for (int i = 0; i < 4; i++) {
@@ -419,6 +407,8 @@ class GameUI implements IGameUI {
 
     @Override
     public void exitGame() {
+        myMapView.dispose();
+
         if (handler != null) {
             handler.removeCallbacksAndMessages(null);
             handler = null;
@@ -429,11 +419,24 @@ class GameUI implements IGameUI {
     }
 
     private void showCommonAnswer(IPicture pic, int deltaScore) {
+        mapInvalidator.postInvalidate();
         answerLayout.setVisibility(View.VISIBLE);
         answerLayout.setClickable(true);
-        answerLandNameTextView.setText(pic.getMeta().getAddress());
+        divideAddress(pic.getMeta().getAddress());
         answerScoreTextView.setText("score " + deltaScore);
         GlideApp.with(activity).load(pic).into(answerCorrectImageView);
+    }
+    private void divideAddress(String string){
+        int start = 0;
+        int end = string.length();
+        int firstSpace =  string.indexOf(" ");
+        if (firstSpace == -1) {
+            answerLandPlaceNameTextView.setText(string);
+        }
+        else{
+            answerLandCountryTextView.setText(string.substring(start,firstSpace));
+            answerLandPlaceNameTextView.setText(string.substring(firstSpace+1,end));
+        }
     }
 
     @Override
@@ -443,7 +446,7 @@ class GameUI implements IGameUI {
 
         showCommonAnswer(correct, deltaScore);
         positionProblemLayout.setVisibility(View.GONE);
-
+        myMapView.getController().setCenter(new GeoPoint(70f,40f));
         myMapView.getController().zoomTo(myMapView.getMinZoomLevel(), 1000L);
 
         if (distance != null) {
@@ -458,7 +461,7 @@ class GameUI implements IGameUI {
     @Override
     public void animateMarker(Marker marker, final GeoPoint destination, GeoPointInterpolator geopolator) {
         final GeoPoint start = marker.getPosition();
-        myMapView.getController().animateTo(destination, myMapView.getMinZoomLevel(), 1000L);
+        myMapView.getController().animateTo(new GeoPoint(70f,40f), myMapView.getMinZoomLevel(), 1000L);
 
         MarkerAnimation anim = new MarkerAnimation(marker, destination, 1000);
         anim.geoInterpolator = geopolator;
@@ -491,7 +494,7 @@ class GameUI implements IGameUI {
         @Override
         public void run() {
             mapInvalidator.postInvalidate();
-            handler.postDelayed(this, 1000 / 30);
+            postIfNotNull(this, 1000 / 30);
         }
     };
 
@@ -514,7 +517,7 @@ class GameUI implements IGameUI {
             marker.setEnabled(true);
         }
 
-        public void setTimeInterpolator(Interpolator timeInterpolator) {
+        void setTimeInterpolator(Interpolator timeInterpolator) {
             this.timeInterpolator = timeInterpolator;
         }
 
@@ -543,15 +546,13 @@ class GameUI implements IGameUI {
     }
 
     @Override
-    public void showPictureAnswer(IPicture correct, int deltaScore) {
+    public void showPicChoiceAnswer(IPicture correct, int deltaScore) {
+        clearSelectedRectangle();
         showCommonAnswer(correct, deltaScore);
         choicePicProblemLayout.setVisibility(View.GONE);
         //인자의 속도에 맞춰서 줌 아웃
+        myMapView.getController().setCenter(new GeoPoint(70f,40f));
         myMapView.getController().zoomTo(myMapView.getMinZoomLevel(), 1000L);
-    }
-
-    void addOverlay(Overlay overlay) {
-        myMapView.getOverlays().add(overlay);
     }
 
     private View.OnClickListener onPressStart = new View.OnClickListener() {
@@ -602,6 +603,7 @@ class GameUI implements IGameUI {
      * 정답화면에서 마커 클릭시 infowindow 띄우는 것 방지 하는 리스너
      */
     private Marker.OnMarkerClickListener onMarkerClickDoingNothing = new Marker.OnMarkerClickListener() {
+        @Contract(pure = true)
         @Override
         public boolean onMarkerClick(Marker marker, MapView mapView) {
             return false;
@@ -619,6 +621,15 @@ class GameUI implements IGameUI {
     private View lastSelect;
 
 
+    private void clearSelectedRectangle() {
+        if (lastSelect == null) {
+            return;
+        }
+        lastSelect.getOverlay().clear();
+        lastSelect.setOnClickListener(onPressPicFirst);
+        lastSelect = null;
+    }
+
     /**
      * 예비 선택을 지우고 테두리 없는 상태로 바꿈
      */
@@ -632,13 +643,16 @@ class GameUI implements IGameUI {
 
     private View.OnClickListener onPressPicFirst = new View.OnClickListener() {
         @Override
-        public void onClick(View v) {
+        public void onClick(@NonNull View v) {
             clearLastSelectIfExists();
             redRect.setBounds(new Rect(0, 0, v.getWidth(), v.getHeight()));
             v.getOverlay().add(redRect);
             v.setOnClickListener(onPressPicSecond);
             lastSelect = v;
 
+            ImageView iv = (ImageView) v;
+            int idx = Arrays.asList(choicePicImageViews).indexOf(iv);
+            input.onSelectPictureFirst(choicePics.get(idx));
         }
     };
 
@@ -660,6 +674,7 @@ class GameUI implements IGameUI {
      */
     @Override
     public void showGameOver(List<IPicture> pics) {
+        hideDrawingOverlays();
         handler.removeCallbacksAndMessages(null);
         activity.setContentView(R.layout.layout_after_game_recycler_view);
         //after game
