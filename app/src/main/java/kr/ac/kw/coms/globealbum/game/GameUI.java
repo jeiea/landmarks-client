@@ -208,9 +208,9 @@ class GameUI implements IGameUI {
     @Override
     public void showLoadingGif() {
         activity.setContentView(R.layout.layout_game_loading_animation);
-        ImageView imgLoading = activity.findViewById(R.id.game_gif_loading);
+        ImageView imgLoading = activity.findViewById(R.id.game_loading_animation);
         imgLoading.setClickable(false);
-        GlideApp.with(imgLoading).load(R.drawable.game_loading_gif).into(imgLoading);
+        GlideApp.with(imgLoading).load(R.drawable.game_loading_bar).into(imgLoading);
     }
 
     @Override
