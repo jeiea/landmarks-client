@@ -37,8 +37,8 @@ public class MyMapView extends org.osmdroid.views.MapView implements ILandmarkMa
             // https://github.com/jeiea/globe-album/issues/9
             SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
             String cfgExpirationExtend = "osmdroid.ExpirationExtendedDuration";
-            long eightDays = 8 * 24 * 60 * 60 * 1000;
-            pref.edit().putLong(cfgExpirationExtend, eightDays).apply();
+            long threeMonths = 90L * 24 * 60 * 60 * 1000;
+            pref.edit().putLong(cfgExpirationExtend, threeMonths).apply();
             Configuration.getInstance().load(context, pref);
             isConfigurationLoaded = true;
         }
