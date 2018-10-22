@@ -50,8 +50,7 @@ data class PictureMeta(
     parcel.readString(),
     if (parcel.readInt() == 1) Date(parcel.readLong()) else null,
     parcel.readParcelable(GeoPoint::class.java.classLoader)
-  ) {
-  }
+  )
 
   override fun writeToParcel(parcel: Parcel, flags: Int) {
     parcel.writeString(address)
@@ -137,20 +136,17 @@ class RemotePicture(val info: IdPictureInfo) :
     return pic.let { v ->
       val lat = v.lat ?: return null
       val lon = v.lon ?: return null
-      GeoPoint(lat.toDouble(), lon.toDouble())
+      GeoPoint(lat, lon)
     }
   }
 
+  // TODO: Update picture metadata
   override var meta = PictureMeta(
     info.data.address,
     info.data.author,
     info.data.time,
     latlonToGeoPoint(info.data)
   )
-    set(value) {
-      // TODO: Update picture metadata
-      field = value
-    }
 
   override val dataSource = DataSource.REMOTE
 
@@ -164,8 +160,8 @@ class RemotePicture(val info: IdPictureInfo) :
       v.uid = readInt().takeIf { it != -1 }
       v.author = readString()
       v.address = readString()
-      v.lat = readDouble().takeIf { it != 999.0 }?.toFloat()
-      v.lon = readDouble().takeIf { it != 999.0 }?.toFloat()
+      v.lat = readDouble().takeIf { it != 999.0 }
+      v.lon = readDouble().takeIf { it != 999.0 }
       v.time = readLong().takeIf { it != -1L }?.let { Date(it) }
       v.isPublic = readByte() == 1.toByte()
     }
@@ -186,8 +182,8 @@ class RemotePicture(val info: IdPictureInfo) :
       writeInt(v.uid ?: -1)
       writeString(v.author)
       writeString(v.address)
-      writeDouble(v.lat?.toDouble() ?: 999.0)
-      writeDouble(v.lon?.toDouble() ?: 999.0)
+      writeDouble(v.lat ?: 999.0)
+      writeDouble(v.lon ?: 999.0)
       writeLong(v.time?.time ?: -1L)
       writeByte(if (v.isPublic) 1 else 0)
     }
@@ -257,7 +253,7 @@ class LocalPicture(val path: String) : IPicture, Deletable {
       val time = Date(EXIFinfo(path).timeTaken)
       return PictureMeta(filename, "You", time, null)
     }
-    set(value) {}
+    set(_) {}
 
   override val dataSource = DataSource.LOCAL
 
@@ -429,7 +425,7 @@ fun resourceToUri(resources: Resources, resId: Int): Uri {
       resources.getResourcePackageName(resId) + '/' +
       resources.getResourceTypeName(resId) + '/' +
       resources.getResourceEntryName(resId)
-  );
+  )
 }
 
 fun uriToResourceId(context: Context, uri: String): Int {
