@@ -16,7 +16,6 @@ import io.ktor.http.*
 import kotlinx.coroutines.experimental.Dispatchers
 import kotlinx.coroutines.experimental.GlobalScope
 import kotlinx.coroutines.experimental.channels.Channel
-import kotlinx.coroutines.experimental.channels.ReceiveChannel
 import kotlinx.coroutines.experimental.channels.produce
 import kotlinx.coroutines.experimental.channels.sendBlocking
 import kotlinx.coroutines.experimental.delay
@@ -39,18 +38,16 @@ class Remote(engine: HttpClient, private val basePath: String = herokuUri) {
   val http: HttpClient
   var logger: RemoteLoggable? = null
   var profile: IdAccountForm? = null
-
-  private val nominatimLastRequestMs = Channel<Long>(1)
-  private var problemBuffer: ReceiveChannel<IdPictureInfo>? = null
-
-  private fun problemBuffering(): ReceiveChannel<IdPictureInfo> {
-    return GlobalScope.produce(Dispatchers.IO) {
+  val problemBuffer by RecoverableChannel {
+    GlobalScope.produce(Dispatchers.IO) {
       while (true) {
         val pics: MutableList<IdPictureInfo> = get("$basePath/problem/random/12")
         pics.forEach { send(it) }
       }
     }
   }
+
+  private val nominatimLastRequestMs = Channel<Long>(1)
 
   companion object {
     const val herokuUri = "http://landmarks-coms.herokuapp.com"
@@ -192,15 +189,10 @@ class Remote(engine: HttpClient, private val basePath: String = herokuUri) {
   }
 
   suspend fun getRandomProblems(n: Int): List<IdPictureInfo> {
-    // sucks. Sequence extensions always cancel upstream channel.
-    val reuseIfPossible = (problemBuffer ?: {
-      val new = problemBuffering()
-      problemBuffer = new
-      new
-    }())
+    val reuse = problemBuffer
     val ret = mutableListOf<IdPictureInfo>()
     while (ret.size < n) {
-      val p = reuseIfPossible.receive()
+      val p = reuse.receive()
       if (!ret.contains(p)) {
         ret.add(p)
       }
