@@ -34,6 +34,7 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:src="@drawable/logo"
+        android:padding="5dp"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintBottom_toTopOf="@id/login_upper_guideline"
@@ -87,7 +88,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.15" />
+        app:layout_constraintGuide_percent="0.19" />
 
     <android.support.constraint.Guideline
         android:id="@+id/guide_login_horizontal_mid"
@@ -102,7 +103,7 @@
         android:layout_height="wrap_content"
         android:text="── Sign in with ──"
         android:textAlignment="center"
-        android:textSize="14pt"
+        android:textSize="30sp"
         app:layout_constraintBottom_toTopOf="@id/guide_login_horizontal_top"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent" />

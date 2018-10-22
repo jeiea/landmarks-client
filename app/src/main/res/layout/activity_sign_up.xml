@@ -33,8 +33,8 @@
         android:id="@+id/sign_up_back_textview"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="20dp"
-        android:layout_marginEnd="20dp"
+        android:textSize="20sp"
+        android:layout_marginLeft="10dp"
         android:text="Back"
         android:onClick="OnClickBack"
         app:layout_constraintBottom_toBottomOf="@id/sign_up_upper_guideline"
@@ -43,6 +43,7 @@
     <ImageView
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:padding="5dp"
         android:src="@drawable/logo"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
@@ -97,7 +98,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.15" />
+        app:layout_constraintGuide_percent="0.19" />
 
     <android.support.constraint.Guideline
         android:id="@+id/guide_sign_up_horizontal_mid"
@@ -112,7 +113,7 @@
         android:layout_height="wrap_content"
         android:text="─ Create an account ─"
         android:textAlignment="center"
-        android:textSize="14pt"
+        android:textSize="30sp"
         app:layout_constraintBottom_toTopOf="@id/guide_sign_up_horizontal_top"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent" />

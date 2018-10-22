@@ -67,7 +67,7 @@
         android:layout_height="match_parent"
         android:gravity="center_vertical"
         android:text="IMAGE"
-        android:textSize="20dp"
+        android:textSize="20sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toRightOf="@id/verticalList_Image"
         app:layout_constraintRight_toLeftOf="@id/verticalList_Delete"

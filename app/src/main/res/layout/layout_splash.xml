@@ -5,7 +5,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <View
         android:layout_width="match_parent"
-        android:layout_height="0dp"
+        android:layout_height="0sp"
         android:background="@drawable/login_mid_gradient"
         app:layout_constraintBottom_toTopOf="@id/guide_login_horizontal_boundary"
         app:layout_constraintLeft_toLeftOf="parent"
@@ -30,8 +30,8 @@
         app:layout_constraintGuide_percent="0.33"/>
     <ImageView
         android:id="@+id/start_logo_icon"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
+        android:layout_width="0sp"
+        android:layout_height="0sp"
         android:src="@drawable/logo"
         app:layout_constraintDimensionRatio="H,1:1"
         app:layout_constraintLeft_toRightOf="@id/guide_start_vertical"
@@ -40,7 +40,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="30dp"
+        android:textSize="30sp"
         android:text="LANDMARKS"
         app:layout_constraintLeft_toRightOf="@id/start_logo_icon"
         app:layout_constraintBottom_toTopOf="@id/guide_start_horizontal"/>
