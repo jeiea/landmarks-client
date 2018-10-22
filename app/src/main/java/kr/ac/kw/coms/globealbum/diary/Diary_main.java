@@ -91,7 +91,7 @@ public class Diary_main extends AppCompatActivity {
         JourneyNowLoading.getPicAdapter().setColumns(1);
         ImageNowLoading.getPicAdapter().setImageScaleType(ImageView.ScaleType.FIT_CENTER);
         JourneyNowLoading.getPicAdapter().setImageScaleType(ImageView.ScaleType.FIT_CENTER);
-        JourneyNowLoading.setGroups(LoadingScreen);
+        ImageNowLoading.setGroups(LoadingScreen);
         JourneyNowLoading.setGroups(LoadingScreen);
 
         PrepareData();
@@ -100,7 +100,8 @@ public class Diary_main extends AppCompatActivity {
     public void Common_Back_Click(View view) {
         finish();
     }
-    public void Common_Profile_Click(View view){
+
+    public void Common_Profile_Click(View view) {
         startActivity(new Intent(this, ProfileActivity.class));
     }
 
@@ -319,18 +320,17 @@ public class Diary_main extends AppCompatActivity {
         }
     }
 
-    private void divideAddress(String string){
+    private void divideAddress(String string) {
         int start = 0;
         int end = string.length();
-        int firstSpace =  string.indexOf(" ");
+        int firstSpace = string.indexOf(" ");
         if (firstSpace == -1) {
             ((TextView) findViewById(R.id.diary_ZoomIn_ZoomName1)).setText(firstSpace);
             ((TextView) findViewById(R.id.diary_ZoomIn_ZoomName2)).setVisibility(View.GONE);
-        }
-        else{
-            ((TextView) findViewById(R.id.diary_ZoomIn_ZoomName1)).setText(string.substring(start,firstSpace));
+        } else {
+            ((TextView) findViewById(R.id.diary_ZoomIn_ZoomName1)).setText(string.substring(start, firstSpace));
             ((TextView) findViewById(R.id.diary_ZoomIn_ZoomName2)).setVisibility(View.VISIBLE);
-            ((TextView) findViewById(R.id.diary_ZoomIn_ZoomName2)).setText(string.substring(firstSpace+1,end));
+            ((TextView) findViewById(R.id.diary_ZoomIn_ZoomName2)).setText(string.substring(firstSpace + 1, end));
         }
     }
 
@@ -372,7 +372,12 @@ public class Diary_main extends AppCompatActivity {
                 return;
             }
             final Diary diaryToShow = items.get(position);
-            Glide.with(holder.image_Thumbnail).load(diaryToShow.get(0)).into(holder.image_Thumbnail);
+            try {
+                Glide.with(holder.image_Thumbnail).load(diaryToShow.get(0)).into(holder.image_Thumbnail);
+            } catch (IndexOutOfBoundsException e) {
+                holder.Root.setVisibility(View.GONE);
+                return;
+            }
             holder.text_Name.setText(diaryToShow.getTitle());
 
             Date StartTime = null;
@@ -409,6 +414,7 @@ public class Diary_main extends AppCompatActivity {
                     return true;
                 }
             });
+
         }
 
         @Override
