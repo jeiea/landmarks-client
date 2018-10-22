@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:background="@drawable/login_mid_gradient"
+        app:layout_constraintBottom_toTopOf="@id/guide_sign_up_horizontal_boundary"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <View
+        android:id="@+id/sign_up_bottom_gradient"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:background="@drawable/login_bottom_gradient"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="@id/guide_sign_up_horizontal_boundary" />
+
+    <android.support.constraint.Guideline
+        android:id="@+id/guide_sign_up_vertical_left"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.2" />
+
+    <android.support.constraint.Guideline
+        android:id="@+id/guide_sign_up_vertical_right"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.8" />
+
+    <android.support.constraint.Guideline
+        android:id="@+id/guide_sign_up_vertical_left_pic"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.3" />
+
+    <android.support.constraint.Guideline
+        android:id="@+id/guide_sign_up_horizontal_boundary"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.80" />
+
+    <android.support.constraint.Guideline
+        android:id="@+id/guide_sign_up_horizontal_edit_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.25" />
+
+    <android.support.constraint.Guideline
+        android:id="@+id/guide_sign_up_horizontal_top"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.15" />
+
+    <android.support.constraint.Guideline
+        android:id="@+id/guide_sign_up_horizontal_mid"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.5" />
+
+    <TextView
+        android:id="@+id/sign_up_textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="─Create an account─"
+        android:textAlignment="center"
+        android:textSize="14pt"
+        app:layout_constraintBottom_toTopOf="@id/guide_sign_up_horizontal_top"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent" />
+
+    <ImageView
+        android:id="@+id/sign_up_iv_loading"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:scaleType="fitCenter"
+        android:src="@drawable/loading_circle"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHeight_percent="0.1"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.42"
+        app:layout_constraintWidth_percent="0.15" />
+
+    <ImageView
+        android:id="@+id/sign_up_imageview_login_id_icon"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:src="@drawable/login_id_icon"
+        app:layout_constraintDimensionRatio="H,1:1"
+        app:layout_constraintStart_toStartOf="@id/guide_sign_up_vertical_left"
+        app:layout_constraintTop_toBottomOf="@id/guide_sign_up_horizontal_edit_text"
+        app:layout_constraintWidth_percent="0.1" />
+
+    <ImageView
+        android:id="@+id/sign_up_imageview_login_pw_icon"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="10dp"
+        android:src="@drawable/login_pw_icon"
+        app:layout_constraintDimensionRatio="H,1:1"
+        app:layout_constraintEnd_toEndOf="@id/guide_sign_up_vertical_left_pic"
+        app:layout_constraintStart_toStartOf="@id/guide_sign_up_vertical_left"
+        app:layout_constraintTop_toBottomOf="@id/sign_up_imageview_login_id_icon"
+        app:layout_constraintWidth_percent="0.1" />
+
+    <EditText
+        android:id="@+id/sign_up_id_edit_text"
+        style="@style/CustomFontStyle"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:hint="ID"
+        android:inputType="text"
+        app:layout_constraintBottom_toBottomOf="@id/sign_up_imageview_login_id_icon"
+        app:layout_constraintEnd_toStartOf="@id/guide_sign_up_vertical_right"
+        app:layout_constraintStart_toEndOf="@id/sign_up_imageview_login_id_icon"
+        app:layout_constraintTop_toTopOf="@id/sign_up_imageview_login_id_icon" />
+
+    <EditText
+        android:id="@+id/sign_up_password_edit_text"
+        style="@style/CustomFontStyle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="PASSWORD"
+        android:inputType="textPassword"
+        app:layout_constraintBottom_toBottomOf="@id/sign_up_imageview_login_pw_icon"
+        app:layout_constraintEnd_toStartOf="@id/guide_sign_up_vertical_right"
+        app:layout_constraintStart_toEndOf="@id/sign_up_imageview_login_pw_icon"
+        app:layout_constraintTop_toTopOf="@id/sign_up_imageview_login_pw_icon" />
+    <CheckBox
+        android:id="@+id/sign_up_dup_checkbox"
+        style="@style/CustomFontStyle"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:clickable="false"
+        app:layout_constraintDimensionRatio="W,1:1"
+        android:layout_marginTop="13sp"
+        app:layout_constraintTop_toBottomOf="@id/guide_sign_up_horizontal_mid"
+        app:layout_constraintLeft_toLeftOf="@id/guide_sign_up_vertical_left"
+        app:layout_constraintRight_toRightOf="@id/guide_sign_up_vertical_left_pic"/>
+    <Button
+        android:id="@+id/sign_up_dup_button"
+        style="@style/CustomFontStyle"
+        android:layout_width="0dp"
+        android:layout_height="33sp"
+        android:background="#0d2758"
+        android:text="Duplication Check"
+        android:textColor="#fff"
+        android:textSize="17sp"
+        android:layout_marginTop="15sp"
+        app:layout_constraintLeft_toRightOf="@id/sign_up_dup_checkbox"
+        app:layout_constraintRight_toRightOf="@id/guide_sign_up_vertical_right"
+        app:layout_constraintTop_toBottomOf="@id/guide_sign_up_horizontal_mid" />
+    <Button
+        android:id="@+id/sign_up_sign_up_button"
+        style="@style/CustomFontStyle"
+        android:layout_width="0dp"
+        android:layout_height="33sp"
+        android:background="#0d2758"
+        android:text="Sign Up"
+        android:textColor="#fff"
+        android:textSize="17sp"
+        app:layout_constraintBottom_toBottomOf="@id/sign_up_bottom_gradient"
+        app:layout_constraintLeft_toLeftOf="@id/guide_sign_up_vertical_left"
+        app:layout_constraintRight_toRightOf="@id/guide_sign_up_vertical_right"
+        app:layout_constraintTop_toTopOf="@id/sign_up_bottom_gradient" />
+
+</android.support.constraint.ConstraintLayout>
