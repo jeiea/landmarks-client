@@ -46,7 +46,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import kr.ac.kw.coms.globealbum.ProfileActivity;
 import kr.ac.kw.coms.globealbum.R;
 import kr.ac.kw.coms.globealbum.album.GalleryDetail;
 import kr.ac.kw.coms.globealbum.album.GroupDiaryView;
@@ -534,14 +533,6 @@ public class Diary_mapNPictures extends AppCompatActivity {
         return listOfAllImages;
     }
 
-    public void Common_Back_Click(View view) {
-        finish();
-    }
-    public void Common_Profile_Click(View view){
-        startActivity(new Intent(this, ProfileActivity.class));
-    }
-
-
     class NewImageAdapter extends RecyclerView.Adapter<NewImageAdapter.ViewHolder>
     {
         private ArrayList<String> urlList;
@@ -582,7 +573,8 @@ public class Diary_mapNPictures extends AppCompatActivity {
                 @Override
                 public void onClick(View v) {
                     Glide.with(Diary_mapNPictures.this).load(url).into((ImageView) findViewById(R.id.diary_ZoomIn_ZoomImage));
-                    findViewById(R.id.diary_ZoomIn_ZoomName).setVisibility(View.GONE);
+                    findViewById(R.id.diary_ZoomIn_ZoomName1).setVisibility(View.GONE);
+                    findViewById(R.id.diary_ZoomIn_ZoomName2).setVisibility(View.GONE);
                     findViewById(R.id.diary_ZoomIn_Confirm).setVisibility(View.VISIBLE);
                     diary_Switch(ZOOMIN_MODE);
                     findViewById(R.id.diary_ZoomIn_Confirm).setOnTouchListener(new View.OnTouchListener() {
