@@ -2,8 +2,12 @@ package kr.ac.kw.coms.globealbum.diary;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AlertDialog;
@@ -24,6 +28,9 @@ import com.bumptech.glide.Glide;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -50,6 +57,8 @@ public class Diary_main extends AppCompatActivity {
     View Root;
     GroupDiaryView ImageList;
     RecyclerView JourneyList;
+    ConstraintLayout TabLeft;
+    ConstraintLayout TabRight;
     RecyclerView.Adapter<DiaryListViewHolder> JourneyListAdapter;
     ImageButton BtnNewDiary;
     boolean isTabLeft = true;
@@ -69,6 +78,20 @@ public class Diary_main extends AppCompatActivity {
         ImageList = findViewById(R.id.diary_main_ImageList);
         JourneyList = findViewById(R.id.diary_main_JourneyList);
         BtnNewDiary = findViewById(R.id.diary_main_NewDiary);
+        TabLeft = findViewById(R.id.diary_main_Tab_Left);
+        TabRight = findViewById(R.id.diary_main_Tab_Right);
+        GroupDiaryView ImageNowLoading = findViewById(R.id.diary_main_ImageNowLoading);
+        GroupDiaryView JourneyNowLoading = findViewById(R.id.diary_main_JourneyNowLoading);
+        ArrayList<IPicture> nowloading = new ArrayList<>();
+        nowloading.add(new ResourcePicture(R.drawable.nowloading));
+        ArrayList<PictureGroup> LoadingScreen = new ArrayList<PictureGroup>();
+        LoadingScreen.add(new PictureGroup("", nowloading));
+        ImageNowLoading.getPicAdapter().setColumns(1);
+        JourneyNowLoading.getPicAdapter().setColumns(1);
+        ImageNowLoading.getPicAdapter().setImageScaleType(ImageView.ScaleType.FIT_CENTER);
+        JourneyNowLoading.getPicAdapter().setImageScaleType(ImageView.ScaleType.FIT_CENTER);
+        JourneyNowLoading.setGroups(LoadingScreen);
+        JourneyNowLoading.setGroups(LoadingScreen);
 
         PrepareData();
     }
@@ -97,13 +120,26 @@ public class Diary_main extends AppCompatActivity {
         findViewById(R.id.diary_main_menuRoot).setVisibility(View.GONE);
         final Intent intent = new Intent(Intent.ACTION_SEND);
         intent.setType("image/*");
-        ImageToSend.drawable(getResources(), new Promise<Drawable>(){
+
+
+        final File file = new File(getExternalFilesDir(Environment.DIRECTORY_PICTURES), "share_image_" + System.currentTimeMillis() + ".jpg");
+
+        ImageToSend.drawable(getResources(), new Promise<Drawable>() {
             @Override
             public void success(Drawable result) {
-                //intent.putExtra(Intent.EXTRA_STREAM, result.);
-                Toast.makeText(Diary_main.this, "(공유 시도)", Toast.LENGTH_SHORT).show();
+                try {
+                    FileOutputStream out = new FileOutputStream(file);
+                    Bitmap bm = ((BitmapDrawable) result).getBitmap();
+                    bm.compress(Bitmap.CompressFormat.JPEG, 100, out);
+                    out.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                intent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(file));
+                startActivity(Intent.createChooser(intent, "사진 공유"));
             }
         });
+
     }
 
     public void diary_main_Delete(View view) {
@@ -142,8 +178,8 @@ public class Diary_main extends AppCompatActivity {
         final View bar = findViewById(R.id.diary_main_TabBar_HighLight);
 
         AdditiveAnimator.animate(bar).setDuration(200).translationX(0).start();
-        ImageList.setVisibility(View.VISIBLE);
-        JourneyList.setVisibility(View.GONE);
+        TabLeft.setVisibility(View.VISIBLE);
+        TabRight.setVisibility(View.GONE);
         findViewById(R.id.diary_main_NewDiary).setVisibility(View.GONE);
         isTabLeft = true;
     }
@@ -154,8 +190,8 @@ public class Diary_main extends AppCompatActivity {
         final View bar = findViewById(R.id.diary_main_TabBar_HighLight);
 
         AdditiveAnimator.animate(bar).setDuration(200).translationX(bar.getWidth()).start();
-        JourneyList.setVisibility(View.VISIBLE);
-        ImageList.setVisibility(View.GONE);
+        TabRight.setVisibility(View.VISIBLE);
+        TabLeft.setVisibility(View.GONE);
         findViewById(R.id.diary_main_NewDiary).setVisibility(View.VISIBLE);
         isTabLeft = false;
     }
@@ -169,6 +205,7 @@ public class Diary_main extends AppCompatActivity {
 
     public void PrepareData() {
         //서버에서 데이터 다운로드
+
         RemoteJava.INSTANCE.login("login", "password", new UIPromise<IdAccountForm>() {
             @Override
             public void success(IdAccountForm result) {
@@ -177,12 +214,17 @@ public class Diary_main extends AppCompatActivity {
                     @Override
                     public void success(List<IPicture> result) {
                         DownloadedImageList = result;
+                        ImageList.getPicAdapter().clearAllItems();
                         ShowImageData();
+                        findViewById(R.id.diary_main_ImageNowLoading).setVisibility(View.GONE);
+                        findViewById(R.id.diary_main_ImageList).setVisibility(View.VISIBLE);
                     }
 
                     @Override
                     public void failure(@NotNull Throwable cause) {
                         Toast.makeText(Diary_main.this, "Image 데이터 다운로드 실패", Toast.LENGTH_SHORT).show();
+                        findViewById(R.id.diary_main_ImageNowLoading).setVisibility(View.GONE);
+                        findViewById(R.id.diary_main_ImageList).setVisibility(View.VISIBLE);
                     }
                 });
 
@@ -191,11 +233,15 @@ public class Diary_main extends AppCompatActivity {
                     public void success(List<Diary> result) {
                         DownloadedDiaryList = result;
                         ShowDiaryData();
+                        findViewById(R.id.diary_main_JourneyNowLoading).setVisibility(View.GONE);
+                        findViewById(R.id.diary_main_JourneyList).setVisibility(View.VISIBLE);
                     }
 
                     @Override
                     public void failure(@NotNull Throwable cause) {
                         Toast.makeText(Diary_main.this, "Diary 데이터 다운로드 실패", Toast.LENGTH_SHORT).show();
+                        findViewById(R.id.diary_main_JourneyNowLoading).setVisibility(View.GONE);
+                        findViewById(R.id.diary_main_JourneyList).setVisibility(View.VISIBLE);
                     }
                 });
             }
@@ -215,7 +261,7 @@ public class Diary_main extends AppCompatActivity {
             PictureGroup PictureRow = new PictureGroup("", (ArrayList<IPicture>) DownloadedImageList);
             List<PictureGroup> PictureList = new ArrayList<>();
             PictureList.add(PictureRow);
-            ImageList.getPicAdapter().setSpan(1);
+            ImageList.getPicAdapter().setColumns(1);
             ImageList.getPicAdapter().setVerticalPadding((int) px);
             ImageList.getPicAdapter().setHorizontalPadding((int) px);
             ImageList.setGroups(PictureList);
@@ -223,6 +269,7 @@ public class Diary_main extends AppCompatActivity {
             PictureGroup PictureRow = new PictureGroup("", (ArrayList<IPicture>) DownloadedImageList);
             List<PictureGroup> PictureList = new ArrayList<>();
             PictureList.add(PictureRow);
+            ImageList.getPicAdapter().setColumns(3);
             ImageList.getPicAdapter().setVerticalPadding(0);
             ImageList.getPicAdapter().setHorizontalPadding(0);
             ImageList.setGroups(PictureList);

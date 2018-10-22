@@ -37,20 +37,24 @@ class ExampleDiary : AppCompatActivity() {
     val idToPic: (Int) -> ResourcePicture = resPicGetter(baseContext)
 
     val data = arrayListOf(
-      PictureGroup("group 1", arrayListOf(
-        idToPic(R.drawable.sample0),
-        idToPic(R.drawable.sample1),
-        idToPic(R.drawable.sample2),
-        idToPic(R.drawable.sample3),
-        idToPic(R.drawable.sample4)
-      )),
-      PictureGroup("group 2", arrayListOf(
-        idToPic(R.drawable.sample5),
-        idToPic(R.drawable.sample6),
-        idToPic(R.drawable.sample7),
-        idToPic(R.drawable.sample8),
-        idToPic(R.drawable.sample9)
-      ))
+      PictureGroup(
+        "group 1", arrayListOf(
+          idToPic(R.drawable.sample0),
+          idToPic(R.drawable.sample1),
+          idToPic(R.drawable.sample2),
+          idToPic(R.drawable.sample3),
+          idToPic(R.drawable.sample4)
+        )
+      ),
+      PictureGroup(
+        "group 2", arrayListOf(
+          idToPic(R.drawable.sample5),
+          idToPic(R.drawable.sample6),
+          idToPic(R.drawable.sample7),
+          idToPic(R.drawable.sample8),
+          idToPic(R.drawable.sample9)
+        )
+      )
     )
 
     recycle_gallery.groups = data
@@ -97,8 +101,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
       picAdapter.data = value
     }
 
-  fun clearAllItems()
-  {
+  fun clearAllItems() {
     picAdapter.clearAllItems()
   }
 
@@ -123,43 +126,41 @@ class GroupedPicAdapter : RecyclerView.Adapter<GroupedPicAdapter.ElementViewHold
       notifyDataSetChanged()
     }
 
-  fun getAllPictures(): List<IPicture>
-  {
+  fun getAllPictures(): List<IPicture> {
     return viewData.filter { it is PictureHolder } as List<IPicture>
   }
 
-  fun clearAllItems()
-  {
+  fun clearAllItems() {
     viewData.clear()
     notifyDataSetChanged()
   }
 
   var padding: Int = 0
-  set(value) {
-    leftPadding = value
-    rightPadding = value
-    topPadding = value
-    bottomPadding = value
-  }
+    set(value) {
+      leftPadding = value
+      rightPadding = value
+      topPadding = value
+      bottomPadding = value
+    }
 
   var horizontalPadding: Int = 0
-  set(value) {
-    leftPadding = value
-    rightPadding = value
-  }
+    set(value) {
+      leftPadding = value
+      rightPadding = value
+    }
 
   var verticalPadding: Int = 0
-  set(value) {
-    topPadding = value
-    bottomPadding = value
-  }
+    set(value) {
+      topPadding = value
+      bottomPadding = value
+    }
 
   var leftPadding: Int = 0
   var rightPadding: Int = 0
   var topPadding: Int = 0
   var bottomPadding: Int = 0
 
-  var span: Int = 3
+  var Columns: Int = 3
 
   var nameTextSize: Int = 20
   var nameBackgroundColor: Long = 0xFFFFFFFF
@@ -172,6 +173,8 @@ class GroupedPicAdapter : RecyclerView.Adapter<GroupedPicAdapter.ElementViewHold
       else -> ViewType.Separator
     }.id
   }
+
+  var imageScaleType:Any = -1
 
   override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
     when (viewType) {
@@ -191,7 +194,9 @@ class GroupedPicAdapter : RecyclerView.Adapter<GroupedPicAdapter.ElementViewHold
         val pic: IPicture = holder.boundItem as IPicture
         val iv: ImageView = holder.imageView
         GlideApp.with(iv).load(pic).placeholder(R.drawable.nowloading).into(iv)
-        iv.scaleType = ImageView.ScaleType.CENTER_CROP
+        iv.scaleType = if (imageScaleType == -1)
+          ImageView.ScaleType.CENTER_CROP;
+        else imageScaleType as ImageView.ScaleType
         iv.setPadding(leftPadding, topPadding, rightPadding, bottomPadding)
       }
     }
@@ -210,14 +215,16 @@ class GroupedPicAdapter : RecyclerView.Adapter<GroupedPicAdapter.ElementViewHold
   private fun createPicture(parent: View): PictureHolder {
     return PictureHolder(ImageView(parent.context).apply {
       val metrics = parent.resources.displayMetrics
-      var mw = metrics.widthPixels / span
-      var mh = metrics.widthPixels / span
-      if (span == 1)
-      {
+      var mw = metrics.widthPixels / Columns
+      var mh = metrics.widthPixels / Columns
+      if (Columns == 1) {
         mw = metrics.widthPixels
         mh = metrics.widthPixels / 2
       }
-      scaleType = ImageView.ScaleType.CENTER_CROP
+      scaleType = if (imageScaleType == -1)
+        ImageView.ScaleType.CENTER_CROP
+      else
+        imageScaleType as ImageView.ScaleType
       layoutParams = FlexboxLayoutManager.LayoutParams(mw, mh).apply {
         flexGrow = 1f
       }
