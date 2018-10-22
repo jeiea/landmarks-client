@@ -28,8 +28,10 @@ import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.Projection;
+import org.osmdroid.views.overlay.DefaultOverlayManager;
 import org.osmdroid.views.overlay.MapEventsOverlay;
 import org.osmdroid.views.overlay.Marker;
+import org.osmdroid.views.overlay.TilesOverlay;
 import org.osmdroid.views.overlay.infowindow.MarkerInfoWindow;
 
 import java.util.Arrays;
@@ -163,6 +165,7 @@ class GameUI implements IGameUI {
         myMapView.preventDispose();
         myMapView.setTileSource(TileSourceFactory.BASE_OVERLAY_NL);    //맵 렌더링 설정
         myMapView.setMaxZoomLevel(5.0);
+        myMapView.setOverlayManager(new overlaymanagerForDisableDoubleTap(new TilesOverlay(myMapView.getTileProvider(),myMapView.getContext())));
         myMapView.getOverlays().add(onTouchMap);
         mapInvalidator = new InvalidationHelper(handler, myMapView, 1000 / 60);
 
@@ -585,7 +588,15 @@ class GameUI implements IGameUI {
         }
     };
 
-
+    class overlaymanagerForDisableDoubleTap extends DefaultOverlayManager{
+        public overlaymanagerForDisableDoubleTap(TilesOverlay tilesOverlay) {
+            super(tilesOverlay);
+        }
+        @Override
+        public boolean onDoubleTap(MotionEvent e, MapView pMapView) {
+            return true;
+        }
+    }
     private MapEventsOverlay onTouchMap = new MapEventsOverlay(new MapEventsReceiver() {
         @Override
         public boolean singleTapConfirmedHelper(GeoPoint p) {
