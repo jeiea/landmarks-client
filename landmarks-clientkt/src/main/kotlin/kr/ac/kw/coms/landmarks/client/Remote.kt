@@ -28,7 +28,9 @@ import java.net.URLEncoder
 import java.util.*
 import kotlin.math.max
 
-class Remote(base: HttpClient, private val basePath: String = herokuUri) {
+private typealias HRB = HttpRequestBuilder.() -> Unit
+
+class Remote(engine: HttpClient, private val basePath: String = herokuUri) {
   /*
   Implementation details: method's signature MutableList should be kept.
   Gson can't aware List<> in deserialization type detection.
@@ -36,6 +38,7 @@ class Remote(base: HttpClient, private val basePath: String = herokuUri) {
 
   val http: HttpClient
   var logger: RemoteLoggable? = null
+  var profile: IdAccountForm? = null
 
   private val nominatimLastRequestMs = Channel<Long>(1)
   private var problemBuffer: ReceiveChannel<IdPictureInfo>? = null
@@ -55,7 +58,18 @@ class Remote(base: HttpClient, private val basePath: String = herokuUri) {
       "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.59 Safari/537.36"
   }
 
-  var profile: IdAccountForm? = null
+  constructor() : this(HttpClient(Android.create()))
+
+  init {
+    nominatimLastRequestMs.sendBlocking(0)
+    http = engine.config {
+      install(HttpCookies) {
+        storage = AcceptAllCookiesStorage()
+      }
+      install(JsonFeature) {
+      }
+    }
+  }
 
   private suspend inline fun <reified T> request(
     method: HttpMethod,
@@ -85,36 +99,17 @@ class Remote(base: HttpClient, private val basePath: String = herokuUri) {
     }
   }
 
-  private suspend inline fun <reified T> get(
-    url: String,
-    builder: HttpRequestBuilder.() -> Unit = {}
-  ): T =
+  private suspend inline fun <reified T> get(url: String, builder: HRB = {}): T =
     request(HttpMethod.Get, url, builder)
 
-  private suspend inline fun <reified T> post(
-    url: String,
-    builder: HttpRequestBuilder.() -> Unit = {}
-  ): T =
+  private suspend inline fun <reified T> post(url: String, builder: HRB = {}): T =
     request(HttpMethod.Post, url, builder)
 
-  private suspend inline fun <reified T> put(
-    url: String,
-    builder: HttpRequestBuilder.() -> Unit = {}
-  ): T =
+  private suspend inline fun <reified T> put(url: String, builder: HRB = {}): T =
     request(HttpMethod.Put, url, builder)
 
-  init {
-    nominatimLastRequestMs.sendBlocking(0)
-    http = base.config {
-      install(HttpCookies) {
-        storage = AcceptAllCookiesStorage()
-      }
-      install(JsonFeature) {
-      }
-    }
-  }
-
-  constructor() : this(HttpClient(Android.create()), herokuUri)
+  private suspend inline fun <reified T> delete(url: String, builder: HRB = {}): T =
+    request(HttpMethod.Delete, url, builder)
 
   private fun HttpRequestBuilder.json(json: Any) {
     contentType(ContentType.Application.Json)
@@ -153,7 +148,7 @@ class Remote(base: HttpClient, private val basePath: String = herokuUri) {
       get<Unit>("$basePath/")
       true
     }
-    catch (e: Throwable) {
+    catch (e: Exception) {
       false
     }
   }
@@ -224,7 +219,7 @@ class Remote(base: HttpClient, private val basePath: String = herokuUri) {
   }
 
   suspend fun deletePicture(id: Int) {
-    TODO()
+    return delete("$basePath/picture/$id")
   }
 
   suspend fun getPicture(id: Int): InputStream {
@@ -285,6 +280,6 @@ class Remote(base: HttpClient, private val basePath: String = herokuUri) {
   }
 
   suspend fun deleteCollection(id: Int) {
-    TODO()
+    return delete("$basePath/collection/$id")
   }
 }

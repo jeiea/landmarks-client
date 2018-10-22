@@ -15,11 +15,6 @@ import java.util.*
 @RunWith(JUnitPlatform::class)
 class RemoteMultiSpek : Spek({
 
-  fun newClient(): Remote {
-//    return Remote(getTestClient(), "http://localhost:8080")
-    return Remote(getTestClient(), "http://landmarks-coms.herokuapp.com/")
-  }
-
   val client = newClient()
 
   val validUsers = listOf(
@@ -96,8 +91,8 @@ class RemoteMultiSpek : Spek({
       val tasks = mutableListOf<Deferred<IdPictureInfo>>()
       for ((idx: Int, vs: List<String>) in meta.withIndex()) {
         val file: File = archive.resolve(vs[0])
-        val lat = vs[1].toFloat()
-        val lon = vs[2].toFloat()
+        val lat = vs[1].toDouble()
+        val lon = vs[2].toDouble()
         val addr = file.nameWithoutExtension.replace('_', ' ')
         val info = PictureInfo(lat = lat, lon = lon, address = addr)
         tasks.add(GlobalScope.async {
@@ -119,7 +114,7 @@ class RemoteMultiSpek : Spek({
   describe("test collection features with multiple users") {
     blit("upload collections") {
       val ids = userPics.flatten().map { it.id }.toMutableList()
-      val collIds = mutableListOf<Int>();
+      val collIds = mutableListOf<Int>()
       var cnt = 1
       clients.zip(0..9).forEach { (cl, i) ->
         (1..4).forEach { j ->
