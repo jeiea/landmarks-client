@@ -61,14 +61,14 @@ class GameLogic implements IGameInputHandler {
     private ArrayList<IPicture> shownPictures = new ArrayList<>();
 
 
-    private int[] stageLimitScore = new int[]{400, 500, 600, 800}; //600,800,1100,1400,1650,2000,2700
-    private int[] stageNumberOfGames = new int[]{3, 3, 3, 3};
+    private int[] stageLimitScore = new int[]{450, 500, 575, 700, 900}; //600,800,1100,1400,1650,2000,2700
+    private int[] stageNumberOfGames = new int[]{3, 3, 3, 3, 3};
 
     private boolean rightAnswerTypePic;
     private GameState state;
 
     private Random random = new Random(System.currentTimeMillis());
-    private final int MS_TIME_LIMIT = 4000;
+    private final int MS_TIME_LIMIT = 9000;
 
     enum GameState {
         LOADING,
@@ -204,7 +204,7 @@ class GameLogic implements IGameInputHandler {
         currentQuiz = quiz;
         state = GameState.SOLVING;
         msQuestionStart = new Date().getTime();
-        ui.startTimer(MS_TIME_LIMIT);
+        ui.startTimer(MS_TIME_LIMIT - 1000*stage);
     }
 
     private void onProblemDone() {
@@ -241,11 +241,11 @@ class GameLogic implements IGameInputHandler {
                 return -100;
             } else {
                 double distance = calcDistanceKm();
-                if (distance >= 6000) {
+                if (distance >= 8000) {
                     return 0;
                 }
                 int perfect = 300;
-                int distanceCut = (int) distance / 25;
+                int distanceCut = (int) distance / 40;
                 int timeBonus = calcTimeBonusScore();
                 return perfect - distanceCut + timeBonus;
             }

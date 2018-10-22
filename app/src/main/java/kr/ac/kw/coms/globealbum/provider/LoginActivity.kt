@@ -13,6 +13,7 @@ import kotlinx.coroutines.experimental.sync.Mutex
 import kotlinx.coroutines.experimental.sync.withLock
 import kr.ac.kw.coms.globealbum.MainActivity
 import kr.ac.kw.coms.globealbum.R
+import kr.ac.kw.coms.globealbum.SignUpActivity
 import kr.ac.kw.coms.globealbum.common.app
 import org.jetbrains.anko.contentView
 import org.jetbrains.anko.sdk27.coroutines.onClick
@@ -46,6 +47,10 @@ class LoginActivity : AppCompatActivity(), CoroutineScope {
       if (event?.action == KeyEvent.ACTION_DOWN && keyCode == KeyEvent.KEYCODE_ENTER) {
         loginByUI()
       }
+    }
+    btn_account.setOnClickListener {
+      val newAccountIntent = Intent(this,SignUpActivity::class.java)
+      startActivity(newAccountIntent)
     }
     app.login?.also {
       cb_remember_id.isChecked = true

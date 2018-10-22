@@ -24,7 +24,6 @@ public class MyMapView extends org.osmdroid.views.MapView implements ILandmarkMa
     public Context context = null;
 
     ArrayList<MarkerTouchListener> markerListeners = new ArrayList<>(); //마커클릭 시 필요한 리스너를 모아둔다
-    MyMarker markerLineFolderOverlay = null;  //마커 모아서 관리
 
     DiaryOverlayFolder diaries = null;
 
@@ -111,10 +110,6 @@ public class MyMapView extends org.osmdroid.views.MapView implements ILandmarkMa
         onDetachedFromWindow();
     }
 
-    //마커, 경로를 가지고 있는 markerLineFolderOverlay 객체를 반환
-    public MyMarker getRoute() {
-        return markerLineFolderOverlay;
-    }
 
 
     public void fitZoomToMarkers() {
@@ -154,7 +149,7 @@ public class MyMapView extends org.osmdroid.views.MapView implements ILandmarkMa
     }
 
     //발생 이벤트를 전달
-    public void dispatchMarkerTouch(MyMarker route, Marker marker) {
+    public void dispatchMarkerTouch(Marker route, Marker marker) {
         for (MarkerTouchListener listener : markerListeners) {
             listener.OnMarkerTouch(marker);
         }

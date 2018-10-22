@@ -38,6 +38,7 @@ import java.util.List;
 import java.util.Locale;
 
 import at.wirecube.additiveanimations.additive_animator.AdditiveAnimator;
+import kr.ac.kw.coms.globealbum.ProfileActivity;
 import kr.ac.kw.coms.globealbum.R;
 import kr.ac.kw.coms.globealbum.album.GroupDiaryView;
 import kr.ac.kw.coms.globealbum.album.OnSwipeTouchListener;
@@ -98,6 +99,9 @@ public class Diary_main extends AppCompatActivity {
 
     public void Common_Back_Click(View view) {
         finish();
+    }
+    public void Common_Profile_Click(View view){
+        startActivity(new Intent(this, ProfileActivity.class));
     }
 
     public void diary_main_CloseMenu(View view) {
@@ -280,7 +284,7 @@ public class Diary_main extends AppCompatActivity {
                     if (view instanceof ImageView) {
                         ZoomIndex = position - 1;
                         Glide.with(view).load(DownloadedImageList.get(ZoomIndex)).into(((ImageView) findViewById(R.id.diary_ZoomIn_ZoomImage)));
-                        ((TextView) findViewById(R.id.diary_ZoomIn_ZoomName)).setText(DownloadedImageList.get(ZoomIndex).getMeta().getAddress());
+                        divideAddress(DownloadedImageList.get(ZoomIndex).getMeta().getAddress());
                         findViewById(R.id.diary_ZoomIn_Root).setVisibility(View.VISIBLE);
                     }
                 }
@@ -300,7 +304,7 @@ public class Diary_main extends AppCompatActivity {
                     if (--ZoomIndex < 0)
                         ZoomIndex += DownloadedImageList.size();
                     Glide.with(findViewById(R.id.diary_ZoomIn_ZoomImage)).load(DownloadedImageList.get(ZoomIndex)).into((ImageView) findViewById(R.id.diary_ZoomIn_ZoomImage));
-                    ((TextView) findViewById(R.id.diary_ZoomIn_ZoomName)).setText(DownloadedImageList.get(ZoomIndex).getMeta().getAddress());
+                    divideAddress(DownloadedImageList.get(ZoomIndex).getMeta().getAddress());
                 }
 
                 @Override
@@ -308,11 +312,25 @@ public class Diary_main extends AppCompatActivity {
                     if (++ZoomIndex == DownloadedImageList.size())
                         ZoomIndex = 0;
                     Glide.with(findViewById(R.id.diary_ZoomIn_ZoomImage)).load(DownloadedImageList.get(ZoomIndex)).into((ImageView) findViewById(R.id.diary_ZoomIn_ZoomImage));
-                    ((TextView) findViewById(R.id.diary_ZoomIn_ZoomName)).setText(DownloadedImageList.get(ZoomIndex).getMeta().getAddress());
-
+                    divideAddress(DownloadedImageList.get(ZoomIndex).getMeta().getAddress());
                 }
             };
             findViewById(R.id.diary_ZoomIn_ZoomImage).setOnTouchListener(swipeTouchListener);
+        }
+    }
+
+    private void divideAddress(String string){
+        int start = 0;
+        int end = string.length();
+        int firstSpace =  string.indexOf(" ");
+        if (firstSpace == -1) {
+            ((TextView) findViewById(R.id.diary_ZoomIn_ZoomName1)).setText(firstSpace);
+            ((TextView) findViewById(R.id.diary_ZoomIn_ZoomName2)).setVisibility(View.GONE);
+        }
+        else{
+            ((TextView) findViewById(R.id.diary_ZoomIn_ZoomName1)).setText(string.substring(start,firstSpace));
+            ((TextView) findViewById(R.id.diary_ZoomIn_ZoomName2)).setVisibility(View.VISIBLE);
+            ((TextView) findViewById(R.id.diary_ZoomIn_ZoomName2)).setText(string.substring(firstSpace+1,end));
         }
     }
 

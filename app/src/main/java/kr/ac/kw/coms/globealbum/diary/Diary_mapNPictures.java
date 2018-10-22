@@ -577,7 +577,8 @@ public class Diary_mapNPictures extends AppCompatActivity {
                 @Override
                 public void onClick(View v) {
                     Glide.with(Diary_mapNPictures.this).load(url).into((ImageView) findViewById(R.id.diary_ZoomIn_ZoomImage));
-                    findViewById(R.id.diary_ZoomIn_ZoomName).setVisibility(View.GONE);
+                    findViewById(R.id.diary_ZoomIn_ZoomName1).setVisibility(View.GONE);
+                    findViewById(R.id.diary_ZoomIn_ZoomName2).setVisibility(View.GONE);
                     findViewById(R.id.diary_ZoomIn_Confirm).setVisibility(View.VISIBLE);
                     diary_Switch(ZOOMIN_MODE);
                     findViewById(R.id.diary_ZoomIn_Confirm).setOnTouchListener(new View.OnTouchListener() {

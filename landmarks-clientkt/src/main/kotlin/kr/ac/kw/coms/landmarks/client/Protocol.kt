@@ -50,8 +50,8 @@ interface IPictureInfo {
   var width: Int?
   var height: Int?
   var address: String?
-  var lat: Float?
-  var lon: Float?
+  var lat: Double?
+  var lon: Double?
   var time: Date?
   var isPublic: Boolean
 }
@@ -62,8 +62,8 @@ data class PictureInfo(
   override var width: Int? = null,
   override var height: Int? = null,
   override var address: String? = null,
-  override var lat: Float? = null,
-  override var lon: Float? = null,
+  override var lat: Double? = null,
+  override var lon: Double? = null,
   override var time: Date? = null,
   override var isPublic: Boolean = true
 ) : IPictureInfo

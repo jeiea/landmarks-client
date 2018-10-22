@@ -20,6 +20,7 @@ import com.bumptech.glide.Glide;
 
 import java.util.ArrayList;
 
+import kr.ac.kw.coms.globealbum.ProfileActivity;
 import kr.ac.kw.coms.globealbum.R;
 import kr.ac.kw.coms.globealbum.common.MediaScannerKt;
 import kr.ac.kw.coms.globealbum.common.RequestCodes;
@@ -111,7 +112,8 @@ public class GalleryActivity extends AppCompatActivity {
                 public void onClick(View view) {
                     //이미지 확대
                     Glide.with(findViewById(R.id.diary_ZoomIn_Root)).load(Url).into((ImageView) findViewById(R.id.diary_ZoomIn_ZoomImage));
-                    ((TextView)findViewById(R.id.diary_ZoomIn_ZoomName)).setText("");
+                    ((TextView)findViewById(R.id.diary_ZoomIn_ZoomName1)).setText("");
+                    ((TextView)findViewById(R.id.diary_ZoomIn_ZoomName2)).setText("");
                     findViewById(R.id.diary_ZoomIn_Root).setVisibility(View.VISIBLE);
                     if (Mode.equals(RequestCodes.ACTION_VIEW_PHOTO)) {
                         //단순 열람 모드
@@ -143,5 +145,9 @@ public class GalleryActivity extends AppCompatActivity {
     public void Common_Back_Click(View v)
     {
         finish();
+    }
+
+    public void Common_Profile_Click(View view){
+        startActivity(new Intent(this, ProfileActivity.class));
     }
 }
