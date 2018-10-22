@@ -374,6 +374,10 @@ public class Diary_mapNPictures extends AppCompatActivity {
         }
     }
 
+    public void diary_ZoomIn_CloseZoomIn(View view) {
+        diary_Switch(ADD_MODE);
+    }
+
     Promise<Diary> afterModify = new UIPromise<Diary>() {
         @Override
         public void success(Diary result) {
