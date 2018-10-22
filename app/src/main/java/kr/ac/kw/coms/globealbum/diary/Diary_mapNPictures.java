@@ -118,7 +118,7 @@ public class Diary_mapNPictures extends AppCompatActivity {
         picView.setDirection(FlexDirection.COLUMN);
 
         diary_toShow = getIntent().getParcelableExtra(PARCEL_DIARY);
-        if (getIntent().getAction() == null);
+        if (getIntent().getAction() == null) ;
             //ignore
         else if (getIntent().getAction().equals(RequestCodes.ACTION_DIARY_OTHERS))
             findViewById(R.id.diary_mapNpics_EditStart).setVisibility(View.GONE);
@@ -126,6 +126,14 @@ public class Diary_mapNPictures extends AppCompatActivity {
         setDiary(diary_toShow);
         if (getIntent().hasExtra(RequestCodes.ACTION_EDIT_DIARY) && getIntent().getStringExtra(RequestCodes.ACTION_EDIT_DIARY).equals(RequestCodes.ACTION_EDIT_DIARY))
             diary_onEditClick(null);
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (findViewById(R.id.diary_mapNpics_EditLayout).getVisibility() == View.VISIBLE)
+            diary_Switch(VIEW_MODE);
+        else
+            super.onBackPressed();
     }
 
     /**
@@ -305,9 +313,9 @@ public class Diary_mapNPictures extends AppCompatActivity {
     final int EDIT_MODE = 1;
     final int ADD_MODE = 2;
     final int ZOOMIN_MODE = 3;
+
     public void diary_Switch(int MODE) {
-        switch (MODE)
-        {
+        switch (MODE) {
             case VIEW_MODE:
                 findViewById(R.id.diary_mapNpics_ViewLayout).setVisibility(View.VISIBLE);
                 findViewById(R.id.diary_mapNpics_EditLayout).setVisibility(View.GONE);
@@ -321,7 +329,7 @@ public class Diary_mapNPictures extends AppCompatActivity {
                 findViewById(R.id.diary_mapNpics_ZoomInLayout).setVisibility(View.GONE);
                 break;
             case ADD_MODE:
-                RecyclerView NewImageList = (RecyclerView)findViewById(R.id.diary_mapNpics_AddImageList);
+                RecyclerView NewImageList = (RecyclerView) findViewById(R.id.diary_mapNpics_AddImageList);
                 NewImageList.setHasFixedSize(true);
                 NewImageList.setLayoutManager(new GridLayoutManager(this, 4));
                 NewImageList.setAdapter(new NewImageAdapter(getImageFilePath()));
@@ -502,7 +510,7 @@ public class Diary_mapNPictures extends AppCompatActivity {
             text_Title = (TextView) rootLayout.getViewById(R.id.verticalList_Title);
             if (rootLayout.getId() == R.id.verticalList_Root) {
                 btn_Delete = (ImageButton) rootLayout.getViewById(R.id.verticalList_Delete);
-                updownBox = (ConstraintLayout)rootLayout.getViewById(R.id.verticalList_UpDownBox);
+                updownBox = (ConstraintLayout) rootLayout.getViewById(R.id.verticalList_UpDownBox);
                 btn_MoveUp = (ImageButton) updownBox.getViewById(R.id.verticalList_MoveUp);
                 btn_MoveDown = (ImageButton) updownBox.getViewById(R.id.verticalList_MoveDown);
             } else
@@ -511,8 +519,7 @@ public class Diary_mapNPictures extends AppCompatActivity {
         }
     }
 
-    private ArrayList<String> getImageFilePath()
-    {
+    private ArrayList<String> getImageFilePath() {
         //이미지 파일 쿼리 및 resId 가져오기
         Uri uri;
         Cursor cursor;
@@ -525,38 +532,35 @@ public class Diary_mapNPictures extends AppCompatActivity {
         cursor = this.getContentResolver().query(uri, projection, null, null, null);
         column_index_data = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATA);
         column_index_folder_name = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.BUCKET_DISPLAY_NAME);
-        while(cursor.moveToNext())
-        {
+        while (cursor.moveToNext()) {
             absolutePathOfImage = cursor.getString(column_index_data); //각 파일의 절대경로 구하기
             listOfAllImages.add(absolutePathOfImage);
         }
         return listOfAllImages;
     }
 
-    class NewImageAdapter extends RecyclerView.Adapter<NewImageAdapter.ViewHolder>
-    {
+    class NewImageAdapter extends RecyclerView.Adapter<NewImageAdapter.ViewHolder> {
         private ArrayList<String> urlList;
 
-        public class ViewHolder extends RecyclerView.ViewHolder
-        {
+        public class ViewHolder extends RecyclerView.ViewHolder {
             public int DisplayWidth;
             public ImageView imageView;
-            public ViewHolder(ImageView v)
-            {
+
+            public ViewHolder(ImageView v) {
                 super(v);
                 imageView = v;
                 DisplayWidth = Resources.getSystem().getDisplayMetrics().widthPixels;
             }
         }
-        public NewImageAdapter(ArrayList<String> urlList)
-        {
+
+        public NewImageAdapter(ArrayList<String> urlList) {
             this.urlList = urlList;
         }
 
         @NonNull
         @Override
         public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            ImageView v = (ImageView)LayoutInflater.from(parent.getContext()).inflate(R.layout.inner_view, parent, false);
+            ImageView v = (ImageView) LayoutInflater.from(parent.getContext()).inflate(R.layout.inner_view, parent, false);
             ViewHolder vh = new ViewHolder(v);
             return vh;
         }

@@ -29,13 +29,6 @@ public class diary_new extends AppCompatActivity {
     EditImageListAdapter adapter;
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == RequestCodes.SelectNewPhoto && resultCode == RESULT_OK) {
-            adapter.AddNewPicture((IPicture) data.getParcelableExtra("data"));
-        }
-    }
-
-    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_diary_new);

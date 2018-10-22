@@ -91,6 +91,9 @@ object RemoteJava {
   ): Job =
     resolve(prom) { client.getAroundPictures(lat, lon, km) }
 
+  fun deletePicture(id: Int, prom: Promise<Unit>): Job =
+    resolve(prom) { client.deletePicture(id) }
+
   fun uploadCollection(info: ICollectionInfo, prom: Promise<Diary>): Job =
     resolve(prom) { Diary(client.uploadCollection(info)) }
 
@@ -103,4 +106,6 @@ object RemoteJava {
   fun modifyCollection(id: Int, info: ICollectionInfo, prom: Promise<Diary>): Job =
     resolve(prom) { Diary(client.modifyCollection(id, info)) }
 
+  fun deleteCollection(id: Int, prom: Promise<Unit>): Job =
+    resolve(prom) { client.deleteCollection(id) }
 }
