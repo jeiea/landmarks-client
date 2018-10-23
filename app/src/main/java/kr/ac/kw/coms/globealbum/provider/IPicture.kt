@@ -343,13 +343,31 @@ class ResourcePicture(@DrawableRes val id: Int) : IPicture {
   //endregion
 }
 
-class Diary(var info: IdCollectionInfo) :
-  Parcelable,
-  ICollectionInfo by info.data,
-  List<RemotePicture> by toRemotePictures(info) {
+class Diary(
+  var info: IdCollectionInfo = IdCollectionInfo(-1, CollectionInfo()),
+  var pictures: List<IPicture> = listOf()
+) : Parcelable, ICollectionInfo by info.data, IntIdentifiable by info {
 
   //region Parcelable implementation
-  constructor(parcel: Parcel) : this(parcelToRemoteCollectionWithIntId(parcel))
+  constructor(parcel: Parcel) : this() {
+    info.id = parcel.readInt()
+    val v = info.data
+    parcel.run {
+      v.title = readString()
+      v.text = readString()
+      pictures = generateSequence {
+        when (readByte()) {
+          1.toByte() -> LocalPicture::class
+          2.toByte() -> RemotePicture::class
+          else -> null
+        }?.let { readParcelable<IPicture>(it.java.classLoader) }
+      }.toList()
+      v.likes = readInt().takeIf { it != -1 }
+      v.liking = byteToBool(readByte())
+      v.isRoute = byteToBool(readByte())
+      v.parent = readInt().takeIf { it != -1 }
+    }
+  }
 
   override fun writeToParcel(parcel: Parcel, flags: Int) {
     val v = info.data
@@ -357,7 +375,16 @@ class Diary(var info: IdCollectionInfo) :
       writeInt(info.id)
       writeString(v.title)
       writeString(v.text)
-      writeTypedList(v.previews?.map(::RemotePicture))
+      pictures.forEach { pic ->
+        writeByte(
+          when (pic) {
+            is LocalPicture -> 1.toByte()
+            is RemotePicture -> 2.toByte()
+            else -> 0.toByte()
+          }
+        )
+        writeParcelable(pic, 0)
+      }
       writeInt(v.likes ?: -1)
       writeByte(boolToByte(v.liking))
       writeByte(boolToByte(v.isRoute))
@@ -367,10 +394,6 @@ class Diary(var info: IdCollectionInfo) :
 
   override fun describeContents(): Int {
     return 0
-  }
-
-  fun toArrayList(): ArrayList<IPicture> {
-    return ArrayList(this)
   }
 
   companion object CREATOR : Parcelable.Creator<Diary> {
@@ -390,28 +413,6 @@ class Diary(var info: IdCollectionInfo) :
       1.toByte() -> true
       0.toByte() -> false
       else -> null
-    }
-
-    fun parcelToRemoteCollectionWithIntId(parcel: Parcel): IdCollectionInfo {
-      val v = CollectionInfo()
-      val collection = IdCollectionInfo(parcel.readInt(), v)
-      parcel.run {
-        v.title = readString()
-        v.text = readString()
-        val pics = mutableListOf<RemotePicture>()
-        readTypedList(pics, RemotePicture.CREATOR)
-        v.images = ArrayList(pics.map { it.info.id })
-        v.previews = ArrayList(pics.map { it.info })
-        v.likes = readInt().takeIf { it != -1 }
-        v.liking = byteToBool(readByte())
-        v.isRoute = byteToBool(readByte())
-        v.parent = readInt().takeIf { it != -1 }
-      }
-      return collection
-    }
-
-    fun toRemotePictures(info: IdCollectionInfo): List<RemotePicture> {
-      return info.data.previews?.map(::RemotePicture) ?: listOf()
     }
   }
   //endregion
