@@ -11,7 +11,7 @@ interface IPictureExaminer<T : IPicture> {
 
 class RemoteExaminer(val context: Context) : IPictureExaminer<RemotePicture> {
   override fun getRandomPictures(n: Int, prom: Promise<List<RemotePicture>>) {
-    RemoteJava.getRandomPictures(n, context, prom)
+    RemoteJava.getRandomPictures(n, prom)
   }
 }
 

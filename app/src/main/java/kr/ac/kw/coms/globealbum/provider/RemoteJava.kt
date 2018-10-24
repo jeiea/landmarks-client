@@ -1,6 +1,5 @@
 package kr.ac.kw.coms.globealbum.provider
 
-import android.content.Context
 import android.util.Log
 import kotlinx.coroutines.experimental.*
 import kotlinx.coroutines.experimental.channels.map
@@ -68,7 +67,7 @@ object RemoteJava {
   fun getPicture(id: Int, prom: Promise<IPicture>): Job =
     resolve(prom) { RemotePicture(IdPictureInfo(id, client.getPictureInfo(id))) }
 
-  fun getRandomPictures(n: Int, context: Context, prom: Promise<List<RemotePicture>>): Job =
+  fun getRandomPictures(n: Int, prom: Promise<List<RemotePicture>>): Job =
     resolve(prom) { (1..n).map { pictureBuffer.receive() } }
 
   fun modifyPictureInfo(id: Int, info: PictureInfo, prom: Promise<Unit>): Job =

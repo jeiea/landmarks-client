@@ -1,6 +1,5 @@
 package kr.ac.kw.coms.globealbum.diary;
 
-import android.app.DownloadManager;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -267,7 +266,7 @@ public class Diary_main extends AppCompatActivity {
                 }
                 else
                 {
-                    RemoteJava.INSTANCE.getRandomPictures(30,getBaseContext(),new UIPromise<List<RemotePicture>>() {
+                    RemoteJava.INSTANCE.getRandomPictures(30, new UIPromise<List<RemotePicture>>() {
                         @Override
                         public void success(List<RemotePicture> result) {
                             DownloadedImageList = new ArrayList<>();
