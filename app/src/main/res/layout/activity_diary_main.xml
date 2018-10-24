@@ -76,6 +76,7 @@
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintWidth_percent="0.5" />
     </android.support.constraint.ConstraintLayout>
+
     <android.support.constraint.ConstraintLayout
         android:id="@+id/diary_main_Tab_Left"
         android:layout_width="match_parent"
@@ -83,17 +84,19 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toBottomOf="@id/diary_main_TabBar">
+
         <kr.ac.kw.coms.globealbum.album.GroupDiaryView
             android:id="@+id/diary_main_ImageList"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:visibility="invisible"
-            app:layout_constraintLeft_toLeftOf="parent"/>
+            app:layout_constraintLeft_toLeftOf="parent" />
+
         <kr.ac.kw.coms.globealbum.album.GroupDiaryView
             android:id="@+id/diary_main_ImageNowLoading"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:visibility="visible"/>
+            android:visibility="visible" />
     </android.support.constraint.ConstraintLayout>
 
     <android.support.constraint.ConstraintLayout
@@ -104,17 +107,19 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toBottomOf="@id/diary_main_TabBar">
+
         <android.support.v7.widget.RecyclerView
             android:id="@+id/diary_main_JourneyList"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:visibility="invisible"
-            app:layout_constraintLeft_toLeftOf="parent"/>
+            app:layout_constraintLeft_toLeftOf="parent" />
+
         <kr.ac.kw.coms.globealbum.album.GroupDiaryView
             android:id="@+id/diary_main_JourneyNowLoading"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:visibility="visible"/>
+            android:visibility="visible" />
     </android.support.constraint.ConstraintLayout>
 
 
@@ -150,52 +155,60 @@
 
         <android.support.constraint.ConstraintLayout
             android:id="@+id/diary_main_menuInner"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="10dp"
-            android:layout_marginEnd="10dp"
-            android:background="#FFFFFF"
+            android:background="@color/colorPrimaryLight"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
-
-            <TextView
-                android:id="@+id/diary_main_menuTitle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="작업 선택..."
-                android:layout_marginStart="5dp"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintWidth_percent="0.6">
 
             <Button
                 android:id="@+id/diary_main_menuEdit"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:text="수정"
+                android:textSize="20sp"
+                android:textColor="#FFFFFF"
+                android:background="@color/colorPrimary"
+                android:layout_marginBottom="10dp"
                 android:onClick="diary_main_EditStart"
                 app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/diary_main_menuTitle" />
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintWidth_percent="0.8" />
 
             <Button
                 android:id="@+id/diary_main_menuShare"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:text="공유"
+                android:textSize="20sp"
+                android:textColor="#FFFFFF"
+                android:background="@color/colorPrimary"
                 android:visibility="invisible"
                 android:onClick="diary_main_SharePicture"
+                android:layout_marginBottom="10dp"
                 app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/diary_main_menuTitle"/>
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintWidth_percent="0.8" />
 
             <Button
                 android:id="@+id/diary_main_menuDelete"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:text="삭제"
+                android:textSize="20sp"
+                android:textColor="#FFFFFF"
+                android:background="@color/colorPrimary"
+                android:layout_marginTop="10dp"
                 android:onClick="diary_main_Delete"
                 app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/diary_main_menuEdit" />
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/diary_main_menuEdit"
+                app:layout_constraintWidth_percent="0.8" />
         </android.support.constraint.ConstraintLayout>
     </android.support.constraint.ConstraintLayout>
 

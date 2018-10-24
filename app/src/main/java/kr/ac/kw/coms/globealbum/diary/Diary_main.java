@@ -86,6 +86,8 @@ public class Diary_main extends AppCompatActivity {
         GroupDiaryView ImageNowLoading = findViewById(R.id.diary_main_ImageNowLoading);
         GroupDiaryView JourneyNowLoading = findViewById(R.id.diary_main_JourneyNowLoading);
 
+
+
         ArrayList<IPicture> nowloading = new ArrayList<>();
         nowloading.add(new ResourcePicture(R.drawable.nowloading));
         ArrayList<PictureGroup> LoadingScreen = new ArrayList<PictureGroup>();
