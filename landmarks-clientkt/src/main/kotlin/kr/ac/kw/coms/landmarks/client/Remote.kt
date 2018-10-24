@@ -183,7 +183,7 @@ class Remote(engine: HttpClient, private val basePath: String = herokuUri) {
         writeFully(file.readBytes())
       }
     })
-    return put("$basePath/picture") {
+    return post("$basePath/picture") {
       body = form
     }
   }
@@ -201,7 +201,7 @@ class Remote(engine: HttpClient, private val basePath: String = herokuUri) {
   }
 
   suspend fun modifyPictureInfo(id: Int, info: IPictureInfo) {
-    return post("$basePath/picture/info/$id") {
+    return put("$basePath/picture/info/$id") {
       json(info)
     }
   }
@@ -240,7 +240,7 @@ class Remote(engine: HttpClient, private val basePath: String = herokuUri) {
   }
 
   suspend fun uploadCollection(collection: ICollectionInfo): IdCollectionInfo {
-    return put("$basePath/collection") {
+    return post("$basePath/collection") {
       json(collection)
     }
   }
@@ -266,7 +266,7 @@ class Remote(engine: HttpClient, private val basePath: String = herokuUri) {
   }
 
   suspend fun modifyCollection(id: Int, collection: ICollectionInfo): IdCollectionInfo {
-    return post("$basePath/collection/$id") {
+    return put("$basePath/collection/$id") {
       json(collection)
     }
   }
