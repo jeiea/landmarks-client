@@ -25,8 +25,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
-
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -260,7 +258,7 @@ public class Diary_main extends AppCompatActivity {
                     RemoteJava.INSTANCE.getRandomPictures(30,getBaseContext(),new UIPromise<List<RemotePicture>>() {
                         @Override
                         public void success(List<RemotePicture> result) {
-                            DownloadedImageList.clear();
+                            DownloadedImageList = new ArrayList<>();
                             DownloadedImageList.addAll(result);
                             ImageList.getPicAdapter().clearAllItems();
                             ShowImageData();
@@ -328,7 +326,7 @@ public class Diary_main extends AppCompatActivity {
                 public void onItemClick(@NotNull View view, int position) {
                     if (view instanceof ImageView) {
                         ZoomIndex = position - 1;
-                        Glide.with(view).load(DownloadedImageList.get(ZoomIndex)).into(((ImageView) findViewById(R.id.diary_ZoomIn_ZoomImage)));
+                        GlideApp.with(view).load(DownloadedImageList.get(ZoomIndex)).into(((ImageView) findViewById(R.id.diary_ZoomIn_ZoomImage)));
                         divideAddress(DownloadedImageList.get(ZoomIndex).getMeta().getAddress());
                         findViewById(R.id.diary_ZoomIn_Root).setVisibility(View.VISIBLE);
                     }
@@ -348,7 +346,7 @@ public class Diary_main extends AppCompatActivity {
                 public void onSwipeRight() {
                     if (--ZoomIndex < 0)
                         ZoomIndex += DownloadedImageList.size();
-                    Glide.with(findViewById(R.id.diary_ZoomIn_ZoomImage)).load(DownloadedImageList.get(ZoomIndex)).into((ImageView) findViewById(R.id.diary_ZoomIn_ZoomImage));
+                    GlideApp.with(findViewById(R.id.diary_ZoomIn_ZoomImage)).load(DownloadedImageList.get(ZoomIndex)).into((ImageView) findViewById(R.id.diary_ZoomIn_ZoomImage));
                     divideAddress(DownloadedImageList.get(ZoomIndex).getMeta().getAddress());
                 }
 
@@ -356,7 +354,7 @@ public class Diary_main extends AppCompatActivity {
                 public void onSwipeLeft() {
                     if (++ZoomIndex == DownloadedImageList.size())
                         ZoomIndex = 0;
-                    Glide.with(findViewById(R.id.diary_ZoomIn_ZoomImage)).load(DownloadedImageList.get(ZoomIndex)).into((ImageView) findViewById(R.id.diary_ZoomIn_ZoomImage));
+                    GlideApp.with(findViewById(R.id.diary_ZoomIn_ZoomImage)).load(DownloadedImageList.get(ZoomIndex)).into((ImageView) findViewById(R.id.diary_ZoomIn_ZoomImage));
                     divideAddress(DownloadedImageList.get(ZoomIndex).getMeta().getAddress());
                 }
             };
@@ -411,13 +409,13 @@ public class Diary_main extends AppCompatActivity {
         @Override
         public void onBindViewHolder(@NonNull DiaryListViewHolder holder, int position) {
             if (items == null) {
-                Glide.with(holder.image_Thumbnail).load(R.drawable.diarynotfoundbordered).into(holder.image_Thumbnail);
+                GlideApp.with(holder.image_Thumbnail).load(R.drawable.diarynotfoundbordered).into(holder.image_Thumbnail);
                 holder.NameTag.setVisibility(View.GONE);
                 return;
             }
             final Diary diaryToShow = items.get(position);
             try {
-                Glide.with(holder.image_Thumbnail).load(diaryToShow.getPictures().get(0)).placeholder(R.drawable.nowloading2).into(holder.image_Thumbnail);
+                GlideApp.with(holder.image_Thumbnail).load(diaryToShow.getPictures().get(0)).placeholder(R.drawable.nowloading2).into(holder.image_Thumbnail);
             } catch (IndexOutOfBoundsException e) {
                 holder.Root.setVisibility(View.GONE);
                 return;
