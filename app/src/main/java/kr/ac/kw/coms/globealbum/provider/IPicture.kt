@@ -345,8 +345,19 @@ class ResourcePicture(@DrawableRes val id: Int) : IPicture {
 
 class Diary(
   var info: IdCollectionInfo = IdCollectionInfo(-1, CollectionInfo()),
-  var pictures: List<IPicture> = listOf()
+  pictures: List<IPicture> = listOf()
 ) : Parcelable, ICollectionInfo by info.data, IntIdentifiable by info {
+
+  var pictures: List<IPicture> = listOf()
+    set(value) {
+      val remotes = value.filterIsInstance<RemotePicture>()
+      info.data.images = ArrayList(remotes.map { it.info.id })
+      field = value
+    }
+
+  init {
+    this.pictures = pictures
+  }
 
   //region Parcelable implementation
   constructor(parcel: Parcel) : this() {
