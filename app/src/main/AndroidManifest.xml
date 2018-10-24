@@ -47,6 +47,15 @@
         <activity android:name=".diary.Diary_mapNPictures" />
         <activity android:name=".diary.Diary_Edit" />
         <activity android:name=".diary.diary_new" />
+        <provider
+            android:authorities="{package_name}.fileprovider"
+            android:name="android.support.v4.content.FileProvider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/filepaths"/>
+        </provider>
     </application>
 
 </manifest>

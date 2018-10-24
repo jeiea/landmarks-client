@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
+import android.support.v4.content.FileProvider;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -142,8 +143,13 @@ public class Diary_main extends AppCompatActivity {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-                intent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(file));
+                intent.putExtra(Intent.EXTRA_STREAM, FileProvider.getUriForFile(Diary_main.this, "{package_name}.fileprovider", file));
                 startActivity(Intent.createChooser(intent, "사진 공유"));
+            }
+
+            @Override
+            public void failure(@NotNull Throwable cause) {
+                super.failure(cause);
             }
         });
 
@@ -274,7 +280,7 @@ public class Diary_main extends AppCompatActivity {
                         }
                     });
 
-                    RemoteJava.INSTANCE.getMyCollections(new UIPromise<List<Diary>>() {
+                    RemoteJava.INSTANCE.getRandomCollections(new UIPromise<List<Diary>>() {
                         @Override
                         public void success(List<Diary> result) {
                             DownloadedDiaryList = result;
@@ -339,6 +345,8 @@ public class Diary_main extends AppCompatActivity {
                     findViewById(R.id.diary_main_menuRoot).setVisibility(View.VISIBLE);
                     findViewById(R.id.diary_main_menuEdit).setVisibility(View.INVISIBLE);
                     findViewById(R.id.diary_main_menuShare).setVisibility(View.VISIBLE);
+                    if (getIntent().getAction().equals(RequestCodes.ACTION_DIARY_OTHERS))
+                        findViewById(R.id.diary_main_menuDelete).setVisibility(View.GONE);
                 }
             }.getItemTouchListener());
             swipeTouchListener = new OnSwipeTouchListener(this.getBaseContext()) {
@@ -449,6 +457,8 @@ public class Diary_main extends AppCompatActivity {
                 @Override
                 public boolean onLongClick(View view) {
                     //앨범 롱클릭
+                    if (getIntent().getAction().equals(RequestCodes.ACTION_DIARY_OTHERS))
+                        return true;
                     DiaryToSend = diaryToShow;
                     findViewById(R.id.diary_main_menuRoot).setVisibility(View.VISIBLE);
                     findViewById(R.id.diary_main_menuEdit).setVisibility(View.VISIBLE);
