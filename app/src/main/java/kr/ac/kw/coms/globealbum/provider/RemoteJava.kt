@@ -31,7 +31,7 @@ object RemoteJava {
     }
   }
 
-  fun <T> resolve(promise: Promise<T>, block: suspend () -> T): Job =
+  private fun <T> resolve(promise: Promise<T>, block: suspend () -> T): Job =
     promise.resolve(GlobalScope + Dispatchers.IO) { block() }
 
   fun reverseGeocode(
@@ -97,6 +97,13 @@ object RemoteJava {
 
   fun getMyCollections(prom: Promise<List<Diary>>): Job = resolve(prom) {
     client.getMyCollections().map { c ->
+      val pics = c.data.previews?.map(::RemotePicture) ?: listOf()
+      Diary(c, pics)
+    }
+  }
+
+  fun getRandomCollections(prom: Promise<List<Diary>>): Job = resolve(prom) {
+    client.getRandomCollections().map { c ->
       val pics = c.data.previews?.map(::RemotePicture) ?: listOf()
       Diary(c, pics)
     }
