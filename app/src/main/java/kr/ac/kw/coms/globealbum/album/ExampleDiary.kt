@@ -193,7 +193,7 @@ class GroupedPicAdapter : RecyclerView.Adapter<GroupedPicAdapter.ElementViewHold
       is PictureHolder -> {
         val pic: IPicture = holder.boundItem as IPicture
         val iv: ImageView = holder.imageView
-        GlideApp.with(iv).load(pic).placeholder(R.drawable.nowloading).into(iv)
+        GlideApp.with(iv).load(pic).placeholder(R.drawable.nowloading2).into(iv)
         iv.scaleType = if (imageScaleType == -1)
           ImageView.ScaleType.CENTER_CROP;
         else imageScaleType as ImageView.ScaleType
