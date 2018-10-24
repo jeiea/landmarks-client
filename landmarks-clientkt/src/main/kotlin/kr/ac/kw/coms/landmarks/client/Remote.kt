@@ -16,7 +16,6 @@ import io.ktor.http.*
 import kotlinx.coroutines.experimental.Dispatchers
 import kotlinx.coroutines.experimental.GlobalScope
 import kotlinx.coroutines.experimental.channels.Channel
-import kotlinx.coroutines.experimental.channels.ReceiveChannel
 import kotlinx.coroutines.experimental.channels.produce
 import kotlinx.coroutines.experimental.channels.sendBlocking
 import kotlinx.coroutines.experimental.delay
@@ -39,18 +38,16 @@ class Remote(engine: HttpClient, private val basePath: String = herokuUri) {
   val http: HttpClient
   var logger: RemoteLoggable? = null
   var profile: IdAccountForm? = null
-
-  private val nominatimLastRequestMs = Channel<Long>(1)
-  private var problemBuffer: ReceiveChannel<IdPictureInfo>? = null
-
-  private fun problemBuffering(): ReceiveChannel<IdPictureInfo> {
-    return GlobalScope.produce(Dispatchers.IO) {
+  val problemBuffer by RecoverableChannel {
+    GlobalScope.produce(Dispatchers.IO) {
       while (true) {
         val pics: MutableList<IdPictureInfo> = get("$basePath/problem/random/12")
         pics.forEach { send(it) }
       }
     }
   }
+
+  private val nominatimLastRequestMs = Channel<Long>(1)
 
   companion object {
     const val herokuUri = "http://landmarks-coms.herokuapp.com"
@@ -186,21 +183,16 @@ class Remote(engine: HttpClient, private val basePath: String = herokuUri) {
         writeFully(file.readBytes())
       }
     })
-    return put("$basePath/picture") {
+    return post("$basePath/picture") {
       body = form
     }
   }
 
   suspend fun getRandomProblems(n: Int): List<IdPictureInfo> {
-    // sucks. Sequence extensions always cancel upstream channel.
-    val reuseIfPossible = (problemBuffer ?: {
-      val new = problemBuffering()
-      problemBuffer = new
-      new
-    }())
+    val reuse = problemBuffer
     val ret = mutableListOf<IdPictureInfo>()
     while (ret.size < n) {
-      val p = reuseIfPossible.receive()
+      val p = reuse.receive()
       if (!ret.contains(p)) {
         ret.add(p)
       }
@@ -209,7 +201,7 @@ class Remote(engine: HttpClient, private val basePath: String = herokuUri) {
   }
 
   suspend fun modifyPictureInfo(id: Int, info: IPictureInfo) {
-    return post("$basePath/picture/info/$id") {
+    return put("$basePath/picture/info/$id") {
       json(info)
     }
   }
@@ -248,7 +240,7 @@ class Remote(engine: HttpClient, private val basePath: String = herokuUri) {
   }
 
   suspend fun uploadCollection(collection: ICollectionInfo): IdCollectionInfo {
-    return put("$basePath/collection") {
+    return post("$basePath/collection") {
       json(collection)
     }
   }
@@ -274,7 +266,7 @@ class Remote(engine: HttpClient, private val basePath: String = herokuUri) {
   }
 
   suspend fun modifyCollection(id: Int, collection: ICollectionInfo): IdCollectionInfo {
-    return post("$basePath/collection/$id") {
+    return put("$basePath/collection/$id") {
       json(collection)
     }
   }

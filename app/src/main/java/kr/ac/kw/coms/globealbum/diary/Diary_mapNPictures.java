@@ -21,7 +21,6 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
@@ -81,7 +80,7 @@ public class Diary_mapNPictures extends AppCompatActivity {
 
     public void setDiary(final Diary data) {
         //받은 데이터를 화면에 표시
-        ArrayList<IPicture> pics = new ArrayList<IPicture>(data);
+        ArrayList<IPicture> pics = new ArrayList<>(data.getPictures());
         ArrayList<PictureGroup> elementList = new ArrayList<>();
         elementList.add(new PictureGroup("", pics));
         picView.clearAllItems();
@@ -91,7 +90,7 @@ public class Diary_mapNPictures extends AppCompatActivity {
             public void onItemClick(@NotNull View view, int position) {
                 super.onItemClick(view, position);
                 Intent intent = new Intent(getBaseContext(), GalleryDetail.class);
-                ArrayList<IPicture> pics = new ArrayList<IPicture>(data);
+                ArrayList<IPicture> pics = new ArrayList<>(data.getPictures());
                 intent.putParcelableArrayListExtra("pictures", pics);
                 intent.putExtra("index", position - 1);
                 intent.setAction(RequestCodes.ACTION_VIEW_PHOTO);
@@ -153,7 +152,7 @@ public class Diary_mapNPictures extends AppCompatActivity {
         EXIFinfo exifInfo = new EXIFinfo();
         final Drawable[] drawables = new Drawable[cntImgs];
         ArrayList<ArrayList<IPicture>> ppics = new ArrayList<>();
-        ppics.add(diary_toShow.toArrayList());
+        ppics.add(new ArrayList<>(diary_toShow.getPictures()));
         myMapView.getDiaryOverlay().setChains(ppics);
 
         new Handler().postDelayed(new Runnable() {
@@ -303,7 +302,7 @@ public class Diary_mapNPictures extends AppCompatActivity {
         IdCollectionInfo editData = diary_onEdit.getInfo();
         Edit_Title.setText(editData.getTitle());
         Edit_Description.setText(editData.getText());
-        ArrayList<IPicture> pics = diary_onEdit.toArrayList();
+        ArrayList<IPicture> pics = new ArrayList<>(diary_onEdit.getPictures());
         editImageListAdapter = new EditImageListAdapter(this, pics);
         Edit_ImageList.setLayoutManager(new LinearLayoutManager(getBaseContext()));
         Edit_ImageList.setAdapter(editImageListAdapter);

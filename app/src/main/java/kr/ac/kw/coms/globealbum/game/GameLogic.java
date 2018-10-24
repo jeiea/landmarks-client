@@ -12,15 +12,11 @@ import org.osmdroid.views.overlay.Marker;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import java.util.Objects;
-import java.util.Random;
 
 import kr.ac.kw.coms.globealbum.provider.IPicture;
 import kr.ac.kw.coms.globealbum.provider.PictureMeta;
 import kr.ac.kw.coms.globealbum.provider.Promise;
-import kr.ac.kw.coms.globealbum.provider.RemoteJava;
-import kr.ac.kw.coms.globealbum.provider.RemotePicture;
 import kr.ac.kw.coms.globealbum.provider.UIPromise;
 
 interface IGameInputHandler {
@@ -44,6 +40,7 @@ interface IGameInputHandler {
 class GameLogic implements IGameInputHandler {
     private IGameUI ui;
     private Context context;
+    private GameQuizFactory quizFactory;
 
     private int problem;
     private int score;
@@ -67,7 +64,6 @@ class GameLogic implements IGameInputHandler {
     private boolean rightAnswerTypePic;
     private GameState state;
 
-    private Random random = new Random(System.currentTimeMillis());
     private final int MS_TIME_LIMIT = 9000;
 
     enum GameState {
@@ -89,6 +85,7 @@ class GameLogic implements IGameInputHandler {
         this.ui = ui;
         this.ui.setInputHandler(this);
         this.context = context;
+        quizFactory = new GameQuizFactory(context);
     }
 
     private void resetGameStatus() {
@@ -115,21 +112,22 @@ class GameLogic implements IGameInputHandler {
     }
 
     private void realLoading() {
-        // getRandomPictures에서 하나를 일단 가져와야 미래에도 버퍼링이 보장됨.
-        RemoteJava.INSTANCE.getRandomPictures(1, context, onReadyBuffer);
+        quizFactory.fetchQuiz(onReadyBuffer);
     }
 
-    class ErrorToastPromise extends UIPromise<List<RemotePicture>> {
+    class ErrorToastPromise<T> extends UIPromise<T> {
         @Override
         public void failure(@NotNull Throwable cause) {
             String msg = String.format("서버 연결에 실패했습니다: %s", cause.toString());
             Toast.makeText(context, msg, Toast.LENGTH_SHORT).show();
+            ui.exitGame();
         }
     }
 
-    private Promise<List<RemotePicture>> onReadyBuffer = new ErrorToastPromise() {
+    private Promise<IGameQuiz> onReadyBuffer = new ErrorToastPromise<IGameQuiz>() {
         @Override
-        public void success(List<RemotePicture> result) {
+        public void success(IGameQuiz result) {
+            currentQuiz = result;
             enterStageEntry();
         }
     };
@@ -159,33 +157,32 @@ class GameLogic implements IGameInputHandler {
         ui.exitGame();
     }
 
-    private void receiveQuizRemote() {
-        int n = random.nextBoolean() ? 1 : 4;
-        RemoteJava.INSTANCE.getRandomPictures(n, context, onReceivePictures);
-    }
-
     private void enterNewQuiz() {
-        receiveQuizRemote();
+        // 처음은 미리 문제를 가져오기에 다시 가져오면 중복
+        if (stage == 1 && problem == 0) {
+            onReceivePictures.resolve(currentQuiz);
+        } else {
+            quizFactory.fetchQuiz(onReceivePictures);
+        }
         ui.setQuizInfo(stage, problem, score, stageNumberOfGames[stage - 1]);
     }
 
-    private Promise<List<RemotePicture>> onReceivePictures = new ErrorToastPromise() {
-        @Override
-        public void success(@NonNull List<RemotePicture> result) {
-            if (result.size() == 1) {
-                PositionQuiz quiz = new PositionQuiz(result.get(0));
-                enterPositionQuiz(quiz);
+    private Promise<IGameQuiz> onReceivePictures = new ErrorToastPromise<IGameQuiz>() {
+        public void success(@NonNull IGameQuiz quiz) {
+            if (quiz instanceof PositionQuiz) {
+                enterPositionQuiz((PositionQuiz) quiz);
+            } else if (quiz instanceof PicChoiceQuiz) {
+                enterPicChoiceQuiz((PicChoiceQuiz) quiz);
             } else {
-                PicChoiceQuiz quiz = new PicChoiceQuiz(result, random);
-                enterPicChoiceQuiz(quiz);
+                failure(new RuntimeException("뭔가 잘못 만들었나봐요.."));
             }
         }
     };
 
     private void enterPositionQuiz(@NonNull PositionQuiz quiz) {
         gameType = GameType.POSITION;
-        ui.showPositionQuiz(quiz.picture);
-        GeoPoint rightPos = quiz.picture.getMeta().getGeo();
+        ui.showPositionQuiz(quiz.getPicture());
+        GeoPoint rightPos = quiz.getPicture().getMeta().getGeo();
         ui.getSystemMarker().setPosition(Objects.requireNonNull(rightPos));
 
         enterQuizCommon(quiz);
@@ -194,7 +191,7 @@ class GameLogic implements IGameInputHandler {
     private void enterPicChoiceQuiz(@NonNull PicChoiceQuiz quiz) {
         gameType = GameType.PICTURE;
         PictureMeta meta = quiz.getCorrectPicture().getMeta();
-        ui.showPictureQuiz(quiz.pictures, meta.getAddress());
+        ui.showPictureQuiz(quiz.getPictures(), meta.getAddress());
         ui.getSystemMarker().setPosition(Objects.requireNonNull(meta.getGeo()));
 
         enterQuizCommon(quiz);
@@ -204,7 +201,7 @@ class GameLogic implements IGameInputHandler {
         currentQuiz = quiz;
         state = GameState.SOLVING;
         msQuestionStart = new Date().getTime();
-        ui.startTimer(MS_TIME_LIMIT - 1000*stage);
+        ui.startTimer(MS_TIME_LIMIT - 1000 * stage);
     }
 
     private void onProblemDone() {
@@ -216,7 +213,7 @@ class GameLogic implements IGameInputHandler {
         }
         if (currentQuiz instanceof PositionQuiz) {
             Double distance = calcDistanceKm();
-            ui.showPositionAnswer(((PositionQuiz) currentQuiz).picture, deltaScore, distance);
+            ui.showPositionAnswer(((PositionQuiz) currentQuiz).getPicture(), deltaScore, distance);
         } else {
             ui.showPicChoiceAnswer(((PicChoiceQuiz) currentQuiz).getCorrectPicture(), deltaScore);
             rightAnswerTypePic = false;
@@ -292,8 +289,7 @@ class GameLogic implements IGameInputHandler {
                 sys.setEnabled(true);
                 onProblemDone();
             }
-        }
-        else{
+        } else {
             onProblemDone();
         }
 

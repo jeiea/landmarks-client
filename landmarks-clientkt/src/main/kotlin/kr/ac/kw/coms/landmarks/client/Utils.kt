@@ -2,10 +2,12 @@ package kr.ac.kw.coms.landmarks.client
 
 import io.ktor.network.util.ioCoroutineDispatcher
 import kotlinx.coroutines.experimental.CoroutineDispatcher
+import kotlinx.coroutines.experimental.channels.ReceiveChannel
 import kotlinx.coroutines.experimental.withContext
 import kotlinx.coroutines.experimental.yield
 import java.io.InputStream
 import java.io.OutputStream
+import kotlin.reflect.KProperty
 
 suspend fun InputStream.copyToSuspend(
   out: OutputStream,
@@ -46,4 +48,16 @@ fun getThumbnailLevel(
     }
   }
   return 4
+}
+
+class RecoverableChannel<T>(val block: () -> ReceiveChannel<T>) {
+  var channel: ReceiveChannel<T>? = null
+
+  private fun resetChannel(): ReceiveChannel<T> {
+    return block().also { channel = it }
+  }
+
+  operator fun getValue(thisRef: Any?, property: KProperty<*>): ReceiveChannel<T> {
+    return channel?.takeIf { !it.isClosedForReceive } ?: resetChannel()
+  }
 }

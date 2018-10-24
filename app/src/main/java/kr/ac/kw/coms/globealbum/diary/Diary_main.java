@@ -417,7 +417,7 @@ public class Diary_main extends AppCompatActivity {
             }
             final Diary diaryToShow = items.get(position);
             try {
-                GlideApp.with(holder.image_Thumbnail).load(diaryToShow.get(0)).placeholder(R.drawable.nowloading2).into(holder.image_Thumbnail);
+                Glide.with(holder.image_Thumbnail).load(diaryToShow.getPictures().get(0)).placeholder(R.drawable.nowloading2).into(holder.image_Thumbnail);
             } catch (IndexOutOfBoundsException e) {
                 holder.Root.setVisibility(View.GONE);
                 return;
@@ -426,8 +426,8 @@ public class Diary_main extends AppCompatActivity {
 
             Date StartTime = null;
             Date EndTime = null;
-            for (int i = 0; i < diaryToShow.getSize(); i++) {
-                Date time = diaryToShow.get(i).getMeta().getTime();
+            for (int i = 0; i < diaryToShow.getPictures().size(); i++) {
+                Date time = diaryToShow.getPictures().get(i).getMeta().getTime();
                 if (StartTime == null || time.compareTo(StartTime) < 0) {
                     StartTime = time;
                 }
@@ -465,7 +465,7 @@ public class Diary_main extends AppCompatActivity {
         public int getItemCount() {
             if (items == null)
                 return 1;
-            if (items.size() == 0 || items.get(0).size() == 0) {
+            if (items.size() == 0 || items.get(0).getPictures().size() == 0) {
                 items = null;
                 return 1;
             }

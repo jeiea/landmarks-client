@@ -14,7 +14,6 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
@@ -27,24 +26,19 @@ import com.bumptech.glide.Glide;
 import org.jetbrains.annotations.NotNull;
 import org.osmdroid.util.GeoPoint;
 
-import java.io.File;
 import java.util.ArrayList;
 
-import kotlin.Unit;
 import kr.ac.kw.coms.globealbum.R;
 import kr.ac.kw.coms.globealbum.common.MediaScannerKt;
 import kr.ac.kw.coms.globealbum.provider.Diary;
 import kr.ac.kw.coms.globealbum.provider.EXIFinfo;
 import kr.ac.kw.coms.globealbum.provider.IPicture;
 import kr.ac.kw.coms.globealbum.provider.LocalPicture;
-import kr.ac.kw.coms.globealbum.provider.PictureMeta;
 import kr.ac.kw.coms.globealbum.provider.Promise;
 import kr.ac.kw.coms.globealbum.provider.RemoteJava;
-import kr.ac.kw.coms.globealbum.provider.RemotePicture;
 import kr.ac.kw.coms.globealbum.provider.UIPromise;
 import kr.ac.kw.coms.landmarks.client.CollectionInfo;
-import kr.ac.kw.coms.landmarks.client.PictureInfo;
-import kr.ac.kw.coms.landmarks.client.Remote;
+import kr.ac.kw.coms.landmarks.client.IdCollectionInfo;
 
 //새로 작성하는 화면. 여행지 목록에 플로팅 버튼을 통해 진입할 예정.
 public class diary_new extends AppCompatActivity {
@@ -87,23 +81,12 @@ public class diary_new extends AppCompatActivity {
 
                 diary.setTitle(((TextView) findViewById(R.id.diary_edit_TitleText)).getText().toString());
                 diary.setText(((TextView) findViewById(R.id.diary_edit_DescriptionText)).getText().toString());
-                ArrayList<Integer> imgIds = new ArrayList<>();
-                for (IPicture p : newImageListAdapter.getItems()) {
-                    //IPicture -> RemotePicture
-                    RemoteJava.INSTANCE.uploadPicture(new PictureInfo(), new File(p.toString()), new Promise<Unit>()
-                    {
-                        @Override
-                        public void success(Unit result) {
-                            super.success(result);
-                        }
-                    });
-                    imgIds.add(((RemotePicture) p).getInfo().getId());
-                }
-                diary.setImages(imgIds);
                 diary.setLiking(false);
 
+                Diary d = new Diary(new IdCollectionInfo(-1, diary), newImageListAdapter.getItems());
+
                 //서버 통신 필요
-                RemoteJava.INSTANCE.uploadCollection(diary, afterUpload);
+                RemoteJava.INSTANCE.uploadCollection(d, afterUpload);
                 break;
         }
     }

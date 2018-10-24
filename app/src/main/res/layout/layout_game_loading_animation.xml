@@ -2,12 +2,36 @@
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:clickable="false">
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#C2F2FF"/>
+    <android.support.constraint.Guideline
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/guide_mid_game_loading1"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.45"/>
+    <android.support.constraint.Guideline
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/guide_mid_game_loading2"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.6"/>
     <ImageView
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintBottom_toTopOf="parent"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:clickable="false"
-        android:id="@+id/game_gif_loading"/>
+        android:src="@drawable/game_loading_background"/>
+    <ImageView
+        android:id="@+id/game_loading_animation"
+        app:layout_constraintTop_toBottomOf="@id/guide_mid_game_loading1"
+        app:layout_constraintBottom_toTopOf="@id/guide_mid_game_loading2"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"/>
 </android.support.constraint.ConstraintLayout>
