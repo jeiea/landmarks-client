@@ -141,12 +141,14 @@ class RemotePicture(val info: IdPictureInfo) :
   }
 
   // TODO: Update picture metadata
-  override var meta = PictureMeta(
-    info.data.address,
-    info.data.author,
-    info.data.time,
-    latlonToGeoPoint(info.data)
-  )
+  override var meta: PictureMeta
+    get() = PictureMeta(
+      info.data.address,
+      info.data.author,
+      info.data.time,
+      latlonToGeoPoint(info.data)
+    )
+    set(_) {}
 
   override val dataSource = DataSource.REMOTE
 
