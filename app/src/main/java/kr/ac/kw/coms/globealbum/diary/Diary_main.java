@@ -38,6 +38,7 @@ import java.util.List;
 import java.util.Locale;
 
 import at.wirecube.additiveanimations.additive_animator.AdditiveAnimator;
+import kotlin.Unit;
 import kr.ac.kw.coms.globealbum.ProfileActivity;
 import kr.ac.kw.coms.globealbum.R;
 import kr.ac.kw.coms.globealbum.album.GroupDiaryView;
@@ -71,6 +72,7 @@ public class Diary_main extends AppCompatActivity {
     OnSwipeTouchListener swipeTouchListener;
     IPicture ImageToSend;
     Diary DiaryToSend;
+    boolean IsImageSelected;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -101,9 +103,9 @@ public class Diary_main extends AppCompatActivity {
     }
 
     @Override
-    protected void onPostResume() {
-        super.onPostResume();
+    protected void onResume() {
         PrepareData();
+        super.onResume();
     }
 
     public void Common_Back_Click(View view) {
@@ -170,7 +172,23 @@ public class Diary_main extends AppCompatActivity {
                 switch (which) {
                     case DialogInterface.BUTTON_POSITIVE:
                         //예
-                        Toast.makeText(Diary_main.this, "삭제", Toast.LENGTH_SHORT).show();
+
+                        if (IsImageSelected)
+                        {
+                            //이미지 삭제
+                        }
+                        else
+                        {
+                            //다이어리 삭제
+                            RemoteJava.INSTANCE.deleteCollection(DiaryToSend.getId(), new Promise<Unit>()
+                            {
+                                @Override
+                                public void success(Unit result) {
+                                    Toast.makeText(Diary_main.this, "삭제 완료", Toast.LENGTH_SHORT).show();
+                                    PrepareData();
+                                }
+                            });
+                        }
                         break;
                     case DialogInterface.BUTTON_NEGATIVE:
                         //아니오
@@ -320,6 +338,7 @@ public class Diary_main extends AppCompatActivity {
             PictureGroup PictureRow = new PictureGroup("", (ArrayList<IPicture>) DownloadedImageList);
             List<PictureGroup> PictureList = new ArrayList<>();
             PictureList.add(PictureRow);
+            ImageList.clearAllItems();
             ImageList.getPicAdapter().setColumns(1);
             ImageList.getPicAdapter().setVerticalPadding((int) px);
             ImageList.getPicAdapter().setHorizontalPadding((int) px);
@@ -347,6 +366,7 @@ public class Diary_main extends AppCompatActivity {
                 @Override
                 public void onLongItemClick(@NotNull View view, int position) {
                     //롱클릭 이벤트
+                    IsImageSelected = true;
                     ImageToSend = DownloadedImageList.get(ZoomIndex);
                     findViewById(R.id.diary_main_menuRoot).setVisibility(View.VISIBLE);
                     findViewById(R.id.diary_main_menuEdit).setVisibility(View.INVISIBLE);
@@ -465,6 +485,7 @@ public class Diary_main extends AppCompatActivity {
                     //앨범 롱클릭
                     if (getIntent().getAction().equals(RequestCodes.ACTION_DIARY_OTHERS))
                         return true;
+                    IsImageSelected = false;
                     DiaryToSend = diaryToShow;
                     findViewById(R.id.diary_main_menuRoot).setVisibility(View.VISIBLE);
                     findViewById(R.id.diary_main_menuEdit).setVisibility(View.VISIBLE);
