@@ -82,12 +82,14 @@ class RemoteSpek : Spek({
     }
 
     blit("query my pictures") {
-      client.getMyPictureInfos().size `should be equal to` 3
+      client.getPictures(PictureQuery().apply {
+        userFilter = UserFilter.Include.apply { userId = client.profile!!.id }
+      }).size `should be equal to` 3
     }
 
     blit("receives quiz info") {
       val quizs = mutableListOf<IdPictureInfo>()
-      quizs.addAll(client.getRandomProblems(2))
+      quizs.addAll(client.getRandomPictures(2))
       quizs[0].id `should not be equal to` quizs[1].id
     }
 
@@ -97,7 +99,9 @@ class RemoteSpek : Spek({
     }
 
     blit("query around pictures") {
-      val ps = client.getAroundPictures(21.0, 111.0, 300.0)
+      val ps = client.getPictures(PictureQuery().apply {
+        geoFilter = NearGeoPoint(21.0, 111.0, 300.0)
+      })
       ps.size `should be greater than` 0
     }
 
@@ -119,7 +123,7 @@ class RemoteSpek : Spek({
       collection.images = ArrayList(pics.map { it.id })
       coll = client.modifyCollection(coll!!.id, collection)
       coll!!.data.previews!!.size `should be equal to` collection.images!!.size
-      collection.images!!.remove(0)
+      collection.images!!.removeAt(0)
       coll = client.modifyCollection(coll!!.id, collection)
       coll!!.data.images!!.size `should be equal to` collection.images!!.size
     }
@@ -135,8 +139,10 @@ class RemoteSpek : Spek({
     }
 
     blit("query collections by a picture") {
-      val randoms = client.getCollectionsContainPicture(pics[0].id)
-      randoms.size `should be equal to` 1
+      val zero = client.getCollectionsContainPicture(pics[0].id)
+      zero.size `should be equal to` 0
+      val one = client.getCollectionsContainPicture(pics[1].id)
+      one.size `should be equal to` 1
     }
 
     blit("get random collections") {

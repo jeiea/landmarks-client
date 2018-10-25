@@ -13,10 +13,7 @@ import io.ktor.client.request.forms.MultiPartFormDataContent
 import io.ktor.client.request.forms.formData
 import io.ktor.client.response.HttpResponse
 import io.ktor.http.*
-import kotlinx.coroutines.experimental.Dispatchers
-import kotlinx.coroutines.experimental.GlobalScope
 import kotlinx.coroutines.experimental.channels.Channel
-import kotlinx.coroutines.experimental.channels.produce
 import kotlinx.coroutines.experimental.channels.sendBlocking
 import kotlinx.coroutines.experimental.delay
 import kotlinx.coroutines.experimental.io.readUTF8LineTo
@@ -38,14 +35,6 @@ class Remote(engine: HttpClient, private val basePath: String = herokuUri) {
   val http: HttpClient
   var logger: RemoteLoggable? = null
   var profile: IdAccountForm? = null
-  val problemBuffer by RecoverableChannel {
-    GlobalScope.produce(Dispatchers.IO) {
-      while (true) {
-        val pics: MutableList<IdPictureInfo> = get("$basePath/problem/random/12")
-        pics.forEach { send(it) }
-      }
-    }
-  }
 
   private val nominatimLastRequestMs = Channel<Long>(1)
 
@@ -188,30 +177,16 @@ class Remote(engine: HttpClient, private val basePath: String = herokuUri) {
     }
   }
 
-  suspend fun getRandomProblems(n: Int): List<IdPictureInfo> {
-    val reuse = problemBuffer
-    val ret = mutableListOf<IdPictureInfo>()
-    while (ret.size < n) {
-      val p = reuse.receive()
-      if (!ret.contains(p)) {
-        ret.add(p)
-      }
-    }
-    return ret
+  suspend fun getPictures(cond: PictureQuery?): MutableList<IdPictureInfo> {
+    return get("$basePath/picture?$cond")
   }
 
-  suspend fun modifyPictureInfo(id: Int, info: IPictureInfo) {
-    return put("$basePath/picture/info/$id") {
-      json(info)
-    }
+  suspend fun getRandomPictures(n: Int): List<IdPictureInfo> {
+    return get("$basePath/picture/random?n=$n")
   }
 
   suspend fun getPictureInfo(id: Int): PictureInfo {
     return get("$basePath/picture/info/$id")
-  }
-
-  suspend fun deletePicture(id: Int) {
-    return delete("$basePath/picture/$id")
   }
 
   suspend fun getPicture(id: Int): InputStream {
@@ -226,17 +201,14 @@ class Remote(engine: HttpClient, private val basePath: String = herokuUri) {
     return get("$basePath/picture/thumbnail/$id?width=$desiredWidth&height=$desiredHeight")
   }
 
-  suspend fun getPictureInfos(userId: Int): MutableList<IdPictureInfo> {
-    return get("$basePath/picture/user/$userId")
+  suspend fun modifyPictureInfo(id: Int, info: IPictureInfo) {
+    return put("$basePath/picture/info/$id") {
+      json(info)
+    }
   }
 
-  suspend fun getMyPictureInfos(): MutableList<IdPictureInfo> {
-    return getPictureInfos(profile!!.id)
-  }
-
-  suspend fun getAroundPictures(lat: Double, lon: Double, km: Double):
-    MutableList<IdPictureInfo> {
-    return get("$basePath/picture/near?lat=$lat&lon=$lon&km=$km")
+  suspend fun deletePicture(id: Int) {
+    return delete("$basePath/picture/$id")
   }
 
   suspend fun uploadCollection(collection: ICollectionInfo): IdCollectionInfo {
@@ -251,10 +223,6 @@ class Remote(engine: HttpClient, private val basePath: String = herokuUri) {
 
   suspend fun getCollections(ownerId: Int): MutableList<IdCollectionInfo> {
     return get("$basePath/collection/user/$ownerId")
-  }
-
-  suspend fun getCollectionPics(collectionId: Int): MutableList<IdPictureInfo> {
-    return get("$basePath/collection/$collectionId/picture")
   }
 
   suspend fun getMyCollections(): MutableList<IdCollectionInfo> {

@@ -34,7 +34,7 @@ internal class PositionQuiz(var picture: IPicture) : IGameQuiz {
 }
 
 internal class PicChoiceQuiz(val pictures: List<IPicture>, random: Random) : IGameQuiz {
-  private val correctIdx: Int
+  private val correctIdx: Int = random.nextInt(4)
 
   override val msTimeLimit = 0
 
@@ -44,10 +44,6 @@ internal class PicChoiceQuiz(val pictures: List<IPicture>, random: Random) : IGa
 
   val correctPicture: IPicture
     get() = pictures[correctIdx]
-
-  init {
-    correctIdx = random.nextInt(4)
-  }
 }
 
 internal class GameQuizFactory(val context: Context) {
@@ -68,17 +64,17 @@ internal class GameQuizFactory(val context: Context) {
 
   private suspend fun generateQuiz(): IGameQuiz {
     val (w, h) = getScreenSize()
-    if (random.nextBoolean()) {
-      val pic = RemoteJava.pictureBuffer.receive()
+    return if (random.nextBoolean()) {
+      val pic = RemoteJava.problemBuffer.receive()
       GlideApp.with(context).load(pic).preload(w, h / 2)
-      return PositionQuiz(pic)
+      PositionQuiz(pic)
     }
     else {
-      val pics = (1..4).map { RemoteJava.pictureBuffer.receive() }
+      val pics = (1..4).map { RemoteJava.problemBuffer }
       pics.forEach {
         GlideApp.with(context).load(it).preload(w / 2, h / 4)
       }
-      return PicChoiceQuiz(pics, random)
+      PicChoiceQuiz(pics.filterIsInstance<IPicture>(), random)
     }
   }
 
