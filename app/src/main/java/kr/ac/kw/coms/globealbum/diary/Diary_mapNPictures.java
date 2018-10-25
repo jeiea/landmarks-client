@@ -129,7 +129,11 @@ public class Diary_mapNPictures extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        if (findViewById(R.id.diary_new_EditLayout).getVisibility() == View.VISIBLE)
+        if (Mode == ZOOMIN_MODE)
+            diary_Switch(ADD_MODE);
+        else if (Mode == ADD_MODE)
+            diary_Switch(EDIT_MODE);
+        else if (Mode == EDIT_MODE)
             diary_Switch(VIEW_MODE);
         else
             super.onBackPressed();
@@ -312,22 +316,26 @@ public class Diary_mapNPictures extends AppCompatActivity {
     final int EDIT_MODE = 1;
     final int ADD_MODE = 2;
     final int ZOOMIN_MODE = 3;
+    int Mode = VIEW_MODE;
 
     public void diary_Switch(int MODE) {
         switch (MODE) {
             case VIEW_MODE:
+                Mode = VIEW_MODE;
                 findViewById(R.id.diary_mapNpics_ViewLayout).setVisibility(View.VISIBLE);
                 findViewById(R.id.diary_new_EditLayout).setVisibility(View.GONE);
                 findViewById(R.id.diary_mapNpics_AddLayout).setVisibility(View.GONE);
                 findViewById(R.id.diary_mapNpics_ZoomInLayout).setVisibility(View.GONE);
                 break;
             case EDIT_MODE:
+                Mode = EDIT_MODE;
                 findViewById(R.id.diary_new_EditLayout).setVisibility(View.VISIBLE);
                 findViewById(R.id.diary_mapNpics_ViewLayout).setVisibility(View.GONE);
                 findViewById(R.id.diary_mapNpics_AddLayout).setVisibility(View.GONE);
                 findViewById(R.id.diary_mapNpics_ZoomInLayout).setVisibility(View.GONE);
                 break;
             case ADD_MODE:
+                Mode = ADD_MODE;
                 RecyclerView NewImageList = (RecyclerView) findViewById(R.id.diary_mapNpics_AddImageList);
                 NewImageList.setHasFixedSize(true);
                 NewImageList.setLayoutManager(new GridLayoutManager(this, 4));
@@ -338,6 +346,7 @@ public class Diary_mapNPictures extends AppCompatActivity {
                 findViewById(R.id.diary_mapNpics_ZoomInLayout).setVisibility(View.GONE);
                 break;
             case ZOOMIN_MODE:
+                Mode = ZOOMIN_MODE;
                 findViewById(R.id.diary_new_EditLayout).setVisibility(View.GONE);
                 findViewById(R.id.diary_mapNpics_ViewLayout).setVisibility(View.GONE);
                 findViewById(R.id.diary_mapNpics_AddLayout).setVisibility(View.GONE);
@@ -359,16 +368,10 @@ public class Diary_mapNPictures extends AppCompatActivity {
                 //변경된 내용 반영
                 EditText Edit_Title = findViewById(R.id.diary_edit_TitleText);
                 EditText Edit_Description = findViewById(R.id.diary_edit_DescriptionText);
-                IdCollectionInfo editData = diary_onEdit.getInfo();
-                editData.setTitle(Edit_Title.getText().toString());
-                editData.setText(Edit_Description.getText().toString());
-                ArrayList<Integer> imgIds = new ArrayList<>();
-                for (IPicture pic : editImageListAdapter.getItems()) {
-                    imgIds.add(((RemotePicture) pic).getInfo().getId());
-                }
-                editData.setImages(imgIds);
-
-                RemoteJava.INSTANCE.modifyCollection(diary_onEdit.getInfo().getId(), editData, afterModify);
+                diary_onEdit.setTitle(Edit_Title.getText().toString());
+                diary_onEdit.setText(Edit_Description.getText().toString());
+                diary_onEdit.setPictures(editImageListAdapter.getItems());
+                RemoteJava.INSTANCE.modifyCollection(diary_onEdit.getInfo().getId(), diary_onEdit, afterModify);
                 break;
         }
     }
@@ -589,11 +592,9 @@ public class Diary_mapNPictures extends AppCompatActivity {
                         public void onClick(View v) {
                             EXIFinfo exifInfo = new EXIFinfo(url);
                             double[] location = exifInfo.getLocation();
-                            if (location == null)
-                            {
+                            if (location == null) {
                                 Toast.makeText(Diary_mapNPictures.this, "위치 정보를 확인할 수 없습니다.", Toast.LENGTH_SHORT).show();
-                            }
-                            else {
+                            } else {
                                 IPicture newPicture = new LocalPicture(url);
                                 //diary_onEdit.add((RemotePicture) newPicture);
                                 editImageListAdapter.AddNewPicture(newPicture);
@@ -609,5 +610,9 @@ public class Diary_mapNPictures extends AppCompatActivity {
         public int getItemCount() {
             return urlList.size();
         }
+    }
+
+    public void Common_Back_Click(View view) {
+        finish();
     }
 }

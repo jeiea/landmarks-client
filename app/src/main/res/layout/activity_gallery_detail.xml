@@ -4,65 +4,68 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#0099cc"
+    android:background="#FFFFFF"
     tools:context=".album.GalleryDetail">
 
-    <android.support.constraint.ConstraintLayout
-        android:id="@+id/gallerydetail_topbar"
+    <include
+        android:id="@+id/gallerydetail_Topbar"
+        layout="@layout/layout_common_topbar"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:background="@color/colorPrimary"
-        android:orientation="horizontal"
-        app:layout_constraintBottom_toTopOf="@id/gallerydetail_guideline"
-        app:layout_constraintHeight_percent="0.1"
+        app:layout_constraintHeight_percent="0.065"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent" />
 
-        <android.support.v7.widget.AppCompatImageView
-            android:id="@+id/gallerydetail_btn_back"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:src="@drawable/arrow_left"
-            android:padding="10dp"
-            android:onClick="gallerycancel_onClick"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintDimensionRatio="1:1"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+    <android.support.constraint.ConstraintLayout
+        android:id="@+id/gallerydetail_NameBox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/gallerydetail_Topbar">
 
         <TextView
             android:id="@+id/gallerydetail_imagename"
             android:layout_width="0dp"
-            android:layout_height="match_parent"
+            android:layout_height="0dp"
+            android:textAlignment="center"
+            android:background="#FFFFFF"
+            android:textSize="30sp"
+            android:gravity="center_vertical"
             android:text="IMAGE_NAME"
-            android:gravity="center"
-            android:textColor="#FFFFFF"
-            android:textSize="20sp"
-            app:layout_constraintLeft_toRightOf="@id/gallerydetail_btn_back"
-            app:layout_constraintRight_toLeftOf="@id/gallerydetail_btn_Select"
+            app:layout_constraintBottom_toTopOf="@id/gallerydetail_NameBoxBorder"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toLeftOf="@id/gallerydetail_NameBoxDivider"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <android.support.v7.widget.AppCompatImageView
-            android:id="@+id/gallerydetail_btn_Select"
+        <View
+            android:id="@+id/gallerydetail_NameBoxDivider"
+            android:layout_width="1dp"
+            android:layout_height="0dp"
+            android:background="#808080"
+            app:layout_constraintBottom_toTopOf="@id/gallerydetail_NameBoxBorder"
+            app:layout_constraintRight_toLeftOf="@id/gallerydetail_Share"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <Button
+            android:id="@+id/gallerydetail_Share"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:src="@drawable/confirm"
-            android:padding="10dp"
-            android:onClick="galleryselect_onClick"
-            android:visibility="invisible"
-            app:layout_constraintBottom_toBottomOf="parent"
+            android:text="공유"
+            android:background="#FFFFFF"
+            android:textSize="15sp"
+            android:onClick="gallerydetail_Share"
             app:layout_constraintDimensionRatio="1:1"
+            app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
+            app:layout_constraintBottom_toTopOf="@id/gallerydetail_NameBoxBorder"/>
+        <View
+            android:id="@+id/gallerydetail_NameBoxBorder"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#808080"
+            app:layout_constraintBottom_toBottomOf="parent"/>
     </android.support.constraint.ConstraintLayout>
 
-    <android.support.constraint.Guideline
-        android:id="@+id/gallerydetail_guideline"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.1" />
 
     <ImageView
         android:id="@+id/gallerydetail_Image"
@@ -70,24 +73,8 @@
         android:layout_height="0dp"
         android:background="#FFFFFF"
         android:src="@drawable/blank"
-        app:layout_constraintBottom_toBottomOf="@id/gallerydetail_guidelineBottom"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/gallerydetail_guideline" />
-
-    <android.support.constraint.Guideline
-        android:id="@+id/gallerydetail_guidelineBottom"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.9" />
-
-    <android.support.constraint.ConstraintLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:background="#FFFFFF"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/gallerydetail_guidelineBottom">
+        app:layout_constraintTop_toBottomOf="@id/gallerydetail_NameBox" />
 
-    </android.support.constraint.ConstraintLayout>
 </android.support.constraint.ConstraintLayout>

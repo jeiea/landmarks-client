@@ -40,6 +40,7 @@
                 android:background="#FFFFFF"
                 android:layout_margin="1px"
                 android:text="My Image"
+                android:textSize="20sp"
                 android:textAlignment="center"
                 android:gravity="center" />
 
@@ -63,6 +64,7 @@
                 android:background="#FFFFFF"
                 android:layout_margin="1px"
                 android:text="My Diary"
+                android:textSize="20sp"
                 android:textAlignment="center"
                 android:gravity="center" />
 

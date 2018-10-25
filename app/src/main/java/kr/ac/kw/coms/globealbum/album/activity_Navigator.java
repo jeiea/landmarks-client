@@ -46,18 +46,19 @@ public class activity_Navigator extends AppCompatActivity {
 
         density = getResources().getDisplayMetrics().density;
         WindowManager wm = (WindowManager) getBaseContext().getSystemService(Context.WINDOW_SERVICE);
+        assert wm != null;
         Display display = wm.getDefaultDisplay();
         final LinearLayout mapLayout = (LinearLayout) findViewById(R.id.MapLayout);
         Point size = new Point();
         display.getSize(size);
         mapLayout.setMinimumHeight((int) (size.y * 0.5));
-        final View Divider = (View)findViewById(R.id.Divider);
+        final View Divider = (View) findViewById(R.id.Divider);
 
         View.OnDragListener mDragListener = new View.OnDragListener() {
             @Override
             public boolean onDrag(View v, DragEvent event) {
                 View view;
-                if (v instanceof View) {
+                if (v != null) {
                     view = (View) v;
                 } else {
                     return false;
@@ -73,7 +74,7 @@ public class activity_Navigator extends AppCompatActivity {
                     case DragEvent.ACTION_DRAG_ENDED:
                         if (!event.getResult()) {
                             ViewGroup.LayoutParams params = mapLayout.getLayoutParams();
-                            params.height = (int) event.getY() - (int)(density * 24) - (int)(Divider.getHeight() / 2);
+                            params.height = (int) event.getY() - (int) (density * 24) - (int) (Divider.getHeight() / 2);
                             mapLayout.setLayoutParams(params);
                         }
                         return true;
@@ -85,7 +86,7 @@ public class activity_Navigator extends AppCompatActivity {
         };
 
 
-        Divider.setOnLongClickListener(new View.OnLongClickListener(){
+        Divider.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
                 v.startDrag(null, new CanvasShadow(v), null, 0);
@@ -95,14 +96,14 @@ public class activity_Navigator extends AppCompatActivity {
         Divider.setOnDragListener(mDragListener);
 
         getData();
-        recycle_gallery = (kr.ac.kw.coms.globealbum.album.GroupDiaryView)findViewById(R.id.recycle_gallery);
-        recycle_gallery.setGroups((List)data);
+        recycle_gallery = (kr.ac.kw.coms.globealbum.album.GroupDiaryView) findViewById(R.id.recycle_gallery);
+        recycle_gallery.setGroups((List) data);
     }
 
     class CanvasShadow extends View.DragShadowBuilder {
         int width, height;
 
-        public CanvasShadow(View v) {
+        CanvasShadow(View v) {
             super(v);
             width = v.getWidth();
             height = v.getHeight();
@@ -122,8 +123,7 @@ public class activity_Navigator extends AppCompatActivity {
         }
     }
 
-    public void getData()
-    {
+    public void getData() {
         data = new ArrayList<>();
         Context c = getBaseContext();
         ArrayList<IPicture> group1 = new ArrayList<>();
@@ -142,14 +142,14 @@ public class activity_Navigator extends AppCompatActivity {
         data.add(new PictureGroup("group 2", group2));
     }
 
-    class GroupDiaryView extends RecyclerView
-    {
+    class GroupDiaryView extends RecyclerView {
         GroupedPicAdapter picAdapter = new GroupedPicAdapter();
+
         public GroupDiaryView(Context context) {
             this(context, null, 0);
         }
-        public GroupDiaryView(Context context, AttributeSet attrs, int defStyle)
-        {
+
+        public GroupDiaryView(Context context, AttributeSet attrs, int defStyle) {
             super(context, attrs, defStyle);
             this.setAdapter(picAdapter);
             FlexboxLayoutManager mFlexboxLayoutManager = new FlexboxLayoutManager(context);
@@ -160,17 +160,15 @@ public class activity_Navigator extends AppCompatActivity {
         }
     }
 
-    class GroupedPicAdapter extends RecyclerView.Adapter<GroupedPicAdapter.ElementViewHolder>
-    {
-        public ArrayList<Object> viewData = new ArrayList<>();
+    class GroupedPicAdapter extends RecyclerView.Adapter<GroupedPicAdapter.ElementViewHolder> {
+        ArrayList<Object> viewData = new ArrayList<>();
         //String or Picture
 
         @NonNull
         @Override
         public GroupedPicAdapter.ElementViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
             ElementViewHolder vh = null;
-            if (viewType == 0)
-            {
+            if (viewType == 0) {
                 SeparatorHolder viewHolder = new SeparatorHolder(new TextView(parent.getContext()));
                 ViewGroup.LayoutParams params = viewHolder.textView.getLayoutParams();
                 params.height = 40;
@@ -178,9 +176,7 @@ public class activity_Navigator extends AppCompatActivity {
                 viewHolder.textView.setBackgroundColor(0xFFFFFF88);
                 viewHolder.textView.setLayoutParams(params);
                 vh = viewHolder;
-            }
-            else
-            {
+            } else {
                 PictureHolder viewHolder = new PictureHolder(new ImageView(parent.getContext()));
                 DisplayMetrics metrics = parent.getResources().getDisplayMetrics();
                 int mw = metrics.widthPixels / 3;
@@ -194,21 +190,17 @@ public class activity_Navigator extends AppCompatActivity {
             return vh;
         }
 
-        public int getItemViewType(int position)
-        {
-            return viewData.get(position) instanceof String ? 0: 1;
+        public int getItemViewType(int position) {
+            return viewData.get(position) instanceof String ? 0 : 1;
         }
 
         @Override
         public void onBindViewHolder(@NonNull GroupedPicAdapter.ElementViewHolder holder, int position) {
-            if (holder instanceof SeparatorHolder)
-            {
+            if (holder instanceof SeparatorHolder) {
                 ((SeparatorHolder) holder).textView.setText(viewData.get(position).toString());
-            }
-            else if (holder instanceof PictureHolder)
-            {
-                IPicture pic = (IPicture)viewData.get(position);
-                ImageView iv = ((PictureHolder)holder).imageView;
+            } else if (holder instanceof PictureHolder) {
+                IPicture pic = (IPicture) viewData.get(position);
+                ImageView iv = ((PictureHolder) holder).imageView;
                 GlideApp.with(iv).load(pic).into(iv);
             }
         }
@@ -218,24 +210,26 @@ public class activity_Navigator extends AppCompatActivity {
             return viewData.size();
         }
 
-        class ElementViewHolder extends RecyclerView.ViewHolder
-        {
+        class ElementViewHolder extends RecyclerView.ViewHolder {
             View view;
-            public ElementViewHolder(View itemView) {
+
+            ElementViewHolder(View itemView) {
                 super(itemView);
             }
         }
-        class SeparatorHolder extends ElementViewHolder
-        {
+
+        class SeparatorHolder extends ElementViewHolder {
             TextView textView;
-            public SeparatorHolder(View itemView) {
+
+            SeparatorHolder(View itemView) {
                 super(itemView);
             }
         }
-        class PictureHolder extends ElementViewHolder
-        {
+
+        class PictureHolder extends ElementViewHolder {
             ImageView imageView;
-            public PictureHolder(View itemView) {
+
+            PictureHolder(View itemView) {
                 super(itemView);
             }
         }

@@ -98,7 +98,11 @@ public class Diary_main extends AppCompatActivity {
         JourneyNowLoading.getPicAdapter().setImageScaleType(ImageView.ScaleType.FIT_CENTER);
         ImageNowLoading.setGroups(LoadingScreen);
         JourneyNowLoading.setGroups(LoadingScreen);
+    }
 
+    @Override
+    protected void onPostResume() {
+        super.onPostResume();
         PrepareData();
     }
 

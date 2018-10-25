@@ -140,7 +140,6 @@ class _GalleryAdapter extends RecyclerView.Adapter<_GalleryAdapter.ViewHolder> {
             i.mImageView.setImageBitmap(i.Image_original);
         }
         MultiSelectMode = false;
-        ((AppCompatImageView) ((Activity) context).findViewById(R.id.gallerydetail_btn_Select)).setVisibility(View.GONE);
     }
 
     public boolean isMultiSelectMode() {
