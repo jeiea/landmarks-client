@@ -1,6 +1,5 @@
 package kr.ac.kw.coms.globealbum.provider
 
-import android.content.Context
 import android.util.Log
 import kotlinx.coroutines.experimental.*
 import kotlinx.coroutines.experimental.channels.map
@@ -65,16 +64,16 @@ object RemoteJava {
     return RemotePicture(client.uploadPicture(info, file))
   }
 
-  fun getPicture(id: Int, prom: Promise<IPicture>): Job =
+  fun getPicture(id: Int, prom: Promise<RemotePicture>): Job =
     resolve(prom) { RemotePicture(IdPictureInfo(id, client.getPictureInfo(id))) }
 
-  fun getRandomPictures(n: Int, context: Context, prom: Promise<List<RemotePicture>>): Job =
+  fun getRandomPictures(n: Int, prom: Promise<List<RemotePicture>>): Job =
     resolve(prom) { (1..n).map { pictureBuffer.receive() } }
 
   fun modifyPictureInfo(id: Int, info: PictureInfo, prom: Promise<Unit>): Job =
     resolve(prom) { client.modifyPictureInfo(id, info) }
 
-  fun getMyPictures(prom: Promise<List<IPicture>>): Job =
+  fun getMyPictures(prom: Promise<List<RemotePicture>>): Job =
     resolve(prom) { client.getMyPictureInfos().map(::RemotePicture) }
 
   fun getPicturesAround(
@@ -86,13 +85,20 @@ object RemoteJava {
     resolve(prom) { client.deletePicture(id) }
 
   fun uploadCollection(diary: Diary, prom: Promise<Diary>): Job = resolve(prom) {
-    coroutineScope {
-      val pics = diary.pictures.map {
-        async { if (it is LocalPicture) uploadPicture(it) else it }
-      }.awaitAll()
-      diary.pictures = pics
-      Diary(client.uploadCollection(diary.info))
-    }
+    uploadLocalPictures(diary) { client.uploadCollection(it.info) }
+  }
+
+  private suspend fun uploadLocalPictures(
+    diary: Diary,
+    block: suspend (Diary) -> IdCollectionInfo
+  ): Diary = coroutineScope {
+
+    val pics = diary.pictures.map {
+      async { if (it is LocalPicture) uploadPicture(it) else it }
+    }.awaitAll()
+    diary.pictures = pics
+
+    Diary(block(diary))
   }
 
   fun getMyCollections(prom: Promise<List<Diary>>): Job = resolve(prom) {
@@ -112,8 +118,9 @@ object RemoteJava {
   fun getCollectionsContainPicture(picId: Int, prom: Promise<MutableList<IdCollectionInfo>>): Job =
     resolve(prom) { client.getCollectionsContainPicture(picId) }
 
-  fun modifyCollection(id: Int, info: ICollectionInfo, prom: Promise<Diary>): Job =
-    resolve(prom) { Diary(client.modifyCollection(id, info)) }
+  fun modifyCollection(diary: Diary, prom: Promise<Diary>): Job = resolve(prom) {
+    uploadLocalPictures(diary) { client.modifyCollection(diary.id, diary.info) }
+  }
 
   fun deleteCollection(id: Int, prom: Promise<Unit>): Job =
     resolve(prom) { client.deleteCollection(id) }
