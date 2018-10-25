@@ -28,6 +28,7 @@
             android:layout_height="match_parent"
             android:background="@color/black_overlay"
             android:clickable="true"
+            android:focusable="true"
             android:onClick="diary_main_SwitchToLeft"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintTop_toTopOf="parent"
@@ -50,6 +51,7 @@
             android:layout_height="match_parent"
             android:background="@color/black_overlay"
             android:clickable="true"
+            android:focusable="true"
             android:onClick="diary_main_SwitchToRight"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toTopOf="parent"
@@ -135,6 +137,7 @@
         android:layout_marginRight="20dp"
         android:visibility="invisible"
         android:onClick="diary_main_AddNewDiary"
+        android:contentDescription="글쓰기"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintDimensionRatio="1:1"
         app:layout_constraintHeight_percent="0.1"
@@ -162,53 +165,76 @@
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintWidth_percent="0.6">
-
-            <Button
-                android:id="@+id/diary_main_menuEdit"
+            app:layout_constraintWidth_percent="0.6"
+            android:clickable="true"
+            android:focusable="auto">
+            <View
+                android:id="@+id/diary_main_menuInnerEdge1"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:layout_constraintWidth_percent="0.1"
+                app:layout_constraintDimensionRatio="1:1"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintTop_toTopOf="parent"/>
+            <View
+                android:id="@+id/diary_main_menuInnerEdge2"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:layout_constraintWidth_percent="0.1"
+                app:layout_constraintDimensionRatio="1:1"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"/>
+            <android.support.constraint.ConstraintLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="수정"
-                android:textSize="20sp"
-                android:textColor="#FFFFFF"
-                android:background="@color/colorPrimary"
-                android:layout_marginBottom="10dp"
-                android:onClick="diary_main_EditStart"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintWidth_percent="0.8" />
+                app:layout_constraintWidth_percent="0.8"
+                app:layout_constraintLeft_toRightOf="@id/diary_main_menuInnerEdge1"
+                app:layout_constraintTop_toBottomOf="@id/diary_main_menuInnerEdge1"
+                app:layout_constraintBottom_toTopOf="@id/diary_main_menuInnerEdge2">
+                <Button
+                    android:id="@+id/diary_main_menuEdit"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="수정"
+                    android:textSize="20sp"
+                    android:textColor="#FFFFFF"
+                    android:background="@color/colorPrimary"
+                    android:layout_marginBottom="10dp"
+                    android:onClick="diary_main_EditStart"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"/>
 
-            <Button
-                android:id="@+id/diary_main_menuShare"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:text="공유"
-                android:textSize="20sp"
-                android:textColor="#FFFFFF"
-                android:background="@color/colorPrimary"
-                android:visibility="invisible"
-                android:onClick="diary_main_SharePicture"
-                android:layout_marginBottom="10dp"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintWidth_percent="0.8" />
+                <Button
+                    android:id="@+id/diary_main_menuShare"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="공유"
+                    android:textSize="20sp"
+                    android:textColor="#FFFFFF"
+                    android:background="@color/colorPrimary"
+                    android:visibility="invisible"
+                    android:onClick="diary_main_SharePicture"
+                    android:layout_marginBottom="10dp"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"/>
 
-            <Button
-                android:id="@+id/diary_main_menuDelete"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:text="삭제"
-                android:textSize="20sp"
-                android:textColor="#FFFFFF"
-                android:background="@color/colorPrimary"
-                android:layout_marginTop="10dp"
-                android:onClick="diary_main_Delete"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/diary_main_menuEdit"
-                app:layout_constraintWidth_percent="0.8" />
+                <Button
+                    android:id="@+id/diary_main_menuDelete"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="삭제"
+                    android:textSize="20sp"
+                    android:textColor="#FFFFFF"
+                    android:background="@color/colorPrimary"
+                    android:layout_marginTop="10dp"
+                    android:onClick="diary_main_Delete"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/diary_main_menuEdit" />
+            </android.support.constraint.ConstraintLayout>
+
         </android.support.constraint.ConstraintLayout>
     </android.support.constraint.ConstraintLayout>
 
