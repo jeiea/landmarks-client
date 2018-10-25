@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.NonNull;
@@ -229,10 +228,11 @@ public class Diary_main extends AppCompatActivity {
             public void success(IdAccountForm result) {
                 super.success(result);
                 if (getIntent().getAction().equals(RequestCodes.ACTION_DIARY_MINE)) {
-                    RemoteJava.INSTANCE.getMyPictures(new UIPromise<List<IPicture>>() {
+                    RemoteJava.INSTANCE.getMyPictures(new UIPromise<List<RemotePicture>>() {
                         @Override
-                        public void success(List<IPicture> result) {
-                            DownloadedImageList = result;
+                        public void success(List<RemotePicture> result) {
+                            DownloadedImageList.clear();
+                            DownloadedImageList.addAll(result);
                             ImageList.getPicAdapter().clearAllItems();
                             ShowImageData();
                             findViewById(R.id.diary_main_ImageNowLoading).setVisibility(View.GONE);

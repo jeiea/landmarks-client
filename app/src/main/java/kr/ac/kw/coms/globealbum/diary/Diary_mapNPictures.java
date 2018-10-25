@@ -59,7 +59,6 @@ import kr.ac.kw.coms.globealbum.provider.IPicture;
 import kr.ac.kw.coms.globealbum.provider.LocalPicture;
 import kr.ac.kw.coms.globealbum.provider.Promise;
 import kr.ac.kw.coms.globealbum.provider.RemoteJava;
-import kr.ac.kw.coms.globealbum.provider.RemotePicture;
 import kr.ac.kw.coms.globealbum.provider.UIPromise;
 import kr.ac.kw.coms.landmarks.client.IdCollectionInfo;
 
@@ -371,7 +370,7 @@ public class Diary_mapNPictures extends AppCompatActivity {
                 diary_onEdit.setTitle(Edit_Title.getText().toString());
                 diary_onEdit.setText(Edit_Description.getText().toString());
                 diary_onEdit.setPictures(editImageListAdapter.getItems());
-                RemoteJava.INSTANCE.modifyCollection(diary_onEdit.getInfo().getId(), diary_onEdit, afterModify);
+                RemoteJava.INSTANCE.modifyCollection(diary_onEdit, afterModify);
                 break;
         }
     }
