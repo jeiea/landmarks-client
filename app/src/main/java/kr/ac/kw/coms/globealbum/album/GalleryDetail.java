@@ -101,4 +101,8 @@ public class GalleryDetail extends AppCompatActivity {
             }
         });
     }
+
+    public void gallerydetail_Send(View view) {
+        //사진 업로드 확인 및 실행
+    }
 }

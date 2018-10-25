@@ -58,6 +58,19 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintBottom_toTopOf="@id/gallerydetail_NameBoxBorder"/>
+        <Button
+            android:id="@+id/gallerydetail_Send"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:text="확인"
+            android:background="#FFFFFF"
+            android:textSize="15sp"
+            android:visibility="gone"
+            android:onClick="gallerydetail_Send"
+            app:layout_constraintDimensionRatio="1:1"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/gallerydetail_NameBoxBorder"/>
         <View
             android:id="@+id/gallerydetail_NameBoxBorder"
             android:layout_width="match_parent"

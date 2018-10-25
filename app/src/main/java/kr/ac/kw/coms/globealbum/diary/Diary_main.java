@@ -203,7 +203,7 @@ public class Diary_main extends AppCompatActivity {
     }
 
     public void diary_main_AddNewDiary(View view) {
-        Intent intent = new Intent(getBaseContext(), diary_new.class);
+        Intent intent = new Intent(getBaseContext(), Diary_newDiary.class);
         startActivityForResult(intent, RequestCodes.MakeNewDiary);
     }
 
@@ -215,6 +215,7 @@ public class Diary_main extends AppCompatActivity {
         AdditiveAnimator.animate(bar).setDuration(200).translationX(0).start();
         TabLeft.setVisibility(View.VISIBLE);
         TabRight.setVisibility(View.GONE);
+        findViewById(R.id.diary_main_NewImage).setVisibility(View.VISIBLE);
         findViewById(R.id.diary_main_NewDiary).setVisibility(View.GONE);
         isTabLeft = true;
     }
@@ -227,6 +228,7 @@ public class Diary_main extends AppCompatActivity {
         AdditiveAnimator.animate(bar).setDuration(200).translationX(bar.getWidth()).start();
         TabRight.setVisibility(View.VISIBLE);
         TabLeft.setVisibility(View.GONE);
+        findViewById(R.id.diary_main_NewImage).setVisibility(View.GONE);
         findViewById(R.id.diary_main_NewDiary).setVisibility(View.VISIBLE);
         isTabLeft = false;
     }
@@ -249,7 +251,7 @@ public class Diary_main extends AppCompatActivity {
                     RemoteJava.INSTANCE.getMyPictures(new UIPromise<List<RemotePicture>>() {
                         @Override
                         public void success(List<RemotePicture> result) {
-                            DownloadedImageList.clear();
+                            DownloadedImageList = new ArrayList<>();
                             DownloadedImageList.addAll(result);
                             ImageList.getPicAdapter().clearAllItems();
                             ShowImageData();
@@ -418,6 +420,10 @@ public class Diary_main extends AppCompatActivity {
 
     public void diary_ZoomIn_CloseZoomIn(View view) {
         findViewById(R.id.diary_ZoomIn_Root).setVisibility(View.INVISIBLE);
+    }
+
+    public void diary_main_AddNewImage(View view) {
+        //추가할 이미지 선택하기(startactivity)
     }
 
     public class DiaryListAdapter extends RecyclerView.Adapter<DiaryListViewHolder> {

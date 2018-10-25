@@ -17,7 +17,7 @@
         android:roundIcon="@mipmap/ic_landmark_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".SignUpActivity"></activity>
+        <activity android:name=".SignUpActivity" />
         <activity android:name=".ProfileActivity" />
         <activity android:name=".MainActivity">
             <intent-filter>
@@ -46,15 +46,16 @@
         <activity android:name=".provider.LoginActivity" />
         <activity android:name=".diary.Diary_mapNPictures" />
         <activity android:name=".diary.Diary_Edit" />
-        <activity android:name=".diary.diary_new" />
+        <activity android:name=".diary.Diary_newDiary" />
+
         <provider
-            android:authorities="{package_name}.fileprovider"
             android:name="android.support.v4.content.FileProvider"
+            android:authorities="{package_name}.fileprovider"
             android:exported="false"
             android:grantUriPermissions="true">
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/filepaths"/>
+                android:resource="@xml/filepaths" />
         </provider>
     </application>
 

@@ -41,14 +41,14 @@ import kr.ac.kw.coms.landmarks.client.CollectionInfo;
 import kr.ac.kw.coms.landmarks.client.IdCollectionInfo;
 
 //새로 작성하는 화면. 여행지 목록에 플로팅 버튼을 통해 진입할 예정.
-public class diary_new extends AppCompatActivity {
+public class Diary_newDiary extends AppCompatActivity {
     CollectionInfo diary;
     NewImageListAdapter newImageListAdapter; //새로 추가할 이미지 목록
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_diary_new);
+        setContentView(R.layout.activity_diary_new_diary);
 
         diary = new CollectionInfo();
         RecyclerView Edit_ImageList = findViewById(R.id.diary_edit_ImageList);
@@ -94,7 +94,7 @@ public class diary_new extends AppCompatActivity {
     Promise<Diary> afterUpload = new UIPromise<Diary>() {
         @Override
         public void success(Diary result) {
-            Toast.makeText(diary_new.this, "작성 완료", Toast.LENGTH_SHORT).show();
+            Toast.makeText(Diary_newDiary.this, "작성 완료", Toast.LENGTH_SHORT).show();
             setResult(RESULT_OK);
             finish();
         }
@@ -156,7 +156,7 @@ public class diary_new extends AppCompatActivity {
                 holder.btn_Delete.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        AlertDialog.Builder alert = new AlertDialog.Builder(diary_new.this);
+                        AlertDialog.Builder alert = new AlertDialog.Builder(Diary_newDiary.this);
                         alert.setTitle("삭제 확인");
                         alert.setMessage("사진을 삭제합니다.");
                         alert.setPositiveButton("확인", new DialogInterface.OnClickListener() {
@@ -202,10 +202,10 @@ public class diary_new extends AppCompatActivity {
                 holder.btn_New.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        Toast.makeText(diary_new.this, "New Image!", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(Diary_newDiary.this, "New Image!", Toast.LENGTH_SHORT).show();
                         RecyclerView NewImageList = (RecyclerView) findViewById(R.id.diary_new_AddImageList);
                         NewImageList.setHasFixedSize(true);
-                        NewImageList.setLayoutManager(new GridLayoutManager(diary_new.this, 4));
+                        NewImageList.setLayoutManager(new GridLayoutManager(Diary_newDiary.this, 4));
                         NewImageList.setAdapter(new NewImageAdapter(getImageFilePath()));
                         findViewById(R.id.diary_new_EditLayout).setVisibility(View.GONE);
                         findViewById(R.id.diary_new_AddLayout).setVisibility(View.VISIBLE);
@@ -303,7 +303,7 @@ public class diary_new extends AppCompatActivity {
             holder.imageView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Glide.with(diary_new.this).load(url).into((ImageView) findViewById(R.id.diary_ZoomIn_ZoomImage));
+                    Glide.with(Diary_newDiary.this).load(url).into((ImageView) findViewById(R.id.diary_ZoomIn_ZoomImage));
                     findViewById(R.id.diary_ZoomIn_ZoomName1).setVisibility(View.GONE);
                     findViewById(R.id.diary_ZoomIn_ZoomName2).setVisibility(View.GONE);
                     findViewById(R.id.diary_ZoomIn_Confirm).setVisibility(View.VISIBLE);
@@ -317,7 +317,7 @@ public class diary_new extends AppCompatActivity {
                             try {
                                 double[] location = exifInfo.getLocation();
                             } catch (NullPointerException e) {
-                                Toast.makeText(diary_new.this, "위치 정보를 확인할 수 없습니다.", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(Diary_newDiary.this, "위치 정보를 확인할 수 없습니다.", Toast.LENGTH_SHORT).show();
                                 return;
                             }
                             IPicture newPicture = new LocalPicture(url);
