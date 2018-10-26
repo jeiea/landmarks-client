@@ -96,7 +96,7 @@ object RemoteJava {
     resolve(prom) { client.deletePicture(id) }
 
   fun uploadCollection(diary: Diary, prom: Promise<Diary>): Job = resolve(prom) {
-    uploadLocalPictures(diary) { client.uploadCollection(it.info) }
+    uploadLocalPictures(diary) { client.uploadCollection(it.info.data) }
   }
 
   private suspend fun uploadLocalPictures(
@@ -130,7 +130,7 @@ object RemoteJava {
     resolve(prom) { client.getCollectionsContainPicture(picId) }
 
   fun modifyCollection(diary: Diary, prom: Promise<Diary>): Job = resolve(prom) {
-    uploadLocalPictures(diary) { client.modifyCollection(diary.id, diary.info) }
+    uploadLocalPictures(diary) { client.modifyCollection(diary.id, diary.info.data) }
   }
 
   fun deleteCollection(id: Int, prom: Promise<Unit>): Job =

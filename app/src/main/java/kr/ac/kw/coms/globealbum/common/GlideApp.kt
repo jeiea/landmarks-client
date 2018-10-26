@@ -24,7 +24,6 @@ import kr.ac.kw.coms.globealbum.provider.*
 import kr.ac.kw.coms.landmarks.client.getThumbnailLevel
 import java.io.InputStream
 import java.security.MessageDigest
-import kotlin.coroutines.experimental.buildSequence
 
 
 @GlideModule
@@ -78,11 +77,7 @@ class PictureModelLoader(
         val w = if (width < 0) 1920 else width
         val h = if (height < 0) 1080 else height
         val key = RemotePictureKey(model, w, h)
-        val alternateKeys = buildSequence {
-          for (i in 0 until key.level) {
-            yield(RemotePictureKey(model.info.id, i))
-          }
-        }.toList()
+        val alternateKeys = (0 until key.level).map { RemotePictureKey(model.info.id, it) }
         val fetcher = PictureDataFetcher(model, w, h)
         return LoadData(key, alternateKeys, fetcher)
       }

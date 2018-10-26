@@ -211,7 +211,7 @@ class Remote(engine: HttpClient, private val basePath: String = herokuUri) {
     return delete("$basePath/picture/$id")
   }
 
-  suspend fun uploadCollection(collection: ICollectionInfo): IdCollectionInfo {
+  suspend fun uploadCollection(collection: CollectionInfo): IdCollectionInfo {
     return post("$basePath/collection") {
       json(collection)
     }
@@ -233,7 +233,7 @@ class Remote(engine: HttpClient, private val basePath: String = herokuUri) {
     return get("$basePath/collection/contains/picture/$picId")
   }
 
-  suspend fun modifyCollection(id: Int, collection: ICollectionInfo): IdCollectionInfo {
+  suspend fun modifyCollection(id: Int, collection: CollectionInfo): IdCollectionInfo {
     return put("$basePath/collection/$id") {
       json(collection)
     }

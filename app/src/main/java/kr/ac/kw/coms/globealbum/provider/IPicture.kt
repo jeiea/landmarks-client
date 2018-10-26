@@ -398,6 +398,7 @@ class Diary(
         )
         writeParcelable(pic, 0)
       }
+      writeByte(0)
       writeInt(v.likes ?: -1)
       writeByte(boolToByte(v.liking))
       writeByte(boolToByte(v.isRoute))
