@@ -2,7 +2,6 @@ package kr.ac.kw.coms.globealbum.provider
 
 import android.util.Log
 import kotlinx.coroutines.experimental.*
-import kotlinx.coroutines.experimental.channels.produce
 import kr.ac.kw.coms.landmarks.client.*
 import java.io.File
 import java.util.*
@@ -10,14 +9,6 @@ import java.util.*
 object RemoteJava {
 
   val client = Remote()
-  val problemBuffer by RecoverableChannel {
-    GlobalScope.produce(Dispatchers.IO) {
-      while (true) {
-        val pics: List<RemotePicture> = client.getRandomPictures(33).map(::RemotePicture)
-        pics.forEach { send(it) }
-      }
-    }
-  }
 
   init {
     client.logger = object : RemoteLoggable {
@@ -73,7 +64,7 @@ object RemoteJava {
     resolve(prom) { RemotePicture(IdPictureInfo(id, client.getPictureInfo(id))) }
 
   fun getRandomPictures(n: Int, prom: Promise<List<RemotePicture>>): Job =
-    resolve(prom) { (1..n).map { problemBuffer.receive() } }
+    resolve(prom) { client.getRandomPictures(n).map(::RemotePicture) }
 
   fun modifyPictureInfo(id: Int, info: PictureInfo, prom: Promise<Unit>): Job =
     resolve(prom) { client.modifyPictureInfo(id, info) }

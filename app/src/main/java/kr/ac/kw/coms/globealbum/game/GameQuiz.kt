@@ -11,6 +11,7 @@ import kr.ac.kw.coms.globealbum.common.GlideApp
 import kr.ac.kw.coms.globealbum.provider.IPicture
 import kr.ac.kw.coms.globealbum.provider.Promise
 import kr.ac.kw.coms.globealbum.provider.RemoteJava
+import kr.ac.kw.coms.globealbum.provider.RemotePicture
 import kr.ac.kw.coms.landmarks.client.RecoverableChannel
 import java.util.*
 
@@ -51,9 +52,18 @@ internal class GameQuizFactory(val context: Context) {
   private val random = Random()
 
   private val quizBuffer by RecoverableChannel {
-    GlobalScope.produce(Dispatchers.Main, capacity = 1) {
+    GlobalScope.produce(Dispatchers.Main, capacity = 2) {
       while (true) {
         send(generateQuiz())
+      }
+    }
+  }
+
+  val pictureBuffer by RecoverableChannel {
+    GlobalScope.produce(Dispatchers.IO) {
+      while (true) {
+        val pics = RemoteJava.client.getRandomPictures(33).map(::RemotePicture)
+        pics.forEach { send(it) }
       }
     }
   }
@@ -65,16 +75,17 @@ internal class GameQuizFactory(val context: Context) {
   private suspend fun generateQuiz(): IGameQuiz {
     val (w, h) = getScreenSize()
     return if (random.nextBoolean()) {
-      val pic = RemoteJava.problemBuffer.receive()
+      val pic = pictureBuffer.receive()
       GlideApp.with(context).load(pic).preload(w, h / 2)
       PositionQuiz(pic)
     }
     else {
-      val pics = (1..4).map { RemoteJava.problemBuffer }
-      pics.forEach {
-        GlideApp.with(context).load(it).preload(w / 2, h / 4)
+      val pics: List<RemotePicture> = (1..4).map { _ ->
+        val pic = pictureBuffer.receive()
+        GlideApp.with(context).load(pic).preload(w / 2, h / 4)
+        pic
       }
-      PicChoiceQuiz(pics.filterIsInstance<IPicture>(), random)
+      PicChoiceQuiz(pics, random)
     }
   }
 
