@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -26,35 +25,37 @@
         android:id="@+id/profile_upper_guideline"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintGuide_percent="0.065"
-        android:orientation="horizontal"/>
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.065" />
+
     <TextView
         android:id="@+id/profile_back_textview"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="20sp"
-        android:layout_marginLeft="10dp"
+        android:layout_marginStart="10dp"
+        android:onClick="onClickBack"
         android:text="Back"
-        android:onClick="OnClickBack"
+        android:textSize="20sp"
         app:layout_constraintBottom_toBottomOf="@id/profile_upper_guideline"
         app:layout_constraintLeft_toLeftOf="parent" />
 
     <ImageView
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:src="@drawable/logo"
         android:padding="5dp"
+        android:src="@drawable/logo"
+        app:layout_constraintBottom_toTopOf="@id/profile_upper_guideline"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/profile_upper_guideline"
         app:layout_constraintTop_toTopOf="parent" />
+
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:background="#000000"
+        app:layout_constraintBottom_toBottomOf="@id/profile_upper_guideline"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintBottom_toBottomOf="@id/profile_upper_guideline"/>
+        app:layout_constraintRight_toRightOf="parent" />
 
 
     <android.support.constraint.Guideline
@@ -124,20 +125,22 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:src="@drawable/login_id_icon"
+        app:layout_constraintBottom_toTopOf="@id/guide_profile_horizontal_mid"
         app:layout_constraintDimensionRatio="H,1:1"
         app:layout_constraintStart_toStartOf="@id/guide_profile_vertical_left"
-        app:layout_constraintBottom_toTopOf="@id/guide_profile_horizontal_mid"
         app:layout_constraintWidth_percent="0.16" />
+
     <TextView
         android:id="@+id/profile_id_textview"
         style="@style/CustomFontStyle"
         android:layout_width="0dp"
         android:layout_height="45sp"
+        android:layout_marginStart="10sp"
         android:text="ID"
-        android:layout_marginLeft="10sp"
         app:layout_constraintBottom_toTopOf="@id/guide_profile_horizontal_mid"
         app:layout_constraintEnd_toStartOf="@id/guide_profile_vertical_right"
-        app:layout_constraintStart_toEndOf="@id/profile_id_imageview"/>
+        app:layout_constraintStart_toEndOf="@id/profile_id_imageview" />
+
     <Button
         android:id="@+id/profile_logout_button"
         style="@style/CustomFontStyle"
