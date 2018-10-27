@@ -25,7 +25,7 @@ private const val mmThumbDiameter = 10f
 class DiaryOverlayFolder(private val mapView: MapView) : Overlay(), IDiaryOverlay {
 
   private val badgeOffset: Float
-  private val px2: Int
+  private val px2: Float
   private val fontPaint: Paint
 
   private var journeyGroups = listOf<Journey>()
@@ -57,7 +57,7 @@ class DiaryOverlayFolder(private val mapView: MapView) : Overlay(), IDiaryOverla
     val metrics = mapView.resources.displayMetrics
     val px = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_MM, mmThumbDiameter, metrics).toInt()
     badgeOffset = px * sqrt(2f) / 4
-    px2 = px * px
+    px2 = (px * px).toFloat()
     fontPaint = Paint().apply {
       textSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 15f, metrics)
       color = (0xffff0000).toInt()
@@ -147,9 +147,9 @@ class DiaryOverlayFolder(private val mapView: MapView) : Overlay(), IDiaryOverla
     }
   }
 
-  private fun distanceSquare(p1: Point, p2: Point): Int {
-    val xDiff = p1.x - p2.x
-    val yDiff = p1.y - p2.y
+  private fun distanceSquare(p1: Point, p2: Point): Float {
+    val xDiff = (p1.x - p2.x).toFloat()
+    val yDiff = (p1.y - p2.y).toFloat()
     return xDiff * xDiff + yDiff * yDiff
   }
 
