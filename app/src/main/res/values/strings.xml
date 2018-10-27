@@ -1,6 +1,5 @@
 <resources>
-    <string name="app_name">Globe Album</string>
-
+    <string name="app_name">Landmarks</string>
     <string name="title_activity_gallery_detail">GalleryDetail</string>
     <string name="dummy_button">Dummy Button</string>
     <string name="dummy_content">DUMMY\nCONTENT</string>
