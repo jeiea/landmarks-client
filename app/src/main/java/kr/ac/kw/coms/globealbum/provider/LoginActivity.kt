@@ -16,6 +16,7 @@ import kr.ac.kw.coms.globealbum.R
 import kr.ac.kw.coms.globealbum.SignUpActivity
 import kr.ac.kw.coms.globealbum.common.app
 import org.jetbrains.anko.contentView
+import org.jetbrains.anko.sdk27.coroutines.onCheckedChange
 import org.jetbrains.anko.sdk27.coroutines.onClick
 import org.jetbrains.anko.sdk27.coroutines.onKey
 import org.jetbrains.anko.toast
@@ -51,6 +52,11 @@ class LoginActivity : AppCompatActivity(), CoroutineScope {
     btn_account.setOnClickListener {
       val newAccountIntent = Intent(this,SignUpActivity::class.java)
       startActivity(newAccountIntent)
+    }
+    cb_remember_id.onCheckedChange { _btn, checked ->
+      if (!checked) {
+        app.login = null
+      }
     }
     app.login?.also {
       cb_remember_id.isChecked = true
