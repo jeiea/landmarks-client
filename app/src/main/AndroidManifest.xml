@@ -2,7 +2,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="kr.ac.kw.coms.globealbum">
 
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" /> <!-- permission for osmdroid -->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+
+    <!-- permission for osmdroid -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -19,20 +21,6 @@
         android:theme="@style/AppTheme">
         <activity android:name=".SignUpActivity" />
         <activity android:name=".ProfileActivity" />
-        <activity android:name=".MainActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-        <activity android:name=".game.GameActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
         <activity
             android:name=".album.GalleryActivity"
             android:noHistory="true" />
@@ -42,8 +30,22 @@
             android:label="@string/title_activity_gallery_detail"
             android:theme="@style/FullscreenTheme" />
         <activity android:name=".album.ExampleDiary" />
-        <activity android:name=".diary.Diary_main" />
-        <activity android:name=".provider.LoginActivity" />
+        <activity android:name=".provider.LoginActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity android:name=".MainActivity" />
+        <activity android:name=".game.GameActivity" />
+        <activity android:name=".diary.Diary_main">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
         <activity android:name=".diary.Diary_mapNPictures" />
         <activity android:name=".diary.Diary_Edit" />
         <activity android:name=".diary.Diary_newDiary" />

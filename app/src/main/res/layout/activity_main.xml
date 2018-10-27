@@ -10,43 +10,44 @@
         android:id="@+id/main_upper_guideline"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintGuide_percent="0.065"
-        android:orientation="horizontal"/>
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.065" />
+
     <TextView
         android:id="@+id/main_activity_profile_textview"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="20sp"
         android:layout_marginEnd="10dp"
-        android:text="Profile"
         android:onClick="startOnClick"
+        android:text="Profile"
+        android:textSize="20sp"
         app:layout_constraintBottom_toBottomOf="@id/main_upper_guideline"
         app:layout_constraintRight_toRightOf="parent" />
 
     <ImageView
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:src="@drawable/logo"
         android:padding="5dp"
+        android:src="@drawable/logo"
+        app:layout_constraintBottom_toTopOf="@id/main_upper_guideline"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/main_upper_guideline"
         app:layout_constraintTop_toTopOf="parent" />
 
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:background="#000000"
+        app:layout_constraintBottom_toBottomOf="@id/main_upper_guideline"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintBottom_toBottomOf="@id/main_upper_guideline"/>
+        app:layout_constraintRight_toRightOf="parent" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="3sp"
         android:text="Main Menu"
         android:textSize="20sp"
-        android:layout_marginBottom="3sp"
         app:layout_constraintBottom_toTopOf="@id/imageview_game_start"
         app:layout_constraintStart_toStartOf="@id/imageview_game_start" />
 
@@ -54,65 +55,58 @@
         android:id="@+id/imageview_game_start"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:layout_constraintHeight_percent="0.22"
-        app:layout_constraintDimensionRatio="1.822"
-        android:src="@drawable/main_game_btn"
         android:onClick="startOnClick"
-        app:layout_constraintTop_toBottomOf="@id/main_upper_guideline"
+        android:src="@drawable/main_game_btn"
         app:layout_constraintBottom_toTopOf="@id/up_space"
+        app:layout_constraintDimensionRatio="1.822"
+        app:layout_constraintHeight_percent="0.22"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/main_upper_guideline"
         app:layout_constraintVertical_chainStyle="packed" />
 
     <Space
         android:id="@+id/up_space"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:layout_constraintHeight_percent="0.043"
-        app:layout_constraintTop_toBottomOf="@id/imageview_game_start"
         app:layout_constraintBottom_toTopOf="@id/imageview_game_my_diary"
-        app:layout_constraintStart_toStartOf="parent"/>
+        app:layout_constraintHeight_percent="0.043"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/imageview_game_start" />
 
     <ImageView
         android:id="@+id/imageview_game_my_diary"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:layout_constraintHeight_percent="0.22"
-        app:layout_constraintDimensionRatio="1.822"
+        android:onClick="startOnClick"
         android:src="@drawable/main_my_diary_btn"
         app:layout_constraintBottom_toTopOf="@id/down_space"
+        app:layout_constraintDimensionRatio="1.822"
+        app:layout_constraintHeight_percent="0.22"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/up_space"
-        android:onClick="startOnClick"/>
+        app:layout_constraintTop_toBottomOf="@id/up_space" />
+
     <Space
         android:id="@+id/down_space"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:layout_constraintHeight_percent="0.043"
-        app:layout_constraintTop_toBottomOf="@id/imageview_game_my_diary"
         app:layout_constraintBottom_toTopOf="@id/imageview_game_other_diary"
-        app:layout_constraintStart_toStartOf="parent"/>
+        app:layout_constraintHeight_percent="0.043"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/imageview_game_my_diary" />
 
     <ImageView
         android:id="@+id/imageview_game_other_diary"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:layout_constraintHeight_percent="0.22"
-        app:layout_constraintDimensionRatio="1.822"
+        android:onClick="startOnClick"
         android:src="@drawable/main_others_btn"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintDimensionRatio="1.822"
+        app:layout_constraintHeight_percent="0.22"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/down_space"
-        android:onClick="startOnClick"/>
+        app:layout_constraintTop_toBottomOf="@id/down_space" />
 
-        <Button
-            android:id="@+id/btn_start_login"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="start Login"
-            android:onClick="startLogin"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/main_upper_guideline"/>
 </android.support.constraint.ConstraintLayout>
