@@ -102,6 +102,10 @@ public class Diary_main extends AppCompatActivity {
 
     @Override
     protected void onResume() {
+        findViewById(R.id.diary_main_ImageNowLoading).setVisibility(View.VISIBLE);
+        findViewById(R.id.diary_main_JourneyNowLoading).setVisibility(View.VISIBLE);
+        ImageList.setVisibility(View.GONE);
+        JourneyList.setVisibility(View.GONE);
         PrepareData();
         super.onResume();
     }
@@ -203,7 +207,7 @@ public class Diary_main extends AppCompatActivity {
     }
 
     public void diary_main_AddNewDiary(View view) {
-        Intent intent = new Intent(getBaseContext(), Diary_newDiary.class);
+        Intent intent = new Intent(getBaseContext(), Diary_newImage.class);
         startActivityForResult(intent, RequestCodes.MakeNewDiary);
     }
 
@@ -424,6 +428,7 @@ public class Diary_main extends AppCompatActivity {
 
     public void diary_main_AddNewImage(View view) {
         //추가할 이미지 선택하기(startactivity)
+        startActivity(new Intent(this, Diary_newImage.class));
     }
 
     public class DiaryListAdapter extends RecyclerView.Adapter<DiaryListViewHolder> {

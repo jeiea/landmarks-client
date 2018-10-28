@@ -95,7 +95,7 @@
 
 
     <include
-        android:id="@+id/diary_new_EditLayout"
+        android:id="@+id/diary_newDiary_EditLayout"
         layout="@layout/activity_diary_edit"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

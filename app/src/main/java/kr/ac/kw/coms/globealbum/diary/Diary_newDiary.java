@@ -105,7 +105,7 @@ public class Diary_newDiary extends AppCompatActivity {
         }
     };
 
-    public class NewImageListAdapter extends RecyclerView.Adapter<ItemViewHolder> {
+    private class NewImageListAdapter extends RecyclerView.Adapter<ItemViewHolder> {
         final ArrayList<IPicture> mItems = new ArrayList<>();
 
         public NewImageListAdapter(AppCompatActivity RootActivity, ArrayList<IPicture> Items) {
@@ -202,13 +202,12 @@ public class Diary_newDiary extends AppCompatActivity {
                 holder.btn_New.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        Toast.makeText(Diary_newDiary.this, "New Image!", Toast.LENGTH_SHORT).show();
-                        RecyclerView NewImageList = (RecyclerView) findViewById(R.id.diary_new_AddImageList);
+                        RecyclerView NewImageList = (RecyclerView) findViewById(R.id.diary_newDiary_AddImageList);
                         NewImageList.setHasFixedSize(true);
                         NewImageList.setLayoutManager(new GridLayoutManager(Diary_newDiary.this, 4));
                         NewImageList.setAdapter(new NewImageAdapter(getImageFilePath()));
-                        findViewById(R.id.diary_new_EditLayout).setVisibility(View.GONE);
-                        findViewById(R.id.diary_new_AddLayout).setVisibility(View.VISIBLE);
+                        findViewById(R.id.diary_newDiary_EditLayout).setVisibility(View.GONE);
+                        findViewById(R.id.diary_newDiary_AddLayout).setVisibility(View.VISIBLE);
                     }
                 });
             }
@@ -220,7 +219,7 @@ public class Diary_newDiary extends AppCompatActivity {
         }
     }
 
-    public class ItemViewHolder extends RecyclerView.ViewHolder {
+    private class ItemViewHolder extends RecyclerView.ViewHolder {
         ConstraintLayout rootLayout;
         ConstraintLayout updownBox;
         ImageView imageView;
@@ -266,7 +265,7 @@ public class Diary_newDiary extends AppCompatActivity {
         return listOfAllImages;
     }
 
-    class NewImageAdapter extends RecyclerView.Adapter<NewImageAdapter.ViewHolder> {
+    private class NewImageAdapter extends RecyclerView.Adapter<NewImageAdapter.ViewHolder> {
         private ArrayList<String> urlList;
 
         public class ViewHolder extends RecyclerView.ViewHolder {
@@ -308,7 +307,7 @@ public class Diary_newDiary extends AppCompatActivity {
                     findViewById(R.id.diary_ZoomIn_ZoomName2).setVisibility(View.GONE);
                     findViewById(R.id.diary_ZoomIn_Confirm).setVisibility(View.VISIBLE);
 
-                    findViewById(R.id.diary_new_ZoomInLayout).setVisibility(View.VISIBLE);
+                    findViewById(R.id.diary_newDiary_ZoomInLayout).setVisibility(View.VISIBLE);
 
                     findViewById(R.id.diary_ZoomIn_Confirm).setOnClickListener(new View.OnClickListener() {
                         @Override
@@ -321,12 +320,11 @@ public class Diary_newDiary extends AppCompatActivity {
                                 return;
                             }
                             IPicture newPicture = new LocalPicture(url);
-                            //diary_onEdit.add((RemotePicture) newPicture);
                             newImageListAdapter.AddNewPicture(newPicture);
 
-                            findViewById(R.id.diary_new_ZoomInLayout).setVisibility(View.GONE);
-                            findViewById(R.id.diary_new_AddLayout).setVisibility(View.GONE);
-                            findViewById(R.id.diary_new_EditLayout).setVisibility(View.VISIBLE);
+                            findViewById(R.id.diary_newDiary_ZoomInLayout).setVisibility(View.GONE);
+                            findViewById(R.id.diary_newDiary_AddLayout).setVisibility(View.GONE);
+                            findViewById(R.id.diary_newDiary_EditLayout).setVisibility(View.VISIBLE);
                         }
                     });
                 }
@@ -340,6 +338,6 @@ public class Diary_newDiary extends AppCompatActivity {
     }
 
     public void diary_ZoomIn_CloseZoomIn(View view) {
-        findViewById(R.id.diary_new_ZoomInLayout).setVisibility(View.GONE);
+        findViewById(R.id.diary_newDiary_ZoomInLayout).setVisibility(View.GONE);
     }
 }

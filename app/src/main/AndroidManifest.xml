@@ -2,9 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="kr.ac.kw.coms.globealbum">
 
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-
-    <!-- permission for osmdroid -->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" /> <!-- permission for osmdroid -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -19,6 +17,7 @@
         android:roundIcon="@mipmap/ic_landmark_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <activity android:name=".diary.Diary_newImage"></activity>
         <activity android:name=".SignUpActivity" />
         <activity android:name=".ProfileActivity" />
         <activity

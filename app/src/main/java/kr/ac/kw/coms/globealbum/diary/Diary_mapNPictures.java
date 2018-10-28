@@ -45,6 +45,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import kr.ac.kw.coms.globealbum.ProfileActivity;
 import kr.ac.kw.coms.globealbum.R;
 import kr.ac.kw.coms.globealbum.album.GalleryDetail;
 import kr.ac.kw.coms.globealbum.album.GroupDiaryView;
@@ -322,13 +323,13 @@ public class Diary_mapNPictures extends AppCompatActivity {
             case VIEW_MODE:
                 Mode = VIEW_MODE;
                 findViewById(R.id.diary_mapNpics_ViewLayout).setVisibility(View.VISIBLE);
-                findViewById(R.id.diary_new_EditLayout).setVisibility(View.GONE);
+                findViewById(R.id.diary_newDiary_EditLayout).setVisibility(View.GONE);
                 findViewById(R.id.diary_mapNpics_AddLayout).setVisibility(View.GONE);
                 findViewById(R.id.diary_mapNpics_ZoomInLayout).setVisibility(View.GONE);
                 break;
             case EDIT_MODE:
                 Mode = EDIT_MODE;
-                findViewById(R.id.diary_new_EditLayout).setVisibility(View.VISIBLE);
+                findViewById(R.id.diary_newDiary_EditLayout).setVisibility(View.VISIBLE);
                 findViewById(R.id.diary_mapNpics_ViewLayout).setVisibility(View.GONE);
                 findViewById(R.id.diary_mapNpics_AddLayout).setVisibility(View.GONE);
                 findViewById(R.id.diary_mapNpics_ZoomInLayout).setVisibility(View.GONE);
@@ -339,14 +340,14 @@ public class Diary_mapNPictures extends AppCompatActivity {
                 NewImageList.setHasFixedSize(true);
                 NewImageList.setLayoutManager(new GridLayoutManager(this, 4));
                 NewImageList.setAdapter(new NewImageAdapter(getImageFilePath()));
-                findViewById(R.id.diary_new_EditLayout).setVisibility(View.GONE);
+                findViewById(R.id.diary_newDiary_EditLayout).setVisibility(View.GONE);
                 findViewById(R.id.diary_mapNpics_ViewLayout).setVisibility(View.GONE);
                 findViewById(R.id.diary_mapNpics_AddLayout).setVisibility(View.VISIBLE);
                 findViewById(R.id.diary_mapNpics_ZoomInLayout).setVisibility(View.GONE);
                 break;
             case ZOOMIN_MODE:
                 Mode = ZOOMIN_MODE;
-                findViewById(R.id.diary_new_EditLayout).setVisibility(View.GONE);
+                findViewById(R.id.diary_newDiary_EditLayout).setVisibility(View.GONE);
                 findViewById(R.id.diary_mapNpics_ViewLayout).setVisibility(View.GONE);
                 findViewById(R.id.diary_mapNpics_AddLayout).setVisibility(View.GONE);
                 findViewById(R.id.diary_mapNpics_ZoomInLayout).setVisibility(View.VISIBLE);
@@ -613,5 +614,10 @@ public class Diary_mapNPictures extends AppCompatActivity {
 
     public void Common_Back_Click(View view) {
         finish();
+    }
+
+    public void Common_Profile_Click(View view)
+    {
+        startActivity(new Intent(this, ProfileActivity.class));
     }
 }

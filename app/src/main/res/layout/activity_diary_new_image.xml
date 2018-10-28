@@ -4,25 +4,16 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".diary.Diary_newDiary">
-
-    <include
-        android:id="@+id/diary_newDiary_EditLayout"
-        layout="@layout/activity_diary_edit"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+    tools:context=".diary.Diary_newImage">
 
     <android.support.constraint.ConstraintLayout
-        android:id="@+id/diary_newDiary_AddLayout"
+        android:id="@+id/diary_newImage_AddLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#FFFFFF"
-        android:visibility="gone">
+        android:background="#FFFFFF">
 
         <include
-            android:id="@+id/diary_newDiary_Topbar"
+            android:id="@+id/diary_newImage_Topbar"
             layout="@layout/layout_common_topbar"
             android:layout_width="match_parent"
             android:layout_height="0dp"
@@ -32,19 +23,19 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <android.support.v7.widget.RecyclerView
-            android:id="@+id/diary_newDiary_AddImageList"
+            android:id="@+id/diary_newImage_AddImageList"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:scrollbars="vertical"
             app:layoutManager="android.support.v7.widget.GridLayoutManager"
-            app:layout_constraintTop_toBottomOf="@id/diary_newDiary_Topbar"
+            app:layout_constraintTop_toBottomOf="@id/diary_newImage_Topbar"
             app:layout_constraintBottom_toBottomOf="parent"
             app:spanCount="4" />
 
     </android.support.constraint.ConstraintLayout>
 
     <include
-        android:id="@+id/diary_newDiary_ZoomInLayout"
+        android:id="@+id/diary_newImage_ZoomInLayout"
         layout="@layout/layout_zoomin"
         android:visibility="gone"
         app:layout_constraintLeft_toLeftOf="parent"
