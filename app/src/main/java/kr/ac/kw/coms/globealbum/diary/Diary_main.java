@@ -52,7 +52,6 @@ import kr.ac.kw.coms.globealbum.provider.RemoteJava;
 import kr.ac.kw.coms.globealbum.provider.RemotePicture;
 import kr.ac.kw.coms.globealbum.provider.ResourcePicture;
 import kr.ac.kw.coms.globealbum.provider.UIPromise;
-import kr.ac.kw.coms.landmarks.client.IdAccountForm;
 
 public class Diary_main extends AppCompatActivity {
 
@@ -85,7 +84,6 @@ public class Diary_main extends AppCompatActivity {
         TabRight = findViewById(R.id.diary_main_Tab_Right);
         GroupDiaryView ImageNowLoading = findViewById(R.id.diary_main_ImageNowLoading);
         GroupDiaryView JourneyNowLoading = findViewById(R.id.diary_main_JourneyNowLoading);
-
 
 
         ArrayList<IPicture> nowloading = new ArrayList<>();
@@ -175,15 +173,11 @@ public class Diary_main extends AppCompatActivity {
                     case DialogInterface.BUTTON_POSITIVE:
                         //예
 
-                        if (IsImageSelected)
-                        {
+                        if (IsImageSelected) {
                             //이미지 삭제
-                        }
-                        else
-                        {
+                        } else {
                             //다이어리 삭제
-                            RemoteJava.INSTANCE.deleteCollection(DiaryToSend.getId(), new Promise<Unit>()
-                            {
+                            RemoteJava.INSTANCE.deleteCollection(DiaryToSend.getId(), new Promise<Unit>() {
                                 @Override
                                 public void success(Unit result) {
                                     Toast.makeText(Diary_main.this, "삭제 완료", Toast.LENGTH_SHORT).show();
@@ -246,93 +240,79 @@ public class Diary_main extends AppCompatActivity {
 
     public void PrepareData() {
         //서버에서 데이터 다운로드
-
-        RemoteJava.INSTANCE.login("login", "password", new UIPromise<IdAccountForm>() {
-            @Override
-            public void success(IdAccountForm result) {
-                super.success(result);
-                if (getIntent().getAction().equals(RequestCodes.ACTION_DIARY_MINE)) {
-                    RemoteJava.INSTANCE.getMyPictures(new UIPromise<List<RemotePicture>>() {
-                        @Override
-                        public void success(List<RemotePicture> result) {
-                            DownloadedImageList = new ArrayList<>();
-                            DownloadedImageList.addAll(result);
-                            ImageList.getPicAdapter().clearAllItems();
-                            ShowImageData();
-                            findViewById(R.id.diary_main_ImageNowLoading).setVisibility(View.GONE);
-                            findViewById(R.id.diary_main_ImageList).setVisibility(View.VISIBLE);
-                        }
-
-                        @Override
-                        public void failure(@NotNull Throwable cause) {
-                            Toast.makeText(Diary_main.this, "이미지 데이터 다운로드 실패", Toast.LENGTH_SHORT).show();
-                            findViewById(R.id.diary_main_ImageNowLoading).setVisibility(View.GONE);
-                            findViewById(R.id.diary_main_ImageList).setVisibility(View.VISIBLE);
-                        }
-                    });
-
-                    RemoteJava.INSTANCE.getMyCollections(new UIPromise<List<Diary>>() {
-                        @Override
-                        public void success(List<Diary> result) {
-                            DownloadedDiaryList = result;
-                            ShowDiaryData();
-                            findViewById(R.id.diary_main_JourneyNowLoading).setVisibility(View.GONE);
-                            findViewById(R.id.diary_main_JourneyList).setVisibility(View.VISIBLE);
-                        }
-
-                        @Override
-                        public void failure(@NotNull Throwable cause) {
-                            Toast.makeText(Diary_main.this, "다이어리 데이터 다운로드 실패", Toast.LENGTH_SHORT).show();
-                            findViewById(R.id.diary_main_JourneyNowLoading).setVisibility(View.GONE);
-                            findViewById(R.id.diary_main_JourneyList).setVisibility(View.VISIBLE);
-                        }
-                    });
+        if (getIntent().getAction().equals(RequestCodes.ACTION_DIARY_MINE)) {
+            RemoteJava.INSTANCE.getMyPictures(new UIPromise<List<RemotePicture>>() {
+                @Override
+                public void success(List<RemotePicture> result) {
+                    DownloadedImageList = new ArrayList<>();
+                    DownloadedImageList.addAll(result);
+                    ImageList.getPicAdapter().clearAllItems();
+                    ShowImageData();
+                    findViewById(R.id.diary_main_ImageNowLoading).setVisibility(View.GONE);
+                    findViewById(R.id.diary_main_ImageList).setVisibility(View.VISIBLE);
                 }
-                else
-                {
-                    RemoteJava.INSTANCE.getRandomPictures(30, new UIPromise<List<RemotePicture>>() {
-                        @Override
-                        public void success(List<RemotePicture> result) {
-                            DownloadedImageList = new ArrayList<>();
-                            DownloadedImageList.addAll(result);
-                            ImageList.getPicAdapter().clearAllItems();
-                            ShowImageData();
-                            findViewById(R.id.diary_main_ImageNowLoading).setVisibility(View.GONE);
-                            findViewById(R.id.diary_main_ImageList).setVisibility(View.VISIBLE);
-                        }
 
-                        @Override
-                        public void failure(@NotNull Throwable cause) {
-                            Toast.makeText(Diary_main.this, "이미지 데이터 다운로드 실패", Toast.LENGTH_SHORT).show();
-                            findViewById(R.id.diary_main_ImageNowLoading).setVisibility(View.GONE);
-                            findViewById(R.id.diary_main_ImageList).setVisibility(View.VISIBLE);
-                        }
-                    });
-
-                    RemoteJava.INSTANCE.getRandomCollections(new UIPromise<List<Diary>>() {
-                        @Override
-                        public void success(List<Diary> result) {
-                            DownloadedDiaryList = result;
-                            ShowDiaryData();
-                            findViewById(R.id.diary_main_JourneyNowLoading).setVisibility(View.GONE);
-                            findViewById(R.id.diary_main_JourneyList).setVisibility(View.VISIBLE);
-                        }
-
-                        @Override
-                        public void failure(@NotNull Throwable cause) {
-                            Toast.makeText(Diary_main.this, "다이어리 데이터 다운로드 실패", Toast.LENGTH_SHORT).show();
-                            findViewById(R.id.diary_main_JourneyNowLoading).setVisibility(View.GONE);
-                            findViewById(R.id.diary_main_JourneyList).setVisibility(View.VISIBLE);
-                        }
-                    });
+                @Override
+                public void failure(@NotNull Throwable cause) {
+                    Toast.makeText(Diary_main.this, "이미지 데이터 다운로드 실패", Toast.LENGTH_SHORT).show();
+                    findViewById(R.id.diary_main_ImageNowLoading).setVisibility(View.GONE);
+                    findViewById(R.id.diary_main_ImageList).setVisibility(View.VISIBLE);
                 }
-            }
+            });
 
-            @Override
-            public void failure(@NotNull Throwable cause) {
-                Toast.makeText(Diary_main.this, "계정 정보 오류", Toast.LENGTH_SHORT).show();
-            }
-        });
+            RemoteJava.INSTANCE.getMyCollections(new UIPromise<List<Diary>>() {
+                @Override
+                public void success(List<Diary> result) {
+                    DownloadedDiaryList = result;
+                    ShowDiaryData();
+                    findViewById(R.id.diary_main_JourneyNowLoading).setVisibility(View.GONE);
+                    findViewById(R.id.diary_main_JourneyList).setVisibility(View.VISIBLE);
+                }
+
+                @Override
+                public void failure(@NotNull Throwable cause) {
+                    Toast.makeText(Diary_main.this, "다이어리 데이터 다운로드 실패", Toast.LENGTH_SHORT).show();
+                    findViewById(R.id.diary_main_JourneyNowLoading).setVisibility(View.GONE);
+                    findViewById(R.id.diary_main_JourneyList).setVisibility(View.VISIBLE);
+                }
+            });
+        } else {
+            RemoteJava.INSTANCE.getRandomPictures(30, new UIPromise<List<RemotePicture>>() {
+                @Override
+                public void success(List<RemotePicture> result) {
+                    DownloadedImageList = new ArrayList<>();
+                    DownloadedImageList.addAll(result);
+                    ImageList.getPicAdapter().clearAllItems();
+                    ShowImageData();
+                    findViewById(R.id.diary_main_ImageNowLoading).setVisibility(View.GONE);
+                    findViewById(R.id.diary_main_ImageList).setVisibility(View.VISIBLE);
+                }
+
+                @Override
+                public void failure(@NotNull Throwable cause) {
+                    Toast.makeText(Diary_main.this, "이미지 데이터 다운로드 실패", Toast.LENGTH_SHORT).show();
+                    findViewById(R.id.diary_main_ImageNowLoading).setVisibility(View.GONE);
+                    findViewById(R.id.diary_main_ImageList).setVisibility(View.VISIBLE);
+                }
+            });
+
+            RemoteJava.INSTANCE.getRandomCollections(new UIPromise<List<Diary>>() {
+                @Override
+                public void success(List<Diary> result) {
+                    DownloadedDiaryList = result;
+                    ShowDiaryData();
+                    findViewById(R.id.diary_main_JourneyNowLoading).setVisibility(View.GONE);
+                    findViewById(R.id.diary_main_JourneyList).setVisibility(View.VISIBLE);
+                }
+
+                @Override
+                public void failure(@NotNull Throwable cause) {
+                    Toast.makeText(Diary_main.this, "다이어리 데이터 다운로드 실패", Toast.LENGTH_SHORT).show();
+                    findViewById(R.id.diary_main_JourneyNowLoading).setVisibility(View.GONE);
+                    findViewById(R.id.diary_main_JourneyList).setVisibility(View.VISIBLE);
+                }
+            });
+        }
     }
 
     public void ShowImageData() {
