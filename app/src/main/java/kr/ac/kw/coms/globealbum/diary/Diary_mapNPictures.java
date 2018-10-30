@@ -20,6 +20,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.method.ScrollingMovementMethod;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -115,6 +116,8 @@ public class Diary_mapNPictures extends AppCompatActivity {
         picView.getPicAdapter().setLeftPadding(10);
         picView.getPicAdapter().setRightPadding(10);
         picView.setDirection(FlexDirection.COLUMN);
+        ((TextView) findViewById(R.id.diary_mapNpics_Description)).setMovementMethod(new ScrollingMovementMethod());
+        ((EditText) findViewById(R.id.diary_edit_DescriptionText)).setMovementMethod(new ScrollingMovementMethod());
 
         diary_toShow = getIntent().getParcelableExtra(PARCEL_DIARY);
         if (getIntent().getAction() == null) ;
@@ -383,8 +386,8 @@ public class Diary_mapNPictures extends AppCompatActivity {
     Promise<Diary> afterModify = new UIPromise<Diary>() {
         @Override
         public void success(Diary result) {
-            diary_toShow = result;
-            setDiary(result);
+            diary_toShow = diary_onEdit;
+            setDiary(diary_toShow);
         }
 
         @Override
@@ -616,8 +619,7 @@ public class Diary_mapNPictures extends AppCompatActivity {
         finish();
     }
 
-    public void Common_Profile_Click(View view)
-    {
+    public void Common_Profile_Click(View view) {
         startActivity(new Intent(this, ProfileActivity.class));
     }
 }

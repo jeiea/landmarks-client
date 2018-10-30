@@ -201,7 +201,7 @@ public class Diary_main extends AppCompatActivity {
     }
 
     public void diary_main_AddNewDiary(View view) {
-        Intent intent = new Intent(getBaseContext(), Diary_newImage.class);
+        Intent intent = new Intent(getBaseContext(), Diary_newDiary.class);
         startActivityForResult(intent, RequestCodes.MakeNewDiary);
     }
 
@@ -324,6 +324,7 @@ public class Diary_main extends AppCompatActivity {
             List<PictureGroup> PictureList = new ArrayList<>();
             PictureList.add(PictureRow);
             ImageList.clearAllItems();
+            ImageList.removeAllViews();
             ImageList.getPicAdapter().setColumns(1);
             ImageList.getPicAdapter().setVerticalPadding((int) px);
             ImageList.getPicAdapter().setHorizontalPadding((int) px);

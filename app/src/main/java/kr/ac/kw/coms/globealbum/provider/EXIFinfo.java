@@ -52,6 +52,18 @@ public class EXIFinfo {
         return d_location;
     }
 
+    public boolean hasLocation()
+    {
+        try{
+            getLocation();
+            return true;
+        }
+        catch (Exception e)
+        {
+            return false;
+        }
+    }
+
     public GeoPoint getLocationGeopoint(){
         GpsDirectory directory = metadata.getFirstDirectoryOfType(GpsDirectory.class);
         GeoLocation location;

@@ -87,6 +87,7 @@
             android:layout_marginVertical="15dp"
             android:padding="10dp"
             android:textSize="20sp"
+            android:scrollbars="vertical"
             android:background="@drawable/rounded_rectangle"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
