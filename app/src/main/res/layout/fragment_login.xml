@@ -30,16 +30,6 @@
         android:orientation="horizontal"
         app:layout_constraintGuide_percent="0.065" />
 
-    <ImageView
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:padding="5dp"
-        android:src="@drawable/logo"
-        app:layout_constraintBottom_toTopOf="@id/login_upper_guideline"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
@@ -47,7 +37,6 @@
         app:layout_constraintBottom_toBottomOf="@id/login_upper_guideline"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent" />
-
 
     <android.support.constraint.Guideline
         android:id="@+id/guide_login_vertical_left"
@@ -138,8 +127,8 @@
         android:layout_height="15sp"
         android:text="Remember ID"
         android:textSize="11sp"
-        app:layout_constraintStart_toEndOf="@id/cb_remember_id"
-        app:layout_constraintBottom_toTopOf="@id/guide_login_horizontal_mid" />
+        app:layout_constraintBottom_toTopOf="@id/guide_login_horizontal_mid"
+        app:layout_constraintStart_toEndOf="@id/cb_remember_id" />
 
     <CheckBox
         android:id="@+id/cb_auto_login"
@@ -152,12 +141,12 @@
         android:id="@+id/textview_auto_login"
         style="@style/CustomFontStyle"
         android:layout_width="0dp"
-        app:layout_constraintWidth_percent="0.19"
         android:layout_height="15sp"
         android:text="Auto login"
         android:textSize="11sp"
         app:layout_constraintBottom_toTopOf="@id/guide_login_horizontal_mid"
-        app:layout_constraintEnd_toEndOf="@id/btn_login" />
+        app:layout_constraintEnd_toEndOf="@id/btn_login"
+        app:layout_constraintWidth_percent="0.19" />
 
     <ImageView
         android:id="@+id/imageview_login_id_icon"

@@ -25,37 +25,16 @@
         android:id="@+id/sign_up_upper_guideline"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintGuide_percent="0.065"
-        android:orientation="horizontal"/>
-
-    <TextView
-        android:id="@+id/sign_up_back_textview"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="20sp"
-        android:layout_marginLeft="10dp"
-        android:text="Back"
-        android:onClick="onClickBack"
-        app:layout_constraintBottom_toBottomOf="@id/sign_up_upper_guideline"
-        app:layout_constraintLeft_toLeftOf="parent" />
-
-    <ImageView
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:padding="5dp"
-        android:src="@drawable/logo"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/sign_up_upper_guideline"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.065" />
 
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:background="#000000"
+        app:layout_constraintBottom_toBottomOf="@id/sign_up_upper_guideline"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintBottom_toBottomOf="@id/sign_up_upper_guideline"/>
+        app:layout_constraintRight_toRightOf="parent" />
 
     <android.support.constraint.Guideline
         android:id="@+id/guide_sign_up_vertical_left"
@@ -151,11 +130,10 @@
         app:layout_constraintDimensionRatio="H,1:1"
         app:layout_constraintEnd_toEndOf="@id/guide_sign_up_vertical_left_pic"
         app:layout_constraintStart_toStartOf="@id/guide_sign_up_vertical_left"
-        app:layout_constraintTop_toBottomOf="@id/sign_up_imageview_login_id_icon"
-        app:layout_constraintWidth_percent="0.1" />
+        app:layout_constraintTop_toBottomOf="@id/sign_up_imageview_login_id_icon" />
 
     <EditText
-        android:id="@+id/sign_up_id_edit_text"
+        android:id="@+id/et_sign_up_login"
         style="@style/CustomFontStyle"
         android:layout_width="0dp"
         android:layout_height="0dp"
@@ -167,7 +145,7 @@
         app:layout_constraintTop_toTopOf="@id/sign_up_imageview_login_id_icon" />
 
     <EditText
-        android:id="@+id/sign_up_password_edit_text"
+        android:id="@+id/et_sign_up_password"
         style="@style/CustomFontStyle"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -177,32 +155,33 @@
         app:layout_constraintEnd_toStartOf="@id/guide_sign_up_vertical_right"
         app:layout_constraintStart_toEndOf="@id/sign_up_imageview_login_pw_icon"
         app:layout_constraintTop_toTopOf="@id/sign_up_imageview_login_pw_icon" />
-    <CheckBox
-        android:id="@+id/sign_up_dup_checkbox"
+
+    <EditText
+        android:id="@+id/et_sign_up_email"
         style="@style/CustomFontStyle"
         android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:clickable="false"
-        app:layout_constraintDimensionRatio="W,1:1"
-        android:layout_marginTop="13sp"
-        app:layout_constraintTop_toBottomOf="@id/guide_sign_up_horizontal_mid"
-        app:layout_constraintLeft_toLeftOf="@id/guide_sign_up_vertical_left"
-        app:layout_constraintRight_toRightOf="@id/guide_sign_up_vertical_left_pic"/>
-    <Button
-        android:id="@+id/sign_up_dup_button"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:hint="E-MAIL"
+        android:inputType="textEmailAddress"
+        app:layout_constraintEnd_toEndOf="@id/et_sign_up_password"
+        app:layout_constraintStart_toStartOf="@id/et_sign_up_password"
+        app:layout_constraintTop_toBottomOf="@id/et_sign_up_password" />
+
+    <EditText
+        android:id="@+id/et_sign_up_nickname"
         style="@style/CustomFontStyle"
         android:layout_width="0dp"
-        android:layout_height="33sp"
-        android:background="#0d2758"
-        android:text="Duplication Check"
-        android:textColor="#fff"
-        android:textSize="17sp"
-        android:layout_marginTop="15sp"
-        app:layout_constraintLeft_toRightOf="@id/sign_up_dup_checkbox"
-        app:layout_constraintRight_toRightOf="@id/guide_sign_up_vertical_right"
-        app:layout_constraintTop_toBottomOf="@id/guide_sign_up_horizontal_mid" />
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:hint="NICKNAME"
+        android:inputType="text"
+        app:layout_constraintEnd_toEndOf="@id/et_sign_up_email"
+        app:layout_constraintStart_toStartOf="@id/et_sign_up_email"
+        app:layout_constraintTop_toBottomOf="@id/et_sign_up_email" />
+
     <Button
-        android:id="@+id/sign_up_sign_up_button"
+        android:id="@+id/btn_sign_up"
         style="@style/CustomFontStyle"
         android:layout_width="0dp"
         android:layout_height="33sp"
@@ -214,5 +193,20 @@
         app:layout_constraintLeft_toLeftOf="@id/guide_sign_up_vertical_left"
         app:layout_constraintRight_toRightOf="@id/guide_sign_up_vertical_right"
         app:layout_constraintTop_toTopOf="@id/sign_up_bottom_gradient" />
+
+    <ImageView
+        android:id="@+id/iv_sign_up_loading"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:scaleType="fitCenter"
+        android:src="@drawable/loading_circle"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHeight_percent="0.1"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.65"
+        app:layout_constraintWidth_percent="0.15" />
 
 </android.support.constraint.ConstraintLayout>
