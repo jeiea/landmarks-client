@@ -83,7 +83,7 @@ class RemoteSpek : Spek({
 
     blit("query my pictures") {
       client.getPictures(PictureQuery().apply {
-        userFilter = UserFilter.Include.apply { userId = client.profile!!.id }
+        userFilter = UserFilter.Include(client.profile!!.id)
       }).size `should be equal to` 3
     }
 

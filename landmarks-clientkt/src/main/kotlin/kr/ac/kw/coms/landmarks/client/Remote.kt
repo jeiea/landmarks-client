@@ -140,7 +140,7 @@ class Remote(engine: HttpClient, private val basePath: String = herokuUri) {
   }
 
   suspend fun resetAllDatabase() {
-    put<Unit>("$basePath/maintenance/reset")
+    get<Unit>("$basePath/maintenance/reset")
   }
 
   suspend fun register(ident: String, pass: String, email: String, nick: String) {

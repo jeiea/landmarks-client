@@ -69,9 +69,14 @@ object RemoteJava {
   fun modifyPictureInfo(id: Int, info: PictureInfo, prom: Promise<Unit>): Job =
     resolve(prom) { client.modifyPictureInfo(id, info) }
 
+  fun getPictures(query: PictureQuery?, prom: Promise<List<RemotePicture>>): Job = resolve(prom) {
+    client.getPictures(query).map(::RemotePicture)
+  }
+
   fun getMyPictures(prom: Promise<List<RemotePicture>>): Job = resolve(prom) {
     client.getPictures(PictureQuery().apply {
-      userFilter = UserFilter.Include.apply { userId = client.profile!!.id }
+      limit = 999999
+      userFilter = UserFilter.Include(client.profile!!.id)
     }).map(::RemotePicture)
   }
 
