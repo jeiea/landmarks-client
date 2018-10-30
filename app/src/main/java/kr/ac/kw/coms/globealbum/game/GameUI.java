@@ -28,7 +28,6 @@ import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.Projection;
-import org.osmdroid.views.overlay.DefaultOverlayManager;
 import org.osmdroid.views.overlay.MapEventsOverlay;
 import org.osmdroid.views.overlay.Marker;
 import org.osmdroid.views.overlay.TilesOverlay;
@@ -45,6 +44,7 @@ import kr.ac.kw.coms.globealbum.common.GlideApp;
 import kr.ac.kw.coms.globealbum.common.PictureDialogFragment;
 import kr.ac.kw.coms.globealbum.map.DrawCircleOverlay;
 import kr.ac.kw.coms.globealbum.map.MyMapView;
+import kr.ac.kw.coms.globealbum.map.OverlayManagerForDoubleTapDisable;
 import kr.ac.kw.coms.globealbum.provider.IPicture;
 
 interface IGameUI {
@@ -105,7 +105,7 @@ class GameUI implements IGameUI {
     private InvalidationHelper mapInvalidator;
 
     // answer
-    private TextView answerLandPlaceNameTextView,answerLandCountryTextView, answerDistanceTextView, answerScoreTextView;
+    private TextView answerLandPlaceNameTextView, answerLandCountryTextView, answerDistanceTextView, answerScoreTextView;
     private ImageView answerCorrectImageView;
     private ConstraintLayout answerLayout;
 
@@ -165,7 +165,9 @@ class GameUI implements IGameUI {
         myMapView.preventDispose();
         myMapView.setTileSource(TileSourceFactory.BASE_OVERLAY_NL);    //맵 렌더링 설정
         myMapView.setMaxZoomLevel(5.0);
-        myMapView.setOverlayManager(new overlaymanagerForDisableDoubleTap(new TilesOverlay(myMapView.getTileProvider(),myMapView.getContext())));
+        TilesOverlay tiOv = new TilesOverlay(myMapView.getTileProvider(), myMapView.getContext());
+        OverlayManagerForDoubleTapDisable ovMa = new OverlayManagerForDoubleTapDisable(tiOv);
+        myMapView.setOverlayManager(ovMa);
         myMapView.getOverlays().add(onTouchMap);
         mapInvalidator = new InvalidationHelper(handler, myMapView, 1000 / 60);
 
@@ -287,7 +289,7 @@ class GameUI implements IGameUI {
         answerDistanceTextView.setVisibility(View.INVISIBLE);
         answerLayout.setVisibility(View.GONE);
         answerLayout.setClickable(false);
-        myMapView.getController().setCenter(new GeoPoint(70f,40f));
+        myMapView.getController().setCenter(new GeoPoint(70f, 40f));
         myMapView.getController().setZoom(myMapView.getMinZoomLevel());
 
         hideDrawingOverlays();
@@ -429,16 +431,16 @@ class GameUI implements IGameUI {
         answerScoreTextView.setText("score " + deltaScore);
         GlideApp.with(activity).load(pic).into(answerCorrectImageView);
     }
-    private void divideAddress(String string){
+
+    private void divideAddress(String string) {
         int start = 0;
         int end = string.length();
-        int firstSpace =  string.indexOf(" ");
+        int firstSpace = string.indexOf(" ");
         if (firstSpace == -1) {
             answerLandPlaceNameTextView.setText(string);
-        }
-        else{
-            answerLandCountryTextView.setText(string.substring(start,firstSpace));
-            answerLandPlaceNameTextView.setText(string.substring(firstSpace+1,end));
+        } else {
+            answerLandCountryTextView.setText(string.substring(start, firstSpace));
+            answerLandPlaceNameTextView.setText(string.substring(firstSpace + 1, end));
         }
     }
 
@@ -449,7 +451,7 @@ class GameUI implements IGameUI {
 
         showCommonAnswer(correct, deltaScore);
         positionProblemLayout.setVisibility(View.GONE);
-        myMapView.getController().setCenter(new GeoPoint(70f,40f));
+        myMapView.getController().setCenter(new GeoPoint(70f, 40f));
         myMapView.getController().zoomTo(myMapView.getMinZoomLevel(), 1000L);
 
         if (distance != null) {
@@ -464,7 +466,7 @@ class GameUI implements IGameUI {
     @Override
     public void animateMarker(Marker marker, final GeoPoint destination, GeoPointInterpolator geopolator) {
         final GeoPoint start = marker.getPosition();
-        myMapView.getController().animateTo(new GeoPoint(70f,40f), myMapView.getMinZoomLevel(), 1000L);
+        myMapView.getController().animateTo(new GeoPoint(70f, 40f), myMapView.getMinZoomLevel(), 1000L);
 
         MarkerAnimation anim = new MarkerAnimation(marker, destination, 1000);
         anim.geoInterpolator = geopolator;
@@ -554,7 +556,7 @@ class GameUI implements IGameUI {
         showCommonAnswer(correct, deltaScore);
         choicePicProblemLayout.setVisibility(View.GONE);
         //인자의 속도에 맞춰서 줌 아웃
-        myMapView.getController().setCenter(new GeoPoint(70f,40f));
+        myMapView.getController().setCenter(new GeoPoint(70f, 40f));
         myMapView.getController().zoomTo(myMapView.getMinZoomLevel(), 1000L);
     }
 
@@ -588,15 +590,6 @@ class GameUI implements IGameUI {
         }
     };
 
-    class overlaymanagerForDisableDoubleTap extends DefaultOverlayManager{
-        public overlaymanagerForDisableDoubleTap(TilesOverlay tilesOverlay) {
-            super(tilesOverlay);
-        }
-        @Override
-        public boolean onDoubleTap(MotionEvent e, MapView pMapView) {
-            return true;
-        }
-    }
     private MapEventsOverlay onTouchMap = new MapEventsOverlay(new MapEventsReceiver() {
         @Override
         public boolean singleTapConfirmedHelper(GeoPoint p) {
