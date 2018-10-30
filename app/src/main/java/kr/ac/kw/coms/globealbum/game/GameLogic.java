@@ -181,7 +181,6 @@ class GameLogic implements IGameInputHandler {
 
     private void enterPositionQuiz(@NonNull PositionQuiz quiz) {
         gameType = GameType.POSITION;
-        ui.showPositionQuiz(quiz.getPicture());
         GeoPoint rightPos = quiz.getPicture().getMeta().getGeo();
         ui.getSystemMarker().setPosition(Objects.requireNonNull(rightPos));
 
@@ -191,7 +190,7 @@ class GameLogic implements IGameInputHandler {
     private void enterPicChoiceQuiz(@NonNull PicChoiceQuiz quiz) {
         gameType = GameType.PICTURE;
         PictureMeta meta = quiz.getCorrectPicture().getMeta();
-        ui.showPictureQuiz(quiz.getPictures(), meta.getAddress());
+        ui.getSystemMarker().setTitle(meta.getAddress());
         ui.getSystemMarker().setPosition(Objects.requireNonNull(meta.getGeo()));
 
         enterQuizCommon(quiz);
@@ -201,6 +200,7 @@ class GameLogic implements IGameInputHandler {
         currentQuiz = quiz;
         state = GameState.SOLVING;
         msQuestionStart = new Date().getTime();
+        ui.showQuiz(quiz);
         ui.startTimer(MS_TIME_LIMIT - 1000 * stage);
     }
 

@@ -17,18 +17,13 @@ import java.util.*
 
 
 internal interface IGameQuiz {
-  val msTimeLimit: Int
-
-  val description: String
+  var msTimeLimit: Int
 
   val usedPictures: Collection<IPicture>
 }
 
 internal class PositionQuiz(var picture: IPicture) : IGameQuiz {
-
-  override val msTimeLimit = 0
-
-  override val description = ""
+  override var msTimeLimit = 0
 
   override val usedPictures: Collection<IPicture>
     get() = ArrayList<IPicture>().apply { add(picture) }
@@ -37,9 +32,7 @@ internal class PositionQuiz(var picture: IPicture) : IGameQuiz {
 internal class PicChoiceQuiz(val pictures: List<IPicture>, random: Random) : IGameQuiz {
   private val correctIdx: Int = random.nextInt(4)
 
-  override val msTimeLimit = 0
-
-  override val description = ""
+  override var msTimeLimit = 0
 
   override val usedPictures: Collection<IPicture> = pictures
 

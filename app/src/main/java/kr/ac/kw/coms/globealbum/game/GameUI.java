@@ -58,9 +58,7 @@ interface IGameUI {
 
     void setQuizInfo(int stage, int curProblem, int curScore, int allProblem);
 
-    void showPositionQuiz(IPicture picture);
-
-    void showPictureQuiz(List<IPicture> picture, String description);
+    void showQuiz(IGameQuiz quiz);
 
     void showPositionAnswer(IPicture correct, int deltaScore, Double distance);
 
@@ -299,21 +297,55 @@ class GameUI implements IGameUI {
         }
     }
 
+    @Override
+    public void showQuiz(IGameQuiz quiz) {
+        if (quiz instanceof PositionQuiz) {
+            showPositionQuiz((PositionQuiz) quiz);
+        } else {
+            showPictureQuiz((PicChoiceQuiz) quiz);
+        }
+    }
+
     /**
      * 사진을 보여주고 지명을 찾는 문제 형식
      *
-     * @param picture 사진 정보를 가지고 있는 클래스
+     * @param pq 퀴즈 정보 객체
      */
-    @Override
-    public void showPositionQuiz(IPicture picture) {
+    private void showPositionQuiz(PositionQuiz pq) {
         //레이아웃 설정
         positionPicImageView.setClickable(true);
         positionPicImageView.setVisibility(View.VISIBLE);
         choicePicProblemLayout.setClickable(false);
         choicePicProblemLayout.setVisibility(View.GONE);
 
-        GlideApp.with(activity).load(picture).into(positionPicImageView);
+        GlideApp.with(activity).load(pq.getPicture()).into(positionPicImageView);
         positionProblemLayout.setVisibility(View.VISIBLE);
+    }
+
+    /**
+     * 지명을 보여주고 사진을 찾는 문제 형식
+     *
+     * @param pq 퀴즈 정보 객체
+     */
+    private void showPictureQuiz(PicChoiceQuiz pq) {
+        choicePics = pq.getPictures();
+
+        //레이아웃 설정
+        choicePicProblemLayout.setVisibility(View.VISIBLE);
+        choicePicProblemLayout.setClickable(true);
+        positionPicImageView.setClickable(false);
+        positionPicImageView.setVisibility(View.GONE);
+
+
+        //마커에 지명 설정하고 맵뷰에 표시
+        systemMarker.showInfoWindow();
+        systemMarker.setEnabled(true);
+
+        myMapView.setClickable(false);
+
+        for (int i = 0; i < 4; i++) {
+            GlideApp.with(activity).load(pq.getPictures().get(i)).into(choicePicImageViews[i]);
+        }
     }
 
     private void hideDrawingOverlays() {
@@ -324,38 +356,6 @@ class GameUI implements IGameUI {
         userMarker.setEnabled(false);
 
         gameTimeProgressBar.setProgress(gameTimeProgressBar.getMax());
-    }
-
-    /**
-     * 지명을 보여주고 사진을 찾는 문제 형식
-     *
-     * @param pics        사진 정보를 가지고 있는 클래스
-     * @param description 툴팁 텍스트
-     */
-    @Override
-    public void showPictureQuiz(List<IPicture> pics, String description) {
-
-        choicePics = pics;
-
-        //레이아웃 설정
-        choicePicProblemLayout.setVisibility(View.VISIBLE);
-        choicePicProblemLayout.setClickable(true);
-        positionPicImageView.setClickable(false);
-        positionPicImageView.setVisibility(View.GONE);
-
-
-        //마커에 지명 설정하고 맵뷰에 표시
-        systemMarker.setTitle(description);
-        systemMarker.showInfoWindow();
-        systemMarker.setEnabled(true);
-
-        myMapView.setClickable(false);
-
-        for (int i = 0; i < 4; i++) {
-            // TODO: why not use xml? inspection needed
-            choicePicImageViews[i].setScaleType(ImageView.ScaleType.CENTER_INSIDE);
-            GlideApp.with(activity).load(pics.get(i)).into(choicePicImageViews[i]);
-        }
     }
 
     @Override
