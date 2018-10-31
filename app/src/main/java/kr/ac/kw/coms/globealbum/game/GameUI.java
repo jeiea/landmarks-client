@@ -175,7 +175,6 @@ class GameUI implements IGameUI {
         positionPicImageView.setOnClickListener(onPressPicZoom);
 
         myMapView = quizView.findViewById(R.id.map);
-        myMapView.preventDispose();
         myMapView.setTileSource(TileSourceFactory.BASE_OVERLAY_NL);    //맵 렌더링 설정
         myMapView.setMaxZoomLevel(5.0);
         TilesOverlay tiOv = new TilesOverlay(myMapView.getTileProvider(), myMapView.getContext());
@@ -443,8 +442,6 @@ class GameUI implements IGameUI {
 
     @Override
     public void exitGame() {
-        myMapView.dispose();
-
         handler.removeCallbacksAndMessages(null);
         if (activity != null && !activity.isFinishing()) {
             activity.finish();

@@ -84,34 +84,6 @@ public class MyMapView extends org.osmdroid.views.MapView implements ILandmarkMa
         return Math.log(zoom) / Math.log(2);
     }
 
-    @Override
-    protected void onDetachedFromWindow() {
-        if (!hasTransientState()) {
-            super.onDetachedFromWindow();
-        }
-    }
-
-    /**
-     * 맵뷰를 재사용할 수 있게 함. 관련 이슈를 확인해볼 것.
-     *
-     * @see <a href="https://github.com/jeiea/globe-album/issues/10">related issue</a>
-     */
-    public void preventDispose() {
-        setHasTransientState(true);
-    }
-
-    /**
-     * 맵뷰를 완전히 삭제함.
-     *
-     * @see <a href="https://github.com/jeiea/globe-album/issues/10">related issue</a>
-     */
-    public void dispose() {
-        setHasTransientState(false);
-        onDetachedFromWindow();
-    }
-
-
-
     public void fitZoomToMarkers() {
         BoundingBox bbox = getDiaryOverlay().getBoundingBox();
         zoomToBoundingBox(bbox, false);
