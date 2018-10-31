@@ -73,10 +73,11 @@ internal class GameQuizFactory(val context: Context) {
       PositionQuiz(pic)
     }
     else {
-      val pics: List<RemotePicture> = (1..4).map { _ ->
-        val pic = pictureBuffer.receive()
+      val pics = mutableListOf<RemotePicture>()
+      for (_i in 1..10) {
+        val pic = pictureBuffer.receive().takeIf { !pics.contains(it) } ?: continue
         GlideApp.with(context).load(pic).preload(w / 2, h / 4)
-        pic
+        pics.add(pic)
       }
       PicChoiceQuiz(pics, random)
     }
