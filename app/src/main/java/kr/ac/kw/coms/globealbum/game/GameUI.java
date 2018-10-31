@@ -81,13 +81,22 @@ interface IGameUI {
     void exitGame();
 }
 
+/**
+ * GameUI를 관리하는 클래스... 라고 간단히 정의할 수 있다면 좋겠지만.
+ * UI 부분을 따로 클래스로 분리해서 가지고 있는 클래스 하나와 로직 요청을 해석해서
+ * UI 객체 요청으로 바꿔주는 어댑터 클래스로 더 쪼갤 수 있을 것 같음.
+ * 그렇게까지 해야할까 싶으므로 일단 현재 기준은 모든 책임을 UI로, 귀찮으면 로직.
+ */
 class GameUI implements IGameUI {
     private AppCompatActivity activity;
     private IGameInputHandler input;
 
     // screens
+    private ViewGroup rootView;
+    private View loadingView;
     private ReadyScreen readyScreen;
     private View quizView;
+    private View recollectionView;
 
     // game
     private MyMapView myMapView;
@@ -103,7 +112,10 @@ class GameUI implements IGameUI {
     private InvalidationHelper mapInvalidator;
 
     // answer
-    private TextView answerLandPlaceNameTextView, answerLandCountryTextView, answerDistanceTextView, answerScoreTextView;
+    private TextView answerLandPlaceNameTextView;
+    private TextView answerLandCountryTextView;
+    private TextView answerDistanceTextView;
+    private TextView answerScoreTextView;
     private ImageView answerCorrectImageView;
     private ConstraintLayout answerLayout;
 
@@ -120,12 +132,15 @@ class GameUI implements IGameUI {
 
     GameUI(AppCompatActivity activity) {
         this.activity = activity;
+        activity.setContentView(R.layout.layout_empty);
+        rootView = activity.findViewById(R.id.lc_empty_root);
         readyScreen = new ReadyScreen();
         initQuiz();
+        recollectionView = rootInflateAndHide(R.layout.layout_after_game_recycler_view);
     }
 
     private void initQuiz() {
-        quizView = rootInflate(R.layout.activity_game);
+        quizView = rootInflateAndHide(R.layout.activity_game);
 
         //game layout
         gameTimeProgressBar = quizView.findViewById(R.id.progressbar);
@@ -209,23 +224,39 @@ class GameUI implements IGameUI {
     }
 
     @Override
-    public void showLoadingGif() {
-        activity.setContentView(R.layout.layout_game_loading_animation);
-        ImageView imgLoading = activity.findViewById(R.id.game_loading_animation);
-        imgLoading.setClickable(false);
-        GlideApp.with(imgLoading).load(R.drawable.game_loading_bar).into(imgLoading);
-    }
-
-    @Override
     public void setInputHandler(IGameInputHandler input) {
         this.input = input;
     }
 
     @Override
+    public void showLoadingGif() {
+        loadingView = rootInflateAndHide(R.layout.layout_game_loading_animation);
+        loadingView.setVisibility(View.VISIBLE);
+        ImageView imgLoading = activity.findViewById(R.id.game_loading_animation);
+        GlideApp.with(imgLoading).load(R.drawable.game_loading_bar).into(imgLoading);
+    }
+
+    private void removeLoadingGif() {
+        if (loadingView != null) {
+            rootView.removeView(loadingView);
+            loadingView = null;
+        }
+    }
+
+    @Override
     public void showGameEntryPoint(int stage, int score, int games) {
+        removeLoadingGif();
+        hideAllStateViews();
+
         handler.removeCallbacksAndMessages(null);
         readyScreen.setLabelAndChangeBackground(stage, score, games);
-        activity.setContentView(readyScreen.getRootView());
+        readyScreen.setVisibility(View.VISIBLE);
+    }
+
+    private void hideAllStateViews() {
+        for (int i = 0; i < rootView.getChildCount(); i++) {
+            rootView.getChildAt(i).setVisibility(View.GONE);
+        }
     }
 
     class ReadyScreen {
@@ -236,7 +267,7 @@ class GameUI implements IGameUI {
         private Random random = new Random(System.currentTimeMillis());
 
         ReadyScreen() {
-            rootView = rootInflate(R.layout.layout_game_entry_point);
+            rootView = rootInflateAndHide(R.layout.layout_game_entry_point);
             backgroundView = rootView.findViewById(R.id.game_start_background);
             gameNextStageLevelTextview = rootView.findViewById(R.id.textview_level);
             gameNextStageGoalTextview = rootView.findViewById(R.id.textview_goal_score);
@@ -262,14 +293,16 @@ class GameUI implements IGameUI {
             gameNextStageGoalTextview.setText(score + "/" + games);
         }
 
-        View getRootView() {
-            return rootView;
+        void setVisibility(int visibility) {
+            rootView.setVisibility(visibility);
         }
     }
 
-    private View rootInflate(@LayoutRes int layout) {
-        ViewGroup frame = (ViewGroup) activity.getWindow().getDecorView();
-        return activity.getLayoutInflater().inflate(layout, frame, false);
+    private View rootInflateAndHide(@LayoutRes int layout) {
+        View v = activity.getLayoutInflater().inflate(layout, rootView, false);
+        v.setVisibility(View.GONE);
+        rootView.addView(v);
+        return v;
     }
 
     /**
@@ -292,9 +325,8 @@ class GameUI implements IGameUI {
 
         hideDrawingOverlays();
 
-        if (activity.findViewById(R.id.textview_target) == null) {
-            activity.setContentView(quizView);
-        }
+        hideAllStateViews();
+        quizView.setVisibility(View.VISIBLE);
     }
 
     @Override
@@ -335,7 +367,6 @@ class GameUI implements IGameUI {
         choicePicProblemLayout.setClickable(true);
         positionPicImageView.setClickable(false);
         positionPicImageView.setVisibility(View.GONE);
-
 
         //마커에 지명 설정하고 맵뷰에 표시
         systemMarker.showInfoWindow();
@@ -414,12 +445,9 @@ class GameUI implements IGameUI {
     public void exitGame() {
         myMapView.dispose();
 
-        if (handler != null) {
-            handler.removeCallbacksAndMessages(null);
-            handler = null;
-            if (activity != null && !activity.isFinishing()) {
-                activity.finish();
-            }
+        handler.removeCallbacksAndMessages(null);
+        if (activity != null && !activity.isFinishing()) {
+            activity.finish();
         }
     }
 
@@ -674,20 +702,21 @@ class GameUI implements IGameUI {
 
 
     /**
-     * 게임이 완료된 후 사진들을 모아서 보여주는 리사이클뷰 적용
+     * 게임이 완료된 후 사진들을 리사이클러뷰로 보여줌
      */
     @Override
     public void showGameOver(List<IPicture> pics) {
-        hideDrawingOverlays();
         handler.removeCallbacksAndMessages(null);
-        activity.setContentView(R.layout.layout_after_game_recycler_view);
-        //after game
+
+        hideDrawingOverlays();
+        hideAllStateViews();
+        recollectionView.setVisibility(View.VISIBLE);
+
         ImageView afterGameExitButton = activity.findViewById(R.id.after_game_exit_button);
         ImageView afterGameRetryButton = activity.findViewById(R.id.after_game_retry_button);
-
         afterGameExitButton.setOnClickListener(onPressExit);
         afterGameRetryButton.setOnClickListener(onPressRetry);
-        //after game
+
         RecyclerView recyclerView = activity.findViewById(R.id.after_game_recyclerview);
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(activity);

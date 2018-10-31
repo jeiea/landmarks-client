@@ -181,19 +181,16 @@ class GameLogic implements IGameInputHandler {
 
     private void enterPositionQuiz(@NonNull PositionQuiz quiz) {
         gameType = GameType.POSITION;
-        GeoPoint rightPos = quiz.getPicture().getMeta().getGeo();
-        ui.getSystemMarker().setPosition(Objects.requireNonNull(rightPos));
-
         enterQuizCommon(quiz);
     }
 
     private void enterPicChoiceQuiz(@NonNull PicChoiceQuiz quiz) {
         gameType = GameType.PICTURE;
+        enterQuizCommon(quiz);
+
         PictureMeta meta = quiz.getCorrectPicture().getMeta();
         ui.getSystemMarker().setTitle(meta.getAddress());
         ui.getSystemMarker().setPosition(Objects.requireNonNull(meta.getGeo()));
-
-        enterQuizCommon(quiz);
     }
 
     private void enterQuizCommon(IGameQuiz quiz) {
@@ -204,7 +201,7 @@ class GameLogic implements IGameInputHandler {
         ui.startTimer(MS_TIME_LIMIT - 1000 * stage);
     }
 
-    private void onProblemDone() {
+    private void checkAnswerAndGrading() {
         int deltaScore = reflectScoreAndGetDelta();
         for (IPicture pic : currentQuiz.getUsedPictures()) {
             if (!shownPictures.contains(pic)) {
@@ -212,12 +209,21 @@ class GameLogic implements IGameInputHandler {
             }
         }
         if (currentQuiz instanceof PositionQuiz) {
-            Double distance = calcDistanceKm();
-            ui.showPositionAnswer(((PositionQuiz) currentQuiz).getPicture(), deltaScore, distance);
+            showPositionQuizAnswer((PositionQuiz) currentQuiz, deltaScore);
         } else {
             ui.showPicChoiceAnswer(((PicChoiceQuiz) currentQuiz).getCorrectPicture(), deltaScore);
             rightAnswerTypePic = false;
         }
+    }
+
+    private void showPositionQuizAnswer(PositionQuiz quiz, int deltaScore) {
+        // 정답 마커 표시
+        GeoPoint rightPos = quiz.getPicture().getMeta().getGeo();
+        ui.getSystemMarker().setPosition(Objects.requireNonNull(rightPos));
+        ui.getSystemMarker().setEnabled(true);
+
+        Double distance = calcDistanceKm();
+        ui.showPositionAnswer(quiz.getPicture(), deltaScore, distance);
     }
 
     private int calcTimeBonusScore() {
@@ -284,14 +290,12 @@ class GameLogic implements IGameInputHandler {
             if (ui.getUserMarker().isEnabled()) {
                 showDifferenceAnimAndScore(new GeoPointInterpolator.Linear());
             } else {
-                //화면에 마커 생성 없이 타임아웃 발생시 정답 확인
-                ui.getSystemMarker().setEnabled(true);
-                onProblemDone();
+                //화면에 마커 생성 없이 타임아웃 발생 시 채점
+                checkAnswerAndGrading();
             }
         } else {
-            onProblemDone();
+            checkAnswerAndGrading();
         }
-
     }
 
     /**
@@ -313,7 +317,7 @@ class GameLogic implements IGameInputHandler {
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-                onProblemDone();
+                checkAnswerAndGrading();
             }
         }, 1000);
     }
@@ -346,7 +350,7 @@ class GameLogic implements IGameInputHandler {
         rightAnswerTypePic = selected == ((PicChoiceQuiz) currentQuiz).getCorrectPicture();
         ui.stopTimer();
         state = GameState.GRADING;
-        onProblemDone();
+        checkAnswerAndGrading();
     }
 
     @Override
