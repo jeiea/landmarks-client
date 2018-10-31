@@ -4,7 +4,7 @@ import com.beust.klaxon.JsonObject
 import com.beust.klaxon.Parser
 import io.ktor.client.HttpClient
 import io.ktor.client.call.receive
-import io.ktor.client.engine.android.Android
+import io.ktor.client.engine.okhttp.OkHttp
 import io.ktor.client.features.cookies.AcceptAllCookiesStorage
 import io.ktor.client.features.cookies.HttpCookies
 import io.ktor.client.features.json.JsonFeature
@@ -22,6 +22,7 @@ import kotlinx.io.core.writeFully
 import java.io.File
 import java.net.URLEncoder
 import java.util.*
+import java.util.concurrent.TimeUnit
 import kotlin.math.max
 
 private typealias HRB = HttpRequestBuilder.() -> Unit
@@ -44,7 +45,13 @@ class Remote(engine: HttpClient, private val basePath: String = herokuUri) {
       "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.59 Safari/537.36"
   }
 
-  constructor() : this(HttpClient(Android.create()))
+  constructor() : this(HttpClient(OkHttp.create {
+    config {
+      connectTimeout(1, TimeUnit.MINUTES)
+      writeTimeout(1, TimeUnit.MINUTES)
+      readTimeout(1, TimeUnit.MINUTES)
+    }
+  }))
 
   init {
     nominatimLastRequestMs.sendBlocking(0)

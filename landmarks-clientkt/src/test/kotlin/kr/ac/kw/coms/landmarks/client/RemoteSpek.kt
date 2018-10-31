@@ -1,22 +1,18 @@
 package kr.ac.kw.coms.landmarks.client
 
 import io.ktor.client.HttpClient
-import io.ktor.client.engine.android.Android
-import io.ktor.client.engine.apache.Apache
-import io.ktor.client.engine.config
-import io.ktor.client.features.cookies.AcceptAllCookiesStorage
-import io.ktor.client.features.cookies.HttpCookies
+import io.ktor.client.engine.okhttp.OkHttp
 import kotlinx.coroutines.experimental.runBlocking
 import org.amshove.kluent.*
-import org.apache.http.HttpHost
-import org.apache.http.conn.ssl.TrustSelfSignedStrategy
-import org.apache.http.ssl.SSLContextBuilder
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.*
 import org.junit.platform.runner.JUnitPlatform
 import org.junit.runner.RunWith
 import java.io.File
+import java.net.InetSocketAddress
+import java.net.Proxy
 import java.util.*
+import java.util.concurrent.TimeUnit
 
 @RunWith(JUnitPlatform::class)
 class RemoteSpek : Spek({
@@ -174,33 +170,21 @@ fun newClient(): Remote {
     "http://landmarks-coms.herokuapp.com"
   else
     "http://localhost:8080"
-  val engine = if (System.getProperty("useDirect") != null) getAndroidEngine()
-  else getTestEngine()
-
+  val engine = getTestEngine()
   return Remote(engine, basePath)
 }
 
-fun getAndroidEngine() = HttpClient(Android.create())
-
 fun getTestEngine(): HttpClient {
-  return HttpClient(Apache.config {
-    customizeClient {
-      setProxy(HttpHost("localhost", 8888))
-      val sslContext = SSLContextBuilder().loadTrustMaterial(
-        null,
-        TrustSelfSignedStrategy.INSTANCE
-      ).build()
-      setSSLContext(sslContext)
+  return HttpClient(OkHttp.create {
+    config {
+      if (System.getProperty("useDirect") != null) {
+        proxy(Proxy(Proxy.Type.HTTP, InetSocketAddress("localhost", 8888)))
+      }
+      connectTimeout(1, TimeUnit.MINUTES)
+      writeTimeout(1, TimeUnit.MINUTES)
+      readTimeout(1, TimeUnit.MINUTES)
     }
-    socketTimeout = 0
-    connectTimeout = 0
-    connectionRequestTimeout = 0
-
-  }) {
-    install(HttpCookies) {
-      storage = AcceptAllCookiesStorage()
-    }
-  }
+  })
 }
 
 fun getRandomString(length: Long): String {
