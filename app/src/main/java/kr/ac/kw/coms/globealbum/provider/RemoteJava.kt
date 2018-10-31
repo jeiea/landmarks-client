@@ -4,7 +4,9 @@ import android.util.Log
 import kotlinx.coroutines.experimental.*
 import kr.ac.kw.coms.landmarks.client.*
 import java.io.File
+import java.text.SimpleDateFormat
 import java.util.*
+
 
 object RemoteJava {
 
@@ -12,16 +14,19 @@ object RemoteJava {
 
   init {
     client.logger = object : RemoteLoggable {
+      val numDate = SimpleDateFormat("[yyyy-MM-dd HH:mm:ss.SSS]", Locale.KOREAN)
+      val now get() = numDate.format(Date())
+
       override fun onRequest(msg: String) {
-        Log.d("RemoteJava", "${Date()} Request $msg")
+        Log.d("RemoteJava", "$now Request $msg")
       }
 
       override fun onResponseSuccess(msg: String) {
-        Log.d("RemoteJava", "${Date()} Receive $msg")
+        Log.d("RemoteJava", "$now Receive $msg")
       }
 
       override fun onResponseFailure(msg: String) {
-        Log.d("RemoteJava", "${Date()} Error $msg")
+        Log.d("RemoteJava", "$now Error $msg")
       }
     }
   }
@@ -48,9 +53,8 @@ object RemoteJava {
   fun uploadPicture(info: PictureInfo, file: File, prom: Promise<RemotePicture>): Job =
     resolve(prom) { RemotePicture(client.uploadPicture(info, file)) }
 
-  fun uploadPicture(local: LocalPicture, prom: Promise<RemotePicture>): Job = resolve(prom) {
-    uploadPicture(local)
-  }
+  fun uploadPicture(local: LocalPicture, prom: Promise<RemotePicture>): Job =
+    resolve(prom) { uploadPicture(local) }
 
   private suspend fun uploadPicture(local: LocalPicture): RemotePicture {
     val gps = EXIFinfo(local.path).locationGeopoint ?: throw RuntimeException("GPS 정보 없음")
