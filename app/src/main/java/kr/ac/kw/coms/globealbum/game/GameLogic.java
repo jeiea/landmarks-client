@@ -158,13 +158,13 @@ class GameLogic implements IGameInputHandler {
     }
 
     private void enterNewQuiz() {
+        ui.setQuizInfo(stage, problem, score, stageNumberOfGames[stage - 1]);
         // 처음은 미리 문제를 가져오기에 다시 가져오면 중복
         if (stage == 1 && problem == 0) {
             onReceivePictures.resolve(currentQuiz);
         } else {
             quizFactory.fetchQuiz(onReceivePictures);
         }
-        ui.setQuizInfo(stage, problem, score, stageNumberOfGames[stage - 1]);
     }
 
     private Promise<IGameQuiz> onReceivePictures = new ErrorToastPromise<IGameQuiz>() {
