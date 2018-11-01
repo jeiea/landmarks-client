@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import kotlinx.android.synthetic.main.activity_profile.*
 import kotlinx.coroutines.experimental.Dispatchers
-import kotlinx.coroutines.experimental.GlobalScope
 import kotlinx.coroutines.experimental.coroutineScope
 import kotlinx.coroutines.experimental.launch
 import kr.ac.kw.coms.globealbum.common.GlideApp
@@ -25,7 +24,7 @@ class ProfileActivity : AppCompatActivity() {
     }
     profile_back_textview.onClick {
       coroutineScope {
-        GlobalScope.launch(Dispatchers.IO) {
+        launch(Dispatchers.IO) {
           GlideApp.get(applicationContext).clearDiskCache()
         }
         GlideApp.get(applicationContext).clearMemory()

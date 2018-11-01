@@ -1,16 +1,21 @@
 package kr.ac.kw.coms.globealbum.provider
 
-import kotlinx.coroutines.experimental.*
+import kotlinx.coroutines.experimental.Dispatchers
+import kotlinx.coroutines.experimental.coroutineScope
+import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.experimental.withContext
 
 open class UIPromise<T> : Promise<T>() {
-  override fun resolve(scope: CoroutineScope, block: suspend () -> T): Job {
-    return scope.launch(Dispatchers.Main) {
+  override suspend fun resolve(block: suspend () -> T) = coroutineScope {
+    val outer = coroutineContext
+    launch(Dispatchers.Main) {
       try {
-        resolve(withContext(scope.coroutineContext) { block() })
+        success(withContext(outer) { block() })
       }
       catch (e: Throwable) {
-        resolve(e)
+        failure(e)
       }
     }
+    Unit
   }
 }

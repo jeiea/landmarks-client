@@ -161,7 +161,7 @@ class GameLogic implements IGameInputHandler {
         ui.setQuizInfo(stage, problem, score, stageNumberOfGames[stage - 1]);
         // 처음은 미리 문제를 가져오기에 다시 가져오면 중복
         if (stage == 1 && problem == 0) {
-            onReceivePictures.resolve(currentQuiz);
+            onReceivePictures.success(currentQuiz);
         } else {
             quizFactory.fetchQuiz(onReceivePictures);
         }

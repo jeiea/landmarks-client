@@ -32,7 +32,7 @@ object RemoteJava {
   }
 
   private fun <T> resolve(promise: Promise<T>, block: suspend () -> T): Job =
-    promise.resolve(GlobalScope + Dispatchers.IO) { block() }
+    GlobalScope.launch(Dispatchers.IO) { promise.resolve { block() } }
 
   fun reverseGeocode(
     latitude: Double,

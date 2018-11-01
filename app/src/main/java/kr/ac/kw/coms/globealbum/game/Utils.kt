@@ -2,6 +2,8 @@ package kr.ac.kw.coms.globealbum.game
 
 import android.content.Context
 import android.content.res.Resources
+import kotlinx.coroutines.experimental.GlobalScope
+import kotlinx.coroutines.experimental.launch
 import kr.ac.kw.coms.globealbum.R
 import kr.ac.kw.coms.globealbum.provider.*
 
@@ -31,6 +33,8 @@ class ResourceExaminer(val resources: Resources) : IPictureExaminer<ResourcePict
       R.drawable.sample9
     )
     samples.shuffle()
-    prom.resolve(samples.take(n).map { ResourcePicture(it, resources) })
+    GlobalScope.launch {
+      prom.resolve { samples.take(n).map { ResourcePicture(it, resources) } }
+    }
   }
 }
