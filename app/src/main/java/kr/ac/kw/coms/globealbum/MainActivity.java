@@ -15,8 +15,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import kr.ac.kw.coms.globealbum.album.GalleryActivity;
-import kr.ac.kw.coms.globealbum.album.activity_Navigator;
+import kr.ac.kw.coms.globealbum.common.GlideAppKt;
 import kr.ac.kw.coms.globealbum.common.RequestCodes;
 import kr.ac.kw.coms.globealbum.diary.Diary_main;
 import kr.ac.kw.coms.globealbum.game.GameActivity;
@@ -40,8 +39,7 @@ public class MainActivity extends AppCompatActivity {
             checkPermissions();
         }
         setContentView(R.layout.activity_main);
-
-//        MediaScannerKt.mediaScan(this);
+        GlideAppKt.clearCache(this);
     }
 
     //layout button click listener

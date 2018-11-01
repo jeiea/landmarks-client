@@ -16,15 +16,22 @@ import com.bumptech.glide.load.model.ModelLoader.LoadData
 import com.bumptech.glide.load.model.ModelLoaderFactory
 import com.bumptech.glide.load.model.MultiModelLoaderFactory
 import com.bumptech.glide.module.AppGlideModule
-import kotlinx.coroutines.experimental.Dispatchers
-import kotlinx.coroutines.experimental.GlobalScope
-import kotlinx.coroutines.experimental.Job
-import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.experimental.*
 import kr.ac.kw.coms.globealbum.provider.*
 import kr.ac.kw.coms.landmarks.client.getThumbnailLevel
 import java.io.InputStream
 import java.security.MessageDigest
 
+fun clearCache(context: Context): Job = GlobalScope.launch {
+  coroutineScope {
+    launch(Dispatchers.IO) {
+      GlideApp.get(context).clearDiskCache()
+    }
+    launch(Dispatchers.Main) {
+      GlideApp.get(context).clearMemory()
+    }
+  }
+}
 
 @GlideModule
 class MyGlideModule : AppGlideModule() {
