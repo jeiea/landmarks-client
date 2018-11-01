@@ -341,7 +341,7 @@ class ResourcePicture(@DrawableRes val id: Int) : IPicture {
 
 class Diary(
   var info: IdCollectionInfo = IdCollectionInfo(-1, CollectionInfo()),
-  pictures: List<IPicture> = listOf()
+  pictures: List<IPicture>? = null
 ) : Parcelable, ICollectionInfo by info.data, IntIdentifiable by info {
 
   var pictures: List<IPicture> = listOf()
@@ -352,7 +352,12 @@ class Diary(
     }
 
   init {
-    this.pictures = pictures
+    val previews = info.data.previews
+    this.pictures = when {
+      pictures != null -> pictures
+      previews != null -> previews.map(::RemotePicture)
+      else -> listOf()
+    }
   }
 
   //region Parcelable implementation
