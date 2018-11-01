@@ -1,7 +1,10 @@
 package kr.ac.kw.coms.globealbum.game;
 
 import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
 import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,6 +19,7 @@ import java.util.List;
 
 import kr.ac.kw.coms.globealbum.R;
 import kr.ac.kw.coms.globealbum.common.GlideApp;
+import kr.ac.kw.coms.globealbum.common.RequestCodes;
 import kr.ac.kw.coms.globealbum.provider.IPicture;
 import kr.ac.kw.coms.globealbum.provider.RemoteJava;
 import kr.ac.kw.coms.globealbum.provider.RemotePicture;
@@ -41,9 +45,9 @@ public class AfterGameAdapter extends RecyclerView.Adapter<AfterGameAdapter.View
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        IPicture gamePictureInfo = gamePictureInfos.get(position);
-        GlideApp.with(gameActivity).load(gamePictureInfo).into(holder.afterGamePictureImageView);
-        String str = gamePictureInfo.getMeta().getAddress();
+        holder.gamePictureInfo = gamePictureInfos.get(position);
+        GlideApp.with(gameActivity).load(holder.gamePictureInfo).into(holder.afterGamePictureImageView);
+        String str = holder.gamePictureInfo.getMeta().getAddress();
         int start = 0;
         int end = str.length();
         int firstSpace =  str.indexOf(" ");
@@ -64,6 +68,7 @@ public class AfterGameAdapter extends RecyclerView.Adapter<AfterGameAdapter.View
     class ViewHolder extends RecyclerView.ViewHolder {
         ImageView afterGamePictureImageView,afterGameSeeRelatedDiary,afterGameSeeRelatedPicture;
         TextView afterGamePlactTextView, afterGameCountryTextView;
+        IPicture gamePictureInfo;
 
         ViewHolder(final View itemView) {
             super(itemView);
@@ -76,17 +81,36 @@ public class AfterGameAdapter extends RecyclerView.Adapter<AfterGameAdapter.View
             afterGameSeeRelatedDiary.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    //TODO(상훈) 사진을 찍은 나라를 방문한 다이어리 보여주기
-                    //RemoteJava.INSTANCE.getCollectionsContainPicture();
+                    // 사진을 찍은 나라를 방문한 다이어리 보여주기
+                    ShowRelatedInformation(afterGamePictureImageView.getContext(), gamePictureInfo, 1);
                 }
             });
             afterGameSeeRelatedPicture.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    //TODO(상훈) 사진을 찍은 나라를 같은 사진들 보여주기
-                    //RemoteJava.INSTANCE.getAroundPictures();
+                    // 사진을 찍은 나라를 같은 사진들 보여주기
+                    ShowRelatedInformation(afterGamePictureImageView.getContext(), gamePictureInfo, 0);
                 }
             });
+        }
+
+        public void ShowRelatedInformation(Context context, IPicture picture, int WHAT_TO_SHOW)
+        {
+            Intent intent = new Intent(context, kr.ac.kw.coms.globealbum.diary.Diary_main.class);
+            if (WHAT_TO_SHOW == 0)
+            {
+                //이미지 목록 먼저 보여주기
+                intent.setAction(RequestCodes.ACTION_DIARY_RELATED_IMAGE_FIRST);
+            }
+            else
+            {
+                //다이어리 먼저 보여주기
+                intent.setAction(RequestCodes.ACTION_DIARY_RELATED_DIARY_FIRST);
+            }
+            intent.putExtra("Query", picture);
+
+
+            context.startActivity(intent);
         }
     }
 }

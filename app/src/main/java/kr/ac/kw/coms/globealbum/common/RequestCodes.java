@@ -10,4 +10,6 @@ public final class RequestCodes {
     public final static String ACTION_EDIT_DIARY = "edit_diary";
     public final static String ACTION_DIARY_OTHERS = "diary_others";
     public final static String ACTION_DIARY_MINE = "diary_mine";
+    public final static String ACTION_DIARY_RELATED_IMAGE_FIRST = "diary_related_image_first";
+    public final static String ACTION_DIARY_RELATED_DIARY_FIRST = "diary_related_diary_first";
 }

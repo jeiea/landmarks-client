@@ -28,6 +28,7 @@ import android.widget.Toast;
 import com.bumptech.glide.request.transition.Transition;
 
 import org.jetbrains.annotations.NotNull;
+import org.osmdroid.util.GeoPoint;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -55,6 +56,9 @@ import kr.ac.kw.coms.globealbum.provider.RemoteJava;
 import kr.ac.kw.coms.globealbum.provider.RemotePicture;
 import kr.ac.kw.coms.globealbum.provider.ResourcePicture;
 import kr.ac.kw.coms.globealbum.provider.UIPromise;
+import kr.ac.kw.coms.landmarks.client.NearGeoPoint;
+import kr.ac.kw.coms.landmarks.client.PictureQuery;
+import kr.ac.kw.coms.landmarks.client.UserFilter;
 
 public class Diary_main extends AppCompatActivity {
 
@@ -108,8 +112,9 @@ public class Diary_main extends AppCompatActivity {
                 findViewById(R.id.diary_main_menuRoot).setVisibility(View.VISIBLE);
                 findViewById(R.id.diary_main_menuEdit).setVisibility(View.INVISIBLE);
                 findViewById(R.id.diary_main_menuShare).setVisibility(View.VISIBLE);
-                if (getIntent().getAction().equals(RequestCodes.ACTION_DIARY_OTHERS))
+                if (!getIntent().getAction().equals(RequestCodes.ACTION_DIARY_MINE)) {
                     findViewById(R.id.diary_main_menuDelete).setVisibility(View.GONE);
+                }
             }
         }.getItemTouchListener();
 
@@ -311,7 +316,9 @@ public class Diary_main extends AppCompatActivity {
                     findViewById(R.id.diary_main_JourneyList).setVisibility(View.VISIBLE);
                 }
             });
-        } else {
+        } else if(getIntent().getAction().equals(RequestCodes.ACTION_DIARY_OTHERS)) {
+            ((TextView)findViewById(R.id.diary_main_Tab_Left_Text)).setText("Image");
+            ((TextView)findViewById(R.id.diary_main_Tab_Right_Text)).setText("Diary");
             RemoteJava.INSTANCE.getRandomPictures(30, new UIPromise<List<RemotePicture>>() {
                 @Override
                 public void success(List<RemotePicture> result) {
@@ -347,6 +354,45 @@ public class Diary_main extends AppCompatActivity {
                     findViewById(R.id.diary_main_JourneyList).setVisibility(View.VISIBLE);
                 }
             });
+        }
+        else
+        {
+            ((TextView)findViewById(R.id.diary_main_Tab_Left_Text)).setText("Image");
+            ((TextView)findViewById(R.id.diary_main_Tab_Right_Text)).setText("Diary");
+
+            IPicture QueryPicture = getIntent().getParcelableExtra("Query");
+            GeoPoint point = QueryPicture.getMeta().getGeo();
+            PictureQuery query = new PictureQuery();
+            assert point != null;
+            query.setGeoFilter(new NearGeoPoint(point.getLatitude(), point.getLongitude(), 500));
+            RemoteJava.INSTANCE.getPictures(query, new UIPromise<List<RemotePicture>>()
+            {
+                @Override
+                public void success(List<RemotePicture> result) {
+                    DownloadedImageList = new ArrayList<>();
+                    DownloadedImageList.addAll(result);
+                    ImageList.getPicAdapter().clearAllItems();
+                    ShowImageData();
+                    findViewById(R.id.diary_main_ImageNowLoading).setVisibility(View.GONE);
+                    findViewById(R.id.diary_main_ImageList).setVisibility(View.VISIBLE);
+                }
+            });
+
+            RemoteJava.INSTANCE.getCollectionsContainPicture(((RemotePicture)QueryPicture).getInfo().getId(), new UIPromise<List<Diary>>()
+            {
+                @Override
+                public void success(List<Diary> result) {
+                    DownloadedDiaryList = result;
+                    ShowDiaryData();
+                    findViewById(R.id.diary_main_JourneyNowLoading).setVisibility(View.GONE);
+                    findViewById(R.id.diary_main_JourneyList).setVisibility(View.VISIBLE);
+                    if (getIntent().getAction().equals(RequestCodes.ACTION_DIARY_RELATED_DIARY_FIRST))
+                    {
+                        diary_main_SwitchToRight(null);
+                    }
+                }
+            });
+
         }
     }
 
@@ -488,7 +534,7 @@ public class Diary_main extends AppCompatActivity {
                 @Override
                 public boolean onLongClick(View view) {
                     //앨범 롱클릭
-                    if (getIntent().getAction().equals(RequestCodes.ACTION_DIARY_OTHERS))
+                    if (!getIntent().getAction().equals(RequestCodes.ACTION_DIARY_MINE))
                         return true;
                     IsImageSelected = false;
                     DiaryToSend = diaryToShow;
