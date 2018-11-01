@@ -222,7 +222,7 @@ class GameLogic implements IGameInputHandler {
         ui.getSystemMarker().setPosition(Objects.requireNonNull(rightPos));
         ui.getSystemMarker().setEnabled(true);
 
-        Double distance = calcDistanceKm();
+        double distance = calcDistanceKm();
         ui.showPositionAnswer(quiz.getPicture(), deltaScore, distance);
     }
 
@@ -327,9 +327,9 @@ class GameLogic implements IGameInputHandler {
      *
      * @return km 단위 거리
      */
-    private Double calcDistanceKm() {
+    private double calcDistanceKm() {
         if (!ui.getUserMarker().isEnabled()) {
-            return null;
+            return Double.POSITIVE_INFINITY;
         }
         GeoPoint g1 = ui.getSystemMarker().getPosition();
         GeoPoint g2 = ui.getUserMarker().getPosition();

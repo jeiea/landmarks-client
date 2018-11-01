@@ -60,7 +60,7 @@ interface IGameUI {
 
     void showQuiz(IGameQuiz quiz);
 
-    void showPositionAnswer(IPicture correct, int deltaScore, Double distance);
+    void showPositionAnswer(IPicture correct, int deltaScore, double distance);
 
     void showPicChoiceAnswer(IPicture correct, int deltaScore);
 
@@ -470,7 +470,7 @@ class GameUI implements IGameUI {
     }
 
     @Override
-    public void showPositionAnswer(IPicture correct, int deltaScore, Double distance) {
+    public void showPositionAnswer(IPicture correct, int deltaScore, double distance) {
         systemMarker.setOnMarkerClickListener(onMarkerClickDoingNothing);
         userMarker.setOnMarkerClickListener(onMarkerClickDoingNothing);
 
@@ -479,12 +479,12 @@ class GameUI implements IGameUI {
         myMapView.getController().setCenter(new GeoPoint(70f, 40f));
         myMapView.getController().zoomTo(myMapView.getMinZoomLevel(), 1000L);
 
-        if (distance != null) {
+        if (distance == Double.POSITIVE_INFINITY) {
+            answerDistanceTextView.setVisibility(View.INVISIBLE);
+        } else {
             answerDistanceTextView.setVisibility(View.VISIBLE);
             String d = String.format(Locale.KOREAN, "%.1f km", distance);
             answerDistanceTextView.setText(d);
-        } else {
-            answerDistanceTextView.setVisibility(View.INVISIBLE);
         }
     }
 
