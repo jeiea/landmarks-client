@@ -122,8 +122,8 @@ object RemoteJava {
     }
   }
 
-  fun getCollectionsContainPicture(picId: Int, prom: Promise<MutableList<IdCollectionInfo>>): Job =
-    resolve(prom) { client.getCollectionsContainPicture(picId) }
+  fun getCollectionsContainPicture(picId: Int, prom: Promise<List<Diary>>): Job =
+    resolve(prom) { client.getCollectionsContainPicture(picId).map { Diary(it) } }
 
   fun modifyCollection(diary: Diary, prom: Promise<Diary>): Job = resolve(prom) {
     val pics = uploadLocalPictures(diary.pictures)
