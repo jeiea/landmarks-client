@@ -130,7 +130,7 @@ class GameUI implements IGameUI {
     private DrawCircleOverlay circleAnimation;
 
 
-    GameUI(AppCompatActivity activity) {
+    GameUI(@NonNull AppCompatActivity activity) {
         this.activity = activity;
         activity.setContentView(R.layout.layout_empty);
         rootView = activity.findViewById(R.id.lc_empty_root);
@@ -448,16 +448,17 @@ class GameUI implements IGameUI {
         }
     }
 
-    private void showCommonAnswer(IPicture pic, int deltaScore) {
+    private void showCommonAnswer(@NonNull IPicture pic, int deltaScore) {
         mapInvalidator.postInvalidate();
         answerLayout.setVisibility(View.VISIBLE);
         answerLayout.setClickable(true);
-        divideAddress(pic.getMeta().getAddress());
+        String addr = pic.getMeta().getAddress();
+        divideAddress(addr == null ? "" : addr);
         answerScoreTextView.setText("score " + deltaScore);
         GlideApp.with(activity).load(pic).into(answerCorrectImageView);
     }
 
-    private void divideAddress(String string) {
+    private void divideAddress(@NonNull String string) {
         int start = 0;
         int end = string.length();
         int firstSpace = string.indexOf(" ");
