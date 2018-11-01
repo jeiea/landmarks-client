@@ -94,15 +94,6 @@ class GameLogic implements IGameInputHandler {
         realLoading();
     }
 
-    private void dummyLoading() {
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                enterStageEntry();
-            }
-        }, 2000);
-    }
-
     private void realLoading() {
         quizFactory.fetchQuiz(onReadyBuffer);
     }
@@ -198,7 +189,7 @@ class GameLogic implements IGameInputHandler {
         }
     }
 
-    private void showPositionQuizAnswer(PositionQuiz quiz, int deltaScore) {
+    private void showPositionQuizAnswer(@NonNull PositionQuiz quiz, int deltaScore) {
         // 정답 마커 표시
         GeoPoint rightPos = quiz.getPicture().getMeta().getGeo();
         ui.getSystemMarker().setPosition(Objects.requireNonNull(rightPos));
