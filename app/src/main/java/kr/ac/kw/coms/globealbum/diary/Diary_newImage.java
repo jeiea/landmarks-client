@@ -44,11 +44,17 @@ public class Diary_newImage extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_diary_new_image);
 
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
         RecyclerView NewImageList = (RecyclerView) findViewById(R.id.diary_newImage_AddImageList);
         NewImageList.setHasFixedSize(true);
         NewImageList.setLayoutManager(new GridLayoutManager(Diary_newImage.this, 4));
         NewImageList.setAdapter(new NewImageAdapter(getImageFilePath()));
     }
+
 
     public void Common_Back_Click(View view) {
         super.onBackPressed();

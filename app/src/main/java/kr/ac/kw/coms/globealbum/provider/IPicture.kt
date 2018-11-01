@@ -251,7 +251,7 @@ class UrlPicture(val url: URL) : IPicture {
 class LocalPicture(val path: String) : IPicture, Deletable {
   override var meta: PictureMeta
     get() {
-      val filename = File(path).nameWithoutExtension
+      val filename = /*File(path).nameWithoutExtension*/ "새 이미지"
       val metadata = EXIFinfo(path)
       val time = Date(metadata.timeTaken)
       val geo = metadata.locationGeopoint

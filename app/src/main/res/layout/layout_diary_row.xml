@@ -14,7 +14,7 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         android:src="@drawable/coord2"
-        android:scaleType="centerCrop"
+        android:scaleType="centerInside"
         android:clickable="true"
         />
     <android.support.constraint.ConstraintLayout

@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.media.Image;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.NonNull;
@@ -23,6 +24,8 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.bumptech.glide.request.transition.Transition;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -70,6 +73,7 @@ public class Diary_main extends AppCompatActivity {
     IPicture ImageToSend;
     Diary DiaryToSend;
     boolean IsImageSelected;
+    RecyclerView.OnItemTouchListener ImageTouchListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,6 +88,30 @@ public class Diary_main extends AppCompatActivity {
         TabRight = findViewById(R.id.diary_main_Tab_Right);
         GroupDiaryView ImageNowLoading = findViewById(R.id.diary_main_ImageNowLoading);
         GroupDiaryView JourneyNowLoading = findViewById(R.id.diary_main_JourneyNowLoading);
+        ImageTouchListener = new RecyclerItemClickListener(ImageList) {
+            //사진 클릭 이벤트
+            @Override
+            public void onItemClick(@NotNull View view, int position) {
+                if (view instanceof ImageView) {
+                    ZoomIndex = position - 1;
+                    GlideApp.with(view).load(DownloadedImageList.get(ZoomIndex)).into(((ImageView) findViewById(R.id.diary_ZoomIn_ZoomImage)));
+                    divideAddress(DownloadedImageList.get(ZoomIndex).getMeta().getAddress());
+                    findViewById(R.id.diary_ZoomIn_Root).setVisibility(View.VISIBLE);
+                }
+            }
+
+            @Override
+            public void onLongItemClick(@NotNull View view, int position) {
+                //롱클릭 이벤트
+                IsImageSelected = true;
+                ImageToSend = DownloadedImageList.get(position - 1);
+                findViewById(R.id.diary_main_menuRoot).setVisibility(View.VISIBLE);
+                findViewById(R.id.diary_main_menuEdit).setVisibility(View.INVISIBLE);
+                findViewById(R.id.diary_main_menuShare).setVisibility(View.VISIBLE);
+                if (getIntent().getAction().equals(RequestCodes.ACTION_DIARY_OTHERS))
+                    findViewById(R.id.diary_main_menuDelete).setVisibility(View.GONE);
+            }
+        }.getItemTouchListener();
 
 
         ArrayList<IPicture> nowloading = new ArrayList<>();
@@ -175,9 +203,16 @@ public class Diary_main extends AppCompatActivity {
 
                         if (IsImageSelected) {
                             //이미지 삭제
+                            RemoteJava.INSTANCE.deletePicture(((RemotePicture) ImageToSend).getInfo().getId(), new UIPromise<Unit>() {
+                                @Override
+                                public void success(Unit result) {
+                                    Toast.makeText(Diary_main.this, "삭제 완료", Toast.LENGTH_SHORT).show();
+                                    PrepareData();
+                                }
+                            });
                         } else {
                             //다이어리 삭제
-                            RemoteJava.INSTANCE.deleteCollection(DiaryToSend.getId(), new Promise<Unit>() {
+                            RemoteJava.INSTANCE.deleteCollection(DiaryToSend.getId(), new UIPromise<Unit>() {
                                 @Override
                                 public void success(Unit result) {
                                     Toast.makeText(Diary_main.this, "삭제 완료", Toast.LENGTH_SHORT).show();
@@ -337,30 +372,8 @@ public class Diary_main extends AppCompatActivity {
             ImageList.getPicAdapter().setVerticalPadding(0);
             ImageList.getPicAdapter().setHorizontalPadding(0);
             ImageList.setGroups(PictureList);
-            ImageList.addOnItemTouchListener(new RecyclerItemClickListener(ImageList) {
-                //사진 클릭 이벤트
-                @Override
-                public void onItemClick(@NotNull View view, int position) {
-                    if (view instanceof ImageView) {
-                        ZoomIndex = position - 1;
-                        GlideApp.with(view).load(DownloadedImageList.get(ZoomIndex)).into(((ImageView) findViewById(R.id.diary_ZoomIn_ZoomImage)));
-                        divideAddress(DownloadedImageList.get(ZoomIndex).getMeta().getAddress());
-                        findViewById(R.id.diary_ZoomIn_Root).setVisibility(View.VISIBLE);
-                    }
-                }
-
-                @Override
-                public void onLongItemClick(@NotNull View view, int position) {
-                    //롱클릭 이벤트
-                    IsImageSelected = true;
-                    ImageToSend = DownloadedImageList.get(ZoomIndex);
-                    findViewById(R.id.diary_main_menuRoot).setVisibility(View.VISIBLE);
-                    findViewById(R.id.diary_main_menuEdit).setVisibility(View.INVISIBLE);
-                    findViewById(R.id.diary_main_menuShare).setVisibility(View.VISIBLE);
-                    if (getIntent().getAction().equals(RequestCodes.ACTION_DIARY_OTHERS))
-                        findViewById(R.id.diary_main_menuDelete).setVisibility(View.GONE);
-                }
-            }.getItemTouchListener());
+            ImageList.removeOnItemTouchListener(ImageTouchListener);
+            ImageList.addOnItemTouchListener(ImageTouchListener);
             swipeTouchListener = new OnSwipeTouchListener(this.getBaseContext()) {
                 @Override
                 public void onSwipeRight() {
@@ -440,7 +453,8 @@ public class Diary_main extends AppCompatActivity {
             }
             final Diary diaryToShow = items.get(position);
             try {
-                GlideApp.with(holder.image_Thumbnail).load(diaryToShow.getPictures().get(0)).placeholder(R.drawable.nowloading2).into(holder.image_Thumbnail);
+                holder.image_Thumbnail.setScaleType(ImageView.ScaleType.CENTER);
+                GlideApp.with(holder.image_Thumbnail).load(diaryToShow.getPictures().get(0)).centerCrop().placeholder(R.drawable.nowloading2).into(holder.image_Thumbnail);
             } catch (IndexOutOfBoundsException e) {
                 holder.Root.setVisibility(View.GONE);
                 return;

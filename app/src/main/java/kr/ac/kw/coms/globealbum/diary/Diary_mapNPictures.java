@@ -367,7 +367,6 @@ public class Diary_mapNPictures extends AppCompatActivity {
                 break;
             case R.id.diary_edit_btnSave:
                 diary_Switch(VIEW_MODE);
-                Toast.makeText(this, "편집 완료", Toast.LENGTH_SHORT).show();
                 //변경된 내용 반영
                 EditText Edit_Title = findViewById(R.id.diary_edit_TitleText);
                 EditText Edit_Description = findViewById(R.id.diary_edit_DescriptionText);
@@ -386,8 +385,11 @@ public class Diary_mapNPictures extends AppCompatActivity {
     Promise<Diary> afterModify = new UIPromise<Diary>() {
         @Override
         public void success(Diary result) {
-            diary_toShow = diary_onEdit;
-            setDiary(diary_toShow);
+            Toast.makeText(Diary_mapNPictures.this, "편집 완료", Toast.LENGTH_SHORT).show();
+            //diary_toShow = diary_onEdit;
+            //setDiary(diary_toShow);
+            finish();
+            startActivity(getIntent());
         }
 
         @Override
@@ -489,7 +491,6 @@ public class Diary_mapNPictures extends AppCompatActivity {
                 holder.btn_New.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        Toast.makeText(Diary_mapNPictures.this, "New Image!", Toast.LENGTH_SHORT).show();
                         diary_Switch(ADD_MODE);
                     }
                 });
