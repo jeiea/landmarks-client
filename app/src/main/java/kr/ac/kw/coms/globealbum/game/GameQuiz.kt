@@ -78,6 +78,9 @@ internal class GameQuizFactory(val context: Context) {
         val pic = pictureBuffer.receive().takeIf { !pics.contains(it) } ?: continue
         GlideApp.with(context).load(pic).preload(w / 2, h / 4)
         pics.add(pic)
+        if (pics.size >= 4) {
+          break
+        }
       }
       PicChoiceQuiz(pics, random)
     }
