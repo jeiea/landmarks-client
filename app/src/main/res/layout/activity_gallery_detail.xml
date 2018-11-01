@@ -25,6 +25,7 @@
 
         <TextView
             android:id="@+id/gallerydetail_imagename"
+            style="@style/CustomFontStyle"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:textAlignment="center"
@@ -54,10 +55,11 @@
             android:background="#FFFFFF"
             android:textSize="15sp"
             android:onClick="gallerydetail_Share"
+            app:layout_constraintBottom_toTopOf="@id/gallerydetail_NameBoxBorder"
             app:layout_constraintDimensionRatio="1:1"
-            app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintBottom_toTopOf="@id/gallerydetail_NameBoxBorder"/>
+            app:layout_constraintTop_toTopOf="parent" />
+
         <Button
             android:id="@+id/gallerydetail_Send"
             android:layout_width="0dp"
@@ -67,16 +69,17 @@
             android:textSize="15sp"
             android:visibility="gone"
             android:onClick="gallerydetail_Send"
+            app:layout_constraintBottom_toTopOf="@id/gallerydetail_NameBoxBorder"
             app:layout_constraintDimensionRatio="1:1"
-            app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintBottom_toTopOf="@id/gallerydetail_NameBoxBorder"/>
+            app:layout_constraintTop_toTopOf="parent" />
+
         <View
             android:id="@+id/gallerydetail_NameBoxBorder"
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:background="#808080"
-            app:layout_constraintBottom_toBottomOf="parent"/>
+            app:layout_constraintBottom_toBottomOf="parent" />
     </android.support.constraint.ConstraintLayout>
 
 

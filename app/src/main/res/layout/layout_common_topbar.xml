@@ -9,6 +9,7 @@
     tools:layout_height="50dp">
 
     <TextView
+        style="@style/CustomFontStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Back"
@@ -28,6 +29,7 @@
         app:layout_constraintRight_toRightOf="parent" />
 
     <TextView
+        style="@style/CustomFontStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginRight="10sp"

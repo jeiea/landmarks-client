@@ -46,12 +46,11 @@
         tools:background="#aaa" />
 
     <View
-        app:layout_constraintBottom_toTopOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@drawable/white_bottom_gradient"
-        />
+        app:layout_constraintBottom_toTopOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent" />
 
     <android.support.constraint.Guideline
         android:id="@+id/guide_mid"
@@ -62,6 +61,7 @@
 
     <TextView
         android:id="@+id/textview_stage"
+        style="@style/CustomFontStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="stage 1"
@@ -73,6 +73,7 @@
 
     <TextView
         android:id="@+id/textview_target"
+        style="@style/CustomFontStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textSize="20sp"
@@ -82,8 +83,10 @@
         app:layout_constraintEnd_toStartOf="@id/textview_score"
         app:layout_constraintStart_toEndOf="@id/textview_stage"
         app:layout_constraintTop_toBottomOf="@id/map" />
+
     <TextView
         android:id="@+id/textview_score"
+        style="@style/CustomFontStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textSize="20sp"
@@ -130,6 +133,7 @@
 
         <TextView
             android:id="@+id/textview_problem_announce"
+            style="@style/CustomFontStyle"
             android:textSize="21sp"
             android:text="Try to find the location of the photo!"
             android:textAlignment="center"
@@ -221,6 +225,7 @@
 
         <TextView
             android:id="@+id/tv_select_problem"
+            style="@style/CustomFontStyle"
             android:textSize="21sp"
             android:text="Match up the photo of the location!"
             android:textAlignment="center"
@@ -272,26 +277,29 @@
 
         <TextView
             android:id="@+id/textview_land_country_name_answer"
+            style="@style/CustomFontStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="20sp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/guide_answer_v"
             app:layout_constraintBottom_toTopOf="@id/textview_land_place_name_answer"
+            app:layout_constraintEnd_toStartOf="@id/guide_answer_v"
+            app:layout_constraintStart_toStartOf="parent"
             tools:text="australia" />
 
         <TextView
             android:id="@+id/textview_land_place_name_answer"
+            style="@style/CustomFontStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="20sp"
-            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toStartOf="@id/guide_answer_v"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@id/guide_answer_h"
             tools:text="opera house" />
 
         <TextView
             android:id="@+id/textview_land_distance_answer"
+            style="@style/CustomFontStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="20sp"
@@ -302,6 +310,7 @@
 
         <TextView
             android:id="@+id/textview_land_score_answer"
+            style="@style/CustomFontStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="20sp"
@@ -309,40 +318,44 @@
             app:layout_constraintStart_toEndOf="@id/guide_answer_v"
             app:layout_constraintTop_toBottomOf="@id/textview_land_distance_answer"
             tools:text="30점" />
+
         <android.support.constraint.Guideline
             android:id="@+id/guide_btn_left"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            app:layout_constraintGuide_percent="0.58"/>
+            app:layout_constraintGuide_percent="0.58" />
+
         <android.support.constraint.Guideline
             android:id="@+id/guide_btn_right"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            app:layout_constraintGuide_percent="0.95"/>
+            app:layout_constraintGuide_percent="0.95" />
+
         <ImageView
             android:id="@+id/button_next"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:text="NEXT"
             android:src="@drawable/game_next_btn"
+            app:layout_constraintBottom_toTopOf="@id/button_exit"
             app:layout_constraintDimensionRatio="W,2:1"
             app:layout_constraintEnd_toEndOf="@id/guide_btn_right"
             app:layout_constraintStart_toEndOf="@id/guide_btn_left"
-            app:layout_constraintTop_toBottomOf="@id/textview_land_score_answer"
-            app:layout_constraintBottom_toTopOf="@id/button_exit"/>
+            app:layout_constraintTop_toBottomOf="@id/textview_land_score_answer" />
+
         <ImageView
             android:id="@+id/button_exit"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:text="EXIT"
             android:src="@drawable/game_exit_btn"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintDimensionRatio="W,2:1"
             app:layout_constraintEnd_toEndOf="@id/guide_btn_right"
             app:layout_constraintStart_toEndOf="@id/guide_btn_left"
-            app:layout_constraintTop_toBottomOf="@id/button_next"
-            app:layout_constraintBottom_toBottomOf="parent"/>
+            app:layout_constraintTop_toBottomOf="@id/button_next" />
 
     </android.support.constraint.ConstraintLayout>
 </android.support.constraint.ConstraintLayout>

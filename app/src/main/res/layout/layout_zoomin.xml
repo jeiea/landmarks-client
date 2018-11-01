@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/diary_ZoomIn_Root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -43,24 +42,27 @@
 
             <TextView
                 android:id="@+id/diary_ZoomIn_ZoomName1"
+                style="@style/CustomFontStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:text="------"
                 android:textSize="30sp"
-                app:layout_constraintTop_toTopOf="@id/diary_ZoomIn_NameBox"
+                android:layout_marginHorizontal="20sp"
                 app:layout_constraintBottom_toTopOf="@id/diary_ZoomIn_ZoomName2"
-                android:layout_marginHorizontal="20sp" />
+                app:layout_constraintTop_toTopOf="@id/diary_ZoomIn_NameBox" />
+
             <TextView
                 android:id="@+id/diary_ZoomIn_ZoomName2"
+                style="@style/CustomFontStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:text="------"
                 android:textSize="30sp"
-                app:layout_constraintTop_toBottomOf="@id/diary_ZoomIn_ZoomName1"
+                android:layout_marginHorizontal="20sp"
                 app:layout_constraintBottom_toBottomOf="@id/diary_ZoomIn_NameBox"
-                android:layout_marginHorizontal="20sp" />
+                app:layout_constraintTop_toBottomOf="@id/diary_ZoomIn_ZoomName1" />
         </android.support.constraint.ConstraintLayout>
 
         <Button

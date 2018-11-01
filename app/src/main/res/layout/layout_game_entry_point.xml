@@ -12,32 +12,36 @@
         android:layout_height="match_parent"
         android:background="@drawable/game_start_bg2"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintStart_toStartOf="parent"/>
+        app:layout_constraintStart_toStartOf="parent" />
+
     <Button
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:visibility="gone"
-        app:layout_constraintTop_toTopOf="parent"
+        android:text="세계 지도나 마커 그림 들어갈 이미지뷰 공간"
+        app:layout_constraintBottom_toTopOf="@id/guide_mid_horizontal1"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/guide_mid_horizontal1"
-        android:text="세계 지도나 마커 그림 들어갈 이미지뷰 공간"/>
+        app:layout_constraintTop_toTopOf="parent" />
 
 
     <android.support.constraint.Guideline
+        android:id="@+id/guide_mid_horizontal1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.45"
-        android:id="@+id/guide_mid_horizontal1"/>
+        app:layout_constraintGuide_percent="0.45" />
+
     <android.support.constraint.Guideline
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
+        android:id="@+id/guide_mid_horizontal2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.55"
-        android:id="@+id/guide_mid_horizontal2"/>
+        app:layout_constraintGuide_percent="0.55" />
+
     <TextView
         android:id="@+id/textview_next"
+        style="@style/CustomFontStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textSize="20sp"
@@ -48,54 +52,62 @@
         app:layout_constraintTop_toBottomOf="@id/guide_mid_horizontal1" />
 
     <TextView
+        android:id="@+id/textview_level"
+        style="@style/CustomFontStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textSize="35sp"
-        app:layout_constraintBottom_toTopOf="@+id/guide_mid_horizontal2"
-        app:layout_constraintTop_toBottomOf="@id/guide_mid_horizontal1"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:id="@+id/textview_level"
         android:text="Level 0"
-        android:textColor="#FFFFFF"/>
+        android:textColor="#FFFFFF"
+        app:layout_constraintBottom_toTopOf="@+id/guide_mid_horizontal2"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/guide_mid_horizontal1" />
+
     <TextView
         android:id="@+id/textview_goal"
+        style="@style/CustomFontStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textSize="20sp"
         android:text="goal: "
         android:textColor="#FFFFFF"
         app:layout_constraintBottom_toBottomOf="@+id/guide_mid_horizontal3"
-        app:layout_constraintTop_toBottomOf="@id/guide_mid_horizontal2"
-        app:layout_constraintEnd_toStartOf="@id/textview_goal_score" />
+        app:layout_constraintEnd_toStartOf="@id/textview_goal_score"
+        app:layout_constraintTop_toBottomOf="@id/guide_mid_horizontal2" />
+
     <TextView
+        android:id="@+id/textview_goal_score"
+        style="@style/CustomFontStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintBottom_toBottomOf="@+id/guide_mid_horizontal3"
-        app:layout_constraintTop_toBottomOf="@id/guide_mid_horizontal2"
-        app:layout_constraintEnd_toEndOf="parent"
         android:textSize="35sp"
-        android:id="@+id/textview_goal_score"
         android:textColor="#FFFFFF"
-        android:text="000/0" />
+        android:text="000/0"
+        app:layout_constraintBottom_toBottomOf="@+id/guide_mid_horizontal3"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/guide_mid_horizontal2" />
 
     <android.support.constraint.Guideline
+        android:id="@+id/guide_mid_horizontal3"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.605"
-        android:id="@+id/guide_mid_horizontal3"/>
+        app:layout_constraintGuide_percent="0.605" />
+
     <android.support.constraint.Guideline
+        android:id="@+id/guide_mid_horizontal4"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.715"
-        android:id="@+id/guide_mid_horizontal4"/>
+        app:layout_constraintGuide_percent="0.715" />
+
     <android.support.constraint.Guideline
+        android:id="@+id/guide_mid_horizontal5"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.825"
-        android:id="@+id/guide_mid_horizontal5"/>
+        app:layout_constraintGuide_percent="0.825" />
+
     <ImageButton
         android:id="@+id/game_start_stage_btn"
         android:layout_width="0dp"
@@ -103,20 +115,21 @@
         android:src="@drawable/game_start_start_btn"
         android:background="#D9518AA8"
         android:scaleType="fitEnd"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/guide_mid_horizontal4"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/guide_mid_horizontal3"
-        app:layout_constraintBottom_toTopOf="@id/guide_mid_horizontal4"/>
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/guide_mid_horizontal3" />
+
     <ImageButton
         android:id="@+id/game_start_exit_btn"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:src="@drawable/game_start_exit_btn"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
         android:background="#D95D9EC1"
         android:scaleType="fitStart"
-        app:layout_constraintTop_toBottomOf="@id/guide_mid_horizontal4"
-        app:layout_constraintBottom_toTopOf="@id/guide_mid_horizontal5"/>
+        app:layout_constraintBottom_toTopOf="@id/guide_mid_horizontal5"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/guide_mid_horizontal4" />
 
 </android.support.constraint.ConstraintLayout>

@@ -40,6 +40,7 @@
         android:id="@+id/sign_up_textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        style="@style/CustomFontStyle"
         android:text="─ Create an account ─"
         android:textAlignment="center"
         android:textSize="30sp"
