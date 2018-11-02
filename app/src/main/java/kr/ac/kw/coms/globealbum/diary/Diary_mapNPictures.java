@@ -621,7 +621,7 @@ public class Diary_mapNPictures extends AppCompatActivity {
     }
 
     public void Common_Back_Click(View view) {
-        finish();
+        onBackPressed();
     }
 
     public void Common_Profile_Click(View view) {

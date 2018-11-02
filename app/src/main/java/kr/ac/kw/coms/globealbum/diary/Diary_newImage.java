@@ -35,15 +35,17 @@ import kr.ac.kw.coms.globealbum.provider.LocalPicture;
 import kr.ac.kw.coms.globealbum.provider.Promise;
 import kr.ac.kw.coms.globealbum.provider.RemoteJava;
 import kr.ac.kw.coms.globealbum.provider.RemotePicture;
+import kr.ac.kw.coms.globealbum.provider.UIPromise;
 
 
 public class Diary_newImage extends AppCompatActivity {
+    ArrayList<String> FileNames;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_diary_new_image);
-
+        FileNames = getImageFilePath();
     }
 
     @Override
@@ -52,7 +54,7 @@ public class Diary_newImage extends AppCompatActivity {
         RecyclerView NewImageList = (RecyclerView) findViewById(R.id.diary_newImage_AddImageList);
         NewImageList.setHasFixedSize(true);
         NewImageList.setLayoutManager(new GridLayoutManager(Diary_newImage.this, 4));
-        NewImageList.setAdapter(new NewImageAdapter(getImageFilePath()));
+        NewImageList.setAdapter(new NewImageAdapter(FileNames));
     }
 
 
@@ -141,7 +143,7 @@ public class Diary_newImage extends AppCompatActivity {
                                 return;
                             }
 
-                            RemoteJava.INSTANCE.uploadPicture(new LocalPicture(url), new Promise<RemotePicture>()
+                            RemoteJava.INSTANCE.uploadPicture(new LocalPicture(url), new UIPromise<RemotePicture>()
                             {
                                 @Override
                                 public void success(RemotePicture result) {
