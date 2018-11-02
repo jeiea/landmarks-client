@@ -60,7 +60,7 @@ interface IGameUI {
 
     void showQuiz(IGameQuiz quiz);
 
-    void showPositionAnswer(IPicture correct, int deltaScore, Double distance);
+    void showPositionAnswer(IPicture correct, int deltaScore, double distance);
 
     void showPicChoiceAnswer(IPicture correct, int deltaScore);
 
@@ -130,7 +130,7 @@ class GameUI implements IGameUI {
     private DrawCircleOverlay circleAnimation;
 
 
-    GameUI(AppCompatActivity activity) {
+    GameUI(@NonNull AppCompatActivity activity) {
         this.activity = activity;
         activity.setContentView(R.layout.layout_empty);
         rootView = activity.findViewById(R.id.lc_empty_root);
@@ -448,16 +448,17 @@ class GameUI implements IGameUI {
         }
     }
 
-    private void showCommonAnswer(IPicture pic, int deltaScore) {
+    private void showCommonAnswer(@NonNull IPicture pic, int deltaScore) {
         mapInvalidator.postInvalidate();
         answerLayout.setVisibility(View.VISIBLE);
         answerLayout.setClickable(true);
-        divideAddress(pic.getMeta().getAddress());
+        String addr = pic.getMeta().getAddress();
+        divideAddress(addr == null ? "" : addr);
         answerScoreTextView.setText("score " + deltaScore);
         GlideApp.with(activity).load(pic).into(answerCorrectImageView);
     }
 
-    private void divideAddress(String string) {
+    private void divideAddress(@NonNull String string) {
         int start = 0;
         int end = string.length();
         int firstSpace = string.indexOf(" ");
@@ -470,7 +471,7 @@ class GameUI implements IGameUI {
     }
 
     @Override
-    public void showPositionAnswer(IPicture correct, int deltaScore, Double distance) {
+    public void showPositionAnswer(IPicture correct, int deltaScore, double distance) {
         systemMarker.setOnMarkerClickListener(onMarkerClickDoingNothing);
         userMarker.setOnMarkerClickListener(onMarkerClickDoingNothing);
 
@@ -479,12 +480,12 @@ class GameUI implements IGameUI {
         myMapView.getController().setCenter(new GeoPoint(70f, 40f));
         myMapView.getController().zoomTo(myMapView.getMinZoomLevel(), 1000L);
 
-        if (distance != null) {
+        if (distance == Double.POSITIVE_INFINITY) {
+            answerDistanceTextView.setVisibility(View.INVISIBLE);
+        } else {
             answerDistanceTextView.setVisibility(View.VISIBLE);
             String d = String.format(Locale.KOREAN, "%.1f km", distance);
             answerDistanceTextView.setText(d);
-        } else {
-            answerDistanceTextView.setVisibility(View.INVISIBLE);
         }
     }
 

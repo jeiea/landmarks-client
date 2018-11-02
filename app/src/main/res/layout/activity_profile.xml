@@ -30,6 +30,7 @@
 
     <TextView
         android:id="@+id/profile_back_textview"
+        style="@style/CustomFontStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="10dp"
@@ -95,6 +96,7 @@
 
     <TextView
         android:id="@+id/profile_textView"
+        style="@style/CustomFontStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="─ Profile ─"
@@ -123,7 +125,7 @@
         android:id="@+id/profile_id_imageview"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:src="@drawable/login_id_icon"
+        android:src="@drawable/ic_person"
         app:layout_constraintBottom_toTopOf="@id/guide_profile_horizontal_mid"
         app:layout_constraintDimensionRatio="H,1:1"
         app:layout_constraintStart_toStartOf="@id/guide_profile_vertical_left"

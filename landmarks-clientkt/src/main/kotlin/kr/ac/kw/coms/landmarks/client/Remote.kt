@@ -17,9 +17,9 @@ import kotlinx.coroutines.experimental.channels.Channel
 import kotlinx.coroutines.experimental.channels.sendBlocking
 import kotlinx.coroutines.experimental.delay
 import kotlinx.coroutines.experimental.io.readUTF8LineTo
-import kotlinx.io.InputStream
 import kotlinx.io.core.writeFully
 import java.io.File
+import java.io.InputStream
 import java.net.URLEncoder
 import java.util.*
 import java.util.concurrent.TimeUnit

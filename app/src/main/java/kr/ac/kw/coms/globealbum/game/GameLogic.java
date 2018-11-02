@@ -50,7 +50,6 @@ class GameLogic implements IGameInputHandler {
     /**
      * 현재 문제
      */
-//    private ArrayList<IPicture> hotPictures = new ArrayList<>();
     private IGameQuiz currentQuiz;
     /**
      * 출제되었고 나중에 정리해서 보여줄 사진들
@@ -74,13 +73,6 @@ class GameLogic implements IGameInputHandler {
         GAME_OVER,
     }
 
-    enum GameType {
-        POSITION,
-        PICTURE
-    }
-
-    private GameType gameType;
-
     GameLogic(GameUI ui, Context context) {
         this.ui = ui;
         this.ui.setInputHandler(this);
@@ -100,15 +92,6 @@ class GameLogic implements IGameInputHandler {
         ui.showLoadingGif();
         resetGameStatus();
         realLoading();
-    }
-
-    private void dummyLoading() {
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                enterStageEntry();
-            }
-        }, 2000);
     }
 
     private void realLoading() {
@@ -170,28 +153,18 @@ class GameLogic implements IGameInputHandler {
     private Promise<IGameQuiz> onReceivePictures = new ErrorToastPromise<IGameQuiz>() {
         public void success(@NonNull IGameQuiz quiz) {
             if (quiz instanceof PositionQuiz) {
-                enterPositionQuiz((PositionQuiz) quiz);
+                enterQuizCommon(quiz);
             } else if (quiz instanceof PicChoiceQuiz) {
-                enterPicChoiceQuiz((PicChoiceQuiz) quiz);
+                enterQuizCommon(quiz);
+
+                PictureMeta meta = ((PicChoiceQuiz) quiz).getCorrectPicture().getMeta();
+                ui.getSystemMarker().setTitle(meta.getAddress());
+                ui.getSystemMarker().setPosition(Objects.requireNonNull(meta.getGeo()));
             } else {
                 failure(new RuntimeException("뭔가 잘못 만들었나봐요.."));
             }
         }
     };
-
-    private void enterPositionQuiz(@NonNull PositionQuiz quiz) {
-        gameType = GameType.POSITION;
-        enterQuizCommon(quiz);
-    }
-
-    private void enterPicChoiceQuiz(@NonNull PicChoiceQuiz quiz) {
-        gameType = GameType.PICTURE;
-        enterQuizCommon(quiz);
-
-        PictureMeta meta = quiz.getCorrectPicture().getMeta();
-        ui.getSystemMarker().setTitle(meta.getAddress());
-        ui.getSystemMarker().setPosition(Objects.requireNonNull(meta.getGeo()));
-    }
 
     private void enterQuizCommon(IGameQuiz quiz) {
         currentQuiz = quiz;
@@ -216,13 +189,13 @@ class GameLogic implements IGameInputHandler {
         }
     }
 
-    private void showPositionQuizAnswer(PositionQuiz quiz, int deltaScore) {
+    private void showPositionQuizAnswer(@NonNull PositionQuiz quiz, int deltaScore) {
         // 정답 마커 표시
         GeoPoint rightPos = quiz.getPicture().getMeta().getGeo();
         ui.getSystemMarker().setPosition(Objects.requireNonNull(rightPos));
         ui.getSystemMarker().setEnabled(true);
 
-        Double distance = calcDistanceKm();
+        double distance = calcDistanceKm();
         ui.showPositionAnswer(quiz.getPicture(), deltaScore, distance);
     }
 
@@ -238,7 +211,7 @@ class GameLogic implements IGameInputHandler {
      * @return 점수를 계산하여 리턴
      */
     private int calcProblemScore() {
-        if (gameType == GameType.POSITION) {
+        if (currentQuiz instanceof PositionQuiz) {
             // 마커를 화면에 찍지 않고 정답을 확인하는 경우
             if (!ui.getUserMarker().isEnabled()) {
                 return -100;
@@ -252,7 +225,7 @@ class GameLogic implements IGameInputHandler {
                 int timeBonus = calcTimeBonusScore();
                 return perfect - distanceCut + timeBonus;
             }
-        } else if (gameType == GameType.PICTURE) {
+        } else if (currentQuiz instanceof PicChoiceQuiz) {
             if (!rightAnswerTypePic) {
                 return -100;
             } else {
@@ -286,7 +259,7 @@ class GameLogic implements IGameInputHandler {
 
         // 화면을 한번 터치해 마커를 생성하고 난 후
         // 타임아웃 발생시 그 마커를 위치로 정답 확인
-        if (gameType == GameType.POSITION) {
+        if (currentQuiz instanceof PositionQuiz) {
             if (ui.getUserMarker().isEnabled()) {
                 showDifferenceAnimAndScore(new GeoPointInterpolator.Linear());
             } else {
@@ -327,9 +300,9 @@ class GameLogic implements IGameInputHandler {
      *
      * @return km 단위 거리
      */
-    private Double calcDistanceKm() {
+    private double calcDistanceKm() {
         if (!ui.getUserMarker().isEnabled()) {
-            return null;
+            return Double.POSITIVE_INFINITY;
         }
         GeoPoint g1 = ui.getSystemMarker().getPosition();
         GeoPoint g2 = ui.getUserMarker().getPosition();
@@ -365,7 +338,7 @@ class GameLogic implements IGameInputHandler {
 
     @Override
     public void onTouchMap(GeoPoint pt) {
-        if (gameType == GameType.POSITION && state == GameState.SOLVING) {
+        if (currentQuiz instanceof PositionQuiz && state == GameState.SOLVING) {
             pointMarker(pt);
         }
     }

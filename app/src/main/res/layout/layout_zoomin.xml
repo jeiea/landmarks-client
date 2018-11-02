@@ -63,6 +63,7 @@
 
             <TextView
                 android:id="@+id/diary_ZoomIn_ZoomName1"
+                style="@style/CustomFontStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
@@ -74,6 +75,7 @@
 
             <TextView
                 android:id="@+id/diary_ZoomIn_ZoomName2"
+                style="@style/CustomFontStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
