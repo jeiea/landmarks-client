@@ -132,6 +132,7 @@ public class Diary_newImage extends AppCompatActivity {
                     findViewById(R.id.diary_ZoomIn_Confirm).setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
+                            findViewById(R.id.diary_newImage_LoadingScreen).setVisibility(View.VISIBLE);
                             EXIFinfo exifInfo = new EXIFinfo(url);
                             try {
                                 double[] location = exifInfo.getLocation();
@@ -145,12 +146,14 @@ public class Diary_newImage extends AppCompatActivity {
                                 @Override
                                 public void success(RemotePicture result) {
                                     super.success(result);
+                                    findViewById(R.id.diary_newImage_LoadingScreen).setVisibility(View.GONE);
                                     finish();
                                 }
 
                                 @Override
                                 public void failure(@NotNull Throwable cause) {
                                     super.failure(cause);
+                                    findViewById(R.id.diary_newImage_LoadingScreen).setVisibility(View.GONE);
                                     Toast.makeText(Diary_newImage.this, "업로드에 문제가 발생했습니다.", Toast.LENGTH_SHORT).show();
                                 }
                             });

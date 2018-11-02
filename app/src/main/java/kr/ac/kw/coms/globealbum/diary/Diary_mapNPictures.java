@@ -85,6 +85,7 @@ public class Diary_mapNPictures extends AppCompatActivity {
         ArrayList<PictureGroup> elementList = new ArrayList<>();
         elementList.add(new PictureGroup("", pics));
         picView.clearAllItems();
+        picView.getPicAdapter().setImageScaleType(ImageView.ScaleType.CENTER_CROP);
         picView.setGroups(elementList);
         picView.addOnItemTouchListener(new kr.ac.kw.coms.globealbum.common.RecyclerItemClickListener(picView) {
             @Override
@@ -367,6 +368,7 @@ public class Diary_mapNPictures extends AppCompatActivity {
                 break;
             case R.id.diary_edit_btnSave:
                 diary_Switch(VIEW_MODE);
+                findViewById(R.id.diary_mapNpics_LoadingScreen).setVisibility(View.VISIBLE);
                 //변경된 내용 반영
                 EditText Edit_Title = findViewById(R.id.diary_edit_TitleText);
                 EditText Edit_Description = findViewById(R.id.diary_edit_DescriptionText);
@@ -388,12 +390,14 @@ public class Diary_mapNPictures extends AppCompatActivity {
             Toast.makeText(Diary_mapNPictures.this, "편집 완료", Toast.LENGTH_SHORT).show();
             //diary_toShow = diary_onEdit;
             //setDiary(diary_toShow);
+            findViewById(R.id.diary_mapNpics_LoadingScreen).setVisibility(View.GONE);
             finish();
             startActivity(getIntent());
         }
 
         @Override
         public void failure(@NotNull Throwable cause) {
+            findViewById(R.id.diary_mapNpics_LoadingScreen).setVisibility(View.GONE);
             Toast.makeText(Diary_mapNPictures.this, cause.toString(), Toast.LENGTH_SHORT).show();
         }
     };

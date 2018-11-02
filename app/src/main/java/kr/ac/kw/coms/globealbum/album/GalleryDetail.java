@@ -17,10 +17,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import kr.ac.kw.coms.globealbum.ProfileActivity;
 import kr.ac.kw.coms.globealbum.R;
 import kr.ac.kw.coms.globealbum.common.GlideApp;
 import kr.ac.kw.coms.globealbum.common.RequestCodes;
-import kr.ac.kw.coms.globealbum.diary.Diary_mapNPictures;
 import kr.ac.kw.coms.globealbum.provider.IPicture;
 import kr.ac.kw.coms.globealbum.provider.Promise;
 
@@ -80,20 +80,23 @@ public class GalleryDetail extends AppCompatActivity {
         finish();
     }
 
+    public void Common_Profile_Click(View view) {
+        startActivity(new Intent(this, ProfileActivity.class));
+    }
+
     public void gallerydetail_Share(View view) {
         final Intent intent = new Intent(Intent.ACTION_SEND);
         intent.setType("image/*");
         final File file = new File(getExternalFilesDir(Environment.DIRECTORY_PICTURES), "share_image_" + System.currentTimeMillis() + ".jpg");
-        pictures.get(index).drawable(getResources(), new Promise<Drawable>(){
+        pictures.get(index).drawable(getResources(), new Promise<Drawable>() {
             @Override
             public void success(Drawable result) {
-                try{
+                try {
                     FileOutputStream out = new FileOutputStream(file);
-                    Bitmap bm = ((BitmapDrawable)result).getBitmap();
+                    Bitmap bm = ((BitmapDrawable) result).getBitmap();
                     bm.compress(Bitmap.CompressFormat.JPEG, 100, out);
                     out.close();
-                } catch (IOException e)
-                {
+                } catch (IOException e) {
                     e.printStackTrace();
                 }
                 intent.putExtra(Intent.EXTRA_STREAM, FileProvider.getUriForFile(GalleryDetail.this, "{package_name}.fileprovider", file));

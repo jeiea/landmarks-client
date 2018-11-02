@@ -89,5 +89,22 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toBottomOf="@id/gallerydetail_NameBox" />
-
+    <ImageView
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintWidth_percent="0.1"
+        app:layout_constraintDimensionRatio="1:1"
+        app:layout_constraintLeft_toLeftOf="@id/gallerydetail_Image"
+        app:layout_constraintTop_toTopOf="@id/gallerydetail_Image"
+        app:layout_constraintBottom_toBottomOf="@id/gallerydetail_Image"
+        android:src="@drawable/moveleft"/>
+    <ImageView
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintWidth_percent="0.1"
+        app:layout_constraintDimensionRatio="1:1"
+        app:layout_constraintRight_toRightOf="@id/gallerydetail_Image"
+        app:layout_constraintTop_toTopOf="@id/gallerydetail_Image"
+        app:layout_constraintBottom_toBottomOf="@id/gallerydetail_Image"
+        android:src="@drawable/moveright"/>
 </android.support.constraint.ConstraintLayout>

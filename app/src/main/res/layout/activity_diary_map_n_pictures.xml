@@ -108,24 +108,33 @@
         android:id="@+id/diary_mapNpics_AddLayout"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/diary_mapNpics_TopBar"
-        app:layout_constraintBottom_toBottomOf="parent"
         android:background="#FFFFFF"
-        android:visibility="gone">
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/diary_mapNpics_TopBar">
+
         <android.support.v7.widget.RecyclerView
             android:id="@+id/diary_mapNpics_AddImageList"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            app:layoutManager="android.support.v7.widget.GridLayoutManager"
             android:scrollbars="vertical"
-            app:spanCount="4"/>
+            app:layoutManager="android.support.v7.widget.GridLayoutManager"
+            app:spanCount="4" />
 
     </android.support.constraint.ConstraintLayout>
+
     <include
         android:id="@+id/diary_mapNpics_ZoomInLayout"
         layout="@layout/layout_zoomin"
+        android:visibility="gone"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:visibility="gone"/>
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <include
+        android:id="@+id/diary_mapNpics_LoadingScreen"
+        layout="@layout/layout_loading_screen"
+        android:visibility="gone"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
 </android.support.constraint.ConstraintLayout>

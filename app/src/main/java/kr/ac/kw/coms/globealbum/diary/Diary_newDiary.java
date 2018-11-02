@@ -78,6 +78,7 @@ public class Diary_newDiary extends AppCompatActivity {
                     Toast.makeText(this, "사진을 추가해 주세요.", Toast.LENGTH_SHORT).show();
                     return;
                 }
+                findViewById(R.id.diary_newDiary_LoadingScreen).setVisibility(View.VISIBLE);
 
                 diary.setTitle(((TextView) findViewById(R.id.diary_edit_TitleText)).getText().toString());
                 diary.setText(((TextView) findViewById(R.id.diary_edit_DescriptionText)).getText().toString());
@@ -94,6 +95,7 @@ public class Diary_newDiary extends AppCompatActivity {
     Promise<Diary> afterUpload = new UIPromise<Diary>() {
         @Override
         public void success(Diary result) {
+            findViewById(R.id.diary_newDiary_LoadingScreen).setVisibility(View.GONE);
             Toast.makeText(Diary_newDiary.this, "작성 완료", Toast.LENGTH_SHORT).show();
             setResult(RESULT_OK);
             finish();
@@ -102,6 +104,7 @@ public class Diary_newDiary extends AppCompatActivity {
         @Override
         public void failure(@NotNull Throwable cause) {
             super.failure(cause);
+            findViewById(R.id.diary_newDiary_LoadingScreen).setVisibility(View.GONE);
         }
     };
 

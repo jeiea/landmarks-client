@@ -1,6 +1,7 @@
 package kr.ac.kw.coms.globealbum.provider
 
 import android.app.Activity
+import android.app.Application
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -44,6 +45,14 @@ class LoginActivity : AppCompatActivity(), CoroutineScope {
       .beginTransaction()
       .add(R.id.cl_fragment_main, LoadingFragment())
       .commit()
+  }
+
+  override fun onBackPressed() {
+    if (tv_top_back.visibility == View.VISIBLE)
+      super.onBackPressed()
+    else
+      finishAffinity()
+      System.exit(0);
   }
 
   private fun bindBackButton() {

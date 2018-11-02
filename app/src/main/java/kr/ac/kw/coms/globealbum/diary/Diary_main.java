@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.media.Image;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.NonNull;
@@ -24,8 +23,6 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import com.bumptech.glide.request.transition.Transition;
 
 import org.jetbrains.annotations.NotNull;
 import org.osmdroid.util.GeoPoint;
@@ -58,7 +55,6 @@ import kr.ac.kw.coms.globealbum.provider.ResourcePicture;
 import kr.ac.kw.coms.globealbum.provider.UIPromise;
 import kr.ac.kw.coms.landmarks.client.NearGeoPoint;
 import kr.ac.kw.coms.landmarks.client.PictureQuery;
-import kr.ac.kw.coms.landmarks.client.UserFilter;
 
 public class Diary_main extends AppCompatActivity {
 
@@ -316,9 +312,9 @@ public class Diary_main extends AppCompatActivity {
                     findViewById(R.id.diary_main_JourneyList).setVisibility(View.VISIBLE);
                 }
             });
-        } else if(getIntent().getAction().equals(RequestCodes.ACTION_DIARY_OTHERS)) {
-            ((TextView)findViewById(R.id.diary_main_Tab_Left_Text)).setText("Image");
-            ((TextView)findViewById(R.id.diary_main_Tab_Right_Text)).setText("Diary");
+        } else if (getIntent().getAction().equals(RequestCodes.ACTION_DIARY_OTHERS)) {
+            ((TextView) findViewById(R.id.diary_main_Tab_Left_Text)).setText("Image");
+            ((TextView) findViewById(R.id.diary_main_Tab_Right_Text)).setText("Diary");
             RemoteJava.INSTANCE.getRandomPictures(30, new UIPromise<List<RemotePicture>>() {
                 @Override
                 public void success(List<RemotePicture> result) {
@@ -354,19 +350,16 @@ public class Diary_main extends AppCompatActivity {
                     findViewById(R.id.diary_main_JourneyList).setVisibility(View.VISIBLE);
                 }
             });
-        }
-        else
-        {
-            ((TextView)findViewById(R.id.diary_main_Tab_Left_Text)).setText("Image");
-            ((TextView)findViewById(R.id.diary_main_Tab_Right_Text)).setText("Diary");
+        } else {
+            ((TextView) findViewById(R.id.diary_main_Tab_Left_Text)).setText("Image");
+            ((TextView) findViewById(R.id.diary_main_Tab_Right_Text)).setText("Diary");
 
             IPicture QueryPicture = getIntent().getParcelableExtra("Query");
             GeoPoint point = QueryPicture.getMeta().getGeo();
             PictureQuery query = new PictureQuery();
             assert point != null;
             query.setGeoFilter(new NearGeoPoint(point.getLatitude(), point.getLongitude(), 500));
-            RemoteJava.INSTANCE.getPictures(query, new UIPromise<List<RemotePicture>>()
-            {
+            RemoteJava.INSTANCE.getPictures(query, new UIPromise<List<RemotePicture>>() {
                 @Override
                 public void success(List<RemotePicture> result) {
                     DownloadedImageList = new ArrayList<>();
@@ -378,16 +371,14 @@ public class Diary_main extends AppCompatActivity {
                 }
             });
 
-            RemoteJava.INSTANCE.getCollectionsContainPicture(((RemotePicture)QueryPicture).getInfo().getId(), new UIPromise<List<Diary>>()
-            {
+            RemoteJava.INSTANCE.getCollectionsContainPicture(((RemotePicture) QueryPicture).getInfo().getId(), new UIPromise<List<Diary>>() {
                 @Override
                 public void success(List<Diary> result) {
                     DownloadedDiaryList = result;
                     ShowDiaryData();
                     findViewById(R.id.diary_main_JourneyNowLoading).setVisibility(View.GONE);
                     findViewById(R.id.diary_main_JourneyList).setVisibility(View.VISIBLE);
-                    if (getIntent().getAction().equals(RequestCodes.ACTION_DIARY_RELATED_DIARY_FIRST))
-                    {
+                    if (getIntent().getAction().equals(RequestCodes.ACTION_DIARY_RELATED_DIARY_FIRST)) {
                         diary_main_SwitchToRight(null);
                     }
                 }
@@ -417,6 +408,7 @@ public class Diary_main extends AppCompatActivity {
             ImageList.getPicAdapter().setColumns(3);
             ImageList.getPicAdapter().setVerticalPadding(0);
             ImageList.getPicAdapter().setHorizontalPadding(0);
+            ImageList.getPicAdapter().setImageScaleType(ImageView.ScaleType.CENTER_CROP);
             ImageList.setGroups(PictureList);
             ImageList.removeOnItemTouchListener(ImageTouchListener);
             ImageList.addOnItemTouchListener(ImageTouchListener);
@@ -499,7 +491,7 @@ public class Diary_main extends AppCompatActivity {
             }
             final Diary diaryToShow = items.get(position);
             try {
-                holder.image_Thumbnail.setScaleType(ImageView.ScaleType.CENTER);
+                holder.image_Thumbnail.setScaleType(ImageView.ScaleType.FIT_CENTER);
                 GlideApp.with(holder.image_Thumbnail).load(diaryToShow.getPictures().get(0)).centerCrop().placeholder(R.drawable.nowloading2).into(holder.image_Thumbnail);
             } catch (IndexOutOfBoundsException e) {
                 holder.Root.setVisibility(View.GONE);
