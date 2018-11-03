@@ -18,6 +18,8 @@ import kr.ac.kw.coms.globealbum.provider.Promise
 import kr.ac.kw.coms.globealbum.provider.RemoteJava
 import kr.ac.kw.coms.globealbum.provider.RemotePicture
 import kr.ac.kw.coms.landmarks.client.RecoverableChannel
+import org.osmdroid.util.GeoPoint
+import org.osmdroid.views.overlay.Marker
 import java.util.*
 
 
@@ -33,13 +35,27 @@ internal interface IGameQuiz : Disposable {
   }
 }
 
-internal class PositionQuiz(var picture: IPicture, drawable: AsyncTarget) : IGameQuiz {
+internal class PositionQuiz(val picture: IPicture, drawable: AsyncTarget) : IGameQuiz {
   override var msTimeLimit = 0
 
   override val usedPictures: Collection<IPicture>
     get() = ArrayList<IPicture>().apply { add(picture) }
 
   override val glideTargets = listOf(drawable)
+
+  /**
+   * 마커와 정답 사이의 km 거리를 빈환
+   *
+   * @return km 단위 거리
+   */
+  fun getKmFrom(marker: Marker): Double =
+    getKmFrom(if (marker.isEnabled) marker.position else null)
+
+  fun getKmFrom(point: GeoPoint?): Double {
+    val p1 = picture.meta.geo ?: return Double.POSITIVE_INFINITY
+    val p2 = point ?: return Double.POSITIVE_INFINITY
+    return p1.distanceToAsDouble(p2) / 1000.0
+  }
 }
 
 internal class PicChoiceQuiz(
@@ -47,7 +63,7 @@ internal class PicChoiceQuiz(
   override val glideTargets: List<AsyncTarget>,
   random: Random
 ) : IGameQuiz {
-  private val correctIdx: Int = random.nextInt(pictures.size)
+  val correctIdx: Int = random.nextInt(pictures.size)
 
   override var msTimeLimit = 0
 

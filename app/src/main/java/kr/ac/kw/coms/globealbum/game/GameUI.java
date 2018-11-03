@@ -60,9 +60,7 @@ interface IGameUI {
 
     void showQuiz(IGameQuiz quiz);
 
-    void showPositionAnswer(IPicture correct, int deltaScore, double distance);
-
-    void showPicChoiceAnswer(IPicture correct, int deltaScore);
+    void showAnswer(IGameQuiz quiz, int deltaScore);
 
     Marker getUserMarker();
 
@@ -450,17 +448,25 @@ class GameUI implements IGameUI {
         }
     }
 
-    private void showCommonAnswer(@NonNull IPicture pic, int deltaScore) {
+    @Override
+    public void showAnswer(IGameQuiz quiz, int deltaScore) {
+        answerScoreTextView.setText("score " + deltaScore);
+        if (quiz instanceof PositionQuiz) {
+            showPositionAnswer((PositionQuiz) quiz);
+        } else if (quiz instanceof PicChoiceQuiz) {
+            showPicChoiceAnswer((PicChoiceQuiz) quiz);
+        }
+    }
+
+    private void showAnswerCommon(Drawable pic, String address) {
         mapInvalidator.postInvalidate();
         answerLayout.setVisibility(View.VISIBLE);
         answerLayout.setClickable(true);
-        String addr = pic.getMeta().getAddress();
-        divideAddress(addr == null ? "" : addr);
-        answerScoreTextView.setText("score " + deltaScore);
-        GlideApp.with(activity).load(pic).into(answerCorrectImageView);
+        divideAndShowAddress(address == null ? "" : address);
+        answerCorrectImageView.setImageDrawable(pic);
     }
 
-    private void divideAddress(@NonNull String string) {
+    private void divideAndShowAddress(@NonNull String string) {
         int start = 0;
         int end = string.length();
         int firstSpace = string.indexOf(" ");
@@ -472,27 +478,32 @@ class GameUI implements IGameUI {
         }
     }
 
-    @Override
-    public void showPicChoiceAnswer(IPicture correct, int deltaScore) {
+    private void showPicChoiceAnswer(@NonNull PicChoiceQuiz quiz) {
         clearSelectedRectangle();
 
-        showCommonAnswer(correct, deltaScore);
+        Drawable correct = quiz.getGlideTargets().get(quiz.getCorrectIdx()).getDrawable();
+        String address = quiz.getCorrectPicture().getMeta().getAddress();
+        showAnswerCommon(correct, address);
+
         choicePicProblemLayout.setVisibility(View.INVISIBLE);
         //인자의 속도에 맞춰서 줌 아웃
         myMapView.getController().setCenter(new GeoPoint(70f, 40f));
         myMapView.getController().zoomTo(myMapView.getMinZoomLevel(), 1000L);
     }
 
-    @Override
-    public void showPositionAnswer(IPicture correct, int deltaScore, double distance) {
+    private void showPositionAnswer(@NonNull PositionQuiz quiz) {
         systemMarker.setOnMarkerClickListener(onMarkerClickDoingNothing);
         userMarker.setOnMarkerClickListener(onMarkerClickDoingNothing);
 
-        showCommonAnswer(correct, deltaScore);
+        Drawable pic = quiz.getGlideTargets().get(0).getDrawable();
+        String address = quiz.getPicture().getMeta().getAddress();
+        showAnswerCommon(pic, address);
+
         positionProblemLayout.setVisibility(View.INVISIBLE);
         myMapView.getController().setCenter(new GeoPoint(70f, 40f));
         myMapView.getController().zoomTo(myMapView.getMinZoomLevel(), 1000L);
 
+        double distance = quiz.getKmFrom(systemMarker);
         if (distance == Double.POSITIVE_INFINITY) {
             answerDistanceTextView.setVisibility(View.INVISIBLE);
         } else {

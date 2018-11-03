@@ -197,7 +197,7 @@ class GameLogic implements IGameInputHandler {
         if (currentQuiz instanceof PositionQuiz) {
             showPositionQuizAnswer((PositionQuiz) currentQuiz, deltaScore);
         } else {
-            ui.showPicChoiceAnswer(((PicChoiceQuiz) currentQuiz).getCorrectPicture(), deltaScore);
+            ui.showAnswer(currentQuiz, deltaScore);
             rightAnswerTypePic = false;
         }
     }
@@ -208,8 +208,7 @@ class GameLogic implements IGameInputHandler {
         ui.getSystemMarker().setPosition(Objects.requireNonNull(rightPos));
         ui.getSystemMarker().setEnabled(true);
 
-        double distance = calcDistanceKm();
-        ui.showPositionAnswer(quiz.getPicture(), deltaScore, distance);
+        ui.showAnswer(quiz, deltaScore);
     }
 
     private int calcTimeBonusScore() {
@@ -229,7 +228,8 @@ class GameLogic implements IGameInputHandler {
             if (!ui.getUserMarker().isEnabled()) {
                 return -100;
             } else {
-                double distance = calcDistanceKm();
+                PositionQuiz quiz = (PositionQuiz) currentQuiz;
+                double distance = quiz.getKmFrom(ui.getUserMarker());
                 if (distance >= 8000) {
                     return 0;
                 }
@@ -306,20 +306,6 @@ class GameLogic implements IGameInputHandler {
                 checkAnswerAndGrading();
             }
         }, 1000);
-    }
-
-    /**
-     * 사용자가 찍은 점과 정답 사이의 km 거리를 빈환
-     *
-     * @return km 단위 거리
-     */
-    private double calcDistanceKm() {
-        if (!ui.getUserMarker().isEnabled()) {
-            return Double.POSITIVE_INFINITY;
-        }
-        GeoPoint g1 = ui.getSystemMarker().getPosition();
-        GeoPoint g2 = ui.getUserMarker().getPosition();
-        return g1.distanceToAsDouble(g2) / 1000;
     }
 
     void releaseResources() {
