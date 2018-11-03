@@ -9,12 +9,15 @@ open class UIPromise<T> : Promise<T>() {
   override suspend fun resolve(block: suspend () -> T) = coroutineScope {
     val outer = coroutineContext
     launch(Dispatchers.Main) {
-      try {
-        success(withContext(outer) { block() })
-      }
-      catch (e: Throwable) {
-        failure(e)
-      }
+      success(
+        try {
+          withContext(outer) { block() }
+        }
+        catch (e: Throwable) {
+          failure(e)
+          return@launch
+        }
+      )
     }
     Unit
   }

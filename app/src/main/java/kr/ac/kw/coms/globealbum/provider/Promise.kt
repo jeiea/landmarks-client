@@ -12,11 +12,15 @@ open class Promise<T> {
     err = cause
   }
 
-  open suspend fun resolve(block: suspend () -> T) =
-    try {
-      success(block())
-    }
-    catch (e: Throwable) {
-      failure(e)
-    }
+  open suspend fun resolve(block: suspend () -> T) {
+    success(
+      try {
+        block()
+      }
+      catch (e: Throwable) {
+        failure(e)
+        return
+      }
+    )
+  }
 }
