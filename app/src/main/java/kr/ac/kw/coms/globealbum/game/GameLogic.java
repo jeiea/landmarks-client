@@ -3,6 +3,7 @@ package kr.ac.kw.coms.globealbum.game;
 import android.content.Context;
 import android.os.Handler;
 import android.support.annotation.NonNull;
+import android.view.View;
 import android.widget.Toast;
 
 import org.jetbrains.annotations.NotNull;
@@ -20,6 +21,9 @@ import kr.ac.kw.coms.globealbum.provider.Promise;
 import kr.ac.kw.coms.globealbum.provider.UIPromise;
 
 interface IGameInputHandler {
+    @NonNull
+    View.OnLayoutChangeListener getOnImageViewSizeChanged();
+
     void onSelectPictureFirst(IPicture selected);
 
     void onSelectPictureCertainly(IPicture selected);
@@ -74,10 +78,10 @@ class GameLogic implements IGameInputHandler {
     }
 
     GameLogic(GameUI ui, Context context) {
+        quizFactory = new GameQuizFactory(context);
         this.ui = ui;
         this.ui.setInputHandler(this);
         this.context = context;
-        quizFactory = new GameQuizFactory(context);
     }
 
     private void resetGameStatus() {
@@ -92,6 +96,12 @@ class GameLogic implements IGameInputHandler {
         ui.showLoadingGif();
         resetGameStatus();
         realLoading();
+    }
+
+    @NonNull
+    @Override
+    public View.OnLayoutChangeListener getOnImageViewSizeChanged() {
+        return quizFactory;
     }
 
     private void realLoading() {
@@ -110,6 +120,9 @@ class GameLogic implements IGameInputHandler {
     private Promise<IGameQuiz> onReadyBuffer = new ErrorToastPromise<IGameQuiz>() {
         @Override
         public void success(IGameQuiz result) {
+            if (currentQuiz != null) {
+                currentQuiz.dispose();
+            }
             currentQuiz = result;
             enterStageEntry();
         }

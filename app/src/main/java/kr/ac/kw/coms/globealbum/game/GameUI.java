@@ -129,18 +129,17 @@ class GameUI implements IGameUI {
     private DottedLineOverlay dotLineAnimation;
     private DrawCircleOverlay circleAnimation;
 
-
     GameUI(@NonNull AppCompatActivity activity) {
         this.activity = activity;
         activity.setContentView(R.layout.layout_empty);
         rootView = activity.findViewById(R.id.lc_empty_root);
-        readyScreen = new ReadyScreen();
         initQuiz();
-        recollectionView = rootInflateAndHide(R.layout.layout_after_game_recycler_view);
+        readyScreen = new ReadyScreen();
+        recollectionView = rootInflate(R.layout.layout_after_game_recycler_view);
     }
 
     private void initQuiz() {
-        quizView = rootInflateAndHide(R.layout.activity_game);
+        quizView = rootInflate(R.layout.activity_game);
 
         //game layout
         gameTimeProgressBar = quizView.findViewById(R.id.progressbar);
@@ -225,12 +224,14 @@ class GameUI implements IGameUI {
     @Override
     public void setInputHandler(IGameInputHandler input) {
         this.input = input;
+        positionPicImageView.addOnLayoutChangeListener(input.getOnImageViewSizeChanged());
+        choicePicImageViews[0].addOnLayoutChangeListener(input.getOnImageViewSizeChanged());
     }
 
     @Override
     public void showLoadingGif() {
-        loadingView = rootInflateAndHide(R.layout.layout_game_loading_animation);
-        loadingView.setVisibility(View.VISIBLE);
+        hideAllStateViews();
+        loadingView = rootInflate(R.layout.layout_game_loading_animation);
         ImageView imgLoading = activity.findViewById(R.id.game_loading_animation);
         GlideApp.with(imgLoading).load(R.drawable.game_loading_bar).into(imgLoading);
     }
@@ -254,7 +255,7 @@ class GameUI implements IGameUI {
 
     private void hideAllStateViews() {
         for (int i = 0; i < rootView.getChildCount(); i++) {
-            rootView.getChildAt(i).setVisibility(View.GONE);
+            rootView.getChildAt(i).setVisibility(View.INVISIBLE);
         }
     }
 
@@ -266,7 +267,7 @@ class GameUI implements IGameUI {
         private Random random = new Random(System.currentTimeMillis());
 
         ReadyScreen() {
-            rootView = rootInflateAndHide(R.layout.layout_game_entry_point);
+            rootView = rootInflate(R.layout.layout_game_entry_point);
             backgroundView = rootView.findViewById(R.id.game_start_background);
             gameNextStageLevelTextview = rootView.findViewById(R.id.textview_level);
             gameNextStageGoalTextview = rootView.findViewById(R.id.textview_goal_score);
@@ -297,9 +298,8 @@ class GameUI implements IGameUI {
         }
     }
 
-    private View rootInflateAndHide(@LayoutRes int layout) {
+    private View rootInflate(@LayoutRes int layout) {
         View v = activity.getLayoutInflater().inflate(layout, rootView, false);
-        v.setVisibility(View.GONE);
         rootView.addView(v);
         return v;
     }
@@ -317,7 +317,7 @@ class GameUI implements IGameUI {
         gameScoreTextView.setText("SCORE " + curScore);
         gameTargetTextView.setText("TARGET " + (curProblem + 1) + "/" + allProblem);
         answerDistanceTextView.setVisibility(View.INVISIBLE);
-        answerLayout.setVisibility(View.GONE);
+        answerLayout.setVisibility(View.INVISIBLE);
         answerLayout.setClickable(false);
         myMapView.getController().setCenter(new GeoPoint(70f, 40f));
         myMapView.getController().setZoom(myMapView.getMinZoomLevel());
@@ -347,9 +347,10 @@ class GameUI implements IGameUI {
         positionPicImageView.setClickable(true);
         positionPicImageView.setVisibility(View.VISIBLE);
         choicePicProblemLayout.setClickable(false);
-        choicePicProblemLayout.setVisibility(View.GONE);
+        choicePicProblemLayout.setVisibility(View.INVISIBLE);
 
-        GlideApp.with(activity).load(pq.getPicture()).into(positionPicImageView);
+//        GlideApp.with(activity).load(pq.getPicture()).into(positionPicImageView);
+        positionPicImageView.setImageDrawable(pq.getGlideTargets().get(0).getDrawable());
         positionProblemLayout.setVisibility(View.VISIBLE);
     }
 
@@ -365,7 +366,7 @@ class GameUI implements IGameUI {
         choicePicProblemLayout.setVisibility(View.VISIBLE);
         choicePicProblemLayout.setClickable(true);
         positionPicImageView.setClickable(false);
-        positionPicImageView.setVisibility(View.GONE);
+        positionPicImageView.setVisibility(View.INVISIBLE);
 
         //마커에 지명 설정하고 맵뷰에 표시
         systemMarker.showInfoWindow();
@@ -374,7 +375,8 @@ class GameUI implements IGameUI {
         myMapView.setClickable(false);
 
         for (int i = 0; i < 4; i++) {
-            GlideApp.with(activity).load(pq.getPictures().get(i)).into(choicePicImageViews[i]);
+            Drawable drawable = pq.getGlideTargets().get(i).getDrawable();
+            choicePicImageViews[i].setImageDrawable(drawable);
         }
     }
 
@@ -471,12 +473,23 @@ class GameUI implements IGameUI {
     }
 
     @Override
+    public void showPicChoiceAnswer(IPicture correct, int deltaScore) {
+        clearSelectedRectangle();
+
+        showCommonAnswer(correct, deltaScore);
+        choicePicProblemLayout.setVisibility(View.INVISIBLE);
+        //인자의 속도에 맞춰서 줌 아웃
+        myMapView.getController().setCenter(new GeoPoint(70f, 40f));
+        myMapView.getController().zoomTo(myMapView.getMinZoomLevel(), 1000L);
+    }
+
+    @Override
     public void showPositionAnswer(IPicture correct, int deltaScore, double distance) {
         systemMarker.setOnMarkerClickListener(onMarkerClickDoingNothing);
         userMarker.setOnMarkerClickListener(onMarkerClickDoingNothing);
 
         showCommonAnswer(correct, deltaScore);
-        positionProblemLayout.setVisibility(View.GONE);
+        positionProblemLayout.setVisibility(View.INVISIBLE);
         myMapView.getController().setCenter(new GeoPoint(70f, 40f));
         myMapView.getController().zoomTo(myMapView.getMinZoomLevel(), 1000L);
 
@@ -574,16 +587,6 @@ class GameUI implements IGameUI {
         if (handler != null) {
             handler.postDelayed(r, msDelay);
         }
-    }
-
-    @Override
-    public void showPicChoiceAnswer(IPicture correct, int deltaScore) {
-        clearSelectedRectangle();
-        showCommonAnswer(correct, deltaScore);
-        choicePicProblemLayout.setVisibility(View.GONE);
-        //인자의 속도에 맞춰서 줌 아웃
-        myMapView.getController().setCenter(new GeoPoint(70f, 40f));
-        myMapView.getController().zoomTo(myMapView.getMinZoomLevel(), 1000L);
     }
 
     private View.OnClickListener onPressStart = new View.OnClickListener() {

@@ -100,7 +100,7 @@
     <android.support.constraint.Placeholder
         android:id="@+id/ph_quiz_content"
         android:layout_width="0dp"
-        android:visibility="gone"
+        android:visibility="invisible"
         android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -112,7 +112,7 @@
         android:id="@+id/position_problem"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:visibility="gone"
+        android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="@id/ph_quiz_content"
         app:layout_constraintEnd_toEndOf="@id/ph_quiz_content"
         app:layout_constraintStart_toStartOf="@id/ph_quiz_content"
@@ -150,7 +150,7 @@
     <android.support.constraint.ConstraintLayout
         android:id="@+id/choice_pic"
         android:layout_width="0dp"
-        android:visibility="gone"
+        android:visibility="invisible"
         android:layout_height="0dp"
         android:layout_marginStart="20dp"
         android:layout_marginEnd="20dp"
@@ -164,8 +164,8 @@
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:scaleType="centerCrop"
-            app:layout_constraintBottom_toTopOf="@id/spc_h"
-            app:layout_constraintEnd_toStartOf="@id/spc_v"
+            app:layout_constraintBottom_toTopOf="@id/spc_center"
+            app:layout_constraintEnd_toStartOf="@id/spc_center"
             app:layout_constraintHorizontal_weight="1"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
@@ -177,10 +177,10 @@
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:scaleType="centerCrop"
-            app:layout_constraintBottom_toTopOf="@id/spc_h"
+            app:layout_constraintBottom_toTopOf="@id/spc_center"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_weight="1"
-            app:layout_constraintStart_toEndOf="@id/spc_v"
+            app:layout_constraintStart_toEndOf="@id/spc_center"
             app:layout_constraintTop_toTopOf="parent"
             tools:src="@drawable/sample1" />
 
@@ -190,9 +190,9 @@
             android:layout_height="0dp"
             android:scaleType="centerCrop"
             app:layout_constraintBottom_toTopOf="@id/tv_select_problem"
-            app:layout_constraintEnd_toStartOf="@id/spc_v"
+            app:layout_constraintEnd_toStartOf="@id/spc_center"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/spc_h"
+            app:layout_constraintTop_toBottomOf="@id/spc_center"
             app:layout_constraintVertical_weight="1"
             tools:src="@drawable/sample2" />
 
@@ -203,25 +203,18 @@
             android:scaleType="centerCrop"
             app:layout_constraintBottom_toTopOf="@id/tv_select_problem"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/spc_v"
-            app:layout_constraintTop_toBottomOf="@id/spc_h"
+            app:layout_constraintStart_toEndOf="@id/spc_center"
+            app:layout_constraintTop_toBottomOf="@id/spc_center"
             tools:src="@drawable/sample3" />
 
         <android.widget.Space
-            android:id="@+id/spc_h"
-            android:layout_width="0dp"
+            android:id="@+id/spc_center"
+            android:layout_width="10dp"
             android:layout_height="10dp"
             app:layout_constraintBottom_toTopOf="@id/picture3"
-            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintLeft_toRightOf="@id/picture1"
+            app:layout_constraintRight_toLeftOf="@id/picture2"
             app:layout_constraintTop_toBottomOf="@id/picture1" />
-
-        <android.widget.Space
-            android:id="@+id/spc_v"
-            android:layout_width="10dp"
-            android:layout_height="0dp"
-            app:layout_constraintEnd_toStartOf="@id/picture2"
-            app:layout_constraintStart_toEndOf="@id/picture1"
-            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:id="@+id/tv_select_problem"
@@ -241,15 +234,14 @@
     <!--문제를 풀고 정답을 확인할 때 필요한 레이아웃-->
     <android.support.constraint.ConstraintLayout
         android:id="@+id/layout_answer"
-        android:visibility="gone"
+        android:visibility="invisible"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginStart="20dp"
-        android:layout_marginEnd="20dp"
         app:layout_constraintBottom_toBottomOf="@id/ph_quiz_content"
         app:layout_constraintEnd_toEndOf="@id/ph_quiz_content"
         app:layout_constraintStart_toStartOf="@id/ph_quiz_content"
-        app:layout_constraintTop_toTopOf="@id/ph_quiz_content">
+        app:layout_constraintTop_toTopOf="@id/ph_quiz_content"
+        app:layout_constraintWidth_percent="0.95">
 
         <android.support.constraint.Guideline
             android:id="@+id/guide_answer_v"

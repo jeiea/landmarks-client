@@ -1,7 +1,9 @@
 package kr.ac.kw.coms.globealbum.common
 
 import android.content.Context
+import android.graphics.drawable.Drawable
 import android.util.Log
+import android.util.Size
 import com.bumptech.glide.Glide
 import com.bumptech.glide.GlideBuilder
 import com.bumptech.glide.Priority
@@ -16,7 +18,13 @@ import com.bumptech.glide.load.model.ModelLoader.LoadData
 import com.bumptech.glide.load.model.ModelLoaderFactory
 import com.bumptech.glide.load.model.MultiModelLoaderFactory
 import com.bumptech.glide.module.AppGlideModule
+import com.bumptech.glide.request.Request
+import com.bumptech.glide.request.target.SizeReadyCallback
+import com.bumptech.glide.request.target.Target
+import com.bumptech.glide.request.transition.Transition
 import kotlinx.coroutines.experimental.*
+import kotlinx.coroutines.experimental.channels.Channel
+import kr.ac.kw.coms.globealbum.map.Disposable
 import kr.ac.kw.coms.globealbum.provider.*
 import kr.ac.kw.coms.landmarks.client.getThumbnailLevel
 import java.io.InputStream
@@ -162,5 +170,79 @@ class PictureDataFetcher(val model: RemotePicture, val width: Int, val height: I
       fetch = null
       it.cancel()
     }
+  }
+}
+
+class AsyncTarget(
+  val width: Int = Target.SIZE_ORIGINAL,
+  val height: Int = Target.SIZE_ORIGINAL
+) : Target<Drawable>, Disposable {
+
+  private var req: Request? = null
+  private val channel = Channel<Unit>()
+  var drawable: Drawable? = null
+  var prepared: CompletableDeferred<Drawable> = CompletableDeferred()
+    private set
+
+  constructor(size: Size) : this(size.width, size.height)
+
+  suspend fun awaitChanges(): Drawable? {
+    channel.receiveOrNull()
+    return drawable
+  }
+
+  private fun broadcast(placeholder: Drawable?) {
+    drawable = placeholder
+    channel.offer(Unit)
+  }
+
+  override fun onLoadStarted(placeholder: Drawable?) {
+    broadcast(placeholder)
+  }
+
+  override fun onLoadFailed(errorDrawable: Drawable?) {
+    broadcast(errorDrawable)
+    prepared.cancel()
+  }
+
+  override fun onLoadCleared(placeholder: Drawable?) {
+    broadcast(placeholder)
+    resetPrepared()
+  }
+
+  override fun onResourceReady(resource: Drawable, transition: Transition<in Drawable>?) {
+    broadcast(resource)
+    prepared.complete(resource)
+  }
+
+  override fun getRequest(): Request? = req
+
+  override fun setRequest(request: Request?) {
+    req = request
+  }
+
+  private fun resetPrepared() {
+    if (!prepared.isActive) {
+      prepared = CompletableDeferred()
+    }
+  }
+
+  override fun getSize(cb: SizeReadyCallback) {
+    cb.onSizeReady(width, height)
+  }
+
+  override fun removeCallback(cb: SizeReadyCallback) {}
+
+  override fun onStart() {}
+
+  override fun onStop() {}
+
+  override fun onDestroy() {
+    dispose()
+  }
+
+  override fun dispose() {
+    req?.clear()
+    prepared.cancel()
   }
 }
