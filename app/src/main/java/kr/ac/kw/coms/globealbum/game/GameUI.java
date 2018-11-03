@@ -503,7 +503,7 @@ class GameUI implements IGameUI {
         myMapView.getController().setCenter(new GeoPoint(70f, 40f));
         myMapView.getController().zoomTo(myMapView.getMinZoomLevel(), 1000L);
 
-        double distance = quiz.getKmFrom(systemMarker);
+        double distance = quiz.getKmFrom(userMarker);
         if (distance == Double.POSITIVE_INFINITY) {
             answerDistanceTextView.setVisibility(View.INVISIBLE);
         } else {
