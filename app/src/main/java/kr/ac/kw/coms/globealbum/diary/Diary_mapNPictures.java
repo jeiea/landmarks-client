@@ -162,6 +162,7 @@ public class Diary_mapNPictures extends AppCompatActivity {
         ArrayList<ArrayList<IPicture>> ppics = new ArrayList<>();
         ppics.add(new ArrayList<>(diary_toShow.getPictures()));
         myMapView.getDiaryOverlay().setChains(ppics);
+        myMapView.zoomToBoundingBox(myMapView.getDiaryOverlay().getBoundingBox(), true);
 
         new Handler().postDelayed(new Runnable() {
             @Override
