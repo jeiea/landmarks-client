@@ -20,8 +20,8 @@ import java.util.ArrayList;
 import kr.ac.kw.coms.globealbum.R;
 import kr.ac.kw.coms.globealbum.common.GlideApp;
 import kr.ac.kw.coms.globealbum.common.RequestCodes;
+import kr.ac.kw.coms.globealbum.provider.AccountActivity;
 import kr.ac.kw.coms.globealbum.provider.IPicture;
-import kr.ac.kw.coms.globealbum.provider.LoginActivity;
 import kr.ac.kw.coms.globealbum.provider.Promise;
 
 public class GalleryDetail extends AppCompatActivity {
@@ -81,7 +81,7 @@ public class GalleryDetail extends AppCompatActivity {
     }
 
     public void Common_Profile_Click(View view) {
-        startActivity(new Intent(this, LoginActivity.class));
+        startActivity(new Intent(this, AccountActivity.class));
     }
 
     public void gallerydetail_Share(View view) {

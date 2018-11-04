@@ -24,9 +24,9 @@ import java.util.ArrayList;
 
 import kr.ac.kw.coms.globealbum.R;
 import kr.ac.kw.coms.globealbum.common.MediaScannerKt;
+import kr.ac.kw.coms.globealbum.provider.AccountActivity;
 import kr.ac.kw.coms.globealbum.provider.EXIFinfo;
 import kr.ac.kw.coms.globealbum.provider.LocalPicture;
-import kr.ac.kw.coms.globealbum.provider.LoginActivity;
 import kr.ac.kw.coms.globealbum.provider.RemoteJava;
 import kr.ac.kw.coms.globealbum.provider.RemotePicture;
 import kr.ac.kw.coms.globealbum.provider.UIPromise;
@@ -57,7 +57,7 @@ public class Diary_newImage extends AppCompatActivity {
     }
 
     public void Common_Profile_Click(View view) {
-        startActivity(new Intent(this, LoginActivity.class));
+        startActivity(new Intent(this, AccountActivity.class));
     }
 
     private ArrayList<String> getImageFilePath() {

@@ -19,8 +19,8 @@ import kr.ac.kw.coms.globealbum.common.GlideAppKt;
 import kr.ac.kw.coms.globealbum.common.RequestCodes;
 import kr.ac.kw.coms.globealbum.diary.Diary_main;
 import kr.ac.kw.coms.globealbum.game.GameActivity;
+import kr.ac.kw.coms.globealbum.provider.AccountActivity;
 import kr.ac.kw.coms.globealbum.provider.EXIFinfo;
-import kr.ac.kw.coms.globealbum.provider.LoginActivity;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -55,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
                 startActivityForResult(new Intent(this, Diary_main.class).setAction(RequestCodes.ACTION_DIARY_OTHERS), 4);
                 break;
             case R.id.main_activity_profile_textview:
-                startActivity(new Intent(this, LoginActivity.class));
+                startActivity(new Intent(this, AccountActivity.class));
                 break;
             default:
         }
@@ -110,7 +110,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void startLogin(View view) {
-        Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+        Intent intent = new Intent(MainActivity.this, AccountActivity.class);
         startActivity(intent);
     }
 }

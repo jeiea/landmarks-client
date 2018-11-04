@@ -27,7 +27,7 @@
             android:label="@string/title_activity_gallery_detail"
             android:theme="@style/FullscreenTheme" />
         <activity android:name=".album.ExampleDiary" />
-        <activity android:name=".provider.LoginActivity">
+        <activity android:name=".provider.AccountActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

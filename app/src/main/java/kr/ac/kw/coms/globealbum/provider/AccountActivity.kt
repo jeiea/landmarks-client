@@ -12,7 +12,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
-import kotlinx.android.synthetic.main.activity_login.*
+import kotlinx.android.synthetic.main.activity_account.*
 import kotlinx.android.synthetic.main.fragment_login.*
 import kotlinx.android.synthetic.main.fragment_profile.*
 import kotlinx.android.synthetic.main.fragment_sign_up.*
@@ -29,13 +29,13 @@ import org.jetbrains.anko.sdk27.coroutines.onKey
 import org.jetbrains.anko.toast
 
 
-class LoginActivity : AppCompatActivity(), CoroutineScope {
+class AccountActivity : AppCompatActivity(), CoroutineScope {
   private val life = SupervisorJob()
   override val coroutineContext = Dispatchers.Main.immediate + life
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
-    setContentView(R.layout.activity_login)
+    setContentView(R.layout.activity_account)
 
     loadInitialFragment(
       when {
