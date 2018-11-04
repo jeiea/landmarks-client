@@ -24,21 +24,6 @@
         app:layout_constraintTop_toTopOf="@id/guide_login_horizontal_boundary" />
 
     <android.support.constraint.Guideline
-        android:id="@+id/login_upper_guideline"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.065" />
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="#000000"
-        app:layout_constraintBottom_toBottomOf="@id/login_upper_guideline"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent" />
-
-    <android.support.constraint.Guideline
         android:id="@+id/guide_login_vertical_left"
         android:layout_width="0dp"
         android:layout_height="0dp"

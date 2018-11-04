@@ -1,12 +1,12 @@
 package kr.ac.kw.coms.globealbum.provider
 
 import android.app.Activity
-import android.app.Application
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v7.app.AppCompatActivity
+import android.util.Log
 import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
@@ -14,6 +14,7 @@ import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import kotlinx.android.synthetic.main.activity_login.*
 import kotlinx.android.synthetic.main.fragment_login.*
+import kotlinx.android.synthetic.main.fragment_profile.*
 import kotlinx.android.synthetic.main.fragment_sign_up.*
 import kotlinx.coroutines.experimental.*
 import kotlinx.coroutines.experimental.sync.Mutex
@@ -36,23 +37,20 @@ class LoginActivity : AppCompatActivity(), CoroutineScope {
     super.onCreate(savedInstanceState)
     setContentView(R.layout.activity_login)
 
-    loadInitialFragment()
+    loadInitialFragment(
+      when {
+        RemoteJava.client.profile != null -> ProfileFragment()
+        else -> LoadingFragment()
+      }
+    )
     bindBackButton()
   }
 
-  private fun loadInitialFragment() {
+  private fun loadInitialFragment(frag: Fragment) {
     supportFragmentManager
       .beginTransaction()
-      .add(R.id.cl_fragment_main, LoadingFragment())
+      .add(R.id.cl_fragment_main, frag)
       .commit()
-  }
-
-  override fun onBackPressed() {
-    if (tv_top_back.visibility == View.VISIBLE)
-      super.onBackPressed()
-    else
-      finishAffinity()
-      System.exit(0);
   }
 
   private fun bindBackButton() {
@@ -62,12 +60,8 @@ class LoginActivity : AppCompatActivity(), CoroutineScope {
   }
 
   private fun onFragmentChanged() {
-    if (supportFragmentManager.backStackEntryCount > 0) {
-      tv_top_back.visibility = View.VISIBLE
-    }
-    else {
-      tv_top_back.visibility = View.GONE
-    }
+    val isBackstackExists = supportFragmentManager.backStackEntryCount > 0
+    tv_top_back.visibility = if (isBackstackExists) View.VISIBLE else View.GONE
   }
 }
 
@@ -78,6 +72,7 @@ class LoadingFragment : Fragment() {
   override fun onCreateView(
     inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
   ): View? {
+    Log.d("testest", "${tv_top_back == null}")
     return inflater.inflate(R.layout.layout_splash, container, false)
   }
 
@@ -269,4 +264,34 @@ class SignUpFragment : Fragment(), CoroutineScope {
       RemoteJava.client.register(ident, pass, email, nick)
       activity?.supportFragmentManager?.popBackStack()
     }
+}
+
+class ProfileFragment : Fragment(), CoroutineScope {
+  private val life = SupervisorJob()
+  override val coroutineContext = Dispatchers.Main.immediate + life
+
+  override fun onCreateView(
+    inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
+  ): View? {
+    return inflater.inflate(R.layout.fragment_profile, container, false)
+  }
+
+  override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    super.onViewCreated(view, savedInstanceState)
+    tv_profile_top_back.onClick {
+      activity?.onBackPressed()
+    }
+    profile_logout_button.onClick {
+      app.password = null
+      activity!!.supportFragmentManager
+        .beginTransaction()
+        .replace(R.id.cl_fragment_main, LoadingFragment())
+        .commit()
+    }
+  }
+
+  override fun onDestroy() {
+    super.onDestroy()
+    life.cancel()
+  }
 }

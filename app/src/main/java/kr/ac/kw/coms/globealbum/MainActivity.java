@@ -55,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
                 startActivityForResult(new Intent(this, Diary_main.class).setAction(RequestCodes.ACTION_DIARY_OTHERS), 4);
                 break;
             case R.id.main_activity_profile_textview:
-                startActivity(new Intent(this, ProfileActivity.class));
+                startActivity(new Intent(this, LoginActivity.class));
                 break;
             default:
         }

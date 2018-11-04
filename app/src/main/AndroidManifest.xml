@@ -18,8 +18,6 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity android:name=".diary.Diary_newImage"></activity>
-        <activity android:name=".SignUpActivity" />
-        <activity android:name=".ProfileActivity" />
         <activity
             android:name=".album.GalleryActivity"
             android:noHistory="true" />

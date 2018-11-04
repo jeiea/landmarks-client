@@ -38,7 +38,6 @@ import java.util.Locale;
 
 import at.wirecube.additiveanimations.additive_animator.AdditiveAnimator;
 import kotlin.Unit;
-import kr.ac.kw.coms.globealbum.ProfileActivity;
 import kr.ac.kw.coms.globealbum.R;
 import kr.ac.kw.coms.globealbum.album.GroupDiaryView;
 import kr.ac.kw.coms.globealbum.album.OnSwipeTouchListener;
@@ -48,6 +47,7 @@ import kr.ac.kw.coms.globealbum.common.RecyclerItemClickListener;
 import kr.ac.kw.coms.globealbum.common.RequestCodes;
 import kr.ac.kw.coms.globealbum.provider.Diary;
 import kr.ac.kw.coms.globealbum.provider.IPicture;
+import kr.ac.kw.coms.globealbum.provider.LoginActivity;
 import kr.ac.kw.coms.globealbum.provider.Promise;
 import kr.ac.kw.coms.globealbum.provider.RemoteJava;
 import kr.ac.kw.coms.globealbum.provider.RemotePicture;
@@ -142,7 +142,7 @@ public class Diary_main extends AppCompatActivity {
     }
 
     public void Common_Profile_Click(View view) {
-        startActivity(new Intent(this, ProfileActivity.class));
+        startActivity(new Intent(this, LoginActivity.class));
     }
 
     public void diary_main_CloseMenu(View view) {

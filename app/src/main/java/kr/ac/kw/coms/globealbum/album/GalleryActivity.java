@@ -1,12 +1,13 @@
 package kr.ac.kw.coms.globealbum.album;
 /* 작성자: 이상훈 */
+
 import android.content.Intent;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -20,11 +21,11 @@ import com.bumptech.glide.Glide;
 
 import java.util.ArrayList;
 
-import kr.ac.kw.coms.globealbum.ProfileActivity;
 import kr.ac.kw.coms.globealbum.R;
 import kr.ac.kw.coms.globealbum.common.MediaScannerKt;
 import kr.ac.kw.coms.globealbum.common.RequestCodes;
 import kr.ac.kw.coms.globealbum.provider.LocalPicture;
+import kr.ac.kw.coms.globealbum.provider.LoginActivity;
 
 public class GalleryActivity extends AppCompatActivity {
     private RecyclerView ImageList;
@@ -148,6 +149,6 @@ public class GalleryActivity extends AppCompatActivity {
     }
 
     public void Common_Profile_Click(View view){
-        startActivity(new Intent(this, ProfileActivity.class));
+        startActivity(new Intent(this, LoginActivity.class));
     }
 }
