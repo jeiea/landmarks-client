@@ -92,7 +92,7 @@ public class Diary_mapNPictures extends AppCompatActivity {
             @Override
             public void onItemClick(@NotNull View view, int position) {
                 super.onItemClick(view, position);
-                myMapView.fitZoomToMarkers(pics.get(position-1).getMeta().getGeo(), 10);
+                myMapView.fitZoomToMarkers(pics.get(position - 1).getMeta().getGeo(), 10);
                 Intent intent = new Intent(getBaseContext(), GalleryDetail.class);
                 ArrayList<IPicture> pics = new ArrayList<>(data.getPictures());
                 intent.putParcelableArrayListExtra("pictures", pics);
@@ -167,7 +167,14 @@ public class Diary_mapNPictures extends AppCompatActivity {
         myMapView.getDiaryOverlay().setOnThumbnailClick(new Function1<IPicture, Boolean>() {
             @Override
             public Boolean invoke(IPicture iPicture) {
-                Toast.makeText(Diary_mapNPictures.this, iPicture.getMeta().getAddress(), Toast.LENGTH_SHORT).show();
+                for (int i = 0; i < diary_toShow.getPictures().size(); i++)
+                {
+                    if (diary_toShow.getPictures().get(i).getMeta().getGeo().equals(iPicture.getMeta().getGeo()))
+                    {
+                        picView.smoothScrollToPosition(i+1);
+                        return true;
+                    }
+                }
                 return true;
             }
         });
