@@ -5,6 +5,7 @@ import android.graphics.*
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.ShapeDrawable
 import android.graphics.drawable.shapes.OvalShape
+import android.support.v4.math.MathUtils.clamp
 import android.util.TypedValue
 import android.view.MotionEvent
 import kotlinx.coroutines.experimental.CoroutineScope
@@ -180,7 +181,12 @@ class DiaryOverlayFolder(private val mapView: MapView) : Overlay(), IDiaryOverla
     val e = positions.maxBy { it.longitude }!!.longitude
     val h = (e - w) * 0.2
     val v = (n - s) * 0.2
-    return BoundingBox(n + v, e + h, s - v, w - h)
+    return BoundingBox(
+      clamp(n + v, -84.0, +84.0),
+      clamp(e + h, -180.0, +180.0),
+      clamp(s - v, -84.0, +84.0),
+      clamp(w - h, -180.0, +180.0)
+    )
   }
 }
 
