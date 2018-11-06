@@ -37,9 +37,12 @@ class DiaryOverlayFolder(private val mapView: MapView) : Overlay(), IDiaryOverla
   }
 
   override fun onSingleTapConfirmed(e: MotionEvent, mapView: MapView): Boolean {
-    return forAllCircles { _journey, circleMarker ->
-      circleMarker.onSingleTapConfirmed(e, mapView)
+    for ((_, marker) in allCircleMarkers) {
+      if (marker.onSingleTapConfirmed(e, mapView)) {
+        return true
+      }
     }
+    return false
   }
 
   // Use cache
@@ -74,47 +77,38 @@ class DiaryOverlayFolder(private val mapView: MapView) : Overlay(), IDiaryOverla
     }
   }
 
-  private fun forAllCircles(action: (Journey, CircleMarker) -> Boolean): Boolean {
-    return journeyGroups.forAllCircles(action) || journeyChains.forAllCircles(action)
-  }
+  private val allCircleMarkers: Sequence<Pair<Journey, CircleMarker>>
+    get() = journeyGroups.allCircleMarkers() + journeyChains.allCircleMarkers()
 
-  private fun List<Journey>.forAllCircles(action: (Journey, CircleMarker) -> Boolean): Boolean {
-    forEach { group ->
-      group.manager.forEach { overlay ->
-        if (overlay is CircleMarker && action(group, overlay)) {
-          return true
-        }
+  private fun List<Journey>.allCircleMarkers(): Sequence<Pair<Journey, CircleMarker>> =
+    asSequence().flatMap { journey ->
+      journey.manager.asSequence().filterIsInstance<CircleMarker>().map {
+        Pair(journey, it)
       }
     }
-    return false
-  }
 
   override fun addToSelection(picture: IPicture) {
-    forAllCircles { _, marker ->
+    for ((_, marker) in allCircleMarkers) {
       if (marker.target.picture == picture) {
         marker.setColor(Color.YELLOW)
-        true
-      }
-      else {
-        false
+        return
       }
     }
   }
 
   override fun removeFromSelection(picture: IPicture) {
-    forAllCircles { _, marker ->
+    for ((_, marker) in allCircleMarkers) {
       if (marker.target.picture == picture) {
         marker.setColor(Color.WHITE)
-        true
-      }
-      else {
-        false
+        return
       }
     }
   }
 
   override fun clearSelection() {
-    forAllCircles { _, marker -> marker.setColor(Color.WHITE); false }
+    for ((_, marker) in allCircleMarkers) {
+      marker.setColor(Color.WHITE)
+    }
   }
 
   override fun draw(c: Canvas, osmv: MapView, shadow: Boolean) {
