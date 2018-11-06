@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.support.constraint.ConstraintLayout
 import android.support.v4.app.Fragment
 import android.support.v7.app.AppCompatActivity
 import android.view.KeyEvent
@@ -43,7 +44,7 @@ class AccountActivity : AppCompatActivity(), CoroutineScope {
     loadInitialFragment(
       when {
         RemoteJava.client.profile != null -> ProfileFragment()
-        else -> LoadingFragment()
+        else -> SplashFragment()
       }
     )
     bindBackButton()
@@ -56,6 +57,16 @@ class AccountActivity : AppCompatActivity(), CoroutineScope {
       .commit()
   }
 
+  override fun onBackPressed() {
+    val mainFrag = supportFragmentManager.findFragmentById(R.id.cl_fragment_main)
+    if (isBackstackExists || mainFrag is ProfileFragment) {
+      super.onBackPressed()
+    }
+    else {
+      finishAffinity()
+    }
+  }
+
   private fun bindBackButton() {
     tv_top_back.onClick { onBackPressed() }
     supportFragmentManager.addOnBackStackChangedListener(this::onFragmentChanged)
@@ -63,19 +74,20 @@ class AccountActivity : AppCompatActivity(), CoroutineScope {
   }
 
   private fun onFragmentChanged() {
-    val isBackstackExists = supportFragmentManager.backStackEntryCount > 0
     tv_top_back.visibility = if (isBackstackExists) View.VISIBLE else View.GONE
   }
+
+  private val isBackstackExists get() = supportFragmentManager.backStackEntryCount > 0
 }
 
-class LoadingFragment : Fragment() {
+class SplashFragment : Fragment() {
 
   private val scope = LifeScope(this)
 
   override fun onCreateView(
     inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
   ): View? {
-    return inflater.inflate(R.layout.layout_splash, container, false)
+    return inflater.inflate(R.layout.fragment_splash, container, false)
   }
 
   override fun onStart() {
@@ -88,6 +100,8 @@ class LoadingFragment : Fragment() {
   private suspend fun postLoginTransition() {
     val ac = activity!!
     val loginFrag = LoginFragment()
+    val main = ac.findViewById<ConstraintLayout>(R.id.cl_fragment_main)
+    main.translationZ = 1f
     ac.supportFragmentManager
       .beginTransaction()
       .add(R.id.cl_fragment_main, loginFrag)
@@ -99,6 +113,7 @@ class LoadingFragment : Fragment() {
       .remove(this)
       .show(loginFrag)
       .commit()
+    main.translationZ = 0f
   }
 }
 
@@ -289,9 +304,10 @@ class ProfileFragment : Fragment(), CoroutineScope {
     }
     btn_profile_logout.onClick {
       app.password = null
+      RemoteJava.client.profile = null
       activity!!.supportFragmentManager
         .beginTransaction()
-        .replace(R.id.cl_fragment_main, LoadingFragment())
+        .replace(R.id.cl_fragment_main, SplashFragment())
         .commit()
     }
     tv_profile_nick.text = RemoteJava.client.profile?.data?.nick
