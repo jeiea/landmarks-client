@@ -43,6 +43,7 @@ class AccountActivity : AppCompatActivity(), CoroutineScope {
 
     loadInitialFragment(
       when {
+        isTaskRoot -> SplashFragment()
         RemoteJava.client.profile != null -> ProfileFragment()
         else -> SplashFragment()
       }
