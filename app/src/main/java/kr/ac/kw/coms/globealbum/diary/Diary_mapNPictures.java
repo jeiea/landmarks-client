@@ -11,7 +11,6 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
@@ -54,6 +53,7 @@ import kr.ac.kw.coms.globealbum.album.PictureGroup;
 import kr.ac.kw.coms.globealbum.common.CircularImageKt;
 import kr.ac.kw.coms.globealbum.common.MediaScannerKt;
 import kr.ac.kw.coms.globealbum.common.RequestCodes;
+import kr.ac.kw.coms.globealbum.map.IDiaryOverlay;
 import kr.ac.kw.coms.globealbum.map.MyMapView;
 import kr.ac.kw.coms.globealbum.provider.AccountActivity;
 import kr.ac.kw.coms.globealbum.provider.Diary;
@@ -92,7 +92,8 @@ public class Diary_mapNPictures extends AppCompatActivity {
             @Override
             public void onItemClick(@NotNull View view, int position) {
                 super.onItemClick(view, position);
-                myMapView.fitZoomToMarkers(pics.get(position - 1).getMeta().getGeo(), 10);
+                GeoPoint geo = pics.get(position - 1).getMeta().getGeo();
+                myMapView.getMapView().getController().setCenter(geo);
                 Intent intent = new Intent(getBaseContext(), GalleryDetail.class);
                 ArrayList<IPicture> pics = new ArrayList<>(data.getPictures());
                 intent.putParcelableArrayListExtra("pictures", pics);
@@ -163,29 +164,29 @@ public class Diary_mapNPictures extends AppCompatActivity {
         final Drawable[] drawables = new Drawable[cntImgs];
         ArrayList<ArrayList<IPicture>> ppics = new ArrayList<>();
         ppics.add(new ArrayList<>(diary_toShow.getPictures()));
-        myMapView.getDiaryOverlay().setChains(ppics);
-        myMapView.getDiaryOverlay().setOnThumbnailClick(new Function1<IPicture, Boolean>() {
+        final IDiaryOverlay folder = myMapView.getDiaryOverlay();
+        folder.setChains(ppics);
+        folder.setOnThumbnailClick(new Function1<IPicture, Boolean>() {
             @Override
             public Boolean invoke(IPicture iPicture) {
-                for (int i = 0; i < diary_toShow.getPictures().size(); i++)
-                {
-                    if (diary_toShow.getPictures().get(i).getMeta().getGeo().equals(iPicture.getMeta().getGeo()))
-                    {
-                        picView.smoothScrollToPosition(i+1);
+                for (int i = 0; i < diary_toShow.getPictures().size(); i++) {
+                    if (diary_toShow.getPictures().get(i).getMeta().getGeo().equals(iPicture.getMeta().getGeo())) {
+                        picView.smoothScrollToPosition(i + 1);
                         return true;
                     }
                 }
                 return true;
             }
         });
-        myMapView.zoomToBoundingBox(myMapView.getDiaryOverlay().getBoundingBox(), true);
 
-        new Handler().postDelayed(new Runnable() {
+        View.OnLayoutChangeListener listener = new View.OnLayoutChangeListener() {
             @Override
-            public void run() {
-                myMapView.fitZoomToMarkers();
+            public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
+                v.removeOnLayoutChangeListener(this);
+                myMapView.zoomToBoundingBox(folder.getBoundingBox(), false);
             }
-        }, 100);
+        };
+        myMapView.addOnLayoutChangeListener(listener);
     }
 
     public static Uri resourceToUri(Context context, int resID) {

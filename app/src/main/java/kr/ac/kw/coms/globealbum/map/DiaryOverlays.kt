@@ -174,8 +174,8 @@ class DiaryOverlayFolder(private val mapView: MapView) : Overlay(), IDiaryOverla
     val n = positions.maxBy { it.latitude }!!.latitude
     val w = positions.minBy { it.longitude }!!.longitude
     val e = positions.maxBy { it.longitude }!!.longitude
-    val h = (e - w) * 0.04
-    val v = (n - s) * 0.04
+    val h = (e - w) * 0.2
+    val v = (n - s) * 0.2
     return BoundingBox(n + v, e + h, s - v, w - h)
   }
 }
