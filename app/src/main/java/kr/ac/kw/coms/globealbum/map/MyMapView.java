@@ -12,6 +12,7 @@ import org.osmdroid.events.MapListener;
 import org.osmdroid.events.ScrollEvent;
 import org.osmdroid.events.ZoomEvent;
 import org.osmdroid.util.BoundingBox;
+import org.osmdroid.util.GeoPoint;
 import org.osmdroid.util.TileSystem;
 import org.osmdroid.util.TileSystemWebMercator;
 import org.osmdroid.views.MapView;
@@ -93,6 +94,21 @@ public class MyMapView extends org.osmdroid.views.MapView implements ILandmarkMa
 
         getController().zoomOut();
         invalidate();
+    }
+
+    public void fitZoomToMarkers(GeoPoint Location)
+    {
+        if (Location == null)
+            fitZoomToMarkers();
+        else
+            fitZoomToMarkers(Location, 30);
+    }
+
+    public void fitZoomToMarkers(GeoPoint Location, double Radius)
+    {
+        double lat = Location.getLatitude();
+        double lon = Location.getLongitude();
+        zoomToBoundingBox(new BoundingBox(lat + Radius, lon + Radius, lat - Radius, lon - Radius), false);
     }
 
     @NotNull

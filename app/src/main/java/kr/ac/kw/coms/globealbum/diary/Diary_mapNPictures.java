@@ -81,7 +81,7 @@ public class Diary_mapNPictures extends AppCompatActivity {
 
     public void setDiary(final Diary data) {
         //받은 데이터를 화면에 표시
-        ArrayList<IPicture> pics = new ArrayList<>(data.getPictures());
+        final ArrayList<IPicture> pics = new ArrayList<>(data.getPictures());
         ArrayList<PictureGroup> elementList = new ArrayList<>();
         elementList.add(new PictureGroup("", pics));
         picView.clearAllItems();
@@ -91,6 +91,7 @@ public class Diary_mapNPictures extends AppCompatActivity {
             @Override
             public void onItemClick(@NotNull View view, int position) {
                 super.onItemClick(view, position);
+                myMapView.fitZoomToMarkers(pics.get(position-1).getMeta().getGeo(), 10);
                 Intent intent = new Intent(getBaseContext(), GalleryDetail.class);
                 ArrayList<IPicture> pics = new ArrayList<>(data.getPictures());
                 intent.putParcelableArrayListExtra("pictures", pics);
