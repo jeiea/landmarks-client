@@ -46,6 +46,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import kotlin.jvm.functions.Function1;
 import kr.ac.kw.coms.globealbum.R;
 import kr.ac.kw.coms.globealbum.album.GalleryDetail;
 import kr.ac.kw.coms.globealbum.album.GroupDiaryView;
@@ -163,6 +164,13 @@ public class Diary_mapNPictures extends AppCompatActivity {
         ArrayList<ArrayList<IPicture>> ppics = new ArrayList<>();
         ppics.add(new ArrayList<>(diary_toShow.getPictures()));
         myMapView.getDiaryOverlay().setChains(ppics);
+        myMapView.getDiaryOverlay().setOnThumbnailClick(new Function1<IPicture, Boolean>() {
+            @Override
+            public Boolean invoke(IPicture iPicture) {
+                Toast.makeText(Diary_mapNPictures.this, iPicture.getMeta().getAddress(), Toast.LENGTH_SHORT).show();
+                return true;
+            }
+        });
         myMapView.zoomToBoundingBox(myMapView.getDiaryOverlay().getBoundingBox(), true);
 
         new Handler().postDelayed(new Runnable() {

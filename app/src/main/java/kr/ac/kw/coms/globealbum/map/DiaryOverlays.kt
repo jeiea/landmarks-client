@@ -32,6 +32,15 @@ class DiaryOverlayFolder(private val mapView: MapView) : Overlay(), IDiaryOverla
   private var journeyChains = listOf<Journey>()
 
   override var onThumbnailClick: ((IPicture) -> Boolean)? = null
+  private fun onThumbnailClick(pic: IPicture): Boolean {
+    return onThumbnailClick?.invoke(pic) ?: true
+  }
+
+  override fun onSingleTapConfirmed(e: MotionEvent, mapView: MapView): Boolean {
+    return forAllCircles { _journey, circleMarker ->
+      circleMarker.onSingleTapConfirmed(e, mapView)
+    }
+  }
 
   // Use cache
   override var groups
@@ -39,7 +48,7 @@ class DiaryOverlayFolder(private val mapView: MapView) : Overlay(), IDiaryOverla
     set(value) {
       val j = journeyGroups
       journeyGroups = value.map {
-        Journey(mapView, it, false).apply { onClick = onThumbnailClick }
+        Journey(mapView, it, false).apply { onClick = ::onThumbnailClick }
       }
       j.forEach(Journey::detach)
     }
@@ -48,7 +57,7 @@ class DiaryOverlayFolder(private val mapView: MapView) : Overlay(), IDiaryOverla
     set(value) {
       val j = journeyChains
       journeyChains = value.map {
-        Journey(mapView, it, true).apply { onClick = onThumbnailClick }
+        Journey(mapView, it, true).apply { onClick = ::onThumbnailClick }
       }
       j.forEach(Journey::detach)
     }
@@ -65,9 +74,19 @@ class DiaryOverlayFolder(private val mapView: MapView) : Overlay(), IDiaryOverla
     }
   }
 
-  private fun forAllCircles(action: (Journey, CircleMarker) -> Boolean) {
-    journeyGroups.forAllCircles(action)
-    journeyChains.forAllCircles(action)
+  private fun forAllCircles(action: (Journey, CircleMarker) -> Boolean): Boolean {
+    return journeyGroups.forAllCircles(action) || journeyChains.forAllCircles(action)
+  }
+
+  private fun List<Journey>.forAllCircles(action: (Journey, CircleMarker) -> Boolean): Boolean {
+    forEach { group ->
+      group.manager.forEach { overlay ->
+        if (overlay is CircleMarker && action(group, overlay)) {
+          return true
+        }
+      }
+    }
+    return false
   }
 
   override fun addToSelection(picture: IPicture) {
@@ -96,16 +115,6 @@ class DiaryOverlayFolder(private val mapView: MapView) : Overlay(), IDiaryOverla
 
   override fun clearSelection() {
     forAllCircles { _, marker -> marker.setColor(Color.WHITE); false }
-  }
-
-  private fun List<Journey>.forAllCircles(action: (Journey, CircleMarker) -> Boolean) {
-    forEach { group ->
-      group.manager.forEach { overlay ->
-        if (overlay is CircleMarker && action(group, overlay)) {
-          return
-        }
-      }
-    }
   }
 
   override fun draw(c: Canvas, osmv: MapView, shadow: Boolean) {
