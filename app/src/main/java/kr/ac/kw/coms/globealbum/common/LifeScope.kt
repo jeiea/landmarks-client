@@ -8,8 +8,12 @@ import kotlinx.coroutines.experimental.CoroutineScope
 import kotlinx.coroutines.experimental.Dispatchers
 import kotlinx.coroutines.experimental.SupervisorJob
 
-class LifeScope(owner: LifecycleOwner) :
-  CoroutineScope {
+/**
+ * 안드로이드 생명주기 객체에 맞춰 비동기 작업을 종료시키는 클래스. 안드로이드 액티비티로도 생성
+ * 가능
+ * @see android.app.Activity
+ */
+class LifeScope(owner: LifecycleOwner) : CoroutineScope {
   protected val life = SupervisorJob()
   override val coroutineContext = Dispatchers.Main.immediate + life
 
@@ -21,4 +25,8 @@ class LifeScope(owner: LifecycleOwner) :
       }
     })
   }
+}
+
+interface Disposable {
+  fun dispose()
 }

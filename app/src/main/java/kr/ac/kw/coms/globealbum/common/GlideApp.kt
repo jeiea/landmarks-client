@@ -24,7 +24,6 @@ import com.bumptech.glide.request.target.Target
 import com.bumptech.glide.request.transition.Transition
 import kotlinx.coroutines.experimental.*
 import kotlinx.coroutines.experimental.channels.Channel
-import kr.ac.kw.coms.globealbum.map.Disposable
 import kr.ac.kw.coms.globealbum.provider.*
 import kr.ac.kw.coms.landmarks.client.getThumbnailLevel
 import java.io.InputStream
@@ -49,7 +48,7 @@ class MyGlideModule : AppGlideModule() {
 
   override fun applyOptions(context: Context, builder: GlideBuilder) {
     super.applyOptions(context, builder)
-    builder.setLogLevel(Log.VERBOSE);
+    builder.setLogLevel(Log.VERBOSE)
   }
 }
 
@@ -112,8 +111,7 @@ class RemotePictureKey(val id: Int, val level: Int) : Key {
     fun getThumbnailInt(pic: RemotePicture, width: Int, height: Int): Int {
       val fullWidth = pic.info.data.width ?: 1920
       val fullHeight = pic.info.data.height ?: 1080
-      val level = getThumbnailLevel(fullWidth, fullHeight, width, height)
-      return level
+      return getThumbnailLevel(fullWidth, fullHeight, width, height)
     }
   }
 
@@ -139,10 +137,10 @@ class RemotePictureKey(val id: Int, val level: Int) : Key {
   }
 }
 
-class PictureDataFetcher(val model: RemotePicture, val width: Int, val height: Int) :
+class PictureDataFetcher(private val model: RemotePicture, val width: Int, val height: Int) :
   DataFetcher<InputStream> {
 
-  var fetch: Job? = null
+  private var fetch: Job? = null
 
   override fun getDataClass(): Class<InputStream> {
     return InputStream::class.java

@@ -1,5 +1,6 @@
 package kr.ac.kw.coms.globealbum.map
 
+import kotlinx.coroutines.experimental.CoroutineScope
 import kr.ac.kw.coms.globealbum.provider.IPicture
 import org.osmdroid.util.BoundingBox
 import org.osmdroid.views.MapView
@@ -31,6 +32,12 @@ interface IDiaryOverlay {
    * 선 연결이 필요한 사진 묶음
    */
   var chains: List<List<IPicture>>
+
+  /**
+   * 사진 로딩 시작. 자원 누수를 방지.
+   * @see kr.ac.kw.coms.globealbum.common.LifeScope
+   */
+  fun launchReceive(scope: CoroutineScope)
 
   /**
    * 터치 이벤트 리스너

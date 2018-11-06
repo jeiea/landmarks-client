@@ -1,19 +1,21 @@
 package kr.ac.kw.coms.globealbum.map
 
+import android.content.res.Resources
 import android.graphics.*
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.ShapeDrawable
 import android.graphics.drawable.shapes.OvalShape
 import android.util.TypedValue
 import android.view.MotionEvent
-import com.bumptech.glide.request.Request
-import com.bumptech.glide.request.target.SizeReadyCallback
-import com.bumptech.glide.request.target.Target
-import com.bumptech.glide.request.transition.Transition
+import kotlinx.coroutines.experimental.CoroutineScope
+import kotlinx.coroutines.experimental.Dispatchers
+import kotlinx.coroutines.experimental.launch
+import kr.ac.kw.coms.globealbum.common.AsyncTarget
+import kr.ac.kw.coms.globealbum.common.Disposable
 import kr.ac.kw.coms.globealbum.common.GlideApp
 import kr.ac.kw.coms.globealbum.provider.IPicture
-import org.osmdroid.api.IGeoPoint
 import org.osmdroid.util.BoundingBox
+import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.DefaultOverlayManager
 import org.osmdroid.views.overlay.Overlay
@@ -22,7 +24,7 @@ import kotlin.math.sqrt
 
 private const val mmThumbDiameter = 10f
 
-class DiaryOverlayFolder(private val mapView: MapView) : Overlay(), IDiaryOverlay {
+class DiaryOverlayFolder(private val mapView: MapView) : Overlay(), IDiaryOverlay, Disposable {
 
   private val badgeOffset: Float
   private val px2: Float
@@ -53,7 +55,7 @@ class DiaryOverlayFolder(private val mapView: MapView) : Overlay(), IDiaryOverla
       journeyGroups = value.map {
         Journey(mapView, it, false).apply { onClick = ::onThumbnailClick }
       }
-      j.forEach(Journey::detach)
+      j.forEach(Disposable::dispose)
     }
   override var chains
     get() = journeyChains.map { g -> g.pictures }
@@ -62,8 +64,12 @@ class DiaryOverlayFolder(private val mapView: MapView) : Overlay(), IDiaryOverla
       journeyChains = value.map {
         Journey(mapView, it, true).apply { onClick = ::onThumbnailClick }
       }
-      j.forEach(Journey::detach)
+      j.forEach(Disposable::dispose)
     }
+
+  override fun dispose() {
+    allJourneys.forEach(Disposable::dispose)
+  }
 
   init {
     val metrics = mapView.resources.displayMetrics
@@ -77,30 +83,34 @@ class DiaryOverlayFolder(private val mapView: MapView) : Overlay(), IDiaryOverla
     }
   }
 
-  private val allCircleMarkers: Sequence<Pair<Journey, CircleMarker>>
-    get() = journeyGroups.allCircleMarkers() + journeyChains.allCircleMarkers()
+  override fun launchReceive(scope: CoroutineScope) {
+    allJourneys.forEach { it.launchReceive(scope) }
+  }
 
-  private fun List<Journey>.allCircleMarkers(): Sequence<Pair<Journey, CircleMarker>> =
-    asSequence().flatMap { journey ->
-      journey.manager.asSequence().filterIsInstance<CircleMarker>().map {
-        Pair(journey, it)
-      }
+  val allJourneys get() = journeyGroups.asSequence() + journeyChains
+
+  val allCircleMarkers: Sequence<Pair<Journey, CircleMarker>>
+    get() = allJourneys.flatMap { journey ->
+      journey.manager.asSequence().filterIsInstance<CircleMarker>().map { Pair(journey, it) }
+    }
+
+  private val allMarkersAndPictures
+    get() = allJourneys.flatMap {
+      it.markers.asSequence().zip(it.pictures.asSequence())
     }
 
   override fun addToSelection(picture: IPicture) {
-    for ((_, marker) in allCircleMarkers) {
-      if (marker.target.picture == picture) {
+    for ((marker, pic) in allMarkersAndPictures) {
+      if (pic == picture) {
         marker.setColor(Color.YELLOW)
-        return
       }
     }
   }
 
   override fun removeFromSelection(picture: IPicture) {
-    for ((_, marker) in allCircleMarkers) {
-      if (marker.target.picture == picture) {
+    for ((marker, pic) in allMarkersAndPictures) {
+      if (pic == picture) {
         marker.setColor(Color.WHITE)
-        return
       }
     }
   }
@@ -130,7 +140,7 @@ class DiaryOverlayFolder(private val mapView: MapView) : Overlay(), IDiaryOverla
 
   private fun renewMarkerDisplayPositions(osmv: MapView, circles: List<CircleMarker>) {
     val pj = osmv.projection
-    circles.forEach { m -> pj.toPixels(m.target.position, m.point) }
+    circles.forEach { m -> pj.toPixels(m.geo, m.point) }
   }
 
   private fun drawCirclesWithOverlaps(circles: List<CircleMarker>, c: Canvas, osmv: MapView) {
@@ -174,32 +184,34 @@ class DiaryOverlayFolder(private val mapView: MapView) : Overlay(), IDiaryOverla
   }
 }
 
-internal class Journey(
-  mapView: MapView, val pictures: List<IPicture>, isRoute: Boolean = false
-) : Overlay() {
+class Journey(
+  private val mapView: MapView, val pictures: List<IPicture>, isRoute: Boolean = false
+) : Overlay(), Disposable {
 
   var color: Int = Color.WHITE
     set(value) {
       route = makeRoute(value)
     }
   private var route: Polyline? = null
-  private val targets: List<MarkerTarget>
+  internal val markers: List<CircleMarker>
+  private val targets: List<AsyncTarget>
   val manager = DefaultOverlayManager(null)
   var onClick: ((IPicture) -> Boolean)? = null
 
   init {
-    val metrics = mapView.resources.displayMetrics
+    val resources = mapView.resources
+    val metrics = resources.displayMetrics
     val px = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_MM, mmThumbDiameter, metrics).toInt()
-    targets = pictures.mapNotNull { pic ->
-      if (pic.meta.geo == null) null
-      else {
-        val target = MarkerTarget(px, pic) { circleMarker ->
-          circleMarker.onClick = { onClick?.invoke(pic) ?: false }
-          manager.add(circleMarker)
-          mapView.invalidate()
-        }
-        GlideApp.with(mapView).load(pic).circleCrop().into(target)
+    markers = pictures.map {
+      CircleMarker(px, resources).apply {
+        onClick = { this@Journey.onClick?.invoke(it) ?: false }
+        geo = it.meta.geo ?: GeoPoint(0.0, 0.0)
+        isEnabled = false
       }
+    }
+    manager.addAll(markers)
+    targets = pictures.map {
+      GlideApp.with(mapView).load(it).circleCrop().into(AsyncTarget(px, px))
     }
     if (isRoute) {
       color = Color.WHITE
@@ -207,8 +219,18 @@ internal class Journey(
     }
   }
 
+  fun launchReceive(scope: CoroutineScope) {
+    for ((marker, target) in markers.zip(targets)) {
+      scope.launch(Dispatchers.Main) {
+        marker.drawable = target.prepared.await()
+        marker.isEnabled = true
+        mapView.invalidate()
+      }
+    }
+  }
+
   private fun makeRoute(color: Int): Polyline {
-    val coords = targets.mapNotNull { it.picture.meta.geo }
+    val coords = pictures.mapNotNull { it.meta.geo }
     return Polyline().apply {
       setPoints(coords)
       this.color = color
@@ -219,7 +241,7 @@ internal class Journey(
     manager.onDraw(c, osmv)
   }
 
-  fun detach() {
+  override fun dispose() {
     manager.clear()
     targets.forEach {
       it.request?.clear()
@@ -227,69 +249,10 @@ internal class Journey(
   }
 }
 
-internal interface Disposable {
-  fun dispose()
-}
-
-internal interface IMarkerData {
-  val position: IGeoPoint
-  val icon: Drawable
-}
-
-internal interface IMarkerTarget : Disposable, IMarkerData {
-  val picture: IPicture
-}
-
-internal class MarkerTarget(
-  private val px: Int, override val picture: IPicture, val onReady: (CircleMarker) -> Unit
-) : Target<Drawable>, IMarkerTarget {
-
-  private var req: Request? = null
-
-  override fun dispose() {
-    req?.clear()
-  }
-
-  override val position: IGeoPoint
-    get() = picture.meta.geo!!
-
-  override var icon: Drawable = ShapeDrawable()
-
-  override fun onLoadStarted(placeholder: Drawable?) {
-    placeholder?.also { icon = it }
-  }
-
-  override fun getSize(cb: SizeReadyCallback) {
-    cb.onSizeReady(px, px)
-  }
-
-  override fun removeCallback(_cb: SizeReadyCallback) {}
-
-  override fun getRequest() = req
-
-  override fun setRequest(request: Request?) {
-    req = request
-  }
-
-  override fun onLoadFailed(errorDrawable: Drawable?) {}
-
-  override fun onResourceReady(resource: Drawable, transition: Transition<in Drawable>?) {
-    icon = resource
-    val m = CircleMarker(this)
-    onReady(m)
-  }
-
-  override fun onLoadCleared(placeholder: Drawable?) {
-  }
-
-  override fun onStart() {}
-
-  override fun onStop() {}
-
-  override fun onDestroy() {}
-}
-
-internal class CircleMarker(val target: IMarkerTarget) : Overlay() {
+/**
+ * 둥근 마커. 미리 동그라미로 깎은 Drawable을 설정해야 한다.
+ */
+class CircleMarker(pxSide: Int, val resources: Resources) : Overlay() {
 
   private val circle = ShapeDrawable(OvalShape()).apply {
     paint.color = Color.WHITE
@@ -297,25 +260,29 @@ internal class CircleMarker(val target: IMarkerTarget) : Overlay() {
   }
   var point = Point()
     private set
+
   var onClick: (() -> Boolean)? = null
-  private var icon: Drawable? = null
+
+  var drawable: Drawable? = null
+    set(value) {
+      field = (value ?: return).apply { bounds = circle.bounds }
+    }
+
+  var geo: GeoPoint = GeoPoint(0.0, 0.0)
+
+  init {
+    val bound = Rect(0, 0, pxSide, pxSide).apply { offset(-pxSide / 2, -pxSide / 2) }
+    circle.bounds = bound
+    circle.paint.strokeWidth = pxSide * 0.05f
+  }
 
   fun setColor(color: Int) {
     circle.paint.color = color
   }
 
-  init {
-    val px = target.icon.intrinsicHeight
-    icon = target.icon
-    val bound = Rect(0, 0, px, px).apply { offset(-px / 2, -px / 2) }
-    target.icon.bounds = bound
-    circle.bounds = bound
-    circle.paint.strokeWidth = px * 0.05f
-  }
-
   override fun draw(c: Canvas, osmv: MapView, shadow: Boolean) {
-    osmv.projection?.toPixels(target.position, point)
-    drawAt(c, icon, point.x, point.y, false, osmv.mapOrientation)
+    osmv.projection?.toPixels(geo, point)
+    drawAt(c, drawable, point.x, point.y, false, osmv.mapOrientation)
     drawAt(c, circle, point.x, point.y, false, osmv.mapOrientation)
   }
 
@@ -326,16 +293,13 @@ internal class CircleMarker(val target: IMarkerTarget) : Overlay() {
     return false
   }
 
-  override fun onDetach(mapView: MapView?) {
-    super.onDetach(mapView)
-    target.dispose()
-  }
-
   private fun hitTest(event: MotionEvent, mapView: MapView): Boolean {
-    mapView.projection.toPixels(target.position, point)
+    val d = drawable ?: return false
+
+    mapView.projection.toPixels(geo, point)
     val screenRect = mapView.getIntrinsicScreenRect(null)
     val x = -point.x + screenRect.left + event.x.toInt()
     val y = -point.y + screenRect.top + event.y.toInt()
-    return target.icon.bounds.contains(x, y)
+    return d.bounds.contains(x, y)
   }
 }

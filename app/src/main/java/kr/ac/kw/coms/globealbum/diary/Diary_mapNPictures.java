@@ -51,6 +51,7 @@ import kr.ac.kw.coms.globealbum.album.GalleryDetail;
 import kr.ac.kw.coms.globealbum.album.GroupDiaryView;
 import kr.ac.kw.coms.globealbum.album.PictureGroup;
 import kr.ac.kw.coms.globealbum.common.CircularImageKt;
+import kr.ac.kw.coms.globealbum.common.LifeScope;
 import kr.ac.kw.coms.globealbum.common.MediaScannerKt;
 import kr.ac.kw.coms.globealbum.common.RequestCodes;
 import kr.ac.kw.coms.globealbum.map.IDiaryOverlay;
@@ -178,6 +179,7 @@ public class Diary_mapNPictures extends AppCompatActivity {
                 return true;
             }
         });
+        folder.launchReceive(new LifeScope(this));
 
         View.OnLayoutChangeListener listener = new View.OnLayoutChangeListener() {
             @Override

@@ -11,8 +11,8 @@ import kotlinx.coroutines.experimental.awaitAll
 import kotlinx.coroutines.experimental.channels.produce
 import kotlinx.coroutines.experimental.launch
 import kr.ac.kw.coms.globealbum.common.AsyncTarget
+import kr.ac.kw.coms.globealbum.common.Disposable
 import kr.ac.kw.coms.globealbum.common.GlideApp
-import kr.ac.kw.coms.globealbum.map.Disposable
 import kr.ac.kw.coms.globealbum.provider.IPicture
 import kr.ac.kw.coms.globealbum.provider.Promise
 import kr.ac.kw.coms.globealbum.provider.RemoteJava
