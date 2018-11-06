@@ -249,4 +249,8 @@ class Remote(engine: HttpClient, private val basePath: String = herokuUri) {
   suspend fun deleteCollection(id: Int) {
     return delete("$basePath/collection/$id")
   }
+
+  suspend fun getProfile(): ProfileInfo {
+    return get("$basePath/profile")
+  }
 }

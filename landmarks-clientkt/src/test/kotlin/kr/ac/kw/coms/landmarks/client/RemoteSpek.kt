@@ -150,6 +150,12 @@ class RemoteSpek : Spek({
     blit("delete my collection") {
       client.deleteCollection(colls[0].id)
     }
+
+    blit("get profile") {
+      client.uploadCollection(CollectionInfo())
+      val profile = client.getProfile()
+      profile.collectionCount `should be equal to` 1
+    }
   }
 })
 
@@ -177,7 +183,7 @@ fun newClient(): Remote {
 fun getTestEngine(): HttpClient {
   return HttpClient(OkHttp.create {
     config {
-      if (System.getProperty("useDirect") != null) {
+      if (System.getProperty("useDirect") == null) {
         proxy(Proxy(Proxy.Type.HTTP, InetSocketAddress("localhost", 8888)))
       }
       connectTimeout(1, TimeUnit.MINUTES)

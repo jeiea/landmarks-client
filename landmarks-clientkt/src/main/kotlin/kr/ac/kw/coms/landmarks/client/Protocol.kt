@@ -135,16 +135,24 @@ data class NearGeoPoint(var lat: Double, var lon: Double, var km: Double) {
 class PictureQuery {
   var userFilter: UserFilter? = null
   var geoFilter: NearGeoPoint? = null
-  var offset: Int = 0
-  var limit: Int = 10
+  var offset: Int? = null
+  var limit: Int? = null
 
   override fun toString(): String {
-    val sb = StringBuilder("offset=$offset&limit=$limit")
-    userFilter?.also { sb.append('&'); sb.append(it.toString()) }
-    geoFilter?.also { sb.append('&'); sb.append(it.toString()) }
+    val sb = StringBuilder()
+    offset?.also { sb.append("&offset=$it") }
+    limit?.also { sb.append("&limit=$it") }
+    userFilter?.also { sb.append("&$it") }
+    geoFilter?.also { sb.append("&$it") }
     return sb.toString()
   }
 }
+
+data class ProfileInfo(
+  var collectionCount: Int,
+  var pictureCount: Int,
+  var registered: Date
+)
 
 /**
  * https://wiki.openstreetmap.org/wiki/Nominatim

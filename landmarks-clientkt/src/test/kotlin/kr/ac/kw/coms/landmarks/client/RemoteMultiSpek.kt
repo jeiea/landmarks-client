@@ -2,7 +2,6 @@ package kr.ac.kw.coms.landmarks.client
 
 import kotlinx.coroutines.experimental.*
 import org.amshove.kluent.`should be equal to`
-import org.amshove.kluent.`should be greater than`
 import org.amshove.kluent.`should be true`
 import org.amshove.kluent.`should throw`
 import org.jetbrains.spek.api.Spek
@@ -20,8 +19,8 @@ class RemoteMultiSpek : Spek({
   val validUsers = listOf(
     AccountForm("login", "password", "email", "nick"),
     AccountForm("user01", "fight!", "some@a.com", "헐크"),
-    AccountForm("user02", "비밀번호한글?", "some@b.com", "냥냥"),
-    AccountForm("user03", "fight!", "some@c.com", "음..")
+    AccountForm("user02", "비밀번호한글?", "some@b.com", "바바리안"),
+    AccountForm("user03", "fight!", "some@c.com", "행자")
   )
 
   val invalidUsers = listOf(
@@ -83,17 +82,24 @@ class RemoteMultiSpek : Spek({
   }
 
   val userPics = mutableListOf<MutableList<IdPictureInfo>>()
+  val meta = mutableListOf<List<String>>()
   describe("test picture features with multiple users") {
     blit("uploads pictures") {
-      val archive = File("../../landmarks-data/archive1")
-      val catalog = archive.resolve("catalog.tsv").readText()
-      val meta: List<List<String>> = catalog.split('\n').map { it.split('\t') }
+      val archive = File("../../landmarks-data/archive4")
+      meta.addAll(archive.resolve("pic.tsv").bufferedReader().use {
+        TsvReader(it).readAll().drop(28)
+      })
+      val picArchive = archive.resolve("files")
       val tasks = mutableListOf<Deferred<IdPictureInfo>>()
       for ((idx: Int, vs: List<String>) in meta.withIndex()) {
-        val file: File = archive.resolve(vs[0])
-        val lat = vs[1].toDouble()
-        val lon = vs[2].toDouble()
-        val addr = file.nameWithoutExtension.replace('_', ' ')
+        val file: File = picArchive.resolve(vs[1])
+        if (!file.exists()) {
+          println("not exist: $file")
+          continue
+        }
+        val lat = vs[2].toDouble()
+        val lon = vs[3].toDouble()
+        val addr = file.nameWithoutExtension.replace('_', ' ').replace("-mod", "")
         val info = PictureInfo(lat = lat, lon = lon, address = addr)
         tasks.add(GlobalScope.async {
           clients[idx % clients.size].uploadPicture(info, file)
@@ -103,19 +109,22 @@ class RemoteMultiSpek : Spek({
     }
 
     blit("test valid access") {
-      clients.forEach {
-        val pics = it.getPictures(PictureQuery().apply {
-          userFilter = UserFilter.Include(it.profile!!.id)
+      for ((index, value) in clients.withIndex()) {
+        val pics = value.getPictures(PictureQuery().apply {
+          limit = 1000
+          userFilter = UserFilter.Include(value.profile!!.id)
         })
-        pics.size `should be greater than` 7
+        val mine = meta.size / clients.size +
+          if (index < meta.size % clients.size) 1 else 0
+        pics.size `should be equal to` mine
         userPics.add(pics)
-      }
-      clients.forEach {
-        val pics = it.getPictures(PictureQuery().apply {
-          limit = 99
-          userFilter = UserFilter.Exclude(it.profile!!.id)
+
+        val notMine = meta.size - mine
+        val otherPics = value.getPictures(PictureQuery().apply {
+          limit = 1000
+          userFilter = UserFilter.Exclude(value.profile!!.id)
         })
-        pics.size `should be greater than` 21
+        otherPics.size `should be equal to` notMine
       }
     }
   }
