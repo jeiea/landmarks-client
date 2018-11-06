@@ -1,25 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
     <View
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="0dp"
         android:background="@drawable/login_mid_gradient"
-        app:layout_constraintBottom_toTopOf="@id/guide_profile_horizontal_boundary"
+        app:layout_constraintBottom_toTopOf="@id/profile_bottom_gradient"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <View
         android:id="@+id/profile_bottom_gradient"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="0dp"
         android:background="@drawable/login_bottom_gradient"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintHeight_percent="0.2"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toTopOf="@id/guide_profile_horizontal_boundary" />
+        app:layout_constraintRight_toRightOf="parent" />
 
     <TextView
         android:id="@+id/tv_profile_top_back"
@@ -36,43 +39,14 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <android.support.constraint.Guideline
-        android:id="@+id/guide_profile_vertical_left"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:orientation="vertical"
-        app:layout_constraintGuide_percent="0.2" />
-
-    <android.support.constraint.Guideline
-        android:id="@+id/guide_profile_vertical_right"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:orientation="vertical"
-        app:layout_constraintGuide_percent="0.8" />
-
-
-    <android.support.constraint.Guideline
-        android:id="@+id/guide_profile_horizontal_boundary"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.80" />
-
-    <android.support.constraint.Guideline
         android:id="@+id/guide_profile_horizontal_top"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         app:layout_constraintGuide_percent="0.2" />
 
-    <android.support.constraint.Guideline
-        android:id="@+id/guide_profile_horizontal_mid"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.47" />
-
     <TextView
-        android:id="@+id/profile_textView"
+        android:id="@+id/tv_profile_title"
         style="@style/CustomFontStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -98,39 +72,70 @@
         app:layout_constraintVertical_bias="0.42"
         app:layout_constraintWidth_percent="0.15" />
 
-    <ImageView
-        android:id="@+id/profile_id_imageview"
+    <android.support.constraint.ConstraintLayout
+        android:id="@+id/cl_profile_container"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:src="@drawable/ic_person"
-        app:layout_constraintBottom_toTopOf="@id/guide_profile_horizontal_mid"
-        app:layout_constraintDimensionRatio="H,1:1"
-        app:layout_constraintStart_toStartOf="@id/guide_profile_vertical_left"
-        app:layout_constraintWidth_percent="0.16" />
+        app:layout_constraintBottom_toTopOf="@id/profile_bottom_gradient"
+        app:layout_constraintHeight_percent="0.5"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintWidth_percent="0.6">
 
-    <TextView
-        android:id="@+id/profile_id_textview"
-        style="@style/CustomFontStyle"
-        android:layout_width="0dp"
-        android:layout_height="45sp"
-        android:layout_marginStart="10sp"
-        android:text="ID"
-        app:layout_constraintBottom_toTopOf="@id/guide_profile_horizontal_mid"
-        app:layout_constraintEnd_toStartOf="@id/guide_profile_vertical_right"
-        app:layout_constraintStart_toEndOf="@id/profile_id_imageview" />
+        <ImageView
+            android:id="@+id/iv_profile_name_tag"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:src="@drawable/ic_name_tag"
+            android:padding="10dp"
+            app:layout_constraintDimensionRatio="H,1:1"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintWidth_percent="0.25" />
+
+        <TextView
+            android:id="@+id/tv_profile_nick"
+            style="@style/CustomFontStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="23sp"
+            android:gravity="center"
+            app:layout_constraintBottom_toBottomOf="@id/iv_profile_name_tag"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.3"
+            app:layout_constraintStart_toEndOf="@id/iv_profile_name_tag"
+            app:layout_constraintTop_toTopOf="@id/iv_profile_name_tag"
+            tools:text="nickname" />
+
+        <TextView
+            android:id="@+id/tv_profile_extra"
+            style="@style/CustomFontStyle"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:textSize="22sp"
+            android:text="Joined:"
+            android:layout_margin="20sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/iv_profile_name_tag" />
+
+    </android.support.constraint.ConstraintLayout>
 
     <Button
-        android:id="@+id/profile_logout_button"
+        android:id="@+id/btn_profile_logout"
         style="@style/CustomFontStyle"
         android:layout_width="0dp"
-        android:layout_height="60sp"
+        android:layout_height="0dp"
         android:background="#0d2758"
         android:text="Logout"
         android:textColor="#fff"
         android:textSize="25sp"
         app:layout_constraintBottom_toBottomOf="@id/profile_bottom_gradient"
-        app:layout_constraintLeft_toLeftOf="@id/guide_profile_vertical_left"
-        app:layout_constraintRight_toRightOf="@id/guide_profile_vertical_right"
+        app:layout_constraintEnd_toEndOf="@id/cl_profile_container"
+        app:layout_constraintHeight_min="33sp"
+        app:layout_constraintHeight_percent="0.05"
+        app:layout_constraintStart_toStartOf="@id/cl_profile_container"
         app:layout_constraintTop_toTopOf="@id/profile_bottom_gradient" />
 
 </android.support.constraint.ConstraintLayout>

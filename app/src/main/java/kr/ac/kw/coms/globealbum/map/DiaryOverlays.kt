@@ -73,9 +73,9 @@ class DiaryOverlayFolder(private val mapView: MapView) : Overlay(), IDiaryOverla
 
   init {
     val metrics = mapView.resources.displayMetrics
-    val px = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_MM, mmThumbDiameter, metrics).toInt()
+    val px = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_MM, mmThumbDiameter, metrics)
     badgeOffset = px * sqrt(2f) / 4
-    px2 = (px * px).toFloat()
+    px2 = px * px
     fontPaint = Paint().apply {
       textSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 15f, metrics)
       color = (0xffff0000).toInt()

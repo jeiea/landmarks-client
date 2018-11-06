@@ -6,7 +6,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v7.app.AppCompatActivity
-import android.util.Log
 import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
@@ -17,6 +16,7 @@ import kotlinx.android.synthetic.main.fragment_login.*
 import kotlinx.android.synthetic.main.fragment_profile.*
 import kotlinx.android.synthetic.main.fragment_sign_up.*
 import kotlinx.coroutines.experimental.*
+import kotlinx.coroutines.experimental.channels.Channel
 import kotlinx.coroutines.experimental.sync.Mutex
 import kotlinx.coroutines.experimental.sync.withLock
 import kr.ac.kw.coms.globealbum.MainActivity
@@ -26,7 +26,10 @@ import kr.ac.kw.coms.globealbum.common.app
 import org.jetbrains.anko.sdk27.coroutines.onCheckedChange
 import org.jetbrains.anko.sdk27.coroutines.onClick
 import org.jetbrains.anko.sdk27.coroutines.onKey
+import org.jetbrains.anko.support.v4.toast
 import org.jetbrains.anko.toast
+import java.text.SimpleDateFormat
+import java.util.*
 
 
 class AccountActivity : AppCompatActivity(), CoroutineScope {
@@ -72,7 +75,6 @@ class LoadingFragment : Fragment() {
   override fun onCreateView(
     inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
   ): View? {
-    Log.d("testest", "${tv_top_back == null}")
     return inflater.inflate(R.layout.layout_splash, container, false)
   }
 
@@ -136,6 +138,9 @@ class LoginFragment : Fragment(), CoroutineScope {
       if (!checked) {
         app.login = null
       }
+    }
+    btn_forgot.onClick {
+      toast("미구현 기능입니다")
     }
     app.login?.also {
       cb_remember_id.isChecked = true
@@ -269,6 +274,7 @@ class SignUpFragment : Fragment(), CoroutineScope {
 class ProfileFragment : Fragment(), CoroutineScope {
   private val life = SupervisorJob()
   override val coroutineContext = Dispatchers.Main.immediate + life
+  private val extraChannel = Channel<String>(1)
 
   override fun onCreateView(
     inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -281,13 +287,27 @@ class ProfileFragment : Fragment(), CoroutineScope {
     tv_profile_top_back.onClick {
       activity?.onBackPressed()
     }
-    profile_logout_button.onClick {
+    btn_profile_logout.onClick {
       app.password = null
       activity!!.supportFragmentManager
         .beginTransaction()
         .replace(R.id.cl_fragment_main, LoadingFragment())
         .commit()
     }
+    tv_profile_nick.text = RemoteJava.client.profile?.data?.nick
+    tv_profile_extra.text = "..."
+    launch { tv_profile_extra.text = extraChannel.receive() }
+    requestProfile()
+  }
+
+  private fun requestProfile() = launch(Dispatchers.IO) {
+    val profile = RemoteJava.client.getProfile()
+    val numDate = SimpleDateFormat("yyyy-MM-dd", Locale.KOREAN)
+    val date = numDate.format(profile.registered)
+    val extra = "Joined: ${date}\n" +
+      "Number of pictures: ${profile.pictureCount}\n" +
+      "Number of collections: ${profile.collectionCount}"
+    extraChannel.offer(extra)
   }
 
   override fun onDestroy() {
