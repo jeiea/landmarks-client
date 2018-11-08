@@ -1,6 +1,7 @@
 package kr.ac.kw.coms.globealbum.diary;
 
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.net.Uri;
@@ -30,6 +31,7 @@ import java.util.ArrayList;
 
 import kr.ac.kw.coms.globealbum.R;
 import kr.ac.kw.coms.globealbum.common.MediaScannerKt;
+import kr.ac.kw.coms.globealbum.provider.AccountActivity;
 import kr.ac.kw.coms.globealbum.provider.Diary;
 import kr.ac.kw.coms.globealbum.provider.EXIFinfo;
 import kr.ac.kw.coms.globealbum.provider.IPicture;
@@ -343,4 +345,26 @@ public class Diary_newDiary extends AppCompatActivity {
     public void diary_ZoomIn_CloseZoomIn(View view) {
         findViewById(R.id.diary_newDiary_ZoomInLayout).setVisibility(View.GONE);
     }
+
+    public void Common_Back_Click(View view) {
+        onBackPressed();
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (findViewById(R.id.diary_newDiary_ZoomInLayout).getVisibility() == View.VISIBLE) {
+            findViewById(R.id.diary_newDiary_ZoomInLayout).setVisibility(View.GONE);
+            findViewById(R.id.diary_newDiary_AddLayout).setVisibility(View.VISIBLE);
+        } else if (findViewById(R.id.diary_newDiary_AddLayout).getVisibility() == View.VISIBLE) {
+            findViewById(R.id.diary_newDiary_AddLayout).setVisibility(View.GONE);
+            findViewById(R.id.diary_newDiary_EditLayout).setVisibility(View.VISIBLE);
+        } else {
+            finish();
+        }
+    }
+
+    public void Common_Profile_Click(View view) {
+        startActivity(new Intent(this, AccountActivity.class));
+    }
+
 }
