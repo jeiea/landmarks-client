@@ -438,14 +438,14 @@ public class Diary_main extends AppCompatActivity {
         int end = string.length();
         int firstSpace = string.indexOf(" ");
         if (firstSpace == -1) {
-            ((TextView) findViewById(R.id.diary_ZoomIn_ZoomName1)).setText(firstSpace);
-            ((TextView) findViewById(R.id.diary_ZoomIn_ZoomName2)).setVisibility(View.GONE);
+            ((TextView) findViewById(R.id.diary_ZoomIn_ZoomName1)).setText(string);
+            findViewById(R.id.diary_ZoomIn_ZoomName2).setVisibility(View.GONE);
         } else {
             ((TextView) findViewById(R.id.diary_ZoomIn_ZoomName1)).setText(string.substring(start, firstSpace));
-            ((TextView) findViewById(R.id.diary_ZoomIn_ZoomName2)).setVisibility(View.VISIBLE);
+            findViewById(R.id.diary_ZoomIn_ZoomName2).setVisibility(View.VISIBLE);
             ((TextView) findViewById(R.id.diary_ZoomIn_ZoomName2)).setText(string.substring(firstSpace + 1, end));
         }
-    }
+    }/**/
 
     public void ShowDiaryData() {
         //준비된 Diary 데이터를 화면에 표시
