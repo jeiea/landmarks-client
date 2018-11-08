@@ -471,6 +471,7 @@ class GameUI implements IGameUI {
         int end = string.length();
         int firstSpace = string.indexOf(" ");
         if (firstSpace == -1) {
+            answerLandCountryTextView.setText("");
             answerLandPlaceNameTextView.setText(string);
         } else {
             answerLandCountryTextView.setText(string.substring(start, firstSpace));

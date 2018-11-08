@@ -249,8 +249,10 @@ public class Diary_main extends AppCompatActivity {
         AdditiveAnimator.animate(bar).setDuration(200).translationX(0).start();
         TabLeft.setVisibility(View.VISIBLE);
         TabRight.setVisibility(View.GONE);
-        findViewById(R.id.diary_main_NewImage).setVisibility(View.VISIBLE);
-        findViewById(R.id.diary_main_NewDiary).setVisibility(View.GONE);
+        if (getIntent().getAction().equals(RequestCodes.ACTION_DIARY_MINE)) {
+            findViewById(R.id.diary_main_NewImage).setVisibility(View.VISIBLE);
+            findViewById(R.id.diary_main_NewDiary).setVisibility(View.GONE);
+        }
         isTabLeft = true;
     }
 
@@ -262,8 +264,10 @@ public class Diary_main extends AppCompatActivity {
         AdditiveAnimator.animate(bar).setDuration(200).translationX(bar.getWidth()).start();
         TabRight.setVisibility(View.VISIBLE);
         TabLeft.setVisibility(View.GONE);
-        findViewById(R.id.diary_main_NewImage).setVisibility(View.GONE);
-        findViewById(R.id.diary_main_NewDiary).setVisibility(View.VISIBLE);
+        if (getIntent().getAction().equals(RequestCodes.ACTION_DIARY_MINE)) {
+            findViewById(R.id.diary_main_NewImage).setVisibility(View.GONE);
+            findViewById(R.id.diary_main_NewDiary).setVisibility(View.VISIBLE);
+        }
         isTabLeft = false;
     }
 
@@ -315,6 +319,8 @@ public class Diary_main extends AppCompatActivity {
         } else if (getIntent().getAction().equals(RequestCodes.ACTION_DIARY_OTHERS)) {
             ((TextView) findViewById(R.id.diary_main_Tab_Left_Text)).setText("Image");
             ((TextView) findViewById(R.id.diary_main_Tab_Right_Text)).setText("Diary");
+            findViewById(R.id.diary_main_NewImage).setVisibility(View.GONE);
+            findViewById(R.id.diary_main_NewDiary).setVisibility(View.GONE);
             RemoteJava.INSTANCE.getRandomPictures(30, new UIPromise<List<RemotePicture>>() {
                 @Override
                 public void success(List<RemotePicture> result) {
@@ -353,6 +359,8 @@ public class Diary_main extends AppCompatActivity {
         } else {
             ((TextView) findViewById(R.id.diary_main_Tab_Left_Text)).setText("Image");
             ((TextView) findViewById(R.id.diary_main_Tab_Right_Text)).setText("Diary");
+            findViewById(R.id.diary_main_NewImage).setVisibility(View.GONE);
+            findViewById(R.id.diary_main_NewDiary).setVisibility(View.GONE);
 
             IPicture QueryPicture = getIntent().getParcelableExtra("Query");
             GeoPoint point = QueryPicture.getMeta().getGeo();
