@@ -16,10 +16,10 @@ import kotlinx.android.synthetic.main.activity_account.*
 import kotlinx.android.synthetic.main.fragment_login.*
 import kotlinx.android.synthetic.main.fragment_profile.*
 import kotlinx.android.synthetic.main.fragment_sign_up.*
-import kotlinx.coroutines.experimental.*
-import kotlinx.coroutines.experimental.channels.Channel
-import kotlinx.coroutines.experimental.sync.Mutex
-import kotlinx.coroutines.experimental.sync.withLock
+import kotlinx.coroutines.*
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kr.ac.kw.coms.globealbum.MainActivity
 import kr.ac.kw.coms.globealbum.R
 import kr.ac.kw.coms.globealbum.common.LifeScope
@@ -35,6 +35,7 @@ import java.util.*
 
 class AccountActivity : AppCompatActivity(), CoroutineScope {
   private val life = SupervisorJob()
+  @ExperimentalCoroutinesApi
   override val coroutineContext = Dispatchers.Main.immediate + life
 
   override fun onCreate(savedInstanceState: Bundle?) {
@@ -120,6 +121,7 @@ class SplashFragment : Fragment() {
 
 class LoginFragment : Fragment(), CoroutineScope {
   private val life = SupervisorJob()
+  @ExperimentalCoroutinesApi
   override val coroutineContext = Dispatchers.Main.immediate + life
 
   private lateinit var animation: RotatingAnimationTask
@@ -253,6 +255,7 @@ class RotatingAnimationTask(private val activity: Activity, private val ivLoadin
 
 class SignUpFragment : Fragment(), CoroutineScope {
   private val life = SupervisorJob()
+  @ExperimentalCoroutinesApi
   override val coroutineContext = Dispatchers.Main.immediate + life
 
   private lateinit var animation: RotatingAnimationTask
@@ -289,6 +292,7 @@ class SignUpFragment : Fragment(), CoroutineScope {
 
 class ProfileFragment : Fragment(), CoroutineScope {
   private val life = SupervisorJob()
+  @ExperimentalCoroutinesApi
   override val coroutineContext = Dispatchers.Main.immediate + life
   private val extraChannel = Channel<String>(1)
 

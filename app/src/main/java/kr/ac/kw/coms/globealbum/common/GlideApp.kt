@@ -22,8 +22,8 @@ import com.bumptech.glide.request.Request
 import com.bumptech.glide.request.target.SizeReadyCallback
 import com.bumptech.glide.request.target.Target
 import com.bumptech.glide.request.transition.Transition
-import kotlinx.coroutines.experimental.*
-import kotlinx.coroutines.experimental.channels.Channel
+import kotlinx.coroutines.*
+import kotlinx.coroutines.channels.Channel
 import kr.ac.kw.coms.globealbum.provider.*
 import kr.ac.kw.coms.landmarks.client.getThumbnailLevel
 import java.io.InputStream
@@ -185,7 +185,7 @@ class AsyncTarget(
   constructor(size: Size) : this(size.width, size.height)
 
   suspend fun awaitChanges(): Drawable? {
-    channel.receiveOrNull()
+    channel.receive()
     return drawable
   }
 

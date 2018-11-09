@@ -5,11 +5,8 @@ import android.util.DisplayMetrics
 import android.util.Size
 import android.view.View
 import android.view.WindowManager
-import kotlinx.coroutines.experimental.Dispatchers
-import kotlinx.coroutines.experimental.GlobalScope
-import kotlinx.coroutines.experimental.awaitAll
-import kotlinx.coroutines.experimental.channels.produce
-import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.*
+import kotlinx.coroutines.channels.produce
 import kr.ac.kw.coms.globealbum.common.AsyncTarget
 import kr.ac.kw.coms.globealbum.common.Disposable
 import kr.ac.kw.coms.globealbum.common.GlideApp
@@ -73,6 +70,7 @@ internal class PicChoiceQuiz(
     get() = pictures[correctIdx]
 }
 
+@ExperimentalCoroutinesApi
 internal class GameQuizFactory(val context: Context) : View.OnLayoutChangeListener {
 
   var smallPicSize: Size

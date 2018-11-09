@@ -8,9 +8,9 @@ import android.graphics.drawable.shapes.OvalShape
 import android.support.v4.math.MathUtils.clamp
 import android.util.TypedValue
 import android.view.MotionEvent
-import kotlinx.coroutines.experimental.CoroutineScope
-import kotlinx.coroutines.experimental.Dispatchers
-import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kr.ac.kw.coms.globealbum.common.AsyncTarget
 import kr.ac.kw.coms.globealbum.common.Disposable
 import kr.ac.kw.coms.globealbum.common.GlideApp

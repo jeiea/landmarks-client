@@ -1,6 +1,6 @@
 package kr.ac.kw.coms.globealbum.map
 
-import kotlinx.coroutines.experimental.CoroutineScope
+import kotlinx.coroutines.CoroutineScope
 import kr.ac.kw.coms.globealbum.provider.IPicture
 import org.osmdroid.util.BoundingBox
 import org.osmdroid.views.MapView

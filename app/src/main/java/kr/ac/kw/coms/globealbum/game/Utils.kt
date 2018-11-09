@@ -2,8 +2,8 @@ package kr.ac.kw.coms.globealbum.game
 
 import android.content.Context
 import android.content.res.Resources
-import kotlinx.coroutines.experimental.GlobalScope
-import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import kr.ac.kw.coms.globealbum.R
 import kr.ac.kw.coms.globealbum.provider.*
 
