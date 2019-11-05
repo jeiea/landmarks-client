@@ -1,22 +1,17 @@
 package kr.ac.kw.coms.globealbum.provider
 
-import android.content.ContentResolver
-import android.content.Context
-import android.content.res.Resources
-import android.graphics.drawable.BitmapDrawable
-import android.graphics.drawable.Drawable
-import android.net.Uri
-import android.os.Parcel
-import android.os.Parcelable
-import androidx.annotation.DrawableRes
-import com.bumptech.glide.load.DataSource
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
+import android.content.*
+import android.content.res.*
+import android.graphics.drawable.*
+import android.net.*
+import android.os.*
+import androidx.annotation.*
+import com.bumptech.glide.load.*
+import kotlinx.coroutines.*
 import kr.ac.kw.coms.landmarks.client.*
-import org.osmdroid.util.GeoPoint
-import java.io.File
-import java.io.InputStream
-import java.net.URL
+import org.osmdroid.util.*
+import java.io.*
+import java.net.*
 import java.util.*
 
 interface Deletable {
@@ -255,7 +250,7 @@ class LocalPicture(val path: String) : IPicture, Deletable {
 
   override val dataSource = DataSource.LOCAL
 
-  constructor(parcel: Parcel) : this(parcel.readString())
+  constructor(parcel: Parcel) : this(parcel.readString() ?: "")
 
   override fun toString() = path
 

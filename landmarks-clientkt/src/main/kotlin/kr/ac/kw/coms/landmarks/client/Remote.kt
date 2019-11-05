@@ -1,30 +1,24 @@
 package kr.ac.kw.coms.landmarks.client
 
-import com.beust.klaxon.JsonObject
-import com.beust.klaxon.Parser
-import io.ktor.client.HttpClient
-import io.ktor.client.call.receive
-import io.ktor.client.engine.okhttp.OkHttp
-import io.ktor.client.features.cookies.AcceptAllCookiesStorage
-import io.ktor.client.features.cookies.HttpCookies
-import io.ktor.client.features.json.JsonFeature
+import com.beust.klaxon.*
+import io.ktor.client.*
+import io.ktor.client.call.*
+import io.ktor.client.engine.okhttp.*
+import io.ktor.client.features.cookies.*
+import io.ktor.client.features.json.*
 import io.ktor.client.request.*
-import io.ktor.client.request.forms.MultiPartFormDataContent
-import io.ktor.client.request.forms.append
-import io.ktor.client.request.forms.formData
-import io.ktor.client.response.HttpResponse
+import io.ktor.client.request.forms.*
+import io.ktor.client.response.*
 import io.ktor.http.*
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.channels.sendBlocking
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.io.readUTF8LineTo
-import kotlinx.io.core.writeFully
-import java.io.File
-import java.io.InputStream
-import java.net.URLEncoder
+import kotlinx.coroutines.*
+import kotlinx.coroutines.channels.*
+import kotlinx.coroutines.io.*
+import kotlinx.io.core.*
+import java.io.*
+import java.net.*
 import java.util.*
-import java.util.concurrent.TimeUnit
-import kotlin.math.max
+import java.util.concurrent.*
+import kotlin.math.*
 
 private typealias HRB = HttpRequestBuilder.() -> Unit
 
@@ -133,7 +127,7 @@ class Remote(engine: HttpClient, private val basePath: String = herokuUri) {
       parameter("lon", longitude.toString())
       userAgent(chromeAgent)
     }
-    val obj: JsonObject = Parser().parse(StringBuilder(json)) as JsonObject
+    val obj: JsonObject = Parser.default().parse(StringBuilder(json)) as JsonObject
     return ReverseGeocodeResult(obj)
   }
 

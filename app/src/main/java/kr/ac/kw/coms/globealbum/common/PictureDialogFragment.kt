@@ -1,21 +1,16 @@
 package kr.ac.kw.coms.globealbum.common
 
-import android.graphics.drawable.Drawable
-import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import android.view.Window
-import android.widget.ImageView
-import androidx.appcompat.app.AppCompatActivity
-import androidx.constraintlayout.widget.ConstraintLayout.LayoutParams.PARENT_ID
-import androidx.fragment.app.DialogFragment
-import org.jetbrains.anko.constraint.layout.constraintLayout
-import org.jetbrains.anko.image
-import org.jetbrains.anko.imageView
-import org.jetbrains.anko.matchParent
-import org.jetbrains.anko.sdk27.coroutines.onTouch
-import org.jetbrains.anko.wrapContent
+import android.graphics.drawable.*
+import android.os.*
+import android.view.*
+import android.widget.*
+import androidx.appcompat.app.*
+import androidx.constraintlayout.widget.ConstraintLayout.LayoutParams.*
+import androidx.fragment.app.*
+import kr.ac.kw.coms.globealbum.R
+import org.jetbrains.anko.*
+import org.jetbrains.anko.constraint.layout.*
+import org.jetbrains.anko.sdk27.coroutines.*
 
 
 /**
@@ -38,14 +33,14 @@ class PictureDialogFragment : DialogFragment() {
 
   override fun onResume() {
     super.onResume()
-    dialog.window.setLayout(
+    dialog!!.window!!.setLayout(
       ViewGroup.LayoutParams.MATCH_PARENT,
       ViewGroup.LayoutParams.WRAP_CONTENT)
   }
 
   override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                             savedInstanceState: Bundle?): View {
-    dialog.window.requestFeature(Window.FEATURE_NO_TITLE)
+    dialog!!.window!!.requestFeature(Window.FEATURE_NO_TITLE)
     return inflater.context.constraintLayout {
       imageView {
         image = this@PictureDialogFragment.drawable

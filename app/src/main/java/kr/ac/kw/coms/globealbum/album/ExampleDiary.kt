@@ -1,26 +1,19 @@
 package kr.ac.kw.coms.globealbum.album
 
-import android.content.Context
-import android.os.Bundle
-import android.util.AttributeSet
-import android.view.View
-import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.TextView
-import androidx.annotation.DrawableRes
-import androidx.appcompat.app.AppCompatActivity
-import androidx.recyclerview.widget.RecyclerView
-import com.google.android.flexbox.AlignItems
-import com.google.android.flexbox.FlexDirection
-import com.google.android.flexbox.FlexWrap
-import com.google.android.flexbox.FlexboxLayoutManager
+import android.content.*
+import android.os.*
+import android.util.*
+import android.view.*
+import android.widget.*
+import androidx.annotation.*
+import androidx.appcompat.app.*
+import androidx.recyclerview.widget.*
+import com.google.android.flexbox.*
+import kotlinx.android.synthetic.main.activity_navigator.*
 import kr.ac.kw.coms.globealbum.R
-import kr.ac.kw.coms.globealbum.common.GlideApp
-import kr.ac.kw.coms.globealbum.provider.IPicture
-import kr.ac.kw.coms.globealbum.provider.ResourcePicture
-import org.jetbrains.anko.backgroundColor
-import org.jetbrains.anko.matchParent
-import org.jetbrains.anko.wrapContent
+import kr.ac.kw.coms.globealbum.common.*
+import kr.ac.kw.coms.globealbum.provider.*
+import org.jetbrains.anko.*
 import java.util.*
 
 /**
@@ -80,7 +73,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
   val picAdapter = GroupedPicAdapter()
 
   var direction: Int
-    get() = layoutManager.layoutDirection
+    get() = layoutManager!!.layoutDirection
     set(@setparam:FlexDirection value) {
       layoutManager = FlexboxLayoutManager(context).apply {
         flexWrap = FlexWrap.WRAP

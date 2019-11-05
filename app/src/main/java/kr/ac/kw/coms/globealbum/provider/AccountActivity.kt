@@ -1,27 +1,27 @@
 package kr.ac.kw.coms.globealbum.provider
 
-import android.app.Activity
-import android.content.Context
-import android.content.Intent
-import android.os.Bundle
-import android.view.KeyEvent
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import android.view.inputmethod.InputMethodManager
-import androidx.appcompat.app.AppCompatActivity
-import androidx.constraintlayout.widget.ConstraintLayout
+import android.app.*
+import android.content.*
+import android.os.*
+import android.view.*
+import android.view.inputmethod.*
+import androidx.appcompat.app.*
+import androidx.constraintlayout.widget.*
 import androidx.fragment.app.Fragment
+import kotlinx.android.synthetic.main.activity_account.*
+import kotlinx.android.synthetic.main.fragment_login.*
+import kotlinx.android.synthetic.main.fragment_profile.*
+import kotlinx.android.synthetic.main.fragment_sign_up.*
 import kotlinx.coroutines.*
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
-import kr.ac.kw.coms.globealbum.MainActivity
+import kotlinx.coroutines.channels.*
+import kotlinx.coroutines.sync.*
+import kr.ac.kw.coms.globealbum.*
 import kr.ac.kw.coms.globealbum.R
-import kr.ac.kw.coms.globealbum.common.LifeScope
-import kr.ac.kw.coms.globealbum.common.app
-import org.jetbrains.anko.toast
-import java.text.SimpleDateFormat
+import kr.ac.kw.coms.globealbum.common.*
+import org.jetbrains.anko.*
+import org.jetbrains.anko.sdk27.coroutines.*
+import org.jetbrains.anko.support.v4.*
+import java.text.*
 import java.util.*
 
 
