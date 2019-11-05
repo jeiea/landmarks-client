@@ -1,13 +1,13 @@
 package kr.ac.kw.coms.landmarks.client
 
-import com.beust.klaxon.Json
-import com.beust.klaxon.JsonObject
-import com.beust.klaxon.internal.firstNotNullResult
+import com.beust.klaxon.*
+import com.beust.klaxon.internal.*
+import kotlinx.serialization.*
 import java.util.*
 
+@Serializable
 data class ServerFault(
-  val error: String,
-  val stacktrace: String? = null
+  val error: String
 ) : Exception(error)
 
 interface IntIdentifiable {
@@ -21,6 +21,7 @@ interface IAccountForm {
   val nick: String?
 }
 
+@Serializable
 data class AccountForm(
   override val login: String? = null,
   override val password: String? = null,
@@ -28,6 +29,7 @@ data class AccountForm(
   override val nick: String? = null
 ) : IAccountForm
 
+@Serializable
 data class IdAccountForm(
   override var id: Int,
   var data: AccountForm
@@ -54,6 +56,7 @@ interface IPictureInfo {
   var isPublic: Boolean
 }
 
+@Serializable
 data class PictureInfo(
   override var uid: Int? = null,
   override var author: String? = null,
@@ -62,10 +65,12 @@ data class PictureInfo(
   override var address: String? = null,
   override var lat: Double? = null,
   override var lon: Double? = null,
+  @Transient
   override var time: Date? = null,
   override var isPublic: Boolean = true
 ) : IPictureInfo
 
+@Serializable
 data class IdPictureInfo(
   override var id: Int,
   var data: PictureInfo
@@ -92,6 +97,7 @@ interface ICollectionInfo {
   var parent: Int?
 }
 
+@Serializable
 data class CollectionInfo(
   override var title: String? = null,
   override var text: String? = null,
@@ -104,6 +110,7 @@ data class CollectionInfo(
   override var parent: Int? = null
 ) : ICollectionInfo
 
+@Serializable
 data class IdCollectionInfo(
   override var id: Int,
   var data: CollectionInfo
@@ -118,20 +125,25 @@ data class IdCollectionInfo(
   }
 }
 
+@Serializable
 sealed class UserFilter {
+  @Serializable
   data class Include(val uid: Int) : UserFilter() {
     override fun toString() = "uid=$uid"
   }
 
+  @Serializable
   data class Exclude(val uid: Int) : UserFilter() {
     override fun toString() = "not_uid=$uid"
   }
 }
 
+@Serializable
 data class NearGeoPoint(var lat: Double, var lon: Double, var km: Double) {
   override fun toString() = "lat=$lat&lon=$lon&km=$km"
 }
 
+@Serializable
 class PictureQuery {
   var userFilter: UserFilter? = null
   var geoFilter: NearGeoPoint? = null
@@ -148,15 +160,18 @@ class PictureQuery {
   }
 }
 
+@Serializable
 data class ProfileInfo(
   var collectionCount: Int,
   var pictureCount: Int,
-  var registered: Date
+  @Transient
+  var registered: Date = Date()
 )
 
 /**
  * https://wiki.openstreetmap.org/wiki/Nominatim
  */
+@Serializable
 class NominatimReverseGeocodeJsonV2 {
   @Json("place_id")
   var placeId: Int? = null
@@ -182,6 +197,7 @@ class NominatimReverseGeocodeJsonV2 {
   var address: NominatimAddressJson? = null
 }
 
+@Serializable
 class NominatimAddressJson {
   // different by type
   var attraction: String? = null
