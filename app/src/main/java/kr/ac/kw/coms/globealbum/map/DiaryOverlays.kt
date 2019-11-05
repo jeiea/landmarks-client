@@ -5,9 +5,9 @@ import android.graphics.*
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.ShapeDrawable
 import android.graphics.drawable.shapes.OvalShape
-import android.support.v4.math.MathUtils.clamp
 import android.util.TypedValue
 import android.view.MotionEvent
+import androidx.core.math.MathUtils.clamp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

@@ -8,7 +8,7 @@ import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Parcel
 import android.os.Parcelable
-import android.support.annotation.DrawableRes
+import androidx.annotation.DrawableRes
 import com.bumptech.glide.load.DataSource
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch

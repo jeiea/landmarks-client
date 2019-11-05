@@ -1,14 +1,10 @@
 package kr.ac.kw.coms.globealbum.provider;
 /* 작성자: 이상훈 */
-import android.net.Uri;
-import android.support.annotation.NonNull;
 
 import com.drew.imaging.ImageMetadataReader;
 import com.drew.imaging.ImageProcessingException;
 import com.drew.lang.GeoLocation;
-import com.drew.lang.annotations.NotNull;
 import com.drew.metadata.Metadata;
-import com.drew.metadata.MetadataReader;
 import com.drew.metadata.exif.ExifSubIFDDirectory;
 import com.drew.metadata.exif.GpsDirectory;
 
@@ -17,9 +13,6 @@ import org.osmdroid.util.GeoPoint;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Date;
-
-import kr.ac.kw.coms.globealbum.R;
 
 public class EXIFinfo {
     Metadata metadata = null;

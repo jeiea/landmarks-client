@@ -2,15 +2,14 @@ package kr.ac.kw.coms.globealbum.common
 
 import android.graphics.drawable.Drawable
 import android.os.Bundle
-import android.support.constraint.ConstraintLayout.LayoutParams.PARENT_ID
-import android.support.v4.app.DialogFragment
-import android.support.v7.app.AppCompatActivity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.Window
 import android.widget.ImageView
-import kr.ac.kw.coms.globealbum.R
+import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.widget.ConstraintLayout.LayoutParams.PARENT_ID
+import androidx.fragment.app.DialogFragment
 import org.jetbrains.anko.constraint.layout.constraintLayout
 import org.jetbrains.anko.image
 import org.jetbrains.anko.imageView

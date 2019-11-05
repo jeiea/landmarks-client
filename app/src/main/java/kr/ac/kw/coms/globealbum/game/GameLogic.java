@@ -2,7 +2,6 @@ package kr.ac.kw.coms.globealbum.game;
 
 import android.content.Context;
 import android.os.Handler;
-import android.support.annotation.NonNull;
 import android.view.View;
 import android.widget.Toast;
 
@@ -15,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Objects;
 
+import androidx.annotation.NonNull;
 import kr.ac.kw.coms.globealbum.provider.IPicture;
 import kr.ac.kw.coms.globealbum.provider.PictureMeta;
 import kr.ac.kw.coms.globealbum.provider.Promise;

@@ -1,15 +1,13 @@
 package kr.ac.kw.coms.globealbum.diary;
 
-import android.media.Image;
-import android.support.constraint.ConstraintLayout;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.RecyclerView;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.recyclerview.widget.RecyclerView;
 import kr.ac.kw.coms.globealbum.R;
 
 public class ItemViewHolder extends RecyclerView.ViewHolder {

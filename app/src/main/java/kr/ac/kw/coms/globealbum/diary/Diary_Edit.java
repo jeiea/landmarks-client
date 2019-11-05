@@ -1,12 +1,11 @@
 package kr.ac.kw.coms.globealbum.diary;
 
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.RecyclerView;
 import android.view.View;
-import android.widget.EditText;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.RecyclerView;
 import kr.ac.kw.coms.globealbum.R;
 import kr.ac.kw.coms.globealbum.provider.Diary;
 import kr.ac.kw.coms.landmarks.client.IdCollectionInfo;

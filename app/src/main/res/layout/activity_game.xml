@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -7,7 +7,7 @@
     android:background="#AAD7F8"
     tools:context=".game.GameActivity">
 
-    <android.support.constraint.Guideline
+    <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guide_login_horizontal_top"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -52,7 +52,7 @@
         app:layout_constraintBottom_toTopOf="parent"
         app:layout_constraintLeft_toLeftOf="parent" />
 
-    <android.support.constraint.Guideline
+    <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guide_mid"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -97,7 +97,7 @@
         app:layout_constraintStart_toEndOf="@id/textview_target"
         app:layout_constraintTop_toBottomOf="@id/map" />
 
-    <android.support.constraint.Placeholder
+    <androidx.constraintlayout.widget.Placeholder
         android:id="@+id/ph_quiz_content"
         android:layout_width="0dp"
         android:visibility="invisible"
@@ -108,7 +108,7 @@
         app:layout_constraintTop_toBottomOf="@id/textview_stage" />
 
     <!-- 사진 보고 위치를 맞추는 문제 레이아웃 -->
-    <android.support.constraint.ConstraintLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/position_problem"
         android:layout_width="0dp"
         android:layout_height="0dp"
@@ -144,10 +144,10 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
 
-    </android.support.constraint.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <!-- 지명이 주어졌을 때 여러 사진들을 보여주기 위한 레이아웃-->
-    <android.support.constraint.ConstraintLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/choice_pic"
         android:layout_width="0dp"
         android:visibility="invisible"
@@ -229,10 +229,10 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
 
-    </android.support.constraint.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <!--문제를 풀고 정답을 확인할 때 필요한 레이아웃-->
-    <android.support.constraint.ConstraintLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/layout_answer"
         android:visibility="invisible"
         android:layout_width="0dp"
@@ -243,14 +243,14 @@
         app:layout_constraintTop_toTopOf="@id/ph_quiz_content"
         app:layout_constraintWidth_percent="0.95">
 
-        <android.support.constraint.Guideline
+        <androidx.constraintlayout.widget.Guideline
             android:id="@+id/guide_answer_v"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:orientation="vertical"
             app:layout_constraintGuide_percent="0.5" />
 
-        <android.support.constraint.Guideline
+        <androidx.constraintlayout.widget.Guideline
             android:id="@+id/guide_answer_h"
             android:layout_width="0dp"
             android:layout_height="0dp"
@@ -311,14 +311,14 @@
             app:layout_constraintTop_toBottomOf="@id/textview_land_distance_answer"
             tools:text="30점" />
 
-        <android.support.constraint.Guideline
+        <androidx.constraintlayout.widget.Guideline
             android:id="@+id/guide_btn_left"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             app:layout_constraintGuide_percent="0.58" />
 
-        <android.support.constraint.Guideline
+        <androidx.constraintlayout.widget.Guideline
             android:id="@+id/guide_btn_right"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -349,5 +349,5 @@
             app:layout_constraintStart_toEndOf="@id/guide_btn_left"
             app:layout_constraintTop_toBottomOf="@id/button_next" />
 
-    </android.support.constraint.ConstraintLayout>
-</android.support.constraint.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

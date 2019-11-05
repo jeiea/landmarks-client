@@ -3,27 +3,20 @@ package kr.ac.kw.coms.globealbum.game;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
-
-import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
 import kr.ac.kw.coms.globealbum.R;
 import kr.ac.kw.coms.globealbum.common.GlideApp;
 import kr.ac.kw.coms.globealbum.common.RequestCodes;
 import kr.ac.kw.coms.globealbum.provider.IPicture;
-import kr.ac.kw.coms.globealbum.provider.RemoteJava;
-import kr.ac.kw.coms.globealbum.provider.RemotePicture;
-import kr.ac.kw.coms.globealbum.provider.UIPromise;
 
 
 public class AfterGameAdapter extends RecyclerView.Adapter<AfterGameAdapter.ViewHolder> {

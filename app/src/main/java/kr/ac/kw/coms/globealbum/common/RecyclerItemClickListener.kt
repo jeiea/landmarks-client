@@ -1,9 +1,9 @@
 package kr.ac.kw.coms.globealbum.common
 
-import android.support.v7.widget.RecyclerView
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.View
+import androidx.recyclerview.widget.RecyclerView
 
 
 open class RecyclerItemClickListener(recyclerView: RecyclerView) {

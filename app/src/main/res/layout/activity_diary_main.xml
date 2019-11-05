@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/diary_main_Root"
@@ -14,7 +14,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
 
-    <android.support.constraint.ConstraintLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/diary_main_TabBar"
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -22,7 +22,7 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toBottomOf="@id/diary_main_Topbar">
 
-        <android.support.constraint.ConstraintLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/diary_main_TabBar_Left"
             android:layout_width="0dp"
             android:layout_height="match_parent"
@@ -46,9 +46,9 @@
                 android:textAlignment="center"
                 android:gravity="center" />
 
-        </android.support.constraint.ConstraintLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <android.support.constraint.ConstraintLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/diary_main_TabBar_Right"
             android:layout_width="0dp"
             android:layout_height="match_parent"
@@ -72,7 +72,7 @@
                 android:textAlignment="center"
                 android:gravity="center" />
 
-        </android.support.constraint.ConstraintLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
         <View
             android:id="@+id/diary_main_TabBar_HighLight"
@@ -83,9 +83,9 @@
             app:layout_constraintHeight_percent="0.1"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintWidth_percent="0.5" />
-    </android.support.constraint.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <android.support.constraint.ConstraintLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/diary_main_Tab_Left"
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -105,9 +105,9 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:visibility="visible" />
-    </android.support.constraint.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <android.support.constraint.ConstraintLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/diary_main_Tab_Right"
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -116,7 +116,7 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toBottomOf="@id/diary_main_TabBar">
 
-        <android.support.v7.widget.RecyclerView
+        <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/diary_main_JourneyList"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -128,7 +128,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:visibility="visible" />
-    </android.support.constraint.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <ImageButton
         android:id="@+id/diary_main_NewImage"
@@ -166,7 +166,7 @@
         app:layout_constraintHeight_percent="0.1"
         app:layout_constraintRight_toRightOf="parent" />
 
-    <android.support.constraint.ConstraintLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/diary_main_menuRoot"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -179,7 +179,7 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <android.support.constraint.ConstraintLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/diary_main_menuInner"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -210,7 +210,7 @@
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintWidth_percent="0.1" />
 
-            <android.support.constraint.ConstraintLayout
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 app:layout_constraintBottom_toTopOf="@id/diary_main_menuInnerEdge2"
@@ -260,14 +260,14 @@
                     app:layout_constraintLeft_toLeftOf="parent"
                     app:layout_constraintRight_toRightOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/diary_main_menuEdit" />
-            </android.support.constraint.ConstraintLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
-        </android.support.constraint.ConstraintLayout>
-    </android.support.constraint.ConstraintLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <include
         layout="@layout/layout_zoomin"
         android:visibility="invisible"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
-</android.support.constraint.ConstraintLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

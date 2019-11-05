@@ -1,37 +1,22 @@
 package kr.ac.kw.coms.globealbum.album;
 /* 작성자: 이상훈 */
 
-import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Matrix;
-import android.media.ThumbnailUtils;
-import android.provider.MediaStore;
-import android.support.v4.app.FragmentActivity;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.AppCompatImageView;
-import android.support.v7.widget.RecyclerView;
-import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 
 import java.util.ArrayList;
 
+import androidx.recyclerview.widget.RecyclerView;
 import kr.ac.kw.coms.globealbum.R;
 import kr.ac.kw.coms.globealbum.common.RequestCodes;
-import kr.ac.kw.coms.globealbum.provider.IPicture;
-import kr.ac.kw.coms.globealbum.provider.LocalPicture;
-import kr.ac.kw.coms.globealbum.provider.ResourcePicture;
 
 //사용 안함
 class _GalleryAdapter extends RecyclerView.Adapter<_GalleryAdapter.ViewHolder> {
