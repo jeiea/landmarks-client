@@ -3,13 +3,12 @@ package kr.ac.kw.coms.globealbum.common
 import android.graphics.drawable.*
 import android.os.*
 import android.view.*
+import android.view.ViewGroup
 import android.widget.*
 import androidx.appcompat.app.*
-import androidx.constraintlayout.widget.ConstraintLayout.LayoutParams.*
 import androidx.fragment.app.*
-import kr.ac.kw.coms.globealbum.R
-import org.jetbrains.anko.*
-import org.jetbrains.anko.constraint.layout.*
+import kotlinx.android.synthetic.main.fragment_picture_dialog.*
+import kr.ac.kw.coms.globealbum.*
 import org.jetbrains.anko.sdk27.coroutines.*
 
 
@@ -41,21 +40,13 @@ class PictureDialogFragment : DialogFragment() {
   override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                             savedInstanceState: Bundle?): View {
     dialog!!.window!!.requestFeature(Window.FEATURE_NO_TITLE)
-    return inflater.context.constraintLayout {
-      imageView {
-        image = this@PictureDialogFragment.drawable
-        scaleType = ImageView.ScaleType.CENTER_INSIDE
-        adjustViewBounds = true
-      }.lparams(matchParent, wrapContent) {
-        leftToLeft = PARENT_ID
-        rightToRight = PARENT_ID
-        topToTop = PARENT_ID
-        bottomToBottom = PARENT_ID
-        dimensionRatio = "H,1:1"
-      }
-
+    val view = inflater.inflate(R.layout.fragment_picture_dialog, container)
+    iv_popup.apply {
+      scaleType = ImageView.ScaleType.CENTER
+      adjustViewBounds = true
       onTouch { _, _ -> dismiss() }
     }
+    return view
   }
 }
 

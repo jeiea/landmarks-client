@@ -5,6 +5,7 @@ import android.content.*
 import android.os.*
 import android.view.*
 import android.view.inputmethod.*
+import android.widget.*
 import androidx.appcompat.app.*
 import androidx.constraintlayout.widget.*
 import androidx.fragment.app.Fragment
@@ -20,7 +21,6 @@ import kr.ac.kw.coms.globealbum.R
 import kr.ac.kw.coms.globealbum.common.*
 import org.jetbrains.anko.*
 import org.jetbrains.anko.sdk27.coroutines.*
-import org.jetbrains.anko.support.v4.*
 import java.text.*
 import java.util.*
 
@@ -150,7 +150,7 @@ class LoginFragment : Fragment(), CoroutineScope {
       }
     }
     btn_forgot.onClick {
-      toast("미구현 기능입니다")
+      Toast.makeText(context, "미구현 기능입니다", Toast.LENGTH_SHORT).show()
     }
     app.login?.also {
       cb_remember_id.isChecked = true

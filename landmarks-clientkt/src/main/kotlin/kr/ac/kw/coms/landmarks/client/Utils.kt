@@ -1,13 +1,9 @@
 package kr.ac.kw.coms.landmarks.client
 
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.channels.ReceiveChannel
-import kotlinx.coroutines.withContext
-import kotlinx.coroutines.yield
-import java.io.InputStream
-import java.io.OutputStream
-import kotlin.reflect.KProperty
+import kotlinx.coroutines.*
+import kotlinx.coroutines.channels.*
+import java.io.*
+import kotlin.reflect.*
 
 suspend fun InputStream.copyToSuspend(
   out: OutputStream,
